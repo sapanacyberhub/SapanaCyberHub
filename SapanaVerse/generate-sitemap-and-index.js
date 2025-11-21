@@ -23,7 +23,7 @@ const path = require("path");
 // ==============================
 const DOMAIN = "https://sapanacyberhub.in";
 const INDEXNOW_KEY = "c92b83f1bb827d0e1a8f822ce732ae32";
-const ROOT = "Sapana Verse";
+const ROOT = "sapanaverse";
 
 const EXCLUDE = ["Assets", "img", "icons", "Decorate", "node_modules"];
 
