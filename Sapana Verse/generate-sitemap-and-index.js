@@ -1,41 +1,42 @@
 /**
- * ⭐ Sapana Ultra Sitemap & Indexing Engine v4 ⭐
+ * ⭐ Sapana Ultra Sitemap & Indexing Engine v5 ⭐
  * Author: Sapana ❤️ Sanjeet
  *
- * Features:
- * ✔ Full recursive HTML scan
- * ✔ Auto sitemap.xml
- * ✔ Auto pages-sitemap.xml
- * ✔ Auto blogs-sitemap.xml
- * ✔ Auto news-sitemap.xml
- * ✔ Auto-priority system
- * ✔ Auto lastmod timestamps
- * ✔ Auto IndexNow
- * ✔ Auto Google ping
- * ✔ SEO-optimized structure
+ * 100% Cloudflare Pages Compatible
+ * ✔ No node-fetch
+ * ✔ No ES modules
+ * ✔ Uses built-in global fetch()
+ * ✔ Auto recursive HTML scan
+ * ✔ sitemap.xml
+ * ✔ sitemap-pages.xml
+ * ✔ sitemap-blogs.xml
+ * ✔ news-sitemap.xml (48 hrs)
+ * ✔ IndexNow API submit
+ * ✔ Google Search ping
  */
 
-import { readdirSync, writeFileSync, statSync } from "fs";
-import { join } from "path";
-import fetch from "node-fetch";
+const fs = require("fs");
+const path = require("path");
 
+// ==============================
 // CONFIG
+// ==============================
 const DOMAIN = "https://sapanacyberhub.in";
 const INDEXNOW_KEY = "c92b83f1bb827d0e1a8f822ce732ae32";
 const ROOT = "Sapana Verse";
 
-// EXCLUDE folders not needed in sitemap
 const EXCLUDE = ["Assets", "img", "icons", "Decorate", "node_modules"];
 
-// --- Recursive Scanner ---
+
+// ==============================
+// SCAN FOLDERS FOR HTML FILES
+// ==============================
 function scan(dir) {
     let pages = [];
 
-    const items = readdirSync(dir);
-
-    for (const item of items) {
-        const full = join(dir, item);
-        const stats = statSync(full);
+    fs.readdirSync(dir).forEach((item) => {
+        const full = path.join(dir, item);
+        const stats = fs.statSync(full);
 
         if (stats.isDirectory()) {
             if (!EXCLUDE.includes(item)) {
@@ -43,124 +44,147 @@ function scan(dir) {
             }
         } else if (item.endsWith(".html")) {
             const rel = full.replace(ROOT, "").replace(/\\/g, "/");
+
             pages.push({
                 url: `${DOMAIN}${rel.startsWith("/") ? "" : "/"}${rel}`,
                 path: full,
-                lastmod: stats.mtime
+                lastmod: stats.mtime,
             });
         }
-    }
+    });
+
     return pages;
 }
 
-// --- Priority Logic ---
-// Blogs = 0.95
-// Home = 1.0
-// Other pages = 0.80
+
+// ==============================
+// PRIORITY LOGIC
+// ==============================
 function getPriority(url) {
     if (url.endsWith("index.html")) return 1.0;
     if (url.includes("/Blogs/")) return 0.95;
     return 0.80;
 }
 
-// --- Generate Sitemap ---
+
+// ==============================
+// SITEMAP GENERATOR
+// ==============================
+function writeXML(filename, xml) {
+    fs.writeFileSync(`${ROOT}/${filename}`, xml);
+    console.log("✨ Created:", filename);
+}
+
 function generateSitemap(name, pages) {
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    pages.forEach(p => {
+    pages.forEach((p) => {
         xml += `
- <url>
-   <loc>${p.url}</loc>
-   <lastmod>${p.lastmod.toISOString()}</lastmod>
-   <changefreq>daily</changefreq>
-   <priority>${getPriority(p.url)}</priority>
- </url>\n`;
+  <url>
+    <loc>${p.url}</loc>
+    <lastmod>${p.lastmod.toISOString()}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${getPriority(p.url)}</priority>
+  </url>\n`;
     });
 
     xml += `</urlset>`;
-    writeFileSync(`${ROOT}/${name}.xml`, xml);
+    writeXML(`${name}.xml`, xml);
 }
 
-// --- Generate News Sitemap (last 48 hours only) ---
+
+// ==============================
+// NEWS SITEMAP (Last 48 hours)
+// ==============================
 function generateNewsSitemap(pages) {
     const limit = 48 * 60 * 60 * 1000;
-    const recent = pages.filter(p =>
-        Date.now() - p.lastmod.getTime() < limit
-    );
+
+    const latest = pages.filter((p) => {
+        return Date.now() - p.lastmod.getTime() < limit;
+    });
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap-news/0.9">\n`;
+    xml += `<urlset xmlns="http://www.google.com/schemas/sitemap-news/0.9">\n`;
 
-    recent.forEach(p => {
+    latest.forEach((p) => {
         xml += `
- <url>
-   <loc>${p.url}</loc>
-   <news:news>
-     <news:publication>
-       <news:name>SapanaCyberHub</news:name>
-       <news:language>en</news:language>
-     </news:publication>
-     <news:publication_date>${p.lastmod.toISOString()}</news:publication_date>
-     <news:title>${p.url.split("/").pop().replace(".html", "")}</news:title>
-   </news:news>
- </url>\n`;
+  <url>
+    <loc>${p.url}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>SapanaCyberHub</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${p.lastmod.toISOString()}</news:publication_date>
+      <news:title>${path.basename(p.url).replace(".html", "")}</news:title>
+    </news:news>
+  </url>\n`;
     });
 
     xml += `</urlset>`;
-    writeFileSync(`${ROOT}/news-sitemap.xml`, xml);
+    writeXML("news-sitemap.xml", xml);
 }
 
-// --- Ping Google ---
+
+// ==============================
+// GOOGLE PING
+// ==============================
 async function pingGoogle() {
     const url = `https://www.google.com/ping?sitemap=${DOMAIN}/sitemap.xml`;
-    await fetch(url);
-    console.log("🔥 Google ping sent!");
+
+    try {
+        const res = await fetch(url);
+        console.log("🔥 Google Ping:", res.status);
+    } catch (e) {
+        console.log("❌ Google Ping Failed:", e.message);
+    }
 }
 
-// --- IndexNow Submit ---
+
+// ==============================
+// INDEXNOW
+// ==============================
 async function indexNow(urls) {
     const payload = {
         host: "sapanacyberhub.in",
         key: INDEXNOW_KEY,
         keyLocation: `${DOMAIN}/indexnow.txt`,
-        urlList: urls
+        urlList: urls,
     };
 
-    await fetch("https://api.indexnow.org/indexnow", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-    });
+    try {
+        const res = await fetch("https://api.indexnow.org/indexnow", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
 
-    console.log("🚀 IndexNow submission complete!");
+        console.log("🚀 IndexNow Submitted! Status:", res.status);
+    } catch (err) {
+        console.log("❌ IndexNow Failed:", err.message);
+    }
 }
 
-// --- MAIN ---
+
+// ==============================
+// MAIN
+// ==============================
 (async () => {
-    console.log("🔍 Scanning project…");
+    console.log("🔍 Scanning HTML pages…");
 
     const pages = scan(ROOT);
 
     console.log(`📄 Found ${pages.length} HTML pages`);
 
-    // Master sitemap
     generateSitemap("sitemap", pages);
-
-    // Pages only
     generateSitemap("sitemap-pages", pages.filter(p => !p.url.includes("/Blogs/")));
-
-    // Blog posts only
     generateSitemap("sitemap-blogs", pages.filter(p => p.url.includes("/Blogs/")));
 
-    // News sitemap
     generateNewsSitemap(pages);
 
-    // Submit to IndexNow
     await indexNow(pages.map(p => p.url));
-
-    // Google ping
     await pingGoogle();
 
-    console.log("🌟 Sapana Ultra Sitemap Engine v4 Completed Successfully 🌟");
+    console.log("🌟 Sapana Ultra Sitemap Engine v5 — Completed 🌟");
 })();
