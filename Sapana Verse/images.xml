@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+    <!-- ========================= -->
+    <!-- Home Page Images          -->
+    <!-- ========================= -->
+    <url>
+        <loc>https://www.sapanacyberhub.in/</loc>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/SapanaCyberHub-Logo.webp</image:loc>
+            <image:title>SapanaCyberHub Official Logo</image:title>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/Fb-logo.webp</image:loc>
+            <image:title>Facebook Logo - SapanaCyberHub</image:title>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/instagram.webp</image:loc>
+            <image:title>Instagram Logo - SapanaCyberHub</image:title>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/yt-logo.webp</image:loc>
+            <image:title>YouTube Logo - SapanaCyberHub</image:title>
+        </image:image>
+    </url>
+
+
+    <!-- ================================ -->
+    <!-- Blog: 10 Everyday AI Hacks       -->
+    <!-- ================================ -->
+    <url>
+        <loc>https://www.sapanacyberhub.in/Body/Blogs/top-ai-hacks-in-real-life/ai-everyday-hacks</loc>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/10 ai hack in real life theme.webp</image:loc>
+            <image:title>10 Everyday AI Hacks Blog Cover Image</image:title>
+        </image:image>
+    </url>
+
+
+    <!-- ================================ -->
+    <!-- Blog: Digital Product Ideas      -->
+    <!-- ================================ -->
+    <url>
+        <loc>https://www.sapanacyberhub.in/Body/Blogs/Digital-Product-Ideas/digital-product-idea</loc>
+
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/digital-product-idea-theme.webp</image:loc>
+            <image:title>Digital Product Ideas Blog Cover</image:title>
+        </image:image>
+    </url>
+
+
+    <!-- ================================ -->
+    <!-- Other platform-related images     -->
+    <!-- ================================ -->
+    <url>
+        <loc>https://www.sapanacyberhub.in/UserRegistration/signup.html</loc>
+        
+        <image:image>
+            <image:loc>https://www.sapanacyberhub.in/Assets/SignUpBg.png</image:loc>
+            <image:title>SapanaCyberHub Signup Background Image</image:title>
+        </image:image>
+    </url>
+
+</urlset>

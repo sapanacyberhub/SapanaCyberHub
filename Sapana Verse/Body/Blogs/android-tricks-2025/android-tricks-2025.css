@@ -1,0 +1,541 @@
+
+
+/* ====== 🌐 NAVBAR BASE ====== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 5%;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    gap: 10px;
+    z-index: 999;
+    flex-wrap: wrap;
+    /* prevents items from stacking horizontally */
+}
+/* nav animation  */
+.navbar {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.navbar.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+
+
+
+/* logo link */
+.logo {
+    display: inline-flex;
+    /* inline-flex so it behaves like an inline element */
+    align-items: center;
+    /* vertical center of icon + text */
+    gap: 4px;
+    color: #a72929;
+    /* spacing between icon and text */
+    text-decoration: none;
+    /* remove underline */
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.5rem;
+
+}
+.logo a {
+    text-decoration: none;
+    color: #a72929;
+}
+
+/* ====== 🔗 NAV LINKS SECTION ====== */
+.second-bar {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 10px;
+}
+
+.nav-links li {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #000000;
+    border-radius: 25px;
+    padding: 8px;
+    background: var(--card);
+    font-weight: bolder;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.114);
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+    transform: scale(1.1);
+    text-decoration: none;
+    color: #240fe4;
+}
+
+/* nav bar tools options */
+
+/* Dropdown container */
+.dropdown {
+    position: relative;
+}
+
+/* Tools button */
+.dropbtn {
+    cursor: pointer;
+}
+/* Hidden list */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color:#ffffff;
+    border: 2px solid #000;
+    top: 100%;
+    left: 0;
+    z-index: 999;
+    padding: 8px 0;
+    border-radius: 6px;
+    width: auto;              /* auto = longest li sets width */
+    min-width: max-content;   /* KEY: use longest content */
+}
+
+/* Each item */
+.dropdown-content li {
+    
+    width: 100%;              /* every li = same width */
+}
+
+/* Links */
+.dropdown-content li a {
+    display: flex;  
+    align-content: center; 
+    justify-content: center;
+    width: 100%;;        /* block = full width */
+    padding: 8px 15px;
+    white-space: nowrap;      /* text single line */
+    color: #000;
+    text-decoration: none;
+
+    transition: 0.2s ease;
+}
+
+/* Icon */
+.dropdown-content li img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Hover */
+.dropdown-content li a:hover {
+    background: #fff;
+    color: #0800ff;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: inline-block;
+}
+
+
+
+/* ====== 👤 MEMBER / ACCOUNT SECTION ====== */
+.memberBox {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background-color: #121212;
+    border: 2px solid #000000;
+    /* light blue outline */
+    padding: 0 0 0 0;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.memberBox:hover {
+    box-shadow: 0 0 6px rgba(0, 191, 255, 0.3);
+}
+
+.user-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+    transition: transform 0.3s ease;
+}
+
+.user-img:hover {
+    transform: scale(1.1);
+    box-shadow:
+        0 0 10px #ffffff,
+        0 0 20px #ffffff,
+        0 0 40px #ffffff,
+        0 0 120px #ffffff;
+}
+
+.nav-links .beMember {
+    margin: 0px 8px 0px 0px;
+    background-color: transparent;
+    color: #ffffff;
+    font-weight: bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    flex-wrap: nowrap;
+    transition: all 0.3s;
+}
+
+.nav-links .beMember:hover {
+    color: #fff4f4;
+}
+
+/* body */
+.blog-page-bg {
+    min-height: 100vh;
+    padding: 30px 12px 40px;
+    background: radial-gradient(circle at top, #e8f0ff 0, #f6f7fb 40%, #f3f5ff 100%);
+}
+
+/* Main blog card with glassmorphic + white mix */
+.blog-wrapper {
+    max-width: 920px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 18px;
+    padding: 28px 22px 36px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+/* Hero image */
+.header-img {
+    width: 100%;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+/* Title & meta */
+.android-blog h1 {
+    font-size: 2rem;
+    margin: 8px 0 6px;
+    color: #111827;
+}
+
+.post-meta {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 18px;
+}
+
+/* General text */
+.android-blog p {
+    font-size: 0.98rem;
+    color: #1f2933;
+    line-height: 1.7;
+    margin: 10px 0;
+}
+
+.android-blog ul,
+.android-blog ol {
+    margin: 6px 0 12px 20px;
+    padding-left: 4px;
+}
+
+.android-blog li {
+    margin-bottom: 4px;
+}
+
+/* Info box */
+.info-box {
+    margin: 22px 0;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border-left: 4px solid #2563eb;
+    background: linear-gradient(120deg, #e3f2ff, #edf2ff);
+    font-size: 0.94rem;
+}
+
+/* TOC box with soft glass look */
+.toc-box {
+    margin: 24px 0 26px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.07), rgba(255, 255, 255, 0.95));
+    border: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.toc-box h3 {
+    margin-top: 0;
+    font-size: 1.05rem;
+    color: #0f172a;
+}
+
+.toc-box ul {
+    margin: 8px 0 0 18px;
+}
+
+.toc-box li {
+    margin-bottom: 6px;
+}
+
+.toc-box a {
+    text-decoration: none;
+    color: #2563eb;
+    font-size: 0.95rem;
+}
+
+.toc-box a:hover {
+    text-decoration: underline;
+}
+
+/* Ad placeholder */
+.ad-box {
+    margin: 24px 0;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    text-align: center;
+    font-size: 0.88rem;
+    color: #6b7280;
+    background: #f9fafb;
+}
+
+/* Headings inside article */
+.android-blog h2 {
+    margin-top: 24px;
+    font-size: 1.25rem;
+    color: #0f172a;
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    margin: 30px 0 18px;
+    background: linear-gradient(to right, transparent, #d1d5db, transparent);
+}
+
+/* Author box */
+.author-box {
+    margin-top: 26px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f0f9ff, #f9fafb);
+    border: 1px solid #e5e7eb;
+}
+
+.author-box .name {
+    font-weight: 700;
+    color: #111827;
+}
+
+.author-box .bio {
+    margin-top: 4px;
+    font-size: 0.95rem;
+    color: #4b5563;
+}
+
+/* Related posts */
+.related {
+    margin-top: 28px;
+}
+
+.related h3 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+    color: #111827;
+}
+
+.related a {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    text-decoration: none;
+    color: #2563eb;
+}
+
+.related a:hover {
+    text-decoration: underline;
+}
+
+
+
+/* ===== FOOTER ===== */
+.footer-body {
+    background-color: var(--bg);
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    margin-top: 20px;
+
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 50px;
+    padding: 5px;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+
+.container-0 {
+    display: flex;
+    flex-direction: column;
+    color: rgb(255, 152, 152);
+    text-align: start;
+}
+
+.container-0 a {
+    color: #ffffff;
+    background-color: #000000;
+    border: 2px solid var(--card);
+    border-radius: 25px;
+    padding: 4px;
+    margin-top: 2px;
+    text-decoration: none;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.container-0 a:hover {
+    color: #000000;
+    background-color: rgb(255, 255, 255);
+    box-shadow:
+        0 0 10px rgb(255, 0, 0),
+        0 0 20px rgb(255, 0, 0),
+        0 0 30px rgb(255, 0, 0);
+    border: 2px solid rgb(255, 0, 0);
+    transform: scale(1.1);
+    border-radius: 25px;
+    text-decoration: none;
+}
+
+
+
+
+.container-1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    mix-blend-mode: luminosity;
+    margin: 8px;
+    color: #5fa800;
+    font-family: cursive;
+    font-weight: bold;
+    border: 2px solid red;
+    box-shadow:
+        0 0 10px rgb(255, 0, 0),
+        0 0 20px rgb(255, 0, 0),
+        0 0 30px rgb(255, 0, 0);
+    border-radius: 25px;
+    padding: 5px;
+}
+
+.container-1 img {
+    width: clamp(50px, 10vw, 80px);
+    /* Auto resize */
+    height: auto;
+    margin-bottom: 6px;
+    transition: all 0.3s;
+
+}
+
+.container-1 img:hover {
+    transform: scale(1.1);
+}
+
+.container-2 {
+    display: flex;
+    color: #ff9d9d;
+    flex-direction: column;
+}
+
+.container-2 a {
+    background-color: #000000;
+    border: 2px solid var(--card);
+    color: #ff9494;
+    border-radius: 25px;
+    padding: 5px;
+    gap: 4px;
+    margin-top: 2px;
+    text-decoration: none;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.container-2 img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.container-2 a:hover {
+    color: #000000;
+    background-color: rgb(255, 255, 255);
+    box-shadow:
+        0 0 10px rgb(255, 0, 0),
+        0 0 20px rgb(255, 0, 0),
+        0 0 30px rgb(255, 0, 0);
+    border: 2px solid rgb(255, 0, 0);
+    transform: scale(1.1);
+    border-radius: 25px;
+    text-decoration: none;
+}
+
+
+
+/* copyright reserved */
+.footer-body p {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: #b62a2a;
+    font-size: medium;
+    font: 1em;
+}
+
+.footer-body  a {
+    color: #ff9393;
+    font-family: cursive;
+    font: 0.9em;
+    margin-left: 20px;
+}
+
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .blog-wrapper {
+        padding: 20px 16px 28px;
+    }
+
+    .android-blog h1 {
+        font-size: 1.5rem;
+    }
+
+    .header-img {
+        border-radius: 12px;
+    }
+}
+
