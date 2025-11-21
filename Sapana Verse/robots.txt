@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://sapanacyberhub.in/sitemap.xml
-Sitemap: https://sapanacyberhub.in/blog.xml
-Sitemap: https://sapanacyberhub.in/csc.xml
-Sitemap: https://sapanacyberhub.in/tool.xml
-Sitemap: https://sapanacyberhub.in/pages.xml
-Sitemap: https://sapanacyberhub.in/news.xml
