@@ -1,75 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset 
-    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-     <url>
-        <loc>https://sapanacyberhub.in/</loc>
-        <priority>1.0</priority>
-        <changefreq>daily</changefreq>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/blog.html</loc>
-        <lastmod>2025-11-18</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/Digital-Product-Ideas/digital-product-idea.html</loc>
-        <lastmod>2025-11-18</lastmod>
-        <changefreq>hourly</changefreq>
-        <priority>1.0</priority>
-        <image:image>
-            <image:loc>https://sapanacyberhub.in/Assets/digital-product-idea-theme.webp</image:loc>
-        </image:image>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/top-ai-hacks-in-real-life/ai-everyday-hacks.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
-        <image:image>
-            <image:loc>https://sapanacyberhub.in/Assets/10-ai-hack-in-real-life-theme.webp</image:loc>
-        </image:image>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/electionResult.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/whatsapp-hidden-features-2025/whatsapp-hidden-features-2025.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/how-to-protect-your-phone-from-hackers/how-to-protect-your-phone-from-hackers.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/android-tricks-2025/android-tricks-2025.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://sapanacyberhub.in/Body/Blogs/best-android-security-settings-2025/best-android-security-settings-2025.html</loc>
-        <lastmod>2025-11-21</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
+  <url>
+       <loc>https://sapanacyberhub.in/</loc>
+       <lastmod>2025-11-22T06:18:04+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>1.0000</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/blog</loc>
+       <lastmod>2025-11-27T03:30:00+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/how-to-protect-your-phone-from-hackers/how-to-protect-your-phone-from-hackers</loc>
+       <lastmod>2025-11-26T02:15:00+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/top-ai-hacks-in-real-life/ai-everyday-hacks</loc>
+       <lastmod>2025-11-27T03:00:00+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/whatsapp-hidden-features-2025/whatsapp-hidden-features-2025</loc>
+       <lastmod>2025-11-27T03:00:00+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/android-tricks-2025/android-tricks-2025</loc>
+       <lastmod>2025-11-26T02:15:00+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/official/official</loc>
+       <lastmod>2025-11-22T06:18:04+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/SocialTool/Instagram-Tool/instagram-tool</loc>
+       <lastmod>2025-11-22T06:18:04+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/top-whatsapp-security-tips-2025/top-whatsapp-security-tips-2025</loc>
+       <lastmod>2025-11-22T06:18:04+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.4096</priority>
+  </url>
+  </url>
+  <url>
+       <loc>https://sapanacyberhub.in/Body/Blogs/free-ac-scheme-2025/free-ac-scheme-2025</loc>
+       <lastmod>2025-11-22T06:18:04+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.4096</priority>
+  </url>
 </urlset>

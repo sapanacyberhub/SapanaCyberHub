@@ -32,17 +32,6 @@
     /* prevents items from stacking horizontally */
 }
 
-/* top navigation bar */
-.navbar {
-    display: flex;
-    align-items: center;
-    /* vertically center everything inside header */
-    justify-content: space-between;
-    /* change as needed */
-    padding: 12px 24px;
-    /* or your header background */
-}
-
 /* logo link */
 .logo {
     display: inline-flex;
