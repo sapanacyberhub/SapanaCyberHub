@@ -448,6 +448,13 @@ body {
 
 /* Today choicce class */
 .today-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px;
+    border: 2px solid black;
+}
+.today-choice div {
 }
 
 
