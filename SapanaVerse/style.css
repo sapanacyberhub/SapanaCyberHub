@@ -447,15 +447,128 @@ body {
 
 
 /* Today choicce class */
+/* ================================
+   🌸 TODAY’S CHOICE — HOMEPAGE SECTION
+   ================================ */
+
 .today-choice {
+    margin: 40px auto;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+/* LEFT BLOCK */
+.today-choice > div:first-child {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.today-choice > div:first-child h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ff2476;
+}
+
+.today-choice > div:first-child p {
+    margin: 10px 0 15px;
+    color: #444;
+    font-size: 15px;
+}
+
+.today-choice > div:first-child a {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* ===========================
+   BLOG CARDS
+   =========================== */
+
+article.today-choice {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    padding: 25px;
-    border: 2px solid black;
 }
-.today-choice div {
+
+article.today-choice:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
+
+article.today-choice h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 12px;
+}
+
+/* IMAGE COVER */
+.today-choice-img-cvr img {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* BLOG DESCRIPTION */
+.today-choice-img-cvr p {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+/* READ MORE BUTTON */
+.today-choice-img-cvr a {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background: #0d6efd;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+.today-choice-img-cvr a:hover {
+    background: #084ec8;
+}
+
+/* ======================
+   📱 MOBILE RESPONSIVE
+   ====================== */
+
+@media (max-width: 900px) {
+    .today-choice {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .today-choice {
+        grid-template-columns: 1fr;
+    }
+
+    .today-choice-img-cvr img {
+        height: 220px;
+    }
+
+    .today-choice > div:first-child {
+        text-align: center;
+    }
+}
+
 
 
 /* ===== FOOTER ===== */
