@@ -86,7 +86,7 @@ body {
 }
 
 .panel-5::before {
-    background-image: url("/Assets/intro-bg-connect.webp");
+    background-image: url("/Assets/section-5-bg.webp");
      /* Connect With Us! */
 }
 
