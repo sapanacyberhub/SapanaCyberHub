@@ -149,7 +149,7 @@ onAuthStateChanged(auth, async (user) => {
     console.log("🚪 No user logged in.");
 
     beMember.textContent = "Create Account";
-    beMember.href = "UserRegistration/signup.html";
+    beMember.href = "/UserRegistration/signup.html";
     beMember.title = "Create your SapanaCyberHub account";
 
     userImg.src = "Assets/SignUpBg.png";
@@ -166,7 +166,7 @@ if (logoutBtn) {
     try {
       await signOut(auth);
       alert("You’ve been logged out 💔");
-      window.location.href = "UserRegistration/login.html";
+      window.location.href = "/UserRegistration/login.html";
     } catch (error) {
       console.error("Logout failed:", error);
       alert("Logout failed, please try again.");
