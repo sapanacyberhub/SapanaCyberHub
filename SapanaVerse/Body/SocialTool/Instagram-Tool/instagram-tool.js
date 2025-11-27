@@ -304,46 +304,60 @@ createBoostBtn?.addEventListener("click", async () => {
 
 function startTaskTimerAntiSkip(task, claimBtn) {
 
-  const stayTime = 5000; // 8 seconds  
-  let opened = Date.now();
+  const requiredStay = 8000; // 8 seconds
+  let startTime = Date.now();
+  let left = false;
 
   claimBtn.disabled = true;
   claimBtn.dataset.timerOk = "false";
   claimBtn.textContent = "Open content first";
 
-  // Open link
-  const newTab = window.open(task.instaUrl, "_blank");
+  // Open Instagram
+  const tab = window.open(task.instaUrl, "_blank");
 
-  if (!newTab) {
+  if (!tab) {
     toast("Popup blocked ❌ Allow popups", "error");
     return;
   }
 
   toast("Stay at least 8 sec 💖", "info");
 
-  // Watch user returning
-  const checkBack = setInterval(() => {
+  // When user leaves THIS tab
+  const onBlur = () => {
+    left = true;
+    startTime = Date.now();
+  };
 
-    // If user returned early -> no reward
-    if (!newTab || newTab.closed) {
-      const timeSpent = Date.now() - opened;
+  // When user RETURNS to this tab
+  const onFocus = () => {
+    if (!left) return; // means user never left (cheating attempt)
 
-      if (timeSpent < stayTime) {
-        claimBtn.disabled = true;
-        claimBtn.dataset.timerOk = "false";
-        claimBtn.textContent = "Return too early ❌";
-        clearInterval(checkBack);
-        return;
-      }
+    const spent = Date.now() - startTime;
 
-      // User stayed enough time → ALLOW REWARD
+    if (spent >= requiredStay) {
+      // Reward allowed
       claimBtn.disabled = false;
       claimBtn.dataset.timerOk = "true";
-      claimBtn.textContent = "I Completed ✓";
-      clearInterval(checkBack);
+      // ⭐ New text you asked for
+      claimBtn.textContent = "Claim😎";
+      claimBtn.style.background = "rgba(0,255,140,0.25)";
+      claimBtn.style.border = "1px solid rgba(0,255,140,0.5)";
+      toast("Timer completed 💖 Claim your reward", "success");
+    } else {
+      // Too early
+      claimBtn.disabled = true;
+      claimBtn.dataset.timerOk = "false";
+      claimBtn.textContent = "Returned too early ❌";
+      toast(`Stayed only ${Math.floor(spent / 1000)}s. Need 8s.`, "error");
     }
 
-  }, 700);
+    // remove listeners after use
+    window.removeEventListener("blur", onBlur);
+    window.removeEventListener("focus", onFocus);
+  };
+
+  window.addEventListener("blur", onBlur);
+  window.addEventListener("focus", onFocus);
 }
 
 /* ------------------------------------------------------------
@@ -475,33 +489,59 @@ function loadRandomTaskIntoModule() {
 
   /* ❤️ CLAIM */
   claimBtn.onclick = async () => {
-    if (claimBtn.dataset.timerOk !== "true")
-      return toast("Wait for timer 💞", "error");
 
-    claimBtn.disabled = true;
+  // ⛔ Still no timer completed
+  if (claimBtn.dataset.timerOk !== "true") {
+    claimBtn.classList.add("btn-error");
+    claimBtn.textContent = "Please wait 💞";
+    setTimeout(() => claimBtn.classList.remove("btn-error"), 600);
+    return toast("Wait for timer 💞", "error");
+  }
 
-    try {
-      await updateDoc(
-        doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "BoostList", task.id),
-        { quantityDone: increment(1) }
-      );
+  // Disable to prevent double claim
+  claimBtn.disabled = true;
+  claimBtn.textContent = "Applying reward...";
 
-      await updateDoc(
-        doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "SapanaCyberHubMembers", currentUser.uid),
-        { credits: increment(reward) }
-      );
+  try {
+    // Update global task (increment done)
+    await updateDoc(
+      doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "BoostList", task.id),
+      { quantityDone: increment(1) }
+    );
 
-      currentCredits += reward;
-      updateCreditsDisplay();
-      toast(`+${reward} credits earned 💖`, "success");
+    // Reward user
+    await updateDoc(
+      doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "SapanaCyberHubMembers", currentUser.uid),
+      { credits: increment(reward) }
+    );
 
+    // Update UI credits
+    currentCredits += reward;
+    updateCreditsDisplay();
+
+    // Success Toast
+    toast(`+${reward} credits earned 💖`, "success");
+
+    // 💖 NEW: Make button beautiful after success
+    claimBtn.textContent = "Rewarded ✓💖";
+    claimBtn.style.background = "rgba(255, 80, 200, 0.25)";
+    claimBtn.style.border = "1px solid rgba(255,80,200,0.6)";
+    claimBtn.style.color = "#ffbff4";
+    claimBtn.classList.add("rewarded");
+
+    // 💎 Small delay before loading next task
+    setTimeout(() => {
       loadRandomTaskIntoModule();
+    }, 800);
 
-    } catch (err) {
-      toast("Error ✖", "error");
-      console.error(err);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast("Error ✖", "error");
+    claimBtn.disabled = false;
+    claimBtn.textContent = "Try again ❌";
+  }
+};
+
 }
 
 
