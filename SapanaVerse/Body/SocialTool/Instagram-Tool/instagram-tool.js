@@ -204,11 +204,11 @@ async function loadUserData(user) {
     } else {
       await setDoc(userRef, {
         fullName: user.displayName || user.email || "New User",
-        credits: 100,
+        credits: 10,
         createdAt: serverTimestamp()
       });
 
-      currentCredits = 100;
+      currentCredits = 10;
       if (userNameEl) userNameEl.textContent = "New User";
     }
 
@@ -309,7 +309,7 @@ createBoostBtn?.addEventListener("click", async () => {
 
 function startTaskTimerAntiSkip(task, claimBtn) {
 
-  const requiredStay = 5000; // 8 seconds
+  const requiredStay = 5000; // 5 seconds
   let startTime = Date.now();
   let left = false;
 

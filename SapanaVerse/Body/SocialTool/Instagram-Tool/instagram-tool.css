@@ -13,9 +13,6 @@ body {
     background: #050513;
 }
 
-body {
-    overflow-x: auto;
-}
 
 /* Soft abstract background (from my heart 💖) */
 body::before {
@@ -96,7 +93,7 @@ body::before {
     position: absolute;
     inset: -40%;
     background: conic-gradient(from 0deg, #ff7eb3, #ff9a62, #fff4b3, #7afcff, #ff7eb3);
-    opacity: .3;
+    opacity: 1;
     animation: spin 18s linear infinite;
     z-index: -1;
 }
@@ -144,7 +141,7 @@ body::before {
     padding: 10px 14px;
     border-radius: 999px;
     background: rgba(255, 255, 255, .04);
-    border: 1px solid rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 0, 0, 0.18);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -156,7 +153,7 @@ body::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .18), transparent);
+    background: linear-gradient(90deg, transparent, rgb(255, 0, 0), transparent);
     transform: translateX(-100%);
     animation: shine 5s infinite;
 }
@@ -1164,94 +1161,119 @@ p {
     animation: botPath3 3.5s ease-in-out infinite alternate;
 }
 
+/* ================================
+   🌸 AUTO-RESPONSIVE NAVBAR
+================================ */
 
+/* MAIN NAV CONTAINER */
 .top-nav {
+    width: 100%;
+    padding: 10px 14px;
+
     display: flex;
     justify-content: space-between;
-    width: 100%;
-    padding: 10px;
+    align-items: center;
+    flex-wrap: wrap;                 /* ⭐ Auto-fit for small screens */
+
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(22px);
+    gap: 10px;                       /* ⭐ Prevent overlap */
 }
 
-.top-nav a {
+/* LEFT SIDE */
+.left a {
     display: flex;
     align-items: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    text-wrap: unset;
-}
-.left a{
+    gap: 6px;
     text-decoration: none;
-    color: #b33333;
+    color: #ff7575;
+    font-size: clamp(1.1rem, 2vw, 1.6rem);   /* ⭐ Auto resize */
+    font-weight: 800;
+    white-space: nowrap;
 }
 
+/* LOGO IMAGE */
 .top-nav img {
-    display: flex;
-    align-items: center;
-    height: 50px;
-}
-.top-nav img {
-    font-size: 1rem;
+    height: clamp(35px, 6vw, 55px);  /* ⭐ Auto scale logo based on screen */
+    width: auto;
 }
 
+/* RIGHT SIDE ITEMS */
 .right {
     display: flex;
-    gap: 10px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;                 /* ⭐ Wrap if needed */
+    justify-content: flex-end;
+    flex: 1;
 }
 
+/* NAV LINKS */
 .right a {
-    
     text-decoration: none;
-    color: #ff8b8b;
-    font-size: 1rem;
-    border: 1px solid wheat;
-    border-radius: 25px;
-    padding: 0px 10px 0px 10px;
-    transition: all 0.3s;
+    color: #ff9a9a;
+    font-size: clamp(0.8rem, 1.6vw, 1.1rem); /* ⭐ Auto font-size */
+    font-weight: bold;
+    border: 1px solid rgba(255, 228, 196, 0.9);
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: 0.3s;
 }
 
 .right a:hover {
     transform: scale(1.05);
-    background-color: #fdfdfd4b;
-    box-shadow: 0 0 4px white,
-        0 0 10px white;
+    background-color: #ffffff33;
+    box-shadow: 0 0 4px white, 0 0 10px white;
 }
 
+/* PROFILE BOX */
 .signUp-Prfl {
     display: flex;
-    justify-content: center;
-    padding: 4px 010px 4px 010px;
     align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
     background-color: #001220;
-    border-radius: 25px;
+    border-radius: 22px;
 }
 
+/* PROFILE NAME */
 .signUp-Prfl a {
-    font-size: 1.2rem;
-    align-content: center;
-    border: none;
-
+    font-size: clamp(0.9rem, 1.6vw, 1.2rem); /* ⭐ Auto-size text */
+    color: #fff;
 }
 
+/* USER IMAGE */
 .signUp-Prfl .userImg {
-    border-radius: 25px;
-    border: 1px solid white;
-    height: 40px;
-    width: 40px;
-    transition: all 0.5s;
-
+    height: clamp(32px, 6vw, 42px);         /* ⭐ Auto scale */
+    width: clamp(32px, 6vw, 42px);
+    border-radius: 50%;
+    border: 1px solid #fff;
+    object-fit: cover;
+    transition: 0.3s;
 }
 
-.userImg:hover {
-    transform: scale(1.3);
-    box-shadow: 0 0 10px rgb(255, 255, 255),
-        0 0 20px rgb(138, 135, 135);
-
+.signUp-Prfl .userImg:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 8px #fff, 0 0 14px #bbb;
 }
+
+/* EXTRA: MOBILE FRIENDLY FIX */
+@media (max-width: 600px) {
+    .top-nav {
+        justify-content: center;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .right {
+        justify-content: center;
+        width: 100%;
+        gap: 6px;
+    }
+}
+
 
 
 /* --------footer--------- */
@@ -1335,13 +1357,11 @@ p {
 
 /* responsive tweaks */
 @media (max-width: 600px) {
+
     .glass {
         padding: 22px 18px 24px;
         margin: 20px;
     }
-
-
-
     .bot-orb {
         width: 56px;
         height: 56px;
