@@ -7,7 +7,7 @@ body.auth-page {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url('/Assets/SignUpBg.png') no-repeat center center/cover;
+    background: url('/Assets/SignUpBg.webp') no-repeat center center/cover;
     backdrop-filter: blur(10px);
     overflow: hidden; /* prevents unwanted scrolling */
 }
