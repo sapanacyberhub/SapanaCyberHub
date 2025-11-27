@@ -702,7 +702,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = null;
     currentCredits = 0;
     updateCreditsDisplay();
-
+    window.open("https://sapanacyberhub.in/UserRegistration/signup")
     if (userNameEl) {
       userNameEl.textContent = "Guest";
       userNameEl.href = "https://sapanacyberhub.in/UserRegistration/login";
