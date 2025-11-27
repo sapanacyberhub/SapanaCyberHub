@@ -1334,6 +1334,20 @@ p {
 }
 
 /* responsive tweaks */
+@media (max-width: 900px) {
+  body {
+    transform: none !important;
+    zoom: 1 !important;
+  }
+
+  .panel, .glass, .top-nav {
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    zoom: 1 !important;
+  }
+}
+
 /* ======================================
      📱 MOBILE RESPONSIVE FIX
 ====================================== */
