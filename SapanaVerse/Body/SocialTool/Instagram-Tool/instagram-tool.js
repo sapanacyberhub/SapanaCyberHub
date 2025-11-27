@@ -304,7 +304,7 @@ createBoostBtn?.addEventListener("click", async () => {
 
 function startTaskTimerAntiSkip(task, claimBtn) {
 
-  const requiredStay = 8000; // 8 seconds
+  const requiredStay = 5000; // 8 seconds
   let startTime = Date.now();
   let left = false;
 
@@ -343,6 +343,7 @@ function startTaskTimerAntiSkip(task, claimBtn) {
       claimBtn.style.background = "rgba(0,255,140,0.25)";
       claimBtn.style.border = "1px solid rgba(0,255,140,0.5)";
       toast("Timer completed 💖 Claim your reward", "success");
+      
     } else {
       // Too early
       claimBtn.disabled = true;
