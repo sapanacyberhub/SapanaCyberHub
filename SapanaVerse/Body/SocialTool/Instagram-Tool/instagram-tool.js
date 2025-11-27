@@ -23,6 +23,7 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
+
 /* -------------------------------
    🔥 2) Firebase Config & Init
 ----------------------------------*/
@@ -35,6 +36,9 @@ const firebaseConfig = {
   messagingSenderId: "409640627398",
   appId: "1:409640627398:web:e2d1782c77e2ab8d527bc7",
 };
+
+
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -91,6 +95,7 @@ let unsubBoosts = null;
 
 let popRewardGiven = false;
 const popReward = 5;
+
 
 /* -------------------------------
    🔥 TOAST SYSTEM
