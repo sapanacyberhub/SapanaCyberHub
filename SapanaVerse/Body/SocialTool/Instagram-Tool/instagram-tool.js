@@ -1,12 +1,12 @@
 // instagram-tool.js
 // Use: <script type="module" src="instagram-tool.js"></script>
 
-// ========== Firebase Imports ==========
+/* -------------------------------
+   🔥 1) Firebase Imports
+----------------------------------*/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
@@ -23,7 +23,9 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-// ========== Firebase Config ==========
+/* -------------------------------
+   🔥 2) Firebase Config & Init
+----------------------------------*/
 const firebaseConfig = {
   apiKey: "AIzaSyBNwCmtWja2xwxhWrU9Ejfz0ggGd796mEI",
   authDomain: "my-application-31862.firebaseapp.com",
@@ -38,11 +40,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ========== DOM REFS ==========
-const loginInfo = document.getElementById("loginInfo");          // optional (may not exist)
+/* -------------------------------
+   🔥 3) DOM ELEMENTS
+----------------------------------*/
+const loginInfo = document.getElementById("loginInfo");
 const creditValueEl = document.getElementById("creditValue");
-const userName = document.getElementById("logIn-userName");
-
+const userNameEl = document.getElementById("logIn-userName");
 
 const serviceChips = document.querySelectorAll(".chip-option");
 const quantityRange = document.getElementById("quantityRange");
@@ -59,59 +62,61 @@ const previewText = document.getElementById("previewText");
 const tasksContainer = document.getElementById("tasksContainer");
 const myBoostsContainer = document.getElementById("myBoostsContainer");
 
-const beMember = document.getElementById(".logIn-userName");
-
 const popBtn = document.getElementById("popBtn");
 const popStatus = document.getElementById("popStatus");
 
-// if you add toast div later: <div id="toast" class="toast"></div>
 const toastEl = document.getElementById("toast");
 
-// Panels / glasses for animation
-const glasses = [
-  document.getElementById("glass1"),
-  document.getElementById("glass2"),
-  document.getElementById("glass3")
-];
-
-// ========== STATE ==========
+/* -------------------------------
+   🔥 4) GLOBAL STATE
+----------------------------------*/
 let currentUser = null;
 let currentCredits = 0;
 let selectedService = "views";
 
 const serviceCostPerUnit = {
-  views: 0.5,
-  likes: 0.5,
-  follows: 1.2
+  views: 2,
+  likes: 2,
+  follows: 5
 };
 
 const taskRewardPerUnit = {
-  views: 1,
+  views: 2,
   likes: 2,
-  follows: 3
+  follows: 4
 };
 
 let unsubTasks = null;
 let unsubBoosts = null;
+
 let popRewardGiven = false;
 const popReward = 5;
 
-// ========== Helper: Toast ==========
+/* -------------------------------
+   🔥 TOAST SYSTEM
+----------------------------------*/
 function toast(message, type = "info") {
   if (!toastEl) {
     console.log("TOAST:", message);
     return;
   }
-  toastEl.textContent = message;
-  toastEl.classList.add("show");
-  if (type === "error") toastEl.style.background = "rgba(255,64,64,0.9)";
-  else if (type === "success") toastEl.style.background = "rgba(46,204,113,0.9)";
-  else toastEl.style.background = "rgba(0,0,0,0.8)";
 
-  setTimeout(() => toastEl.classList.remove("show"), 2500);
+  const colors = {
+    error: "rgba(255,64,64,0.9)",
+    success: "rgba(46,204,113,0.9)",
+    info: "rgba(0,0,0,0.8)"
+  };
+
+  toastEl.textContent = message;
+  toastEl.style.background = colors[type];
+  toastEl.classList.add("show");
+
+  setTimeout(() => toastEl.classList.remove("show"), 2400);
 }
 
-// ========== Helpers: Credits / Cost ==========
+/* -------------------------------
+   🔥 COST + CREDIT UI
+----------------------------------*/
 function updateCreditsDisplay() {
   if (creditValueEl) creditValueEl.textContent = currentCredits;
 }
@@ -127,7 +132,11 @@ function updateCost() {
   costLabel.textContent = calcCost();
 }
 
-// ========== Service Chip Events ==========
+quantityRange?.addEventListener("input", updateCost);
+
+/* -------------------------------
+   🔥 SERVICE CHIP SELECTOR
+----------------------------------*/
 serviceChips.forEach(chip => {
   chip.addEventListener("click", () => {
     serviceChips.forEach(c => c.classList.remove("active"));
@@ -137,11 +146,9 @@ serviceChips.forEach(chip => {
   });
 });
 
-if (quantityRange) {
-  quantityRange.addEventListener("input", updateCost);
-}
-
-// ========== Instagram Preview (embed) ==========
+/* -------------------------------
+   🔥 INSTAGRAM PREVIEW
+----------------------------------*/
 function makeEmbedUrl(url) {
   try {
     if (!url.includes("instagram.com")) return "";
@@ -153,299 +160,361 @@ function makeEmbedUrl(url) {
   }
 }
 
-if (videoUrlInput) {
-  videoUrlInput.addEventListener("input", () => {
-    const url = videoUrlInput.value.trim();
-    if (!url || url.length < 10) {
-      previewBox.style.display = "none";
-      previewBox.classList.remove("visible");
-      return;
-    }
+videoUrlInput?.addEventListener("input", () => {
+  const url = videoUrlInput.value.trim();
 
-    const embedUrl = makeEmbedUrl(url);
-    if (!embedUrl) {
-      previewBox.style.display = "none";
-      return;
-    }
-
-    previewFrame.src = embedUrl;
-    previewBox.style.display = "flex";
-    previewBox.classList.add("visible");
-    previewText.textContent = "Preview loaded (Instagram embed might depend on browser).";
-  });
-}
-
-// ========== Load User Info ==========
-async function loadUserData(user) {
-  try {
-    const userRef = doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "SapanaCyberHubMembers", user.uid);
-    const snap = await getDoc(userRef);
-
-
-    if (snap.exists()) {
-      const data = snap.data();
-      currentCredits = data.boostCredit || 0;
-      userName = data.fullName || "unknown";
-    } else {
-      await setDoc(userRef, {
-        fullName: user.displayName || user.email || "User",
-        credits: 100,
-        createdAt: serverTimestamp()
-      });
-      currentCredits = 100;
-    }
-    updateCreditsDisplay();
-    if (loginInfo) loginInfo.textContent = `Logged in as: ${user.email || user.uid}`;
-  } catch (e) {
-    console.error(e);
-    if (loginInfo) loginInfo.textContent = "Error loading user data.";
-  }
-}
-
-// ========== Create Boost ==========
-if (createBoostBtn) {
-  createBoostBtn.addEventListener("click", async () => {
-    if (!currentUser) {
-      statusMsg.style.color = "#ff9a9a";
-      statusMsg.textContent = "Please log in to create a boost request.";
-      toast("Please log in to create a boost.", "error");
-      return;
-    }
-
-    const url = videoUrlInput.value.trim();
-    if (!url || !url.includes("instagram.com")) {
-      statusMsg.style.color = "#ff9a9a";
-      statusMsg.textContent = "Please enter a valid Instagram reel/post URL.";
-      toast("Invalid Instagram URL.", "error");
-      return;
-    }
-
-    const quantity = parseInt(quantityRange.value, 10);
-    const cost = calcCost();
-
-    if (currentCredits < cost) {
-      statusMsg.style.color = "#ff9a9a";
-      statusMsg.textContent = "Not enough credits. Earn more by completing tasks or supporting us.";
-      toast("Not enough credits.", "error");
-      return;
-    }
-
-    statusMsg.style.color = "#ffd6ff";
-    statusMsg.textContent = "Creating boost request...";
-
-    try {
-      const boostData = {
-        ownerId: currentUser.uid,
-        instaUrl: url,
-        serviceType: selectedService,
-        quantityRequested: quantity,
-        quantityDone: 0,
-        status: "open",
-        cost: cost,
-        createdAt: serverTimestamp()
-      };
-
-      // 1) Global boost list
-      const globalRef = await addDoc(
-        collection(db, "SapanaCyberHub", "Users-SapanaCyberHub", "boostList"),
-        boostData
-      );
-      const boostId = globalRef.id;
-
-      // 2) User personal BoostedList
-      const userBoostRef = doc(
-        db,
-        "SapanaCyberHub",
-        "Users-SapanaCyberHub",
-        "SapanaCyberHubMembers",
-        currentUser.uid,
-        "BoostedList",
-        boostId
-      );
-      await setDoc(userBoostRef, { ...boostData, boostId });
-
-      // 3) Deduct credits from user
-      const userRef = doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "SapanaCyberHubMembers", currentUser.uid);
-      await updateDoc(userRef, {
-        credits: increment(-cost)
-      });
-      currentCredits -= cost;
-      updateCreditsDisplay();
-
-      statusMsg.style.color = "#b4ffce";
-      statusMsg.textContent = "Boost request created successfully! Other users can now see it in Earn Tasks.";
-      toast("Boost created 💖", "success");
-      videoUrlInput.value = "";
-      previewBox.style.display = "none";
-    } catch (e) {
-      console.error(e);
-      statusMsg.style.color = "#ff9a9a";
-      statusMsg.textContent = "Error creating boost. Please try again.";
-      toast("Error creating boost.", "error");
-    }
-  });
-}
-
-// ========== Render Tasks ==========
-function renderTasks(tasks) {
-  if (!tasksContainer) return;
-
-  // filter out own tasks
-  const filtered = currentUser
-    ? tasks.filter(t => t.ownerId !== currentUser.uid)
-    : tasks;
-
-  if (!filtered.length) {
-    tasksContainer.innerHTML = "<div class='small-note'>No active tasks from others right now. Check back soon 💖</div>";
+  if (!url.includes("instagram.com")) {
+    previewBox.style.display = "none";
     return;
   }
 
-  tasksContainer.innerHTML = "";
+  const embed = makeEmbedUrl(url);
+  if (!embed) return;
 
-  filtered.forEach(task => {
-    const remaining = (task.quantityRequested || 0) - (task.quantityDone || 0);
-    if (remaining <= 0) return;
+  previewFrame.src = embed;
+  previewBox.style.display = "flex";
+  previewBox.classList.add("visible");
+  previewText.textContent = "Preview loaded 💖";
+});
 
-    const rewardPer = taskRewardPerUnit[task.serviceType] || 1;
-    const reward = rewardPer;
+/* -------------------------------
+   🔥 LOAD USER DATA
+----------------------------------*/
+async function loadUserData(user) {
+  try {
+    const userRef = doc(
+      db,
+      "SapanaCyberHub",
+      "Users-SapanaCyberHub",
+      "SapanaCyberHubMembers",
+      user.uid
+    );
 
-    const div = document.createElement("div");
-    div.className = "earn-item";
-    div.innerHTML = `
-      <div class="earn-icon">
-        ${task.serviceType === "views" ? "👁" : task.serviceType === "likes" ? "❤️" : "⭐"}
-      </div>
-      <div class="earn-content">
-        <div class="earn-title">${task.serviceType.toUpperCase()} on a Reel/Post</div>
-        <div class="earn-desc">${remaining} actions still needed. Open, support honestly, then claim.</div>
-        <div class="earn-credit">+${reward} credits per completion</div>
-      </div>
-      <div class="earn-actions">
-        <button class="earn-open">Open content</button>
-        <button class="earn-btn">I completed 1</button>
-      </div>
-    `;
+    const snap = await getDoc(userRef);
 
-    const openBtn = div.querySelector(".earn-open");
-    const claimBtn = div.querySelector(".earn-btn");
+    if (snap.exists()) {
+      const data = snap.data();
+      currentCredits = data.credits || 0;
+      if (userNameEl) userNameEl.textContent = data.fullName || "User";
+    } else {
+      await setDoc(userRef, {
+        fullName: user.displayName || user.email || "New User",
+        credits: 100,
+        createdAt: serverTimestamp()
+      });
 
-    openBtn.addEventListener("click", () => {
-      window.open(task.instaUrl, "_blank");
-      startTaskTimer(task.id, claimBtn);
-    });
+      currentCredits = 100;
+      if (userNameEl) userNameEl.textContent = "New User";
+    }
 
-    claimBtn.addEventListener("click", async () => {
-      if (!currentUser) {
-        alert("Please log in to earn credits.");
-        return;
-      }
+    updateCreditsDisplay();
+    if (loginInfo)
+      loginInfo.textContent = `Logged in as: ${user.email || user.uid}`;
 
-      if (claimBtn.dataset.timerOk !== "true") {
-        alert("You returned too quickly or didn't complete the timer. Please support properly, then claim again.");
-        return;
-      }
-
-      claimBtn.disabled = true;
-
-      try {
-        // Update global boostList doc
-        const boostRef = doc(
-          db,
-          "SapanaCyberHub",
-          "Users-SapanaCyberHub",
-          "boostList",
-          task.id
-        );
-        await updateDoc(boostRef, {
-          quantityDone: increment(1)
-        });
-
-        // Reward user
-        const userRef = doc(
-          db,
-          "SapanaCyberHub",
-          "Users-SapanaCyberHub",
-          "SapanaCyberHubMembers",
-          currentUser.uid
-        );
-        await updateDoc(userRef, {
-          credits: increment(reward)
-        });
-
-        currentCredits += reward;
-        updateCreditsDisplay();
-
-        claimBtn.classList.add("completed");
-        claimBtn.textContent = "Done ✓";
-        toast(`+${reward} credits earned 🌟`, "success");
-      } catch (e) {
-        console.error(e);
-        claimBtn.disabled = false;
-        alert("Error claiming task. Try again.");
-      }
-    });
-
-    tasksContainer.appendChild(div);
-  });
+  } catch (e) {
+    console.error(e);
+    if (loginInfo) loginInfo.textContent = "Error loading user: " + e;
+  }
 }
 
-// ========== Live Tasks Listener ==========
+/* -------------------------------
+   🔥 CREATE A BOOST
+----------------------------------*/
+createBoostBtn?.addEventListener("click", async () => {
+
+  if (!currentUser) return toast("Please log in first 💖", "error");
+
+  const url = videoUrlInput.value.trim();
+  if (!url.includes("instagram.com"))
+    return toast("Invalid Instagram URL ❌", "error");
+
+  const quantity = parseInt(quantityRange.value, 10);
+  const cost = calcCost();
+
+  if (currentCredits < cost)
+    return toast("Not enough credits 💔", "error");
+
+  statusMsg.style.color = "#ffd6ff";
+  statusMsg.textContent = "Creating boost...";
+
+  try {
+    const boostData = {
+      ownerId: currentUser.uid,
+      instaUrl: url,
+      serviceType: selectedService,
+      quantityRequested: quantity,
+      quantityDone: 0,
+      status: "open",
+      cost,
+      createdAt: serverTimestamp()
+    };
+
+    // Global list
+    const ref = await addDoc(
+      collection(db, "SapanaCyberHub", "Users-SapanaCyberHub", "BoostList"),
+      boostData
+    );
+
+    const boostId = ref.id;
+
+    // Personal list
+    const myRef = doc(
+      db,
+      "SapanaCyberHub",
+      "Users-SapanaCyberHub",
+      "SapanaCyberHubMembers",
+      currentUser.uid,
+      "BoostedList",
+      boostId
+    );
+
+    await setDoc(myRef, { ...boostData, boostId });
+
+    // Deduct credit
+    const userRef = doc(
+      db,
+      "SapanaCyberHub",
+      "Users-SapanaCyberHub",
+      "SapanaCyberHubMembers",
+      currentUser.uid
+    );
+
+    await updateDoc(userRef, { credits: increment(-cost) });
+
+    currentCredits -= cost;
+    updateCreditsDisplay();
+
+    toast("Boost Created Successfully 💖", "success");
+    statusMsg.textContent = "Your boost is live!";
+    videoUrlInput.value = "";
+    previewBox.style.display = "none";
+
+  } catch (error) {
+    console.error(error);
+    toast("Error creating boost ❌", "error");
+  }
+});
+
+/* -------------------------------
+   🔥 LIVE EARN TASKS
+----------------------------------*/
+/* ------------------------------------------------------------
+   TRUE ANTI-SKIP TIMER
+--------------------------------------------------------------*/
+
+function startTaskTimerAntiSkip(task, claimBtn) {
+
+  const stayTime = 5000; // 8 seconds  
+  let opened = Date.now();
+
+  claimBtn.disabled = true;
+  claimBtn.dataset.timerOk = "false";
+  claimBtn.textContent = "Open content first";
+
+  // Open link
+  const newTab = window.open(task.instaUrl, "_blank");
+
+  if (!newTab) {
+    toast("Popup blocked ❌ Allow popups", "error");
+    return;
+  }
+
+  toast("Stay at least 8 sec 💖", "info");
+
+  // Watch user returning
+  const checkBack = setInterval(() => {
+
+    // If user returned early -> no reward
+    if (!newTab || newTab.closed) {
+      const timeSpent = Date.now() - opened;
+
+      if (timeSpent < stayTime) {
+        claimBtn.disabled = true;
+        claimBtn.dataset.timerOk = "false";
+        claimBtn.textContent = "Return too early ❌";
+        clearInterval(checkBack);
+        return;
+      }
+
+      // User stayed enough time → ALLOW REWARD
+      claimBtn.disabled = false;
+      claimBtn.dataset.timerOk = "true";
+      claimBtn.textContent = "I Completed ✓";
+      clearInterval(checkBack);
+    }
+
+  }, 700);
+}
+
+/* ------------------------------------------------------------
+   🌟 OPEN / CLOSE MODULE
+--------------------------------------------------------------*/
+const openTaskBtn = document.getElementById("openTaskBtn");
+const taskModule = document.getElementById("taskModule");
+const closeTaskModule = document.getElementById("closeTaskModule");
+const nextRandomTask = document.getElementById("nextRandomTask");
+
+openTaskBtn.onclick = () => {
+  taskModule.classList.remove("hidden");
+  loadRandomTaskIntoModule();
+};
+
+closeTaskModule.onclick = () => {
+  taskModule.classList.add("hidden");
+};
+
+nextRandomTask.onclick = () => {
+  loadRandomTaskIntoModule();
+};
+
+// RULES MODAL
+const rulesModal = document.getElementById("rulesModal");
+const rulesBtn = document.getElementById("rulesBtn");
+const closeRules = document.querySelector(".close-rules");
+
+rulesBtn.addEventListener("click", () => {
+  rulesModal.classList.add("active");
+});
+
+closeRules.addEventListener("click", () => {
+  rulesModal.classList.remove("active");
+});
+
+/* ------------------------------------------------------------
+   🌟 RANDOM ENGINE STORAGE
+--------------------------------------------------------------*/
+let globalTasks = [];
+let lastFiveShown = [];
+const maxHistory = 5;
+
+/* ------------------------------------------------------------
+   🌟 SUBSCRIBE TASKS FROM FIREBASE
+--------------------------------------------------------------*/
 function subscribeTasks() {
-  if (!tasksContainer) return;
-
-  if (unsubTasks) unsubTasks();
-
   const q = query(
-    collection(db, "SapanaCyberHub", "Users-SapanaCyberHub", "boostList"),
+    collection(db, "SapanaCyberHub", "Users-SapanaCyberHub", "BoostList"),
     where("status", "==", "open")
   );
 
   unsubTasks = onSnapshot(q, snap => {
-    const tasks = [];
+    globalTasks = [];
     snap.forEach(docSnap => {
-      tasks.push({ id: docSnap.id, ...docSnap.data() });
+      const d = { id: docSnap.id, ...docSnap.data() };
+
+      if (currentUser && d.ownerId === currentUser.uid) return;
+      if (d.quantityRequested - d.quantityDone <= 0) return;
+
+      globalTasks.push(d);
     });
-    renderTasks(tasks);
-  }, err => {
-    console.error(err);
-    tasksContainer.innerHTML = "<div class='small-note'>Error loading tasks.</div>";
   });
 }
 
-// --- Timer-based task completion (anti-skip check) ---
-function startTaskTimer(taskId, claimBtn) {
-  // simple 15s timer so user cannot instant-claim
-  let required = 15;
-  claimBtn.dataset.timerOk = "false";
-  claimBtn.disabled = true;
-  claimBtn.style.background = "rgba(255,255,255,0.15)";
-  claimBtn.textContent = `Wait ${required}s...`;
+/* ------------------------------------------------------------
+   🌟 RANDOM SELECTOR
+--------------------------------------------------------------*/
+function getRandomTask() {
+  if (globalTasks.length === 0) return null;
 
-  const interval = setInterval(() => {
-    required--;
-    if (required > 0) {
-      claimBtn.textContent = `Wait ${required}s...`;
-    } else {
-      clearInterval(interval);
-      claimBtn.dataset.timerOk = "true";
-      claimBtn.disabled = false;
-      claimBtn.style.background = "rgba(0,255,120,0.3)";
-      claimBtn.textContent = "I completed (verified ✓)";
-    }
-  }, 1000);
+  const fresh = globalTasks.filter(t => !lastFiveShown.includes(t.id));
+  const pool = fresh.length ? fresh : globalTasks;
+
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+
+  lastFiveShown.push(pick.id);
+  if (lastFiveShown.length > maxHistory) lastFiveShown.shift();
+
+  return pick;
 }
 
-// ========== Live My Boosts Listener ==========
-function subscribeMyBoosts() {
-  if (!myBoostsContainer) return;
-  if (!currentUser) {
-    myBoostsContainer.innerHTML = "<div class='small-note'>Log in to see your boost requests.</div>";
+/* ------------------------------------------------------------
+   🌟 LOAD RANDOM TASK INSIDE POPUP
+--------------------------------------------------------------*/
+function loadRandomTaskIntoModule() {
+  const box = document.getElementById("randomTaskBox");
+  if (!box) return;
+
+  const task = getRandomTask();
+  if (!task) {
+    box.innerHTML = `<div class="empty-random">No tasks available 💖</div>`;
     return;
   }
 
-  if (unsubBoosts) unsubBoosts();
+  const remaining = task.quantityRequested - task.quantityDone;
+  const reward = taskRewardPerUnit[task.serviceType];
 
-  const colRef = collection(
+  box.innerHTML = `
+    <div class="task-preview">
+      <div class="task-left">
+        <div class="task-icon">${task.serviceType === "views" ? "👁" :
+      task.serviceType === "likes" ? "❤️" : "⭐"
+    }</div>
+      </div>
+
+      <div class="task-info">
+        <h3>${task.serviceType.toUpperCase()} Task</h3>
+        <p>Remaining: <b>${remaining}</b></p>
+        <p>Reward: <b>+${reward} credits</b></p>
+        <a href="${task.instaUrl}" target="_blank" class="task-link">${task.instaUrl}</a>
+      </div>
+    </div>
+
+    <div class="task-buttons">
+      <button id="openRandomContent" class="open-btn">Open</button>
+      <button id="claimRandomEarn" class="claim-btn" disabled>Open First</button>
+    </div>
+  `;
+
+  const openBtn = document.getElementById("openRandomContent");
+  const claimBtn = document.getElementById("claimRandomEarn");
+
+  /* 🕒 START TIMER */
+  openBtn.onclick = () => {
+    startTaskTimerAntiSkip(task, claimBtn);
+  };
+
+
+  /* ❤️ CLAIM */
+  claimBtn.onclick = async () => {
+    if (claimBtn.dataset.timerOk !== "true")
+      return toast("Wait for timer 💞", "error");
+
+    claimBtn.disabled = true;
+
+    try {
+      await updateDoc(
+        doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "BoostList", task.id),
+        { quantityDone: increment(1) }
+      );
+
+      await updateDoc(
+        doc(db, "SapanaCyberHub", "Users-SapanaCyberHub", "SapanaCyberHubMembers", currentUser.uid),
+        { credits: increment(reward) }
+      );
+
+      currentCredits += reward;
+      updateCreditsDisplay();
+      toast(`+${reward} credits earned 💖`, "success");
+
+      loadRandomTaskIntoModule();
+
+    } catch (err) {
+      toast("Error ✖", "error");
+      console.error(err);
+    }
+  };
+}
+
+
+
+
+
+/* -------------------------------
+   🔥 MY BOOST LIST
+----------------------------------*/
+function subscribeMyBoosts() {
+  if (!currentUser) return;
+
+  const col = collection(
     db,
     "SapanaCyberHub",
     "Users-SapanaCyberHub",
@@ -454,64 +523,92 @@ function subscribeMyBoosts() {
     "BoostedList"
   );
 
-  unsubBoosts = onSnapshot(colRef, snap => {
+  unsubBoosts = onSnapshot(col, snap => {
     if (snap.empty) {
-      myBoostsContainer.innerHTML = "<div class='small-note'>You haven't created any boost requests yet.</div>";
+      myBoostsContainer.innerHTML =
+        "<div class='small-note'>No boosts yet 💖</div>";
       return;
     }
 
     myBoostsContainer.innerHTML = "";
+
     snap.forEach(docSnap => {
       const b = docSnap.data();
-      const remaining = (b.quantityRequested || 0) - (b.quantityDone || 0);
-      const statusText = b.status || (remaining > 0 ? "open" : "completed");
-      const statusClass = statusText === "completed" ? "status-completed" : "status-open";
+      const remain = b.quantityRequested - b.quantityDone;
 
-      const div = document.createElement("div");
-      div.className = "my-boost-item";
-      div.innerHTML = `
+      const card = document.createElement("div");
+      card.className = "my-boost-item";
+
+      card.innerHTML = `
         <div class="my-boost-header">
-          <span>${b.serviceType?.toUpperCase() || "SERVICE"} · ${b.quantityRequested} requested</span>
-          <span class="my-boost-status ${statusClass}">${statusText}</span>
+          <span>${b.serviceType.toUpperCase()} · ${b.quantityRequested}</span>
+          <span class="my-boost-status ${remain <= 0 ? "status-completed" : "status-open"
+        }">${remain <= 0 ? "completed" : "open"
+        }</span>
         </div>
+
         <div class="my-boost-body">
-          <div style="font-size:11px; opacity:.85; margin-top:4px;">
-            Done: ${b.quantityDone || 0} · Remaining: ${remaining < 0 ? 0 : remaining}
-          </div>
-          <div style="font-size:11px; opacity:.8; margin-top:4px; overflow-wrap:anywhere;">
-            ${b.instaUrl}
-          </div>
+          <div>Done: ${b.quantityDone} | Remaining: ${remain}</div>
+          <div>${b.instaUrl}</div>
         </div>
       `;
-      myBoostsContainer.appendChild(div);
+      myBoostsContainer.appendChild(card);
     });
-  }, err => {
-    console.error(err);
-    myBoostsContainer.innerHTML = "<div class='small-note'>Error loading your boosts.</div>";
   });
 }
 
-// ========== PopUnder Sponsor Integration ==========
-if (popBtn) {
-  popBtn.addEventListener("click", async () => {
-    // Inject popunder script
-    (function (s) {
-      s.dataset.zone = '10228494';
-      s.src = 'https://al5sm.com/tag.min.js';
-    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
 
-    // Prevent multiple rewards
-    if (popRewardGiven) {
-      popStatus.textContent = "Already rewarded 💖 Thank you!";
-      popStatus.style.color = "#b4ffce";
-      toast("Already rewarded for this sponsor 💖", "info");
-      return;
-    }
+// --------------------------------------------
+// SMARTLINK REWARD + TIMER
+// --------------------------------------------
 
-    popRewardGiven = true;
+const smartLink = "https://www.effectivegatecpm.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203";
+const staySeconds = 5;
+const reward = 5;
+const cooldownSeconds = 30;
 
-    // Reward user
-    if (currentUser) {
+let lastRewardTime = 0;
+
+function updateTimerUI() {
+  const timerDiv = document.getElementById("cooldownTimer");
+
+  const now = Date.now();
+  const diff = now - lastRewardTime;
+
+  if (diff >= cooldownSeconds * 1000) {
+    timerDiv.textContent = "Ready to Earn ✨";
+    return;
+  }
+
+  const remaining = Math.ceil((cooldownSeconds * 1000 - diff) / 1000);
+  timerDiv.textContent = `Wait ${remaining}s ⏳`;
+
+  setTimeout(updateTimerUI, 1000);
+}
+
+updateTimerUI(); // start timer logic
+
+popBtn?.addEventListener("click", async () => {
+  if (!currentUser)
+    return toast("Login to earn 💖", "error");
+
+  const now = Date.now();
+
+  if (now - lastRewardTime < cooldownSeconds * 1000) {
+    updateTimerUI();
+    return toast("Please wait for cooldown ⏳", "info");
+  }
+
+  const offerWindow = window.open(smartLink, "_blank");
+
+  if (!offerWindow) {
+    return toast("Popup blocked ❌ Allow popups", "error");
+  }
+
+  toast("Stay 5 seconds to earn 🌟", "info");
+
+  setTimeout(async () => {
+    try {
       const userRef = doc(
         db,
         "SapanaCyberHub",
@@ -520,89 +617,69 @@ if (popBtn) {
         currentUser.uid
       );
 
-      try {
-        await updateDoc(userRef, {
-          credits: increment(popReward)
-        });
-        currentCredits += popReward;
-        updateCreditsDisplay();
+      await updateDoc(userRef, { credits: increment(reward) });
 
-        popStatus.textContent = `🌟 +${popReward} credits added! Thank you for supporting us 💖`;
-        popStatus.style.color = "#b4ffce";
-        toast(`+${popReward} credits for support 🌟`, "success");
-      } catch (e) {
-        console.error(e);
-        popStatus.textContent = "Error applying reward.";
-        popStatus.style.color = "#ff9a9a";
-        toast("Error applying sponsor reward.", "error");
-      }
-    } else {
-      popStatus.textContent = "Login to earn credits 💖";
-      popStatus.style.color = "#ff9a9a";
-      toast("Please log in to earn credits.", "error");
+      currentCredits += reward;
+      updateCreditsDisplay();
+
+      popStatus.textContent = `+${reward} credits added 💖`;
+      toast(`Earned ${reward} credits 🌟`, "success");
+
+      lastRewardTime = Date.now();
+      updateTimerUI();
+
+    } catch (e) {
+      toast("Reward error ❌", "error");
     }
-  });
-}
+  }, staySeconds * 1000);
+});
 
-// ========== Glass / Panel Animation ==========
+
+/* -------------------------------
+   🔥 PANEL ANIMATION OBSERVER
+----------------------------------*/
 function setupPanelObserver() {
-  if (!("IntersectionObserver" in window)) return;
-
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
+    entries.forEach(entry => {
       if (entry.isIntersecting) {
-
-        // animate glass panels
         entry.target.classList.add("visible");
-
-        // activate panel bot animation
         const panel = entry.target.closest(".panel");
         if (panel) panel.classList.add("panel-active");
       }
     });
-  }, { threshold: 0.10 }); // <-- FIXED THRESHOLD
+  }, { threshold: 0.15 });
 
-  // observe glass containers
   document.querySelectorAll(".glass").forEach(g => observer.observe(g));
-
-  // observe entire panels too (important for panel 4)
   document.querySelectorAll(".panel").forEach(p => observer.observe(p));
 }
 
-
-// ========== Auth Listener ==========
+/* -------------------------------
+   🔥 AUTH LISTENER
+----------------------------------*/
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     currentUser = null;
     currentCredits = 0;
-
-    beMember.textContent = 'unknown';
-    beMember.href = "Body/UserRegistration/login.html";
-    beMember.title = `Hi there! Click to be our CommunityMember.`;
-
     updateCreditsDisplay();
-    if (loginInfo) loginInfo.textContent = "Not logged in. Please log in on your main site.";
 
-    if (unsubBoosts) {
-      unsubBoosts();
-      unsubBoosts = null;
+    if (userNameEl) {
+      userNameEl.textContent = "Guest";
+      userNameEl.href = "/Body/UserRegistration/login.html";
     }
 
-    // Still show tasks list, but without filtering out own tasks
-    subscribeTasks();
-    if (myBoostsContainer)
-      myBoostsContainer.innerHTML = "<div class='small-note'>Log in to see your boosts.</div>";
-    return;
+
   }
 
   currentUser = user;
   await loadUserData(user);
-  subscribeTasks();
+  subscribeTasks()
   subscribeMyBoosts();
+
+  toast("Welcome back 💖", "success");
 });
 
-
-
-// ========== INIT ==========
+/* -------------------------------
+   🔥 INIT
+----------------------------------*/
 updateCost();
 setupPanelObserver();

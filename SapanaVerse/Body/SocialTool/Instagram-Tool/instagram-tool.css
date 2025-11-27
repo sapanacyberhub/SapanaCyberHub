@@ -407,147 +407,440 @@ input[type="range"] {
     }
 }
 
-/* ============ EARN TASKS ============ */
-.earn-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+
+/* earn withh supporting other */
+/* ------------------------------------------------
+   💖 EARN BUTTON
+--------------------------------------------------*/
+.openTaskBtn {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #ff6fd8, #ff8bd5);
+  border: none;
+  color: white;
+  font-size: 18px;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: 0.25s;
+  margin-top: 15px;
+  box-shadow: 0 0 12px rgba(255, 85, 255, 0.4);
 }
 
-.earn-item {
-    background: rgba(255, 255, 255, .02);
-    border-radius: 16px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    border: 1px solid rgba(255, 255, 255, .1);
-    position: relative;
-    overflow: hidden;
+.openTaskBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(255, 85, 255, 0.6);
 }
 
-.earn-item::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, rgba(255, 126, 179, .35), transparent);
-    mix-blend-mode: soft-light;
+
+/* ------------------------------------------------
+   💖 MODULE BACKDROP
+--------------------------------------------------*/
+.taskModule {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(7px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+  opacity: 1;
+  transition: opacity .4s ease;
+}
+
+.taskModule.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------
+   💖 MODULE BOX
+--------------------------------------------------*/
+.task-module-content {
+  width: 90%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 25px 28px;
+  color: white;
+  position: relative;
+  animation: popIn .35s ease;
+  box-shadow: 0 0 25px rgba(255, 120, 255, 0.5);
+}
+
+/* POP ANIMATION */
+@keyframes popIn {
+  0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: rgba(255,255,255,0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.close-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* TITLES */
+.module-title {
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.module-sub {
+  font-size: 15px;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+/* Random Task Preview */
+.random-task-box {
+  background: rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+
+/* Task preview layout */
+.task-preview {
+  display: flex;
+  gap: 15px;
+}
+
+.task-left .task-icon {
+  font-size: 34px;
+}
+
+.task-info h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.task-link {
+  color: #ffd6ff;
+  text-decoration: underline;
+  word-break: break-all;
+  font-size: 13px;
+}
+
+/* Buttons in module */
+.task-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.open-btn {
+  flex: 1;
+  background: #ff74e8;
+  border: none;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.claim-btn {
+  flex: 1;
+  background: #00ff99;
+  border: none;
+  color: #003315;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.open-btn:hover,
+.next-task-btn:hover {
+  transform: scale(1.05);
+}
+
+/* NEXT TASK BUTTON */
+.next-task-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 12px;
+  width: 100%;
+  border-radius: 12px;
+  color: white;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+/* Empty message */
+.empty-random {
+  padding: 20px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+
+/* rule how it's work to task earning */
+/* RULES BUTTON */
+.rulesBtn {
+  background: rgba(255,255,255,0.18);
+  padding: 12px;
+  width: 100%;
+  color: white;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.rulesBtn:hover {
+  transform: scale(1.02);
+}
+
+/* RULES MODAL */
+/* BACKDROP */
+.rules-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+/* SHOW MODAL */
+.rules-modal.active {
+  display: flex;
+}
+
+/* MODAL BOX */
+.rules-box {
+  width: 92%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 25px 20px;
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  color: white;
+  position: relative;
+  animation: popIn .25s ease;
+}
+
+/* CLOSE ICON */
+.rules-close {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  font-size: 32px;
+  cursor: pointer;
+  z-index: 100000;
+  opacity: .85;
+  transition: .2s;
+  pointer-events: auto;
+}
+
+.rules-close:hover {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+/* TITLE */
+.rules-title {
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ICON */
+.rules-icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* LIST */
+.rules-list {
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: 0;
+}
+
+.rules-list li {
+  margin-bottom: 8px;
+}
+
+/* FOOTER */
+.rules-footer {
+  text-align: center;
+  margin-top: 12px;
+  opacity: .85;
+}
+
+/* ANIMATION */
+@keyframes popIn {
+  from {
+    transform: scale(0.7);
     opacity: 0;
-    transition: .3s;
-}
-
-.earn-item:hover::before {
+  }
+  to {
+    transform: scale(1);
     opacity: 1;
+  }
 }
 
-.earn-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
 
-.earn-content {
-    flex: 1;
+
+/* --------------------------------------------------
+   🌸 BEAUTIFUL SUPPORT EARN UI
+--------------------------------------------------*/
+
+.earn-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 25px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+  margin-top: 20px;
+  box-shadow: 0 0 30px rgba(255, 140, 200, 0.2);
 }
 
 .earn-title {
-    font-size: 13px;
-    font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffcdf5;
 }
 
 .earn-desc {
-    font-size: 11px;
-    opacity: .8;
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.4;
+  margin-bottom: 15px;
 }
 
-.earn-credit {
-    font-size: 11px;
-    opacity: .9;
-    margin-top: 3px;
+/* TIMER UI */
+.cooldown-timer {
+  margin: 10px 0 18px;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 200, 255, 0);
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 0 10px #ff7fe6;
 }
 
-.earn-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+/* EARN BUTTON */
+.earn-btn-pink {
+  width: 100%;
+  background: linear-gradient(45deg, #ff69b4, #ff85d8);
+  color: white;
+  font-size: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 10px;
+  box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+  transition: 0.3s;
 }
 
-.earn-open,
-.earn-btn {
-    border: none;
-    background: rgba(255, 255, 255, .08);
-    color: #fff;
-    font-size: 11px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    cursor: pointer;
-    white-space: nowrap;
+.earn-btn-pink:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
 }
 
-.earn-btn.completed {
-    background: rgba(124, 252, 0, .2);
-    border: 1px solid rgba(124, 252, 0, .5);
-    color: #c3ffbf;
+/* RULES BUTTON */
+.rules-btn {
+  background: transparent;
+  border: 1px solid #ff9adc;
+  color: #ffc8ff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.small-note {
-    margin-top: 10px;
-    font-size: 11px;
-    opacity: .8;
+.rules-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
-/* ============ ADS POPUNDER SECTION ============ */
-.ads-popunder-card {
-    margin-top: 26px;
-    text-align: center;
+/* ---------------------------------------------
+   💗 RULES MODAL
+----------------------------------------------*/
+.rules-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
 }
 
-.popunder-btn {
-    margin-top: 16px;
-    padding: 12px 24px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 15px;
-    background: linear-gradient(135deg, #ff7eb3, #ff9a62);
-    color: #050513;
-    box-shadow: 0 16px 30px rgba(0, 0, 0, .75),
-        0 0 22px rgba(255, 126, 179, 0.5);
-    transition: .25s ease;
-    position: relative;
-    overflow: hidden;
+.rules-modal.active {
+  display: flex;
 }
 
-.popunder-btn:hover {
-    transform: scale(1.07);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, .85),
-        0 0 30px rgba(255, 126, 179, 0.8);
+.rules-content {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: left;
+  color: white;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 0 40px rgba(255, 120, 200, 0.3);
+  animation: popIn 0.35s ease;
 }
 
-.popunder-btn::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .3), transparent 70%);
-    opacity: 0;
-    transition: opacity .4s;
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 
-.popunder-btn:hover::after {
-    opacity: 1;
+.rules-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
 }
 
-.pop-status {
-    margin-top: 10px;
-    font-size: 12px;
-    opacity: .85;
+.rules-content ul li {
+  margin: 8px 0;
+  font-size: 14px;
 }
+
+.close-rules {
+  width: 100%;
+  background: #ff8bd5;
+  padding: 10px;
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 
 /* ============ MY BOOSTS ============ */
 .my-boosts {
@@ -899,6 +1192,9 @@ p {
     align-items: center;
     height: 50px;
 }
+.top-nav img {
+    font-size: 1rem;
+}
 
 .right {
     display: flex;
@@ -963,6 +1259,7 @@ p {
 .footer {
     display: flex;
     width: 100%;
+    flex-direction: column;
 }
 
 .footer-body {
@@ -1024,6 +1321,17 @@ p {
     font-family: cursive;
 }
 
+.copy-right {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+}
+.copy-right a{
+    color: pink;
+    font-family: cursive;
+    align-items: center;
+    text-align: center;
+}
 
 /* responsive tweaks */
 @media (max-width: 600px) {

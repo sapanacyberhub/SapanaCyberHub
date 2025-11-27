@@ -395,6 +395,139 @@ p {
     filter: brightness(1.2);
 }
 
+/* --------------------------------------------------
+   🌸 BEAUTIFUL SUPPORT EARN UI
+--------------------------------------------------*/
+
+.earn-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 25px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+  margin-top: 20px;
+  box-shadow: 0 0 30px rgba(255, 140, 200, 0.2);
+}
+
+.earn-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffcdf5;
+}
+
+.earn-desc {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+/* TIMER UI */
+.cooldown-timer {
+  margin: 10px 0 18px;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 200, 255, 0.15);
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 0 10px #ff7fe6;
+}
+
+/* EARN BUTTON */
+.earn-btn-pink {
+  width: 100%;
+  background: linear-gradient(45deg, #ff69b4, #ff85d8);
+  color: white;
+  font-size: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 10px;
+  box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+  transition: 0.3s;
+}
+
+.earn-btn-pink:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+}
+
+/* RULES BUTTON */
+.rules-btn {
+  background: transparent;
+  border: 1px solid #ff9adc;
+  color: #ffc8ff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.rules-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------------------------------------------
+   💗 RULES MODAL
+----------------------------------------------*/
+.rules-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.rules-modal.active {
+  display: flex;
+}
+
+.rules-content {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: left;
+  color: white;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 0 40px rgba(255, 120, 200, 0.3);
+  animation: popIn 0.35s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.rules-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.rules-content ul li {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.close-rules {
+  width: 100%;
+  background: #ff8bd5;
+  padding: 10px;
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
 
 /* path keyframes (directional) */
 @keyframes botPath1 {
