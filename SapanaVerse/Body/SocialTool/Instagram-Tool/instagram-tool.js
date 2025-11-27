@@ -608,7 +608,7 @@ function subscribeMyBoosts() {
 // SMARTLINK REWARD + TIMER
 // --------------------------------------------
 
-const smartLink = "https://www.effectivegatecpm.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203";
+const smartLink = "https://otieu.com/4/10216281https://otieu.com/4/10216281";
 const staySeconds = 5;
 const reward = 5;
 const cooldownSeconds = 5;
