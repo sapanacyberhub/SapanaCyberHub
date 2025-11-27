@@ -899,7 +899,7 @@ input[type="range"] {
 
 /* Wrapper if you convert page to full snap sections */
 .snap-container {
-    height: 100vh;
+    height: 100%;
     width: 100%;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
@@ -910,7 +910,7 @@ input[type="range"] {
 /* Full-screen panels */
 .panel {
     position: relative;
-    min-height: 100vh;
+    height: 100%;
     width: 100%;
     scroll-snap-align: start;
     display: flex;
@@ -1333,20 +1333,6 @@ p {
     text-align: center;
 }
 
-/* responsive tweaks */
-@media (max-width: 900px) {
-  body {
-    transform: none !important;
-    zoom: 1 !important;
-  }
-
-  .panel, .glass, .top-nav {
-    max-width: 100% !important;
-    width: 100% !important;
-    transform: none !important;
-    zoom: 1 !important;
-  }
-}
 
 /* ======================================
      📱 MOBILE RESPONSIVE FIX
