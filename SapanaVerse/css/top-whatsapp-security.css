@@ -1,0 +1,86 @@
+/* blog.css — SapanaCyberHub article styling (standalone) */
+
+/* basic reset */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#0b0b0c;
+  color:#e9eef6;
+  font-family: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* header */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 20px;
+  background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.site-brand a{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:600}
+.site-brand img{border-radius:6px}
+.site-nav a{color:#dfe7f2;margin-left:16px;text-decoration:none;font-weight:500}
+.site-nav a:hover{color:#00aaff}
+
+/* layout */
+.container{
+  display:grid;
+  grid-template-columns: 1fr 320px;
+  gap:28px;
+  max-width:1150px;
+  margin:34px auto;
+  padding:0 18px 60px;
+}
+
+/* post */
+.post{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:28px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+.post-header h1{font-size:28px;color:#fff;line-height:1.12;margin-bottom:8px}
+.post-meta{color:#98a6b8;font-size:13px;margin-bottom:18px}
+.hero-image{margin:12px 0 18px;border-radius:10px;overflow:hidden}
+.hero-image img{width:100%;height:auto;display:block}
+.hero-image figcaption{font-size:13px;color:#97a4b6;margin-top:8px}
+
+/* content */
+.post-content p{margin:14px 0;color:#d2dce8}
+.post-content h2{margin-top:22px;margin-bottom:10px;color:#cfeeff;font-size:20px}
+.post-content ul, .post-content ol{margin:12px 0 12px 22px}
+.post-content li{margin:8px 0}
+.post-content strong{color:#fff}
+
+/* share & footer inside post */
+.post-footer{margin-top:22px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.03);color:#b9c7d9}
+.post-footer .share-links a{display:inline-block;margin-right:12px;color:#00aaff;text-decoration:none}
+
+/* sidebar */
+.sidebar{position:relative;padding-top:6px}
+.widget{background:rgba(255,255,255,0.02);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:14px}
+.widget h3{font-size:16px;margin-bottom:10px}
+.widget ul{list-style:none}
+.widget ul li{margin:8px 0}
+.widget ul a{color:#dfe7f2;text-decoration:none}
+.widget ul a:hover{color:#00aaff}
+
+/* site footer */
+.site-footer{padding:22px 18px;background:transparent;text-align:center;color:#98a6b8;border-top:1px solid rgba(255,255,255,0.02);margin-top:40px}
+.site-footer a{color:#dfe7f2;text-decoration:none}
+
+/* responsive */
+@media (max-width:980px){
+  .container{grid-template-columns: 1fr; padding:0 14px}
+  .site-nav{display:none}
+  .post{padding:20px}
+  .post-header h1{font-size:24px}
+}
+
+/* small helpers */
+a{color:#00aaff}
+a:hover{text-decoration:underline}
