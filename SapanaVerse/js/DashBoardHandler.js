@@ -1,9 +1,28 @@
-// ✅ Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+// ============================================
+// 🔥 SAPANACYBERHUB - DASHBOARD / NAV AUTH SYSTEM
+// Version: 2025 Super Optimized Edition
+// ============================================
 
-// ✅ Firebase config
+// ------------------------
+// 1️⃣ Import Firebase
+// ------------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  getDoc 
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+
+// ------------------------
+// 2️⃣ Firebase Config
+// ------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyBNwCmtWja2xwxhWrU9Ejfz0ggGd796mEI",
   authDomain: "my-application-31862.firebaseapp.com",
@@ -14,101 +33,110 @@ const firebaseConfig = {
   appId: "1:409640627398:web:e2d1782c77e2ab8d527bc7",
 };
 
-// ✅ Initialize Firebase
+
+// ------------------------
+// 3️⃣ Initialize Firebase
+// ------------------------
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log("🔥 SapanaCyberHub Firebase initialized successfully!");
-import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+console.log("🔥 SapanaCyberHub Firebase connected");
 
-// ===============================
-// 👤 USER AUTH & NAVBAR UPDATER
-// ===============================
 
-// HTML elements
-const beMember = document.querySelector(".beMember");
+// ------------------------
+// 4️⃣ HTML TARGET ELEMENTS
+// ------------------------
+const profileName = document.querySelector(".profile-name");
+const profileBtn = document.querySelector(".profile-btn");
 const userImg = document.querySelector(".user-img");
 
-// Safe image loader with fallback
-const setSafeImage = (photo) => {
+
+// ------------------------
+// 5️⃣ Fallback Image Loader
+// ------------------------
+const loadUserImage = (photo) => {
   if (!photo || photo === "null" || photo.trim() === "") {
     userImg.src = "/Assets/SignUpBg.webp";
   } else {
     userImg.src = photo;
   }
-  userImg.onerror = () => (userImg.src = "/Assets/SignUpBg.webp");
+
+  userImg.onerror = () => userImg.src = "/Assets/SignUpBg.webp";
 };
 
-// ✅ Watch for user login state
+
+// ------------------------
+// 6️⃣ AUTH STATE CHECKER
+// ------------------------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    console.log("✅ User logged in:", user.email);
+    console.log("👤 Logged In:", user.email);
+
+    // Firestore reference
+    const userRef = doc(
+      db,
+      "SapanaCyberHub",
+      "Users-SapanaCyberHub",
+      "SapanaCyberHubMembers",
+      user.uid
+    );
 
     try {
-      const userRef = doc(
-        db,
-        "SapanaCyberHub",
-        "Users-SapanaCyberHub",
-        "SapanaCyberHubMembers",
-        user.uid
-      );
-      const userSnap = await getDoc(userRef);
+      const snap = await getDoc(userRef);
 
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        const displayName = data.fullName || user.displayName || "User";
+      let name = user.displayName || "User";
+      let photo = user.photoURL;
 
-        beMember.textContent = displayName;
-        beMember.href = "Body/profile.html";
-        beMember.title = `Hi ${displayName}! Click to view profile.`;
-
-        setSafeImage(data.photoUrl || user.photoURL);
-      } else {
-        console.warn("⚠️ Firestore user doc not found. Using Auth info.");
-        const displayName = user.displayName || "User";
-
-        beMember.textContent = displayName;
-        beMember.href = "Body/profile.html";
-        beMember.title = `Hi ${displayName}! Click to view profile.`;
-
-        setSafeImage(user.photoURL);
+      if (snap.exists()) {
+        const data = snap.data();
+        name = data.fullName || name;
+        photo = data.photoUrl || photo;
       }
+
+      // Update navbar
+      profileName.textContent = name;
+      profileBtn.href = "/pages/user/profile.html";
+      profileBtn.title = "View your profile";
+
+      loadUserImage(photo);
+
     } catch (err) {
-      console.error("❌ Error fetching user data:", err);
+      console.error("❌ Firestore error:", err);
 
-      const displayName = user.displayName || "User";
-      beMember.textContent = displayName;
-      beMember.href = "Body/profile.html";
-      beMember.title = `Hi ${displayName}! Click to view profile.`;
+      profileName.textContent = user.displayName || "User";
+      profileBtn.href = "/pages/user/profile.html";
 
-      setSafeImage(user.photoURL);
+      loadUserImage(user.photoURL);
     }
+
   } else {
-    console.log("🚪 No user logged in.");
+    console.log("🚪 No user logged in");
 
-    beMember.textContent = "Create Account";
-    beMember.href = "https://sapanacyberhub.in/UserRegistration/signup";
-    beMember.title = "Create your SapanaCyberHub account";
+    // When no user logged in → show SignUp
+    profileName.textContent = "Create Account";
+    profileBtn.href = "https://sapanacyberhub.in/UserRegistration/signup";
+    profileBtn.title = "Create your SapanaCyberHub account";
 
-    userImg.src = "/Assets/SignUpBg.png";
-    userImg.onerror = () => (userImg.src = "/Assets/SignUpBg.png");
+    userImg.src = "/Assets/SignUpBg.webp";
   }
 });
 
-// ===============================
-// 🚪 Optional Logout Handler
-// ===============================
+
+// ------------------------
+// 7️⃣ LOGOUT HANDLER
+// ------------------------
 const logoutBtn = document.getElementById("logoutBtn");
+
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      alert("You’ve been logged out 💔");
-      window.location.href = "https://sapanacyberhub.in/UserRegistration/signup";
+      alert("Logged out successfully 💛");
+      window.location.href = "/";
     } catch (error) {
-      console.error("Logout failed:", error);
-      alert("Logout failed, please try again.");
+      alert("Logout failed. Please retry.");
+      console.log(error);
     }
   });
 }
