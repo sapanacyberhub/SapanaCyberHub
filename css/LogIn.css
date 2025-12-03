@@ -1,4 +1,3 @@
-/* 🔹 Only apply to SignUp / Login pages */
 body.auth-page-L {
     margin: 0;
     padding: 0;
@@ -7,7 +6,7 @@ body.auth-page-L {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url('/Assets/SignUpBg.webp') no-repeat center center/cover;
+    background: url('/assets/SignUpBg.webp') no-repeat center center/cover;
     backdrop-filter: blur(10px);
     overflow: hidden; /* prevents unwanted scrolling */
 }
