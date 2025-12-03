@@ -66,27 +66,27 @@ body {
 
 /* Different background images per section */
 .panel-1::before {
-    background-image: url("/Assets/section-1-bg.webp");
+    background-image: url("/assets/section-1-bg.webp");
     /* About us */
 }
 
 .panel-2::before {
-    background-image: url("/Assets/section-2-bg.webp");
+    background-image: url("/assets/section-2-bg.webp");
     /* What we do */
 }
 
 .panel-3::before {
-    background-image: url("/Assets/section-3-bg.webp");
+    background-image: url("/assets/section-3-bg.webp");
     /* Mission */
 }
 
 .panel-4::before {
-    background-image: url("/Assets/section-4-bg.webp");
+    background-image: url("/assets/section-4-bg.webp");
     /* Extra idea */
 }
 
 .panel-5::before {
-    background-image: url("/Assets/section-5-bg.webp");
+    background-image: url("/assets/section-5-bg.webp");
      /* Connect With Us! */
 }
 
