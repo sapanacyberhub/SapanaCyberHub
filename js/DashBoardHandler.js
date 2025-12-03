@@ -57,12 +57,12 @@ const userImg = document.querySelector(".user-img");
 // ------------------------
 const loadUserImage = (photo) => {
   if (!photo || photo === "null" || photo.trim() === "") {
-    userImg.src = "/Assets/SignUpBg.webp";
+    userImg.src = "aAssets/SignUpBg.webp";
   } else {
     userImg.src = photo;
   }
 
-  userImg.onerror = () => userImg.src = "/Assets/SignUpBg.webp";
+  userImg.onerror = () => userImg.src = "aAssets/SignUpBg.webp";
 };
 
 
@@ -96,7 +96,7 @@ onAuthStateChanged(auth, async (user) => {
 
       // Update navbar
       profileName.textContent = name;
-      profileBtn.href = "/pages/user/profile.html";
+      profileBtn.href = "https://sapanacyberhub.in/pages/user/profile";
       profileBtn.title = "View your profile";
 
       loadUserImage(photo);
@@ -115,10 +115,10 @@ onAuthStateChanged(auth, async (user) => {
 
     // When no user logged in → show SignUp
     profileName.textContent = "Create Account";
-    profileBtn.href = "https://sapanacyberhub.in/UserRegistration/signup";
+    profileBtn.href = "https://sapanacyberhub.in/pages/user/signup";
     profileBtn.title = "Create your SapanaCyberHub account";
 
-    userImg.src = "/Assets/SignUpBg.webp";
+    userImg.src = "/assets/SignUpBg.webp";
   }
 });
 
