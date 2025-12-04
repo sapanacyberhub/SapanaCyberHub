@@ -67,7 +67,6 @@
 
         .container {
             max-width: 980px;
-            margin: 36px auto;
             padding: 22px
         }
 
@@ -78,17 +77,7 @@
             margin-bottom: 18px
         }
 
-        .logo {
-            width: 56px;
-            height: 56px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #072a4b, #003d6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white
-        }
+        
 
         h1 {
             font-size: 28px;
@@ -96,8 +85,17 @@
         }
 
         .meta {
+            display: inline-flex;
+            align-items: center;
             color: var(--muted);
             font-size: 13px
+        }
+        .meta img{
+            height: 30px;
+        }
+        .meta span{
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .hero {
@@ -227,9 +225,8 @@
 <body>
     <div class="container">
         <header class="site-head">
-            <div class="logo">SC</div>
             <div>
-                <div class="meta">SapanaCyberHub — Tech & Reviews</div>
+                <div class="meta"> <img src="/assets/SapanaCyberHub-Logo.webp"><span>SapanaCyberHub</span>  — Tech & Reviews</div>
                 <h1>realme P4x 5G — Full Review, Specs & Price in India (2025)</h1>
                 <div class="meta">Published: Dec 04, 2025 · Author: Sapana · Reading time: 8 min</div>
             </div>
