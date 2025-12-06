@@ -223,13 +223,30 @@ body {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 18px;
+    justify-items: end;
     padding: 14px;
     text-align: left;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .blog-card img {
     width: 100%;
     border-radius: 12px;
+}
+
+.more-btn {
+    display: flex;
+    padding: 10px;
+    text-decoration: none;
+    color: white;
+    border-radius: 25px;
+    justify-content: center;
+    font-family: 'Courier New', Courier, monospace;
+    width: max-content;
+    min-width: 100px;
+    background-color: #000000;
+    font-weight: bold;
+
 }
 
 /* Footer */
