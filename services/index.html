@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SapanaCyberHub – Services Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===== RESET ===== */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:#020617;
+  color:#e5e7eb;
+}
+
+/* ===== TOP NAV ===== */
+.top-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 18px;
+  background:rgba(15,23,42,.95);
+  border-bottom:1px solid rgba(148,163,184,.25);
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:600;
+}
+.logo span{
+  background:linear-gradient(135deg,#6366f1,#a855f7);
+  width:36px;height:36px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+}
+
+/* ===== SEARCH ===== */
+.service-search{
+  position:relative;
+}
+.service-search input{
+  width:190px;
+  padding:8px 36px 8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.3);
+  background:#020617;
+  color:#e5e7eb;
+  font-size:13px;
+}
+.service-search input::placeholder{color:#9ca3af}
+.service-search input:focus{
+  outline:none;
+  border-color:#6366f1;
+  box-shadow:0 0 0 1px rgba(99,102,241,.4);
+}
+.search-icon{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  opacity:.7;
+}
+
+/* ===== DASHBOARD ===== */
+.dashboard{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+.dashboard h1{
+  margin:0;
+  font-size:26px;
+}
+.subtitle{
+  color:#9ca3af;
+  margin:6px 0 18px;
+}
+
+/* ===== SERVICE GRID ===== */
+.service-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+}
+.service-card{
+  background:rgba(15,23,42,.95);
+  border:1px solid rgba(148,163,184,.25);
+  border-radius:18px;
+  padding:16px;
+  text-decoration:none;
+  color:inherit;
+  transition:.15s ease;
+}
+.service-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 35px rgba(0,0,0,.5);
+}
+.service-card.hidden{display:none}
+
+.service-card .icon{font-size:26px}
+.service-card h3{margin:8px 0 4px}
+.service-card p{
+  margin:0;
+  font-size:13px;
+  color:#9ca3af;
+}
+.service-card .apply{
+  display:inline-block;
+  margin-top:10px;
+  font-size:13px;
+  color:#93c5fd;
+}
+
+/* highlight */
+mark{
+  background:rgba(99,102,241,.35);
+  color:#fff;
+  padding:0 4px;
+  border-radius:5px;
+}
+
+/* mobile */
+@media(max-width:600px){
+  .service-search input{width:140px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<header class="top-nav">
+  <div class="logo">
+    <span>SCH</span>
+    <strong>SapanaCyberHub</strong>
+  </div>
+
+  <div class="service-search">
+    <input id="serviceSearchInput" type="text" placeholder="Search services…">
+    <span class="search-icon">🔍</span>
+  </div>
+</header>
+
+<!-- ===== DASHBOARD ===== -->
+<main class="dashboard">
+  <h1>Services Dashboard</h1>
+  <p class="subtitle">Choose a service and apply online easily.</p>
+
+  <div class="service-grid">
+
+    <a href="/services/pan-card/" class="service-card"
+       data-search="pan card new correction reprint">
+      <div class="icon">🪪</div>
+      <h3>PAN Card</h3>
+      <p>New / Correction / Reprint</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+    <a href="/services/ration-card/" class="service-card"
+       data-search="ration card food apply update">
+      <div class="icon">🍚</div>
+      <h3>Ration Card</h3>
+      <p>Apply / Update</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+    <a href="/services/ayushman/" class="service-card"
+       data-search="ayushman card pmjay hospital">
+      <div class="icon">🏥</div>
+      <h3>Ayushman Card</h3>
+      <p>PM-JAY Services</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+    <a href="/services/certificate/" class="service-card"
+       data-search="income residence character certificate">
+      <div class="icon">📄</div>
+      <h3>Certificates</h3>
+      <p>Income / Residence / Character</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+    <a href="/services/pm-kisan/" class="service-card"
+       data-search="pm kisan farmer scheme">
+      <div class="icon">🌾</div>
+      <h3>PM-Kisan</h3>
+      <p>Registration & Correction</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+    <a href="/services/student/" class="service-card"
+       data-search="student abc card college">
+      <div class="icon">🎓</div>
+      <h3>Student Services</h3>
+      <p>ABC ID & Portals</p>
+      <span class="apply">Apply →</span>
+    </a>
+
+  </div>
+</main>
+
+<!-- ===== SEARCH SCRIPT ===== -->
+<script>
+const searchInput = document.getElementById("serviceSearchInput");
+const cards = document.querySelectorAll(".service-card");
+
+searchInput.addEventListener("input", () => {
+  const q = searchInput.value.toLowerCase().trim();
+
+  cards.forEach(card => {
+    const text = (card.dataset.search + " " + card.innerText).toLowerCase();
+
+    // remove old highlights
+    card.querySelectorAll("mark").forEach(m=>{
+      m.replaceWith(m.textContent);
+    });
+
+    if(!q){
+      card.classList.remove("hidden");
+      return;
+    }
+
+    if(text.includes(q)){
+      card.classList.remove("hidden");
+
+      // highlight only title
+      const h3 = card.querySelector("h3");
+      const reg = new RegExp(`(${q})`,"ig");
+      h3.innerHTML = h3.textContent.replace(reg,"<mark>$1</mark>");
+
+    } else {
+      card.classList.add("hidden");
+    }
+  });
+});
+
+// "/" focus search
+document.addEventListener("keydown",e=>{
+  if(e.key==="/"){
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+
+// ESC reset search
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    searchInput.value="";
+    cards.forEach(c=>c.classList.remove("hidden"));
+  }
+});
+</script>
+
+</body>
+</html>
