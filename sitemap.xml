@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Optimized sitemap generated 2025-12-10
+     Notes:
+     - Replace each <lastmod> value with the actual last-modified date of the page.
+     - Keep trailing slashes consistent across site.
+     - Use sitemap index if you plan to split into multiple sitemaps.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <!-- ROOT -->
+  <!-- HOME -->
   <url>
     <loc>https://sapanacyberhub.in/</loc>
     <lastmod>2025-12-06</lastmod>
@@ -9,87 +14,114 @@
     <priority>1.00</priority>
   </url>
 
+  <!-- MAIN CATEGORIES -->
   <url>
     <loc>https://sapanacyberhub.in/cyber-safety/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
   </url>
 
   <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/whatsapp-otp-scam/</loc>
+    <loc>https://sapanacyberhub.in/tech-news/</loc>
     <lastmod>2025-12-06</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://sapanacyberhub.in/services/</loc>
+    <lastmod>2025-12-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <url>
+    <loc>https://sapanacyberhub.in/tools/</loc>
+    <lastmod>2025-12-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <!-- CYBER SAFETY POSTS (use monthly for typical blog posts) -->
+  <url>
+    <loc>https://sapanacyberhub.in/cyber-safety/whatsapp-otp-scam/</loc>
+    <lastmod>2025-12-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/cyber-safety/protect-your-phone/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/cyber-safety/spy-app-detection/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/cyber-safety/upi-fraud-prevention/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
+
   <url>
     <loc>https://sapanacyberhub.in/cyber-safety/phone-hacked-detection/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
 
-  <!-- .......................tech-news.................... -->
+  <!-- TECH NEWS POSTS -->
   <url>
     <loc>https://sapanacyberhub.in/tech-news/realme-p4x-5g-full-review/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/tech-news/cloudflare-down-again-dec-2025/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/tech-news/jio-6g-testing/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
+
   <url>
     <loc>https://sapanacyberhub.in/tech-news/whatsapp-hidden-features-2026/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
 
   <url>
     <loc>https://sapanacyberhub.in/tech-news/sanchar-sathi-news/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
+
   <url>
     <loc>https://sapanacyberhub.in/tech-news/whatsapp-hidden-features-2025/</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
 
-  
+  <!-- OPTIONAL: add XML sitemap footer note as comment -->
+  <!-- End of sitemap -->
 </urlset>
