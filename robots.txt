@@ -1,51 +1,126 @@
-# ==============================
-# SapanaCyberHub - Robots.txt
-# SEO Optimized • Updated 2025
-# ==============================
+# =====================================================
+# SapanaCyberHub • ADVANCED robots.txt (2025 Edition)
+# SEO • SECURITY • PERFORMANCE • AI BOT CONTROL
+# =====================================================
 
-# --- Allow all major search engines ---
+# ----------------------------
+# 1. GLOBAL SEARCH ENGINE ACCESS (ALLOWED)
+# ----------------------------
 User-agent: *
 Allow: /
 
-# --- Disallow sensitive or unnecessary folders ---
+# Allow essential assets
+Allow: /*.js$
+Allow: /*.css$
+Allow: /assets/
+Allow: /images/
+Allow: /uploads/
+
+# ----------------------------
+# 2. BLOCK SENSITIVE / LOW-SEO FOLDERS
+# ----------------------------
 Disallow: /wp-admin/
-Disallow: /cgi-bin/
+Disallow: /wp-includes/
 Disallow: /private/
-Disallow: /temp/
-Disallow: /drafts/
+Disallow: /backup/
+Disallow: /tmp/
 Disallow: /test/
+Disallow: /drafts/
 Disallow: /beta/
+Disallow: /cgi-bin/
+
+# Prevent indexing of system params
 Disallow: /*?replytocom=
 Disallow: /*?amp
-
-# Block search pages (bad for SEO)
-Disallow: /search/
+Disallow: /*?share=
 Disallow: /*?s=
+Disallow: /search/
 
-# --- Prevent indexing of duplicate content ---
+# ----------------------------
+# 3. CLEAN URL & TRACKING PARAMETERS BLOCK
+# ----------------------------
 Disallow: /*utm_source=
 Disallow: /*utm_medium=
 Disallow: /*utm_campaign=
+Disallow: /*utm_term=
+Disallow: /*utm_content=
 Disallow: /*fbclid=
+Disallow: /*gclid=
+Disallow: /*ref=
+Disallow: /*source=
 
-# --- Allow JS, CSS, images (important for ranking) ---
-Allow: /*.css$
-Allow: /*.js$
-Allow: /assets/
-Allow: /images/
 
-# ==============================
-# SITEMAP DECLARATIONS (IMPORTANT)
-# ==============================
-Sitemap: https://sapanacyberhub.in/sitemap.xml
+# =====================================================
+# 4. ALLOW GOOD BOTS (FULL ACCESS)
+# =====================================================
 
-# If you ever add multiple sitemaps, also include:
-# Sitemap: https://sapanacyberhub.in/sitemap-posts.xml
-# Sitemap: https://sapanacyberhub.in/sitemap-categories.xml
+# GOOGLE
+User-agent: Googlebot
+Allow: /
 
-# ==============================
-# BLOCK BAD BOTS (saves crawl budget)
-# ==============================
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+# BING / YANDEX / BAIDU (SEARCH ENGINES)
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# SOCIAL PLATFORMS
+User-agent: FacebookExternalHit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# =====================================================
+# 5. AI CRAWLERS — CONTROLLED ACCESS
+# =====================================================
+
+# Allow AI crawlers that benefit SEO and traffic
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended     # Gemini training
+Disallow: /private/
+Allow: /
+
+User-agent: Claude-Web          # Anthropic Claude AI
+Disallow: /private/
+Allow: /
+
+User-agent: PerplexityBot
+Disallow: /private/
+Allow: /
+
+User-agent: CCBot               # CommonCrawl dataset
+Allow: /
+
+# =====================================================
+# 6. BLOCK BAD BOTS & SCRAPERS
+# Aggressive scraper protection (recommended with Cloudflare)
+# =====================================================
+
 User-agent: AhrefsBot
 Disallow: /
 
@@ -64,27 +139,48 @@ Disallow: /
 User-agent: Barkrowler
 Disallow: /
 
-# ==============================
-# ALLOW GOOD CRAWLERS
-# ==============================
-User-agent: Googlebot
-Allow: /
+User-agent: DataForSeoBot
+Disallow: /
 
-User-agent: Googlebot-Image
-Allow: /
+User-agent: AspiegelBot
+Disallow: /
 
-User-agent: Bingbot
-Allow: /
+User-agent: YisouSpider
+Disallow: /
 
-User-agent: YandexBot
-Allow: /
+User-agent: BaiduSpider          # If not targeting China
+Disallow: /
 
-User-agent: LinkedInBot
-Allow: /
+User-agent: PetalBot            # Huawei crawler (can be heavy)
+Disallow: /
 
-User-agent: ChatGPT-User
-Allow: /
+User-agent: Qwantify
+Disallow: /
 
-# ==============================
+User-agent: Archive.org_bot     # Prevent automatic archiving
+Disallow: /
+
+# =====================================================
+# 7. SERVER-PROTECTION & CRAWL-RATE CONTROL
+# =====================================================
+
+# Reduce crawling pressure at night or high traffic times:
+User-agent: *
+Crawl-delay: 4   # Delay = 4 seconds between hits (safe for shared hosting)
+
+# Google ignores crawl-delay, but Bing & Yandex respect it.
+
+# =====================================================
+# 8. SITEMAP DECLARATIONS (IMPORTANT)
+# =====================================================
+
+Sitemap: https://sapanacyberhub.in/sitemap.xml
+
+# If you use multiple sitemaps later:
+# Sitemap: https://sapanacyberhub.in/sitemap-posts.xml
+# Sitemap: https://sapanacyberhub.in/sitemap-categories.xml
+# Sitemap: https://sapanacyberhub.in/sitemap-images.xml
+
+# =====================================================
 # END OF FILE
-# ==============================
+# =====================================================
