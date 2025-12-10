@@ -1,0 +1,116 @@
+<!-- ======================== FILE: index.html ======================== -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SapanaCyberHub · Listen & Vibe & Earn</title>
+  <link rel="stylesheet" href="listen.css" />
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">SC</div>
+      <div>
+        <h2>SapanaCyberHub</h2>
+        <div class="sub">Listen & Vibe & Earn</div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div class="pill">VibeHub</div>
+      <div class="pill">sanjeet</div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- HERO SECTION -->
+
+
+    <section class="hero">
+      <div class="hero-left">
+        <div class="neon-avatar">
+          <div class="avatar-img" id="avatarImg"></div>
+          <div class="neon-ring"></div>
+        </div>
+        <div class="avatar-caption">Sapana — Always vibing</div>
+      </div>
+
+      <div class="hero-right">
+        <div class="beat-bg" id="beatBg"></div>
+
+        <div class="player-box">
+          <div class="np-header">
+            <div class="np-title">Now Playing</div>
+            <div class="np-sponsor"> SapanaCyberhub-ListenVision</div>
+          </div>
+
+          <div id="playerContainer" class="player-container">
+            <div id="ytplayer"></div>
+          </div>
+
+          <div class="player-controls">
+            <button class="play-btn" id="quickLoad"> Next song</button>
+            <div class="timer-display" id="timer">00:00</div>
+            <div class="mood-status"><div class="mood-dot" id="moodDot"></div><div id="moodText">idle</div></div>
+            <button class="save-btn" id="saveBtn">Save</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTS SECTION -->
+    <section class="events-wrap">
+      <div class="event-column">
+        <h3>Daily — 24 hrs</h3>
+        <div class="cards" id="dailyCards"></div>
+      </div>
+
+      <div class="event-column">
+        <h3>2 Days — 48 hrs</h3>
+        <div class="cards" id="twoDaysCards"></div>
+      </div>
+
+      <div class="event-column">
+        <h3>3 Days — 72 hrs</h3>
+        <div class="cards" id="threeDaysCards"></div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="leaderboard">
+      <h3>Previous Winners</h3>
+      <div class="lb-columns">
+        <div class="lb-col"><strong>Daily</strong><ol id="dailyWinners"></ol></div>
+        <div class="lb-col"><strong>48hr</strong><ol id="twoDaysWinners"></ol></div>
+        <div class="lb-col"><strong>72hr</strong><ol id="threeDaysWinners"></ol></div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-it-works neon-border">
+      <div class="how-title">How it works</div>
+      <div class="flow">
+        1) Join an event → you get a one-time join link.<br>
+        2) Play the sponsored track; timer counts only real listening time.<br>
+        3) After qualifying, winners are selected from prizepool.
+      </div>
+    </div>
+
+    <footer>
+      <div class="socials">
+        <div class="pill">FB</div><div class="pill">YT</div><div class="pill">IG</div><div class="pill">X</div>
+      </div>
+      <div class="credits">© SapanaCyberHub · Listen & Vibe & Earn</div>
+    </footer>
+  </div>
+
+  <script src="listen.js"></script>
+</body>
+</html>
+
+
+

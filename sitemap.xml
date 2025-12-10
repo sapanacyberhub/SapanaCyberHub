@@ -129,6 +129,15 @@
     <priority>0.70</priority>
   </url>
 
+  <!-- News -->
+  <url>
+    <loc>https://sapanacyberhub.in/news/mozambique-trends/</loc>
+    <lastmod>2025-12-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+
   <!-- OPTIONAL: add XML sitemap footer note as comment -->
   <!-- End of sitemap -->
 </urlset>
