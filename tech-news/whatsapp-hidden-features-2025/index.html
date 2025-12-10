@@ -42,7 +42,7 @@
     body{
       margin:0; background:var(--bg); color:#0f1724; font-size:16px; line-height:1.6;
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-      padding:20px; display:flex; justify-content:center;
+      padding:2px; display:flex; justify-content:center;
     }
     .container{width:100%; max-width:var(--maxw); padding:18px; }
     header.site-header{display:flex; gap:16px; align-items:center; margin-bottom:18px;}
@@ -50,8 +50,8 @@
     .logo img{height:44px; width:44px; border-radius:8px; display:block;}
     .title-block h1{margin:0;font-size:22px}
     .meta-row{color:var(--muted); font-size:14px; margin-top:6px}
-    .hero{margin:16px 0; border-radius:12px; overflow:hidden; box-shadow:0 6px 22px rgba(15,23,42,0.06)}
-    .hero img{width:100%; height:auto; display:block; object-fit:cover}
+    .hero{ justify-items: center; margin:16px 0; border-radius:12px; overflow:hidden; box-shadow:0 6px 22px rgba(15,23,42,0.06)}
+    .hero img{width:100%; height:auto; max-height: 400px; max-width: 400px; display:block; object-fit:cover}
     main.card{background:var(--card); padding:22px; border-radius:12px; box-shadow:0 6px 24px rgba(2,6,23,0.06)}
     nav.toc{background:#f8fbff; padding:12px; border-radius:8px; margin-bottom:18px}
     nav.toc h2{margin:0 0 8px 0; font-size:16px}
