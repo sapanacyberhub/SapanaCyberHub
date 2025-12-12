@@ -1,7 +1,7 @@
 /* ======================== FILE: listen.js ======================== */
 // SAME LOGIC FROM CANVAS — CLEAN SPLIT VERSION
 
-const SAMPLE_VIDEO = 'https://www.youtube.com/watch?v=FT4RWQ_A5ig&list=RDFT4RWQ_A5ig&start_radio=1';
+const SAMPLE_VIDEO = '';
 let player=null, timerInterval=null, totalSeconds=0, manualPause=false;
 
 const demoEvents={

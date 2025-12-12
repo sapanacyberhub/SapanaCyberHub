@@ -1,116 +1,310 @@
-<!-- ======================== FILE: index.html ======================== -->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SapanaCyberHub · Listen & Vibe & Earn</title>
-  <link rel="stylesheet" href="listen.css" />
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SapanaCyberHub X Listen — Listen 🎧 & Earn Real Rewards</title>
+  <meta name="description"
+    content="SapanaCyberHub X Listen — Listen to curated music, join events, climb the vibes leaderboard and earn real rewards. Futuristic listen & earn hub.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp" type="image/webp">
+  <link rel="stylesheet" href="listen.css">
+
+
 </head>
+
 <body>
-
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">SC</div>
-      <div>
-        <h2>SapanaCyberHub</h2>
-        <div class="sub">Listen & Vibe & Earn</div>
-      </div>
-    </div>
-
-    <div class="nav-right">
-      <div class="pill">VibeHub</div>
-      <div class="pill">sanjeet</div>
-    </div>
-  </div>
+  <div class="glow-bg"></div>
 
   <div class="container">
-
-    <!-- HERO SECTION -->
-
-
-    <section class="hero">
-      <div class="hero-left">
-        <div class="neon-avatar">
-          <div class="avatar-img" id="avatarImg"></div>
-          <div class="neon-ring"></div>
+    <!-- 1️⃣ NAVBAR -->
+    <header class="nav">
+      <div class="brand">
+        <div class="brand-logo">
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/my-application-31862.appspot.com/o/sapanacyberhub%2FSapanaCyberHub-Logo-X-Listen-og.png?alt=media&token=2796a56c-7b5b-490f-a985-36d3e15144b1"
+            alt="sapanacyberhub X Listen" loading="eager">
         </div>
-        <div class="avatar-caption">Sapana — Always vibing</div>
-      </div>
+        <div class="brand-text">
+          <small class="domain">SapanaCyberHub </small>
+          <strong>X </strong> <small class="sub-dom">Listen
 
-      <div class="hero-right">
-        <div class="beat-bg" id="beatBg"></div>
-
-        <div class="player-box">
-          <div class="np-header">
-            <div class="np-title">Now Playing</div>
-            <div class="np-sponsor"> SapanaCyberhub-ListenVision</div>
-          </div>
-
-          <div id="playerContainer" class="player-container">
-            <div id="ytplayer"></div>
-          </div>
-
-          <div class="player-controls">
-            <button class="play-btn" id="quickLoad"> Next song</button>
-            <div class="timer-display" id="timer">00:00</div>
-            <div class="mood-status"><div class="mood-dot" id="moodDot"></div><div id="moodText">idle</div></div>
-            <button class="save-btn" id="saveBtn">Save</button>
-          </div>
+          </small>
         </div>
       </div>
-    </section>
+      <div class="nav-actions">
 
-    <!-- EVENTS SECTION -->
-    <section class="events-wrap">
-      <div class="event-column">
-        <h3>Daily — 24 hrs</h3>
-        <div class="cards" id="dailyCards"></div>
+        <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer" class="btn"> Start Earning </a>
       </div>
+    </header>
+    </header>
 
-      <div class="event-column">
-        <h3>2 Days — 48 hrs</h3>
-        <div class="cards" id="twoDaysCards"></div>
-      </div>
+    <main>
+      <!-- 2️⃣ HERO -->
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>
+            Vibe. <span class="highlight">Listen.</span>
+            Climb the <span class="highlight">Rewards Leaderboard.</span>
+          </h1>
+          <p>
+            Join music-powered events from <strong>@SapanaCyberHub X Listen</strong>,
+            complete direct-link tasks, stack listening hours and get into the top 10
+            to win real rewards.
+          </p>
 
-      <div class="event-column">
-        <h3>3 Days — 72 hrs</h3>
-        <div class="cards" id="threeDaysCards"></div>
-      </div>
-    </section>
+          <div class="hero-cta">
+            <a href="https://otieu.com/4/10216281" class="btn" target="_blank" rel="noopener noreferrer">
+              🔥 Join Today’s Main Event
+            </a>
+          </div>
 
-    <!-- LEADERBOARD -->
-    <section class="leaderboard">
-      <h3>Previous Winners</h3>
-      <div class="lb-columns">
-        <div class="lb-col"><strong>Daily</strong><ol id="dailyWinners"></ol></div>
-        <div class="lb-col"><strong>48hr</strong><ol id="twoDaysWinners"></ol></div>
-        <div class="lb-col"><strong>72hr</strong><ol id="threeDaysWinners"></ol></div>
-      </div>
-    </section>
+          <!-- player -->
+          <section class="layout-two-col">
+            <div class="card">
+              <div class="card-header">
+              </div>
 
-    <!-- HOW IT WORKS -->
-    <div class="how-it-works neon-border">
-      <div class="how-title">How it works</div>
-      <div class="flow">
-        1) Join an event → you get a one-time join link.<br>
-        2) Play the sponsored track; timer counts only real listening time.<br>
-        3) After qualifying, winners are selected from prizepool.
-      </div>
-    </div>
+              <div class="player-frame">
+                <!-- Replace YOUR_VIDEO_ID using data from Firebase -->
+                <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=0&rel=0"
+                  title="SapanaCyberHub X Listen"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+              <small class="vibing-event-id"></small>
+            </div>
 
-    <footer>
-      <div class="socials">
-        <div class="pill">FB</div><div class="pill">YT</div><div class="pill">IG</div><div class="pill">X</div>
-      </div>
-      <div class="credits">© SapanaCyberHub · Listen & Vibe & Earn</div>
-    </footer>
+            <div class="card">
+              <div class="card-header">
+                <h3>SapanaCyberHub X Listen</h3>
+              </div>
+              <div class="track-list">
+                <!-- Example track item; mark active one -->
+                <div class="track-item active">
+                  <div class="track-thumb">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/track-1.webp?alt=media"
+                      alt="">
+                  </div>
+                  <div class="track-meta">
+                    <strong>Sapana Cyber Mix #01</strong>
+                    <span>47:31 • Main Event</span>
+                  </div>
+                  <span style="font-size:10px;color:var(--accent-2);">Now</span>
+                </div>
+
+                <div class="track-item">
+                  <div class="track-thumb">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/track-2.webp?alt=media"
+                      alt="">
+                  </div>
+                  <div class="track-meta">
+                    <strong>Lo-Fi Focus Session</strong>
+                    <span>32:15 • Chill Study</span>
+                  </div>
+                  <span style="font-size:10px;">Tap</span>
+                </div>
+
+                <div class="track-item">
+                  <div class="track-thumb">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/track-3.webp?alt=media"
+                      alt="">
+                  </div>
+                  <div class="track-meta">
+                    <strong>Night Owl Synthwave</strong>
+                    <span>54:10 • Night Grinder</span>
+                  </div>
+                  <span style="font-size:10px;">Tap</span>
+                </div>
+
+                <div class="track-item">
+                  <div class="track-thumb">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/track-4.webp?alt=media"
+                      alt="">
+                  </div>
+                  <div class="track-meta">
+                    <strong>Morning Coffee Beats</strong>
+                    <span>28:42 • Soft Start</span>
+                  </div>
+                  <span style="font-size:10px;">Tap</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- HERO VISUAL WITH GIRL IMAGE (FIREBASE) -->
+        <div class="hero-visual">
+          <div class="hero-visual-inner">
+            <!-- 🔥 Replace src with your Firebase Storage download URL -->
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/my-application-31862.appspot.com/o/sapanacyberhub%2FEye-catching%20thumbna.png?alt=media&token=db39ad8f-51f3-4fdd-8dab-5dfbdd6d28e3"
+              alt="Futuristic girl listening to music in neon environment" loading="lazy">
+            <!-- Audio pill over image -->
+            <div class="audio-ring">
+              <div class="eq-bars">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="audio-info">
+                <strong>Now vibing: Sapana Cyber Mix #01</strong>
+                <span>From @sapanacyberhub X Listen • Autoplay from Firebase</span>
+              </div>
+              <div class="pill-live">Live</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3️⃣ LIVE EVENTS GRID -->
+      <section>
+        <div class="section-title">
+          <div>
+            <h2>Live & Upcoming Events</h2>
+            <small>Tap <strong>Join</strong> → complete direct link → come back and hit <strong>Vibe</strong>.</small>
+          </div>
+          <small>Every card & button is designed to beat with attraction ❤️‍🔥</small>
+        </div>
+
+        <div class="event-grid">
+          <!-- Event 1 -->
+          <article class="event-card">
+            <div class="event-tag-row">
+              <span>Tonight • Main Event</span>
+              <span class="event-label">Top 10 listeners rewarded</span>
+            </div>
+            <div class="event-thumb">
+              <!-- Replace with Firebase storage image -->
+              <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/event-main.webp?alt=media"
+                alt="Neon city night music event">
+              <div class="event-prize-badge">Prize Pool: ₹1,000</div>
+            </div>
+            <div class="event-title">Neon Night Vibes — Main Session</div>
+            <div class="event-meta">
+              <span>Duration: 60 min</span>
+              <span>Slots: Unlimited listeners</span>
+            </div>
+            <div class="event-progress">
+              <span style="width:72%;"></span>
+            </div>
+            <div class="event-actions">
+              <!-- Join button shows direct link first time -->
+              <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
+                Join & Open Direct Link
+              </a>
+              <button class="ghost" type="button">
+                View Event Details
+              </button>
+            </div>
+          </article>
+
+          <!-- Event 2 -->
+          <article class="event-card">
+            <div class="event-tag-row">
+              <span>Afternoon Chill</span>
+              <span class="event-label">Soft lo-fi, deep focus</span>
+            </div>
+            <div class="event-thumb">
+              <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/event-chill.webp?alt=media"
+                alt="Chill lofi instrumental event">
+              <div class="event-prize-badge">Top 10: ₹50 each</div>
+            </div>
+            <div class="event-title">Lo-Fi Focus — Study & Earn</div>
+            <div class="event-meta">
+              <span>Duration: 45 min</span>
+              <span>Starts: 4:30 PM</span>
+            </div>
+            <div class="event-progress">
+              <span style="width:40%;"></span>
+            </div>
+            <div class="event-actions">
+              <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
+                Join Event
+              </a>
+              <button class="ghost" type="button">
+                Set Reminder
+              </button>
+            </div>
+          </article>
+
+          <!-- Event 3 -->
+          <article class="event-card">
+            <div class="event-tag-row">
+              <span>Night Owl Session</span>
+              <span class="event-label">Perfect for coders & gamers</span>
+            </div>
+            <div class="event-thumb">
+              <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/event-night.webp?alt=media"
+                alt="Cyberpunk late-night event">
+              <div class="event-prize-badge">Winner: ₹300</div>
+            </div>
+            <div class="event-title">Cyberpunk Energy — Late Night Grind</div>
+            <div class="event-meta">
+              <span>Duration: 90 min</span>
+              <span>Start: 11:00 PM</span>
+            </div>
+            <div class="event-progress">
+              <span style="width:20%;"></span>
+            </div>
+            <div class="event-actions">
+              <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
+                Join Waitlist
+              </a>
+              <button class="ghost" type="button">
+                View Rules
+              </button>
+            </div>
+          </article>
+
+          <!-- Event 4 (already joined → Vibe) -->
+          <article class="event-card">
+            <div class="event-tag-row">
+              <span>Joined • Your Event</span>
+              <span class="event-label">Listening time counting ⏱</span>
+            </div>
+            <div class="event-thumb">
+              <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET_NAME/o/event-joined.webp?alt=media"
+                alt="Already joined event">
+              <div class="event-prize-badge">You’re in! Keep vibing.</div>
+            </div>
+            <div class="event-title">Personal Mix — X Listen Lounge</div>
+            <div class="event-meta">
+              <span>Time left: 22 min</span>
+              <span>Your rank: #07</span>
+            </div>
+            <div class="event-progress">
+              <span style="width:80%;"></span>
+            </div>
+            <div class="event-actions">
+              <!-- After join, label becomes Vibe -->
+              <button type="button">
+                🎧 Vibe Now
+              </button>
+              <button class="ghost" type="button">
+                View Prize List
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+
+      <!-- FOOTER -->
+      <footer>
+        <span>© 2025 SapanaCyberHub X Listen — Built with love for real vibers 💜</span>
+        <span>
+          <a href="#">Event Rules</a> ·
+          <a href="#">Payout FAQ</a> ·
+          <a href="#">Contact</a>
+        </span>
+      </footer>
+    </main>
   </div>
 
-  <script src="listen.js"></script>
+  <!-- (Optional) In future: here you can inject Monetag scripts, tracking etc. -->
+
 </body>
+
 </html>
-
-
-
