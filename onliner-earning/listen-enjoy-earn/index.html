@@ -11,6 +11,7 @@
   <!-- Favicon -->
   <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp" type="image/webp">
   <link rel="stylesheet" href="listen.css">
+  <script type="module" src="listen.js" defer></script>
 
 
 </head>
@@ -37,8 +38,8 @@
 
       <!-- user name or ther earning -->
       <div class="user-wallet">
-        <a id="user_earning" href="./wallet/index.html"><strong>₹</span>200</a>
-        <a id="user_name" href="./profile/index.htm">Sapana</a>
+        <a id="user_earning" href="./wallet/index.html"><strong>₹</span>0</a>
+        <a id="user_name" href="./profile/index.htm">logIn</a>
       </div>
     </header>
 
@@ -51,10 +52,8 @@
             Climb the <span class="highlight">Rewards Leaderboard.</span>
           </h1>
           <p>
-            <strong>Welcome</strong>join music-powered events from <strong>@SapanaCyberHub X Listen</strong>,
-            stack listening hours and get into the top 10
-            to win real rewards.
-          </p>
+            Join SapanaCyberHub X Listen to immerse yourself in curated music events. Listen, accumulate hours, and
+            climb the vibes leaderboard for a chance to win real rewards.
         </div>
 
         <div class="hero">
@@ -63,9 +62,8 @@
           <div class="hero-visual">
             <div class="hero-visual-inner">
               <!-- 🔥 Replace src with your Firebase Storage download URL -->
-              <img
-                src="https://firebasestorage.googleapis.com/v0/b/my-application-31862.appspot.com/o/sapanacyberhub%2FEye-catching%20thumbna.png?alt=media&token=db39ad8f-51f3-4fdd-8dab-5dfbdd6d28e3"
-                alt="Futuristic girl listening to music in neon environment" loading="lazy">
+              <img src="/assets/logo/listen_avatar.png" alt="Futuristic girl listening to music in neon environment"
+                loading="lazy">
               <!-- Audio pill over image -->
               <div class="audio-ring">
                 <div class="eq-bars">
@@ -73,7 +71,7 @@
                 </div>
                 <div class="audio-info">
                   <strong>Now vibing: Sapana Cyber Mix #01</strong>
-                  <small>00:00 • Main Event</small>
+                  <small class="listen-hours-timmer">00:00 • SapanaCyberHub X Listen </small>
                 </div>
               </div>
             </div>
@@ -87,13 +85,12 @@
 
               <div class="player-frame">
                 <!-- Replace YOUR_VIDEO_ID using data from Firebase -->
-                <iframe width="560" height="315"
-                  src="https://www.youtube.com/embed/cTSwVPrPVtM?si=Rbe3oY0vlEtp8Km3"
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/cTSwVPrPVtM?si=Rbe3oY0vlEtp8Km3"
                   title="YouTube video player" frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
               </div>
-              <small class="vibing-event-id"></small>
+              <small class="vibing-event-id">Event: Listen@0025</small>
             </div>
 
             <div class="card">
@@ -106,126 +103,141 @@
             </div>
           </section>
       </section>
-  </div>
 
 
-  <!-- 3️⃣ LIVE EVENTS GRID -->
-  <section>
-    <div class="section-title">
-      <div>
-        <h2>Live Events</h2>
+
+      <!-- 3️⃣ LIVE EVENTS GRID -->
+      <section>
+        <div class="section-title">
+          <div class="divider">
+            <span></span>
+            <h2>Live Events</h2>
+            <span></span>
+          </div>
+          <div class="filters">
+            <span class="vibing-btn" id="vibing-btn"> LIVE</span>
+            <span class="vibing-over-btn" id="vibing-over-btn">JOINED</span>
+          </div>
+        </div>
+
+        <div class="event-grid">
+          <!-- event-container -->
+        </div>
+      </section>
+
+      <!-- 4️⃣ HIT LIVE EVENTS GRID -->
+      <div class="section-title">
+        <div class="divider">
+          <span></span>
+          <h2>Creature Escape LIVE</h2>
+          <span></span>
+        </div>
+        <div class="filters">
+          <span class="live-event"> LIVE</span>
+          <span class="joined-event">JOINED</span>
+        </div>
       </div>
-    </div>
-
-    <div class="event-grid">
-      <!-- Event 1 -->
-      <article class="event-card">
-        <div class="event-tag-row">
-          <span class="dot"></span>
-          <span class="event-date">12-dec-2025</span>
-        </div>
-        <div class="event-thumb">
-          <!-- Replace with Firebase storage image -->
-          <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cyber-punk-night.png"
-            alt="Neon city night music event">
-          <div class="event-prize-badge">Prize Pool: ₹1,000</div>
-        </div>
-        <div class="event-title">Neon Night Vibes — Main Session</div>
-        <div class="event-meta">
-          <span>Duration: 1day</span>
-          <span>Slots: Unlimited listeners</span>
-        </div>
-        <div class="event-progress">
-          <span style="width:100%;"></span>
-        </div>
-        <div class="event-actions">
-          <!-- Join button shows direct link first time -->
-          <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
-            Join
-          </a>
-          <button class="ghost" type="button">
-            Event Details
-          </button>
-        </div>
-      </article>
-      <!-- Event 2 -->
-      <article class="event-card">
-        <div class="event-tag-row">
-          <span class="dot"></span>
-          <span class="event-date">12-dec-2025</span>
-        </div>
-        <div class="event-thumb">
-          <!-- Replace with Firebase storage image -->
-          <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cyber-punk-night.png"
-            alt="Neon city night music event">
-          <div class="event-prize-badge">Prize Pool: ₹1,000</div>
-        </div>
-        <div class="event-title">Neon Night Vibes — Main Session</div>
-        <div class="event-meta">
-          <span>Duration: 2days</span>
-          <span>Slots: Unlimited listeners</span>
-        </div>
-        <div class="event-progress">
-          <span style="width:100%;"></span>
-        </div>
-        <div class="event-actions">
-          <!-- Join button shows direct link first time -->
-          <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
-            Join
-          </a>
-          <button class="ghost" type="button">
-            Event Details
-          </button>
-        </div>
-      </article>
-      <!-- Event 1 -->
-      <article class="event-card">
-        <div class="event-tag-row">
-          <span class="dot"></span>
-          <span class="event-date">12-dec-2025</span>
-        </div>
-        <div class="event-thumb">
-          <!-- Replace with Firebase storage image -->
-          <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cyber-punk-night.png"
-            alt="Neon city night music event">
-          <div class="event-prize-badge">Prize Pool: ₹1,000</div>
-        </div>
-        <div class="event-title">Neon Night Vibes — Main Session</div>
-        <div class="event-meta">
-          <span>Duration: 3days</span>
-          <span>Slots: Unlimited listeners</span>
-        </div>
-        <div class="event-progress">
-          <span style="width:72%;"></span>
-        </div>
-        <div class="event-actions">
-          <!-- Join button shows direct link first time -->
-          <a href="https://otieu.com/4/10216281" target="_blank" rel="noopener noreferrer">
-            Join
-          </a>
-          <button class="ghost" type="button">
-            Event Details
-          </button>
-        </div>
-      </article>
-    </div>
-  </section>
 
 
-  <!-- FOOTER -->
-  <footer>
-    <span>© 2025 SapanaCyberHub X Listen — Built with love for real vibers 💜</span>
-    <span>
-      <a href="#">Event Rules</a> ·
-      <a href="#">Payout FAQ</a> ·
-      <a href="#">Contact</a>
-    </span>
-  </footer>
-  </main>
+      <div class="hit-event-grid">
+        <!-- hit-event-container -->
+        <div class="hit-card">
+          <div class="hit-event-content">
+            <h3 class="event-Title">I'm Dragony Pls Help me to escape</h3>
+            <div class="progress-fill">
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="hit-lock">
+              <img class="hit-btn"
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png" alt=" hit-btn">
+                <h3>pls HIT Stroid to Escape me! </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ===== FOOTER ===== -->
+
+      <footer class="footer-body">
+        <div class="footer-top">
+          <div class="container-0">
+            Official
+            <a href="https://sapanacyberhub.in/official/">about us!🤔</a>
+            <a href="https://sapanacyberhub.in/official">privacy & policy</a>
+            <a href="https://sapanacyberhub.in/official"> terms & conditions</a>
+            <a href="https://sapanacyberhub.in/official">Contact us❤️</a>
+          </div>
+
+          <div class="container-1">
+            <img src="/assets/SapanaCyberHub-Logo.webp">
+            SapanaCyberHub
+          </div>
+
+          <div class="container-2">
+            Follow us😘💖
+            <a href="https://www.instagram.com/sapanacyberhub?igsh=ejV1ZmYzcHA3NDRv"><img
+                src="/assets/instagram.webp">@SapanaCyberHub</a>
+            <a href="https://www.facebook.com/share/1S6FtVVyA1/"><img src="/assets/Fb-logo.webp">@SapanaCyberHub
+            </a>
+            <a href="https://www.youtube.com/@SapanaCyberHubXListen"><img
+                src="/assets/yt-logo.webp">@SapanaCyberHubXListen </a>
+            <a href="#">LearnHub </a>
+          </div>
+        </div>
+        <p>Learn · Earn · Stay Secure</p>
+
+        <p>© 2025 – 2026 SapanaCyberHub. All rights reserved. <a> Made with 💖 curiosity😎</a></p>
+      </footer>
+
+      <!-- dialogs -->
+      <div class="overlay_hidden">
+        <div class="dialog">
+          <!-- event details prize rules how it's worked -->
+          <div class="dialog-content">
+            <button class="dialog-close" aria-label="Close dialog">&times;</button>
+            <h2>Event Details</h2>
+            <h3>Event Title</h3>
+            <p>
+              <span class="event-tittle">Join the Neon Night Vibes event to immerse yourself in a futuristic music
+                experience. </span> Listen to
+              curated tracks, accumulate listening hours, and climb the leaderboard for a chance to win real rewards.
+            </p>
+            <h3>Prize Pool</h3>
+            <p>The total prize pool for this event is<span class="prize-pool"> ₹1,000</span> distributed among the top
+              10 listeners.</p>
+            <h3>How It Works</h3>
+            <ul>
+              <li>Join the event by clicking the "Vibe🎧" button.</li>
+              <li>Listen to the curated music tracks during the event duration.</li>
+              <li>Accumulate listening hours to climb the leaderboard.</li>
+              <li>The top 10 listeners at the end of the event will receive rewards from the prize pool.</li>
+              <!-- after top ten more 1000 user rewards with Listen Coin -->
+              <li>Additional rewards are available for the top 1000 listeners, distributed in the form of Listen
+                Coins.
+                <img
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                  alt=" Listen-coin-og">
+              </li>
+            </ul>
+
+            <div class="join-now">VIBE<img
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                alt=" Listen-coin-og"></div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
-
-  <!-- (Optional) In future: here you can inject Monetag scripts, tracking etc. -->
-
 </body>
 
 </html>
