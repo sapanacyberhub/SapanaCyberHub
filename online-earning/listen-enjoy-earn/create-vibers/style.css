@@ -4,7 +4,6 @@ body {
     background: radial-gradient(circle at top, #1f2937 0%, var(--bg) 55%);
     color: var(--text);
     height: 100vh;
-
     overflow: hidden;
 }
 

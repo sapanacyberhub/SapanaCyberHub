@@ -56,7 +56,8 @@
             climb the vibes leaderboard for a chance to win real rewards.
         </div>
 
-        <div class="hero">
+        <!-- <div class="hero"> -->
+        <section class="hero">
 
           <!-- HERO VISUAL WITH GIRL IMAGE (FIREBASE) -->
           <div class="hero-visual">
@@ -71,7 +72,7 @@
                 </div>
                 <div class="audio-info">
                   <strong>Now vibing: Sapana Cyber Mix #01</strong>
-                  <small class="listen-hours-timmer">00:00 • SapanaCyberHub X Listen </small>
+                  <small class="listen-hours-timmer"><small>00:00:00</small>• SapanaCyberHub X Listen   <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/next-btn.png" alt=""></small>
                 </div>
               </div>
             </div>
@@ -80,9 +81,6 @@
           <!-- player -->
           <section class="layout-two-col">
             <div class="card">
-              <div class="card-header">
-              </div>
-
               <div class="player-frame">
                 <!-- Replace YOUR_VIDEO_ID using data from Firebase -->
                 <iframe width="560" height="315" src="https://www.youtube.com/embed/cTSwVPrPVtM?si=Rbe3oY0vlEtp8Km3"
@@ -102,140 +100,142 @@
               </div>
             </div>
           </section>
-      </section>
+
+        </section>
 
 
 
-      <!-- 3️⃣ LIVE EVENTS GRID -->
-      <section>
+        <!-- 3️⃣ LIVE EVENTS GRID -->
+        <section>
+          <div class="section-title">
+            <div class="divider">
+              <span></span>
+              <h2>Live Events</h2>
+              <span></span>
+            </div>
+            <div class="filters">
+              <span class="vibing-btn" id="vibing-btn"> LIVE</span>
+              <span class="vibing-over-btn" id="vibing-over-btn">JOINED</span>
+            </div>
+          </div>
+
+          <div class="event-grid">
+            <!-- event-container -->
+          </div>
+        </section>
+
+        <!-- 4️⃣ HIT LIVE EVENTS GRID -->
         <div class="section-title">
           <div class="divider">
             <span></span>
-            <h2>Live Events</h2>
+            <h2>Creature Escape LIVE</h2>
             <span></span>
           </div>
           <div class="filters">
-            <span class="vibing-btn" id="vibing-btn"> LIVE</span>
-            <span class="vibing-over-btn" id="vibing-over-btn">JOINED</span>
+            <span class="live-event"> LIVE</span>
+            <span class="joined-event">JOINED</span>
           </div>
         </div>
 
-        <div class="event-grid">
-          <!-- event-container -->
-        </div>
-      </section>
 
-      <!-- 4️⃣ HIT LIVE EVENTS GRID -->
-      <div class="section-title">
-        <div class="divider">
-          <span></span>
-          <h2>Creature Escape LIVE</h2>
-          <span></span>
-        </div>
-        <div class="filters">
-          <span class="live-event"> LIVE</span>
-          <span class="joined-event">JOINED</span>
-        </div>
-      </div>
-
-
-      <div class="hit-event-grid">
-        <!-- hit-event-container -->
-        <div class="hit-card">
-          <div class="hit-event-content">
-            <h3 class="event-Title">I'm Dragony Pls Help me to escape</h3>
-            <div class="progress-fill">
-              <div class="prison-hexagon">
-                <img class="event-img"
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
-                  alt="Event Image">
-                <img class="lock"
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
-                  alt="">
+        <div class="hit-event-grid">
+          <!-- hit-event-container -->
+          <div class="hit-card">
+            <div class="hit-event-content">
+              <h3 class="event-Title">I'm Dragony Pls Help me to escape</h3>
+              <div class="progress-fill">
+                <div class="prison-hexagon">
+                  <img class="event-img"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                    alt="Event Image">
+                  <img class="lock"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                    alt="">
+                </div>
+              </div>
+              <div class="hit-lock">
+                <img class="hit-btn"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
+                  alt=" hit-btn">
+                <h3>pls HIT Stroid to Escape me! </h3>
               </div>
             </div>
-            <div class="hit-lock">
-              <img class="hit-btn"
-                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png" alt=" hit-btn">
-                <h3>pls HIT Stroid to Escape me! </h3>
+          </div>
+        </div>
+
+
+        <!-- ===== FOOTER ===== -->
+
+        <footer class="footer-body">
+          <div class="footer-top">
+            <div class="container-0">
+              Official
+              <a href="https://sapanacyberhub.in/official/">about us!🤔</a>
+              <a href="https://sapanacyberhub.in/official">privacy & policy</a>
+              <a href="https://sapanacyberhub.in/official"> terms & conditions</a>
+              <a href="https://sapanacyberhub.in/official">Contact us❤️</a>
+            </div>
+
+            <div class="container-1">
+              <img src="/assets/SapanaCyberHub-Logo.webp">
+              SapanaCyberHub
+            </div>
+
+            <div class="container-2">
+              Follow us😘💖
+              <a href="https://www.instagram.com/sapanacyberhub?igsh=ejV1ZmYzcHA3NDRv"><img
+                  src="/assets/instagram.webp">@SapanaCyberHub</a>
+              <a href="https://www.facebook.com/share/1S6FtVVyA1/"><img src="/assets/Fb-logo.webp">@SapanaCyberHub
+              </a>
+              <a href="https://www.youtube.com/@SapanaCyberHubXListen"><img
+                  src="/assets/yt-logo.webp">@SapanaCyberHubXListen </a>
+              <a href="#">LearnHub </a>
+            </div>
+          </div>
+          <p>Learn · Earn · Stay Secure</p>
+
+          <p>© 2025 – 2026 SapanaCyberHub. All rights reserved. <a> Made with 💖 curiosity😎</a></p>
+        </footer>
+
+        <!-- dialogs -->
+        <div class="overlay_hidden">
+          <div class="dialog">
+            <!-- event details prize rules how it's worked -->
+            <div class="dialog-content">
+              <button class="dialog-close" aria-label="Close dialog">&times;</button>
+              <h2>Event Details</h2>
+              <h3>Event Title</h3>
+              <p>
+                <span class="event-tittle">Join the Neon Night Vibes event to immerse yourself in a futuristic music
+                  experience. </span> Listen to
+                curated tracks, accumulate listening hours, and climb the leaderboard for a chance to win real rewards.
+              </p>
+              <h3>Prize Pool</h3>
+              <p>The total prize pool for this event is<span class="prize-pool"> ₹1,000</span> distributed among the top
+                10 listeners.</p>
+              <h3>How It Works</h3>
+              <ul>
+                <li>Join the event by clicking the "Vibe🎧" button.</li>
+                <li>Listen to the curated music tracks during the event duration.</li>
+                <li>Accumulate listening hours to climb the leaderboard.</li>
+                <li>The top 10 listeners at the end of the event will receive rewards from the prize pool.</li>
+                <!-- after top ten more 1000 user rewards with Listen Coin -->
+                <li>Additional rewards are available for the top 1000 listeners, distributed in the form of Listen
+                  Coins.
+                  <img
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                    alt=" Listen-coin-og">
+                </li>
+              </ul>
+
+              <div class="join-now">VIBE<img
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                  alt=" Listen-coin-og"></div>
+
+
             </div>
           </div>
         </div>
-      </div>
-
-
-      <!-- ===== FOOTER ===== -->
-
-      <footer class="footer-body">
-        <div class="footer-top">
-          <div class="container-0">
-            Official
-            <a href="https://sapanacyberhub.in/official/">about us!🤔</a>
-            <a href="https://sapanacyberhub.in/official">privacy & policy</a>
-            <a href="https://sapanacyberhub.in/official"> terms & conditions</a>
-            <a href="https://sapanacyberhub.in/official">Contact us❤️</a>
-          </div>
-
-          <div class="container-1">
-            <img src="/assets/SapanaCyberHub-Logo.webp">
-            SapanaCyberHub
-          </div>
-
-          <div class="container-2">
-            Follow us😘💖
-            <a href="https://www.instagram.com/sapanacyberhub?igsh=ejV1ZmYzcHA3NDRv"><img
-                src="/assets/instagram.webp">@SapanaCyberHub</a>
-            <a href="https://www.facebook.com/share/1S6FtVVyA1/"><img src="/assets/Fb-logo.webp">@SapanaCyberHub
-            </a>
-            <a href="https://www.youtube.com/@SapanaCyberHubXListen"><img
-                src="/assets/yt-logo.webp">@SapanaCyberHubXListen </a>
-            <a href="#">LearnHub </a>
-          </div>
-        </div>
-        <p>Learn · Earn · Stay Secure</p>
-
-        <p>© 2025 – 2026 SapanaCyberHub. All rights reserved. <a> Made with 💖 curiosity😎</a></p>
-      </footer>
-
-      <!-- dialogs -->
-      <div class="overlay_hidden">
-        <div class="dialog">
-          <!-- event details prize rules how it's worked -->
-          <div class="dialog-content">
-            <button class="dialog-close" aria-label="Close dialog">&times;</button>
-            <h2>Event Details</h2>
-            <h3>Event Title</h3>
-            <p>
-              <span class="event-tittle">Join the Neon Night Vibes event to immerse yourself in a futuristic music
-                experience. </span> Listen to
-              curated tracks, accumulate listening hours, and climb the leaderboard for a chance to win real rewards.
-            </p>
-            <h3>Prize Pool</h3>
-            <p>The total prize pool for this event is<span class="prize-pool"> ₹1,000</span> distributed among the top
-              10 listeners.</p>
-            <h3>How It Works</h3>
-            <ul>
-              <li>Join the event by clicking the "Vibe🎧" button.</li>
-              <li>Listen to the curated music tracks during the event duration.</li>
-              <li>Accumulate listening hours to climb the leaderboard.</li>
-              <li>The top 10 listeners at the end of the event will receive rewards from the prize pool.</li>
-              <!-- after top ten more 1000 user rewards with Listen Coin -->
-              <li>Additional rewards are available for the top 1000 listeners, distributed in the form of Listen
-                Coins.
-                <img
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                  alt=" Listen-coin-og">
-              </li>
-            </ul>
-
-            <div class="join-now">VIBE<img
-                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                alt=" Listen-coin-og"></div>
-
-
-          </div>
-        </div>
-      </div>
     </main>
   </div>
 </body>

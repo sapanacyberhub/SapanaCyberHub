@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SapanaCyberHub | Admin Core</title>
+
+  <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="script.js" defer > </script>
+
+
+</head>
+
+<body>
+
+  <!-- BACKGROUND GLOW -->
+  <div class="glow-bg"></div>
+
+  <!-- NAV BAR -->
+  <header class="nav-bar">
+    <div class="nav-left">
+      <img src="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
+      <h3>SapanaCyberHub</h3>
+    </div>
+
+    <!-- CYBER CLOCK -->
+    <div class="cyber-clock">
+      <div class="ring"></div>
+      <div class="hand hour" id="hour"></div>
+      <div class="hand minute" id="minute"></div>
+      <div class="hand second" id="second"></div>
+      <div class="center-dot"></div>
+    </div>
+
+    <div class="nav-right">
+      <span class="admin-tag">SANJEET</span>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="dashboard">
+
+    <!-- WELCOME -->
+    <section class="welcome-box">
+      <h1>Welcome Back, Admin ⚡</h1>
+      <p>System status is <span class="online">ONLINE</span></p>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats-grid">
+      <div class="stat-card cyan">
+        <h4>Active Vibers</h4>
+        <h2>150,045</h2>
+      </div>
+
+      <div class="stat-card pink">
+        <h4>Pending Withdrawals</h4>
+        <h2>23</h2>
+      </div>
+
+      <div class="stat-card purple">
+        <h4>Support Tickets</h4>
+        <h2>7</h2>
+      </div>
+
+      <div class="stat-card green">
+        <h4>Total Payout</h4>
+        <h2>₹4.8L</h2>
+      </div>
+    </section>
+
+    <!-- ACTIONS -->
+    <section class="action-panel">
+      <button>💸 Review Withdrawals</button>
+      <button>🎧 Support Requests</button>
+      <button>👤 Manage Users</button>
+      <button>⚠️ Fraud Logs</button>
+    </section>
+
+
+  </main>
+
+  <!-- event create dialogs -->
+
+  <!-- listen event  -->
+
+  <div class="host-dialog hidden" id="host-dialog">
+    <div class="content">
+
+      <div class="top-dialog">
+        
+      <span class="active-dot"></span> 
+      <span class="close" id="close-dialog">X</span>
+      </div>
+
+      <div class="dropdown">
+        <div class="dropdown-btn">Choose Event Type ⌄</div>
+
+        <ul class="dropdown-menu">
+          <li data-value="hitEvents">Hit-event</li>
+          <li data-value="listenEvents">Listen-event</li>
+        </ul>
+      </div>
+
+
+
+      <input type="text" id="eventTitle" placeholder="Event Title">
+      <input type="text" id="eventTitle" placeholder=" creature url">
+      <input type="text" id="eventTitle" placeholder=" prize-pool">
+
+      <div class="host" id="host"> Host</div>
+
+
+    </div>
+  </div>
+
+  <div class="bottom-bar"> <span class="create" id="create">+</span> </div>
+  
+</body>
+
+</html>
