@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Fascinate&display=swap');
+
 :root {
   --bg: #050816;
   --bg-soft: #0b1020;
@@ -178,10 +181,11 @@ main {
 
 /* 4️⃣ CURRENT VIBE PLAYER */
 .layout-two-col {
-  width: 100%;
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 18px;
+  max-width: 600px;
   margin-top: 16px;
 }
 
@@ -195,20 +199,65 @@ main {
 }
 
 .player-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
   border-radius: 12px;
   overflow: hidden;
   background: #020617;
   border: 1px solid rgba(51, 65, 85, 0.9);
-  margin-bottom: 8px;
-  width: 100%;
-  aspect-ratio: 16/10;
 }
 
-.player-frame iframe {
+/* Both fill frame */
+.player-frame iframe,
+.player-frame .waitlist {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  border: none;
+  object-fit: cover;
+  transition: opacity 0.4s ease;
 }
+
+/* DEFAULT: user NOT joined */
+.player-frame.not-joined iframe {
+  opacity: 0;
+  display: none;
+}
+
+.player-frame.not-joined .waitlist {
+  opacity: 1;
+  display: block;
+}
+
+/* WHEN user joins */
+.player-frame.joined iframe {
+  opacity: 1;
+  display: block;
+}
+
+.player-frame.joined .waitlist {
+  opacity: 0;
+  display: none;
+}
+
+
+.event-page-btn{
+  display: flex;
+  position: absolute;
+  width: max-content;
+  transform: rotate(-5deg);
+  top: 50%;
+  left: 10%;
+  background: rgba(0, 0, 0, 0.558);
+  padding: 10px;
+  border-radius: 25px;
+  box-shadow: 0 0 4px rgb(255, 120, 120), 0 0 8px rgb(106, 255, 0),
+  inset 0 0 4px red, 0 0 10px red ;
+  font-family: "Fascinate", system-ui;
+}
+
+
 
 .track-list {
   display: flex;
@@ -306,7 +355,10 @@ main {
 .hero-visual {
   font-weight: 600;
   width: 100%;
+  height: max-content;
   max-width: 450px;
+  align-items: center;
+  justify-content: center;
   border-radius: 26px;
   background: radial-gradient(circle at 15% 0, var(--accent-soft), transparent 55%), radial-gradient(circle at 85% 100%, rgba(56, 189, 248, 0.35), transparent 55%), linear-gradient(145deg, #020617, #020617, #020617);
   padding: 10px;
@@ -348,14 +400,17 @@ main {
   border-radius: 20px;
   overflow: hidden;
   position: relative;
-  height: 100%;
+  height: max-content;
   background: radial-gradient(circle at 50% 0, rgba(148, 163, 253, 0.4), transparent 60%);
 }
 
-.hero-visual img {
+.floating-girl {
   width: 100%;
   object-fit: cover;
   transform: translateY(0);
+}
+/* state */
+.girlActive{
   animation: floatGirl 5s ease-in-out infinite;
 }
 
@@ -371,31 +426,41 @@ main {
   }
 }
 
-.audio-info-bar {
-  position: relative;
-  margin-top: -40px;
-  margin-bottom: 16px;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-}
+
 
 .audio-ring {
-  position: absolute;
-  inset: auto 16px 16px 16px;
-  padding: 10px 12px;
+  position:relative;
+  transform: translateY(-20px);
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgb(0, 1, 3);
   display: flex;
+  width: 95%;
+  justify-self: center;
   align-items: center;
-  gap: 10px;
-  backdrop-filter: blur(10px);
+  justify-content: space-around;
+  box-shadow: 0 0 4px rgba(129, 140, 248, 0.6);
+}
+
+.audio-ring::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #00e5ff,
+    #818cf8,
+    #ff3c7d
+  );
+  filter: blur(6px);
+  opacity: 0.7;
+  z-index: -1;
 }
 
 .eq-bars {
   display: flex;
   gap: 3px;
+  margin-left: 15px;
   align-items: flex-end;
   height: 18px;
 }
@@ -404,6 +469,11 @@ main {
   width: 3px;
   border-radius: 999px;
   background: linear-gradient(var(--accent), var(--accent-2));
+  height: 4px;
+  
+}
+/* vibing state */
+.vibing{
   animation: equalizer 0.9s infinite ease-in-out;
 }
 
@@ -436,16 +506,39 @@ main {
 }
 
 .audio-info {
-  flex: 1;
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 4px;
 }
 
-.audio-info strong {
-  font-size: 11px;
-  display: block;
+
+.top{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.top a{
+  gap: 10px;
+}
+.vibing-title  {
+  text-align: center;
+  display: flex;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+.counter{
+  display: flex;
+  align-items: center;
+  margin-left: 10px
+}
+.next-btn {
+  width: 40px;
+  box-shadow: inset 0 0 10px red;
+  border-radius: 999px;
+  margin-left: 10px;
+  filter: drop-shadow(0 0 40px rgb(255, 0, 0));
+  
+
 }
 
 

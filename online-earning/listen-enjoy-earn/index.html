@@ -63,16 +63,20 @@
           <div class="hero-visual">
             <div class="hero-visual-inner">
               <!-- 🔥 Replace src with your Firebase Storage download URL -->
-              <img src="/assets/logo/listen_avatar.png" alt="Futuristic girl listening to music in neon environment"
-                loading="lazy">
+              <img class="floating-girl" src="/assets/logo/listen_avatar.png"
+                alt="Futuristic girl listening to music in neon environment" loading="lazy">
               <!-- Audio pill over image -->
               <div class="audio-ring">
                 <div class="eq-bars">
                   <span></span><span></span><span></span><span></span><span></span>
                 </div>
                 <div class="audio-info">
-                  <strong>Now vibing: Sapana Cyber Mix #01</strong>
-                  <small class="listen-hours-timmer"><small>00:00:00</small>• SapanaCyberHub X Listen   <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/next-btn.png" alt=""></small>
+                  <div class="counter">
+                    <small id="accumulated-hours">00:00:00 <strong>• SapanaCyberHub X Listen</strong> </small>
+                    <img class="next-btn" id="next-song"
+                      src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/next-btn.png"
+                      alt="next-btn">
+                  </div>
                 </div>
               </div>
             </div>
@@ -81,23 +85,23 @@
           <!-- player -->
           <section class="layout-two-col">
             <div class="card">
-              <div class="player-frame">
-                <!-- Replace YOUR_VIDEO_ID using data from Firebase -->
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/cTSwVPrPVtM?si=Rbe3oY0vlEtp8Km3"
-                  title="YouTube video player" frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+              <div class="player-frame not-joined">
+                <!-- YT Player -->
+                <iframe class="yt-player" src="" title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+
+                <!-- Waitlist Image -->
+                <img class="waitlist"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/waitlist.png"
+                  alt="No event joined yet">
+
+                  <div class="event-page-btn"> JOIN NOW</div>
               </div>
+
               <small class="vibing-event-id">Event: Listen@0025</small>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <h3>SapanaCyberHub X Listen</h3>
-              </div>
-              <div class="track-list">
-
-              </div>
             </div>
           </section>
 

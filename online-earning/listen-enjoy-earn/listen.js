@@ -120,6 +120,18 @@ const dialogCloseBtn = document.querySelector(".dialog-close");
 const dialogTitle = document.querySelector(".event-tittle");
 const dialogPrize = document.querySelector(".prize-pool");
 
+// player controll
+const frame = document.querySelector('.player-frame');
+const iframe = frame.querySelector('iframe');
+
+let isVibing = false;
+
+// example video
+iframe.src = "https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1";
+
+frame.classList.remove('not-joined');
+
+
 const vibingBtn = document.getElementById("vibing-btn");
 const vibingOverBtn = document.getElementById("vibing-over-btn");
 
