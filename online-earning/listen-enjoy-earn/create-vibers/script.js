@@ -1,175 +1,135 @@
-/* ---------------- Firebase Config ---------------- */
+// ================= FIREBASE CONFIG =================
 const firebaseConfig = {
-  apiKey: "AIzaSyBNwCmtWja2xwxhWrU9Ejfz0ggGd796mEI",
-  authDomain: "my-application-31862.firebaseapp.com",
-  databaseURL: "https://my-application-31862-default-rtdb.firebaseio.com",
-  projectId: "my-application-31862",
-  storageBucket: "my-application-31862.appspot.com",
-  messagingSenderId: "409640627398",
-  appId: "1:409640627398:web:e2d1782c77e2ab8d527bc7",
-  measurementId: "G-JC06Y12LCB"
+  apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+  authDomain: "sapanacyberhub-26310.firebaseapp.com",
+  projectId: "sapanacyberhub-26310",
+  storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+  messagingSenderId: "448116453690",
+  appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+  measurementId: "G-HKGQ8D55N1"
 };
 
-/* ---------------- Firebase Imports ---------------- */
-import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
+// ================= IMPORTS =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
-} from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  signInWithEmailAndPassword,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* ---------------- Initialization ---------------- */
+import {
+  getFunctions,
+  httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+
+// ================= INITIALIZE =================
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* ---------------- UI Elements ---------------- */
+const functions = getFunctions(app, "us-central1");
+const updateUserName = httpsCallable(functions, "updateUserName");
+
+// ================= UI ELEMENTS =================
 const pageTitle = document.getElementById("title");
-const userName  = document.getElementById("name");
-const email     = document.getElementById("email");
-const password  = document.getElementById("password");
-const signInBtn = document.getElementById("btn-secondary");
-const submitBtn = document.getElementById("btn-primary");
+const userName = document.getElementById("name");
+const signIn = document.getElementById("btn-secondary");
+const submit = document.getElementById("btn-primary");
 
 const dialog = document.getElementById("authProgress");
-const title  = document.getElementById("progressTitle");
-const text   = document.getElementById("progressText");
+const title = document.getElementById("progressTitle");
+const text = document.getElementById("progressText");
 
 let isSignUp = true;
 
-/* ---------------- Toggle SignUp / SignIn ---------------- */
-signInBtn.addEventListener("click", () => {
+// ================= TOGGLE =================
+signIn.addEventListener("click", () => {
   isSignUp = !isSignUp;
-
   userName.classList.toggle("is-hidden", !isSignUp);
 
   pageTitle.textContent = isSignUp
-    ? "💖 Create Account 💖"
-    : "🎧 Welcome Back 😎";
+    ? "💖Create Account💖"
+    : "🎧Welcome Back😎";
 
-  signInBtn.textContent = isSignUp
+  signIn.textContent = isSignUp
     ? "I'm a Viber?"
     : "New Viber?";
 });
 
-/* ---------------- Submit Handler ---------------- */
-submitBtn.addEventListener("click", async () => {
-  const emailData    = email.value.trim();
+// ================= SUBMIT =================
+submit.addEventListener("click", async () => {
+  const emailData = email.value.trim();
   const passwordData = password.value.trim();
-  const nameData     = userName.value.trim();
+  const nameData = userName.value.trim();
 
-  if (
-    !emailData ||
-    !passwordData ||
-    (isSignUp && !nameData)
-  ) {
-    document.querySelectorAll("input").forEach(input => {
-      if (!input.value.trim()) {
-        input.classList.add("shake", "error");
-        setTimeout(() =>
-          input.classList.remove("shake", "error"), 500);
-      }
-    });
+  if (!emailData || !passwordData || (isSignUp && !nameData)) {
+    alert("Fill all fields");
     return;
   }
 
   try {
-    showProgress(isSignUp);
-
-    /* ---------- SIGN UP FLOW ---------- */
     if (isSignUp) {
-      setEqProgress(20);
+      showProgress(true);
+      
 
-      const cred = await createUserWithEmailAndPassword(
+      // 1️⃣ CREATE AUTH USER
+      const res = await createUserWithEmailAndPassword(
         auth,
         emailData,
         passwordData
       );
 
-      setEqProgress(50);
+      // 2️⃣ SET AUTH DISPLAY NAME
+      await updateProfile(res.user, {
+        displayName: nameData
+      });
 
-      const token = await cred.user.getIdToken(true);
+      // 3️⃣ FORCE TOKEN
+      await res.user.getIdToken(true);
 
-      setEqProgress(70);
+      // 4️⃣ SERVER WRITE (SECURE)
+      const result = await updateUserName({ name: nameData });
 
-      const response = await fetch(
-        "https://kzrbqsvvauqugmuwxwse.supabase.co/functions/v1/smart-handler",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            displayName: nameData
-          })
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        await cred.user.delete(); // rollback
-        throw new Error(result.error || "Signup failed");
+      if (!result.data.success) {
+        throw new Error("Profile creation failed");
       }
-
-      setEqProgress(100);
-      setTimeout(hideProgress, 1200);
 
       window.location.href =
         "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
-    }
 
-    /* ---------- SIGN IN FLOW ---------- */
-    else {
-      setEqProgress(30);
+    } else {
+      showProgress(false);
 
-      const cred = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         auth,
         emailData,
         passwordData
       );
-
-      await cred.user.getIdToken(true);
-
-      setEqProgress(100);
-      setTimeout(hideProgress, 1000);
 
       window.location.href =
         "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
     }
 
   } catch (err) {
-    alert(err.message);
+    // 🚨 cleanup client auth if server failed
+    if (auth.currentUser) {
+      await auth.currentUser.delete().catch(() => {});
+    }
+
+    alert(err.message || "Signup failed. Retry.");
     hideProgress();
   }
 });
 
-/* ---------------- Progress UI ---------------- */
+// ================= UI HELPERS =================
 function showProgress(isSignUp) {
   dialog.classList.remove("hidden");
-
   title.textContent = isSignUp
-    ? "Let’s Get You Vibing"
-    : "Finding your vibe…";
-
-  text.textContent = isSignUp
-    ? "The vibes are waiting for you. Explore, play, and feel every beat."
-    : "Hang tight. The vibes are loading…";
-}
-
-function setEqProgress(percent) {
-  const bars = document.querySelectorAll(".eq-progress span");
-  const active = Math.round((percent / 100) * bars.length);
-
-  bars.forEach((bar, i) => {
-    bar.style.opacity = i < active ? "1" : "0.25";
-  });
+    ? "Creating account…"
+    : "Signing in…";
+  text.textContent = "Please wait";
 }
 
 function hideProgress() {
   dialog.classList.add("hidden");
-  setEqProgress(0);
 }

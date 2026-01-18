@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SapanaCyberHub × Listen | Wallet</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Script -->
+  <script type="module" src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ================= MAIN WRAPPER ================= -->
+  <main class="main">
+
+    <!-- ================= PROFILE HEADER ================= -->
+    <section class="profile-header">
+      <div class="profile-pic-wrapper">
+        <img class="profile-pic" src="https://i.pravatar.cc/150" alt="Profile Picture" />
+      </div>
+
+      <h2 class="userName" id="userName">Guest</h2>
+
+      <div class="watermark">
+        <div class="kyc-cont">
+          <img class="kyc-status-ic" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20ic.png" alt="KYC status" />
+          <strong class="kyc-status" id="kyc-status">NA</strong>
+        </div>
+
+        <span>SapanaCyberHub <strong>×</strong> Listen</span>
+
+        <img class="edit-profile" id="update-kyc" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/edit%20profile.png" alt="Edit profile" />
+      </div>
+    </section>
+
+    <!-- ================= WALLET ================= -->
+    <section class="wallet-section">
+
+      <!-- ===== CASH WALLET ===== -->
+      <div class="wallet-card">
+        <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/wallet-card.png" alt="Wallet Card" loading="eager" />
+
+        <div class="wallet-content">
+          <div class="wallet-title">Earning Cash</div>
+          <div class="wallet-balance">₹ <span id="cashBalance">0</span></div>
+          <div class="wallet-sub">Withdrawable Balance</div>
+
+          <div class="card-actions">
+            <img id="openWithdrawal" class="textile-btn withdraw" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/withdrawal-btn.png" alt="Withdraw" />
+            <img id="withdrawalHistory" class="textile-btn history" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/history-btn.png" alt="History" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LISTEN COIN ===== -->
+      <div class="cyberpunk">
+        <div class="top-of">
+          <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png" alt="ListenCoin" />
+          <div class="coin-content">
+            <div class="coin-title">ListenCoin</div>
+            <div class="coin-balance"><span id="coinBalance">0</span> <small>LC</small></div>
+          </div>
+        </div>
+
+        <div class="listen-coin-card">
+          <button class="glow" id="convert-coin">Convert</button>
+          <span class="desc" id="how-to-use-coin">How to use Coin?</span>
+        </div>
+      </div>
+
+      <!-- ===== TRANSACTIONS ===== -->
+      <div class="transaction-container">
+        <h3 class="transaction-body-title">Transactions</h3>
+
+        <div class="filters">
+          <span class="action active" data-filter="ALL">All</span>
+          <span class="action" data-filter="Withdrawal">Withdrawal</span>
+          <span class="action" data-filter="Cash">Cash</span>
+          <span class="action" data-filter="LC">LC</span>
+        </div>
+
+        <div class="transaction-list" id="transactionList"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ================= WITHDRAW OVERLAY ================= -->
+  <div class="withdraw-overlay" id="withdrawOverlay">
+    <header class="top">
+      <span class="dot"></span>
+      <h1>Withdraw Funds</h1>
+      <button class="close" id="close">×</button>
+    </header>
+
+    <section class="balance-card">
+      <span>Available Balance</span>
+      <h2>₹ <span id="withdrawBalance">0.00</span></h2>
+    </section>
+
+    <section class="withdraw-card">
+      <label>Withdraw Amount</label>
+      <input type="number" placeholder="Enter amount (Min ₹200)" />
+
+      <label>Payment Method</label>
+      <select>
+        <option>Select Method</option>
+        <option>UPI</option>
+        <option>Bank Transfer</option>
+        <option>AmazonPay Gift Card</option>
+      </select>
+
+      <label>UPI / Bank Details</label>
+      <input type="text" placeholder="Enter UPI ID or Account No" />
+
+      <label class="optional">Note (optional)</label>
+      <input type="text" placeholder="We hope you're in joy 💖" />
+    </section>
+
+    <div class="kyc-banner warning">
+      KYC Not Verified · Withdrawals after verification
+      <button class="kyc-btn">Verify KYC</button>
+    </div>
+
+    <button class="cta">REQUEST WITHDRAW</button>
+
+    <footer class="info">
+      <p>Withdrawals processed in 24–48 hours · Secure review</p>
+      <p>100% safe & secure</p>
+    </footer>
+  </div>
+
+  <!-- ================= KYC OVERLAY ================= -->
+  <div class="kyc-update-overlay" id="kycUpdateOverlay">
+    <header class="top">
+      <span class="dot"></span>
+      <h1 id="kycHeader">Complete KYC</h1>
+      <button class="close-kyc" id="closeKYC">×</button>
+    </header>
+
+    <div class="is-kyc-verified" id="kycPreview">
+      <img id="kycBanner" alt="KYC Status" />
+      <p class="Ghost-btn" id="ghostBtn">Continue</p>
+      <p id="rejectMessage"></p>
+    </div>
+
+    <div class="kyc-content">
+
+      <!-- ===== KYC FORM ===== -->
+      <section class="kyc-form" id="kyc-form">
+        <div class="kyc-image-box" id="kycImageBox">
+          <img id="userDp" src="default-id-placeholder.png" alt="Upload ID" />
+          <p id="kycImageHint">Tap to upload ID</p>
+        </div>
+
+        <input type="file" id="kycImageInput" accept="image/*" hidden />
+
+        <label>Full Name</label>
+        <input id="userNameInp" type="text" placeholder="Enter your full name as per ID" />
+
+        <label>Sex</label>
+        <select id="gender">
+          <option value="select">Select option</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
+
+        <label>Age</label>
+        <input id="age" type="number" min="15" max="120" placeholder="Enter your age" />
+
+        <label>Last four digits of ID</label>
+        <input id="idLastFour" type="text" maxlength="4" inputmode="numeric" placeholder="XXXX" />
+
+        <label>Phone Number</label>
+        <input id="phone" type="tel" placeholder="+91XXXXXXXXXX" />
+
+        <label>Upload ID Proof</label>
+        <div class="id-proof-upload">
+          <input id="idProofInput" type="file" accept="image/*,application/pdf" />
+          <img id="idProofPreview" class="id-proof-preview" alt="ID Proof Preview" />
+        </div>
+
+        <button class="cta-kyc" id="submit-kyc">SUBMIT FOR VERIFICATION</button>
+      </section>
+
+      <!-- ===== KYC INFO ===== -->
+      <section class="kyc-instructions" id="kyc-instructions">
+        <h2>KYC Verification Guidelines</h2>
+        <ul>
+          <li>Details must match your official documents.</li>
+          <li>Upload a valid government-issued ID.</li>
+          <li>Ensure images are clear and readable.</li>
+          <li>Verification usually completes within 24–48 hours.</li>
+        </ul>
+
+        <h3>Safety & Privacy</h3>
+        <p>Your data is encrypted and securely stored. We never share it without consent.</p>
+
+        <p class="welcome-note">🌟 Welcome to <strong>SapanaCyberHub × Listen</strong> — happy to have you 💖</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="info">
+    <p>© 2026 SapanaCyberHub. All rights reserved · Made with 💖 in India</p>
+  </footer>
+
+</body>
+</html>

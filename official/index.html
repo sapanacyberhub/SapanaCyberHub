@@ -52,31 +52,41 @@
     <section class="stats-grid">
       <div class="stat-card cyan">
         <h4>Active Vibers</h4>
-        <h2>150,045</h2>
+        <h2 id="active-users"></h2>
       </div>
 
       <div class="stat-card pink">
         <h4>Pending Withdrawals</h4>
-        <h2>23</h2>
+        <h2 id="pending-withdrwal"></h2>
       </div>
 
       <div class="stat-card purple">
         <h4>Support Tickets</h4>
-        <h2>7</h2>
+        <h2 id="support-tickets"></h2>
       </div>
 
       <div class="stat-card green">
         <h4>Total Payout</h4>
-        <h2>₹4.8L</h2>
+        <h2 id="total-payout">₹400021</h2>
+      </div>
+
+      <div class="stat-card green">
+        <h4>Daily Tip💖</h4>
+        <h2 id="daily-tip"></h2>
+      </div>
+
+      <div class="stat-card green">
+        <h4>User Feedback😎</h4>
+        <h2 id="user-feedback"></h2>
       </div>
     </section>
 
     <!-- ACTIONS -->
     <section class="action-panel">
-      <button>💸 Review Withdrawals</button>
-      <button>🎧 Support Requests</button>
-      <button>👤 Manage Users</button>
-      <button>⚠️ Fraud Logs</button>
+      <button id="review-withdrawal">💸 Review Withdrawals</button>
+      <button id="support-requests">🎧 Support Requests</button>
+      <button id="Manage-users">👤 Manage Users</button>
+      <button id="logs">⚠️Logs</button>
     </section>
 
 
@@ -96,7 +106,7 @@
       </div>
 
       <div class="dropdown">
-        <div class="dropdown-btn">Choose Event Type ⌄</div>
+        <div class="dropdown-btn">Choose Event to be Host </div>
 
         <ul class="dropdown-menu">
           <li data-value="hitEvents">Hit-event</li>
@@ -107,8 +117,8 @@
 
 
       <input type="text" id="eventTitle" placeholder="Event Title">
-      <input type="text" id="eventTitle" placeholder=" creature url">
-      <input type="text" id="eventTitle" placeholder=" prize-pool">
+      <input type="text" id="eventImgUrl" placeholder=" creature url">
+      <input type="text" id="eventPrizePool" placeholder=" prize-pool">
 
       <div class="host" id="host"> Host</div>
 

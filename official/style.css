@@ -54,12 +54,13 @@ body {
 
 .nav-left img {
   width: 42px;
-  filter: drop-shadow(0 0 6px red);
+  filter: brightness(10) drop-shadow(0 6px 6px rgb(255, 255, 255));
+  
 }
 
 .nav-left h3 {
-  color: red;
-  text-shadow: 0 0 12px red;
+  color: rgb(255, 255, 255);
+  text-shadow: 0 0 12px rgb(255, 255, 255);
 }
 
 /* CLOCK */

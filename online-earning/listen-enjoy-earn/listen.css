@@ -107,14 +107,15 @@ body {
   display: flex;
   max-width: max-content;
   border: 2px solid var(--accent-2);
-  padding: 6px 12px;
+  padding: 5px 1px;
   border-radius: 999px;
   align-items: center;
-  gap: 12px;
+  gap: 4px;
 }
 
 .user-wallet a {
   color: var(--text);
+  margin-left: 4px;
   text-decoration: none;
   font-weight: 400;
 }
@@ -124,8 +125,8 @@ body {
   font-weight: bolder;
   padding: 6px 12px;
   font-size: 16px;
-  border-left: 2px solid var(--accent-2);
-  padding-left: 12px;
+  border-left: 3px solid rgb(255, 0, 0);
+  box-shadow:  -4px 0px 10px rgba(255, 0, 0, 0.5);;
   border-radius: 999px;
 }
 
@@ -201,7 +202,7 @@ main {
 .player-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3/2;
   border-radius: 12px;
   overflow: hidden;
   background: #020617;
