@@ -6,13 +6,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 // Firestore
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
   getFunctions,
@@ -38,7 +31,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 const storage = getStorage();
 
 const functions = getFunctions(app);
@@ -60,6 +52,7 @@ const closeKyc = document.getElementById("closeKYC");
 const kycStatusEl = document.getElementById("kyc-status");
 const kycRejectedMessage = document.getElementById("rejectMessage");
 // kyc elements
+const kycUpdateOverlay = document.getElementById("kycUpdateOverlay");
 const kycHeader = document.getElementById("kycHeader");
 const kycPreview = document.getElementById("kycPreview");
 const kycBanner = document.getElementById("kycBanner");
@@ -105,6 +98,7 @@ const closeLcHelp = document.getElementById("closeLcHelp");
 const gotItBtn = document.getElementById("gotItBtn");
 
 const progressDialogOverlay = document.getElementById("progress-dialog");
+const progressCard = document.getElementById("progress-card");
 const progressTitle = document.getElementById("progressTitle");
 const progressDesc = document.getElementById("progressText");
 
@@ -127,6 +121,9 @@ let uiData = null;
 const getUserA = httpsCallable(functions, "loadUserData");
 const submitUserKYC = httpsCallable(functions, "submitUserKYC");
 const createWithdrawalTxn = httpsCallable(functions, "createTransactionRecord");
+const getKycSts = httpsCallable(functions, "checkMyKycStatus");
+// Add this with your other httpsCallable definitions
+const getUserTxns = httpsCallable(functions, "getUserTransactions");
 const lcToCash = httpsCallable(functions, "convertListenCoinToCash");
 let transactions = []; // empty array to hold transactions
 
@@ -135,32 +132,19 @@ let transactions = []; // empty array to hold transactions
 // =======================
 
 onAuthStateChanged(auth, async (user) => {
-
   disableUI();
   if (!user) {
-    window.location.href =
-      "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
+    window.location.href = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
     return;
   }
 
   currentUser = user;
+  userNameEl.textContent = user.displayName || user.email?.split("@")[0];
 
-  userNameEl.textContent =
-    user.displayName || user.email?.split("@")[0];
-
-  // load user data till it loading disable all click 
   await getUser();
 
   isUserDataLoading = false;
-
-  init();
-  checkKycStatus(uiData.kyc);
-  handleUserDp();
-  // load transactions
-  await loadTransactions(currentUser.uid);
-
-  enableUI(); // 🔓 unlock UI
-
+  enableUI();
 });
 
 async function getUser() {
@@ -187,25 +171,22 @@ async function getUser() {
 }
 
 // transaction list
-async function loadTransactions(transactionid) {
+async function loadTransactions() {
   try {
-    const transactionsRef = collection(
-      db,
-      "SapanaCyberHub",
-      "Listen",
-      "user",
-      currentUser.uid,
-      "transactions"
-    );
-    const transactionsSnap = await getDocs(transactionsRef);
-
-    transactions = transactionsSnap.docs.map(doc => doc.data());;
-
-    // render all transactions
-    renderList(transactions);
+    // Calling the Cloud Function instead of direct Firestore query
+    const result = await getUserTxns();
+    
+    if (result.data?.success) {
+      // The server already sorted them, so we just assign
+      transactions = result.data.transactions;
+      renderList(transactions);
+    } else {
+      console.warn("Failed to fetch transactions from server.");
+      renderList([]); // Show empty state
+    }
   } catch (error) {
-    console.error("Error loading transactions:", error);
-    enableUI();
+    console.error("Cloud Function Error:", error);
+    renderList([]); 
   }
 }
 
@@ -270,27 +251,25 @@ function renderTransaction(tx) {
   `;
 }
 function renderList(list) {
-  // default inner HTML (empty state)
-  container.innerHTML = `
-  
-    <div class="empty-transaction">
-      <img class="empty-transaction-img" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/no-transaction.png" alt="No transactions">
-      <p>No transactions yet</p>
-      <small>Your earnings & withdrawals will appear here</small>
-    </div>
-  `;
+  if (!list || list.length === 0) {
+    container.innerHTML = `
+      <div class="empty-transaction">
+        <img class="empty-transaction-img" src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/no-transaction.png" alt="No transactions">
+        <p>No transactions yet</p>
+        <small>Your earnings & withdrawals will appear here</small>
+      </div>`;
+    return;
+  }
 
-  if (!list || list.length === 0) return;
-  // clear container
-  container.innerHTML = "";
+  // Optimized rendering: Build string once, then update DOM
+  const listHtml = list
+    .sort((a, b) => (b.transactionDate?.seconds || 0) - (a.transactionDate?.seconds || 0))
+    .map(tx => renderTransaction(tx))
+    .join('');
 
-  list.sort(
-    (a, b) => b.transactionDate.seconds - a.transactionDate.seconds
-  );
-  list.forEach(tx => {
-    container.innerHTML += renderTransaction(tx);
-  });
+  container.innerHTML = listHtml;
 }
+
 // filter transactions
 filterActions.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -531,7 +510,7 @@ submitBtn.addEventListener("click", async (e) => {
     const uid = auth.currentUser.uid;
 
     // submiting kyc details to approval
-    showProgress("KYC Details Submiting","Make sure All Details are Correct to avoid KYC Rejection.");
+    showProgress("KYC Details Submiting", "Make sure All Details are Correct to avoid KYC Rejection.");
     // ⚡ parallel uploads
     const [profileRes, idProofRes] = await Promise.all([
       uploadKycFile(
@@ -566,16 +545,16 @@ submitBtn.addEventListener("click", async (e) => {
 
     if (res.data?.success) {
       showKycOverlay();
-      await finishProgress(true);
+      await finishProgress(true, "KYC submitted successfully.");
       enableUI();
       return;
     }
-    await finishProgress(false);
+    await finishProgress(false, "KYC submission failed.");
     enableUI();
 
   } catch (err) {
     console.error(err);
-    await finishProgress(false);
+    await finishProgress(false, err.message);
     kycHeader.textContent = "Submitting KYC Details..." + err.message;
     enableUI();
   }
@@ -592,10 +571,10 @@ function togglePaymentFields() {
   bankIfscCode.style.display = m === "bank" && "block" || "none";
   upiAccountNo.style.display = (m === "upi" || m === "bank") && "block" || "none";
   if (m === "giftCard") {
-      riseReq.textContent = "Gift Card Withdrawal Coming Soon";
-      // block click
-      riseReq.style.pointerEvents = "none";
-    }
+    riseReq.textContent = "Gift Card Withdrawal Coming Soon";
+    // block click
+    riseReq.style.pointerEvents = "none";
+  }
 
 }
 
@@ -620,7 +599,7 @@ riseReq.addEventListener("click", async (e) => {
       return enableUI();
     }
 
-    if (amount < 200) {
+    if (amount < 200 || amount > uiData.cash) {
       shakeField(withdrawalAmount);
       return enableUI();
     }
@@ -635,7 +614,7 @@ riseReq.addEventListener("click", async (e) => {
       shakeField(upiAccountNo);
       return enableUI();
     }
-    
+
 
     const withdrawalDetails = {
       paymentMethod: method,
@@ -659,14 +638,14 @@ riseReq.addEventListener("click", async (e) => {
     });
 
     if (res.data?.success) {
-      await finishProgress(true);
+      await finishProgress(true, "Withdrawal request submitted successfully.");
       await getUser();
       enableUI();
       return;
     }
   } catch (err) {
     console.error(err);
-    await finishProgress(false);
+    await finishProgress(false, err.message);
     alert("Failed to submit withdrawal request.");
     enableUI();
   }
@@ -746,7 +725,7 @@ convertCoinBtn.addEventListener("click", async () => {
     return;
   }
 
-  if(coinAmount < 3000) {
+  if (coinAmount < 3000) {
     shakeField(enterCoinToConvert);
     return;
   }
@@ -759,7 +738,7 @@ convertCoinBtn.addEventListener("click", async () => {
     });
 
     if (res.data?.success) {
-      await finishProgress(true);
+      await finishProgress(true, "Conversion completed successfully.");
       convertOverlay.classList.remove("show");
       enterCoinToConvert.value = "";
       convertedCash.textContent = "₹0";
@@ -768,7 +747,7 @@ convertCoinBtn.addEventListener("click", async () => {
   } catch (err) {
     console.error(err);
     alert("Failed to convert Listen Coin to Cash.");
-    await finishProgress(false);
+    await finishProgress(false, err.message);
   }
 });
 
@@ -795,15 +774,23 @@ function showProgress(title, desc) {
   progressDesc.textContent = desc;
 }
 // finish progress
-async function finishProgress(isSuccess) {
-  if(isSuccess) {
-    await getUser()
+async function finishProgress(isSuccess, errMessage = "") {
+  if (isSuccess) {
+    await getUser();
     progressDialogOverlay.classList.remove("show-progress");
+    return;
   }
-  
-    progressDialogOverlay.classList.remove("show-progress");
 
+  progressCard.classList.add("failed");
+  progressTitle.textContent = "Failed";
+  progressDesc.textContent = errMessage || "An error occurred during processing.";
+
+  setTimeout(() => {
+    progressCard.classList.remove("failed");
+    progressDialogOverlay.classList.remove("show-progress");
+  }, 2000);
 }
+
 
 // close kyc update overlay
 closeKyc.addEventListener("click", () => {
@@ -887,19 +874,18 @@ function resetKycUI() {
 // check kyc status
 async function checkUserKycStatus() {
   try {
-    const kycRef = doc(
-      db,
-      "SapanaCyberHub",
-      "Listen",
-      "KYC",
-      currentUser.uid
-    );
-    const kycSnap = await getDoc(kycRef);
-    return kycSnap.exists() ? kycSnap.data() : null;
+    const result = await getKycFromServer();
+    
+    if (result.data?.success) {
+      return result.data.kyc;
+    }
+    return null;
   } catch (error) {
-    console.error("Error checking KYC status:", error);
+    console.error("Error calling checkMyKycStatus:", error);
+    return null;
   }
 }
+
 
 // withdrawal history click scroll page to wher transaction & filter transaction  withdrawal only and
 withdrawal_history.addEventListener("click", () => {
@@ -958,30 +944,40 @@ function updateWalletDisplay() {
 
 }
 
-// data convertion 
 function timeAgo(ts) {
   if (!ts) return "";
 
-  const date =
-    typeof ts.toDate === "function"
-      ? ts.toDate()          // Firestore Timestamp
-      : new Date(ts);        // number / string
+  let date;
+  
+  // 1. Handle Firestore Timestamp object (if any still exist)
+  if (ts && typeof ts.toDate === "function") {
+    date = ts.toDate();
+  } 
+  // 2. Handle ISO strings from the Cloud Function
+  else {
+    date = new Date(ts);
+  }
 
-  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
 
-  if (diff < 5) return "Just now";
-  if (diff < 60) return `${diff}s ago`;
+  // If date is invalid, return empty
+  if (isNaN(date.getTime())) return "";
 
-  const mins = Math.floor(diff / 60);
-  if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+  // The Logic Chain
+  if (diffInSeconds < 60) return "Just now";
+  
+  const mins = Math.floor(diffInSeconds / 60);
+  if (mins < 60) return `${mins}m ago`;
 
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hr${hrs > 1 ? "s" : ""} ago`;
+  if (hrs < 24) return `${hrs}h ago`;
 
   const days = Math.floor(hrs / 24);
   if (days === 1) return "Yesterday";
-  if (days < 7) return `${days} days ago`;
+  if (days < 7) return `${days}d ago`;
 
+  // Fallback for very old transactions
   return date.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",

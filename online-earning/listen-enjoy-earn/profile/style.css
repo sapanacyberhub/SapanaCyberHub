@@ -1176,34 +1176,58 @@ body {
 /* Card */
 .progress-dialog {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    padding: 28px;
-    border-radius: 26px;
-    background: rgba(99, 94, 94, 0.252);
-    backdrop-filter: blur(10px);
-    text-align: center;
-
+    inset: 0;
+    backdrop-filter: blur(4px);
+    background-color: transparent;
     display: none;
-    color: #fff;
-    z-index: 99999;
+    border-radius: 26px;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
 /* show progress */
 .show-progress{
-    display: block;
+    display: flex;
+}
+
+.progress-card{
+    padding: 28px;
+    width: min(90%, 360px);
+    border-radius: 26px;
+    backdrop-filter: blur(10px);
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+    color: #000000;
+    /* The Gradient: Pink to Purple to Blue */
+    background: linear-gradient(90deg, #ff00cc, #3333ff, #00d4ff);
+    background-size: 200% 100%;
+    animation: gradientMove 3s ease infinite;
 }
 
 
+.progress-card.failed {
+    color: #ff0000;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 100% 0%;
+    }
+    50% {
+        background-position: 0% 100%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
+}
 /* Text */
 .progress-card h3 {
     margin: 8px 0 6px;
     font-family: 'Poppins', 'sans-serif';
     font-weight: 700;
-    font-size: 2rem;
-    color: #000;
+    font-size: clamp(1.5rem, 2vw, 1.5rem);
     letter-spacing: 0.5px;
 }
 
@@ -1212,7 +1236,6 @@ body {
     opacity: 1;
     font-family: 'Roboto', 'sans-serif';
     font-weight: 400;
-    color: #000000;
 
 
 }
