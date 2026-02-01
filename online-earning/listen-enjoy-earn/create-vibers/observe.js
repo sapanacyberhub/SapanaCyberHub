@@ -33,10 +33,13 @@ const updateUserName = httpsCallable(functions, "updateUserName");
 // ================= UI ELEMENTS =================
 const pageTitle = document.getElementById("title");
 const userName = document.getElementById("name");
+const userEmail = document.getElementById("email");
+const userPassword = document.getElementById("password");
 const signIn = document.getElementById("btn-secondary");
 const submit = document.getElementById("btn-primary");
 
 const dialog = document.getElementById("authProgress");
+const dialogCard = document.getElementById("progress-card");
 const title = document.getElementById("progressTitle");
 const text = document.getElementById("progressText");
 
@@ -58,19 +61,40 @@ signIn.addEventListener("click", () => {
 
 // ================= SUBMIT =================
 submit.addEventListener("click", async () => {
-  const emailData = email.value.trim();
-  const passwordData = password.value.trim();
+  const emailData = userEmail.value.trim();
+  const passwordData = userPassword.value.trim();
   const nameData = userName.value.trim();
 
-  if (!emailData || !passwordData || (isSignUp && !nameData)) {
-    alert("Fill all fields");
-    return;
+  let hasError = false; // Track if any field is invalid
+
+  // Check Email
+  if (!emailData) {
+    userEmail.classList.add("shake");
+    setTimeout(() => userEmail.classList.remove("shake"), 350);
+    hasError = true;
   }
+
+  // Check Password
+  if (!passwordData) {
+    userPassword.classList.add("shake");
+    setTimeout(() => userPassword.classList.remove("shake"), 350);
+    hasError = true;
+  }
+
+  // Check Name (only if signing up)
+  if (isSignUp && !nameData) {
+    userName.classList.add("shake");
+    setTimeout(() => userName.classList.remove("shake"), 350);
+    hasError = true;
+  }
+
+  // If any field was empty, STOP here
+  if (hasError) return;
 
   try {
     if (isSignUp) {
       showProgress(true);
-      
+
 
       // 1️⃣ CREATE AUTH USER
       const res = await createUserWithEmailAndPassword(
@@ -111,13 +135,10 @@ submit.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    // 🚨 cleanup client auth if server failed
-    if (auth.currentUser) {
-      await auth.currentUser.delete().catch(() => {});
-    }
-
-    alert(err.message || "Signup failed. Retry.");
-    hideProgress();
+    let friendlyMsg = "An error occurred. Please try again.";
+    if (err.code === 'auth/email-already-in-use') friendlyMsg = "This email is already registered!";
+    // update dialog title or desc for failed
+    progressFailed(friendlyMsg);
   }
 });
 
@@ -128,6 +149,14 @@ function showProgress(isSignUp) {
     ? "Creating account…"
     : "Signing in…";
   text.textContent = "Please wait";
+}
+function progressFailed(friendlyMsg) {
+  dialogCard.classList.add("failed");
+  title.textContent = "Failed !";
+  text.textContent = friendlyMsg;
+  setTimeout(() => {
+    hideProgress();
+  }, 3000);
 }
 
 function hideProgress() {

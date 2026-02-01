@@ -98,10 +98,10 @@
                   src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/waitlist.png"
                   alt="No event joined yet">
 
-                  <div class="event-page-btn"> JOIN NOW</div>
               </div>
 
               <small class="vibing-event-id">Event: Listen@0025</small>
+              <div class="event-page-btn" id="suggest-event"> Explore Vibe🎧</div>
             </div>
           </section>
 
@@ -110,11 +110,11 @@
 
 
         <!-- 3️⃣ LIVE EVENTS GRID -->
-        <section>
+        <section id="event-page">
           <div class="section-title">
             <div class="divider">
               <span></span>
-              <h2>Live Events</h2>
+              <h2>Live Vibe🎧 Events</h2>
               <span></span>
             </div>
             <div class="filters">
@@ -123,7 +123,7 @@
             </div>
           </div>
 
-          <div class="event-grid">
+          <div class="listen-event-grid" id="listen-event-grid">
             <!-- event-container -->
           </div>
         </section>
@@ -141,30 +141,274 @@
           </div>
         </div>
 
-
-        <div class="hit-event-grid">
+        <div class="hit-event-grid" id="hit-event-grid">
           <!-- hit-event-container -->
           <div class="hit-card">
             <div class="hit-event-content">
-              <h3 class="event-Title">I'm Dragony Pls Help me to escape</h3>
-              <div class="progress-fill">
-                <div class="prison-hexagon">
-                  <img class="event-img"
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
-                    alt="Event Image">
-                  <img class="lock"
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
-                    alt="">
+              <div class="hit-top">
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/joining%20fee.png"
+                    alt="joining fee">
+                  <p class="fee-data" id="event-fee">₹50</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/total-hit.png"
+                    alt="event title" loading="eager">
+                  <p class="total-hit-data">120051</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/event-end-timmer.png"
+                    alt="event end timer" loading="eager">
+                  <p class="event-end-timmer">12:11:10</p>
                 </div>
               </div>
+
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image" loading="eager">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+
               <div class="hit-lock">
+                <div class="prize-pool">
+                  <p class="prize-pool-data">₹50000</p>
+                  <img class="prize-pool-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/galaxy%20prize%20holder.png"
+                    alt="" loading="eager">
+                </div>
+
                 <img class="hit-btn"
                   src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
                   alt=" hit-btn">
-                <h3>pls HIT Stroid to Escape me! </h3>
+              </div>
+
+            </div>
+          </div>
+          <div class="hit-card">
+            <div class="hit-event-content">
+              <div class="hit-top">
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/joining%20fee.png"
+                    alt="joining fee">
+                  <p class="fee-data" id="event-fee">₹50</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/total-hit.png"
+                    alt="event title" loading="eager">
+                  <p class="total-hit-data">120051</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/event-end-timmer.png"
+                    alt="event end timer" loading="eager">
+                  <p class="event-end-timmer">12:11:10</p>
+                </div>
+              </div>
+
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image" loading="eager">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+
+              <div class="hit-lock">
+                <div class="prize-pool">
+                  <p class="prize-pool-data">₹50000</p>
+                  <img class="prize-pool-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/galaxy%20prize%20holder.png"
+                    alt="" loading="eager">
+                </div>
+
+                <img class="hit-btn"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
+                  alt=" hit-btn">
+              </div>
+
+            </div>
+          </div>
+          <div class="hit-card">
+            <div class="hit-event-content">
+              <div class="hit-top">
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/joining%20fee.png"
+                    alt="joining fee">
+                  <p class="fee-data" id="event-fee">₹50</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/total-hit.png"
+                    alt="event title" loading="eager">
+                  <p class="total-hit-data">120051</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/event-end-timmer.png"
+                    alt="event end timer" loading="eager">
+                  <p class="event-end-timmer">12:11:10</p>
+                </div>
+              </div>
+
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image" loading="eager">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+
+              <div class="hit-lock">
+                <div class="prize-pool">
+                  <p class="prize-pool-data">₹50000</p>
+                  <img class="prize-pool-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/galaxy%20prize%20holder.png"
+                    alt="" loading="eager">
+                </div>
+
+                <img class="hit-btn"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
+                  alt=" hit-btn">
+              </div>
+
+            </div>
+          </div>
+          <div class="hit-card">
+            <div class="hit-event-content">
+              <div class="hit-top">
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/joining%20fee.png"
+                    alt="joining fee">
+                  <p class="fee-data" id="event-fee">₹50</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/total-hit.png"
+                    alt="event title" loading="eager">
+                  <p class="total-hit-data">120051</p>
+                </div>
+
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/event-end-timmer.png"
+                    alt="event end timer" loading="eager">
+                  <p class="event-end-timmer">12:11:10</p>
+                </div>
+              </div>
+
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image" loading="eager">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+
+              <div class="hit-lock">
+                <div class="prize-pool">
+                  <p class="prize-pool-data">₹50000</p>
+                  <img class="prize-pool-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/galaxy%20prize%20holder.png"
+                    alt="" loading="eager">
+                </div>
+
+                <img class="hit-btn"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
+                  alt=" hit-btn">
+              </div>
+
+            </div>
+          </div>
+          <div class="hit-card">
+            <div class="hit-event-content">
+              <div class="hit-top">
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/joining%20fee.png"
+                    alt="joining fee">
+                  <p class="fee-data" id="event-fee">₹50</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/total-hit.png"
+                    alt="event title" loading="eager">
+                  <p class="total-hit-data">120051</p>
+                </div>
+
+                <div class="event-top">
+                  <img class="content-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/event-end-timmer.png"
+                    alt="event end timer" loading="eager">
+                  <p class="event-end-timmer">12:11:10</p>
+                </div>
+              </div>
+
+              <div class="prison-hexagon">
+                <img class="event-img"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/ChatGPT%20Image%20Dec%2026,%202025,%2005_40_45%20PM.png"
+                  alt="Event Image" loading="eager">
+                <img class="lock"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png"
+                  alt="">
+              </div>
+
+              <div class="hit-lock">
+
+                <div class="prize-pool">
+
+                  <p class="prize-pool-data">₹50000</p>
+
+                  <img class="prize-pool-holder"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/galaxy%20prize%20holder.png"
+                    alt="" loading="eager">
+
+                </div>
+
+                <img class="hit-btn"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/hit-btn.png"
+                  alt=" hit-btn">
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="premium-legue">
+
+          <div class="lakhpati-loop">
+            <div class="lakhpati-card">
+              <img class="lakhpati-top-banner"
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/18%20lakh%20patis.png"
+                alt="lakhpati-banner" loading="eager">
+              <div>
+
               </div>
             </div>
           </div>
+
         </div>
 
 
@@ -174,10 +418,10 @@
           <div class="footer-top">
             <div class="container-0">
               Official
-              <a href="https://sapanacyberhub.in/official/">about us!🤔</a>
-              <a href="https://sapanacyberhub.in/official">privacy & policy</a>
-              <a href="https://sapanacyberhub.in/official"> terms & conditions</a>
-              <a href="https://sapanacyberhub.in/official">Contact us❤️</a>
+              <a href="https://sapanacyberhub.in/about-us">about us!🤔</a>
+              <a href="https://sapanacyberhub.in/about-us">privacy & policy</a>
+              <a href="https://sapanacyberhub.in/about-us"> terms & conditions</a>
+              <a href="https://sapanacyberhub.in/about-us">Contact us❤️</a>
             </div>
 
             <div class="container-1">
@@ -206,36 +450,50 @@
           <div class="dialog">
             <!-- event details prize rules how it's worked -->
             <div class="dialog-content">
-              <button class="dialog-close" aria-label="Close dialog">&times;</button>
+              <div class="dialog-close" aria-label="Close dialog">&times;</div>
               <h2>Event Details</h2>
               <h3>Event Title</h3>
               <p>
                 <span class="event-tittle">Join the Neon Night Vibes event to immerse yourself in a futuristic music
-                  experience. </span> Listen to
-                curated tracks, accumulate listening hours, and climb the leaderboard for a chance to win real rewards.
+                  experience.</span>
               </p>
               <h3>Prize Pool</h3>
-              <p>The total prize pool for this event is<span class="prize-pool"> ₹1,000</span> distributed among the top
-                10 listeners.</p>
+              <div class="dynamic">
+                <img class="dynamic-prize-pool"
+                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png"
+                  loading="eager" alt="dynamic prize pool">
+                <strong class="dynamic-prize-text">Dynamic Prize Pool</strong>
+                <p class="dynamic-explain"> "The more who join, the bigger the pot! Every new listener scales the
+                  rewards, creating more winning spots for everyone."</p>
+              </div>
+
               <h3>How It Works</h3>
-              <ul>
-                <li>Join the event by clicking the "Vibe🎧" button.</li>
-                <li>Listen to the curated music tracks during the event duration.</li>
-                <li>Accumulate listening hours to climb the leaderboard.</li>
-                <li>The top 10 listeners at the end of the event will receive rewards from the prize pool.</li>
-                <!-- after top ten more 1000 user rewards with Listen Coin -->
-                <li>Additional rewards are available for the top 1000 listeners, distributed in the form of Listen
-                  Coins.
+              <ul class="guide">
+                <li>Join the event by tapping the <strong>“Vibe 🎧”</strong> button.</li>
+                <li>Listen to curated tracks during the event period.</li>
+                <li>Every second you listen counts toward your total listening time and leaderboard rank.</li>
+                <li>
+                  The top <strong>X listeners</strong> (dynamically decided) at the end of the event
+                  will win rewards from the prize pool.
+                </li>
+                <li>
+                  Bonus rewards are also distributed to additional top listeners in the form of
+                  <strong>Listen Coins</strong>.
                   <img
                     src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                    alt=" Listen-coin-og">
+                    alt="Listen Coin">
                 </li>
               </ul>
 
-              <div class="join-now">VIBE<img
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                  alt=" Listen-coin-og"></div>
 
+              <div class="btm">
+
+                <div class="join-now">VIBE<img
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                    alt=" Listen-coin-og">
+                </div>
+
+              </div>
 
             </div>
           </div>

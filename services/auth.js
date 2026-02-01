@@ -12,7 +12,11 @@ onAuthStateChanged(auth, user => {
       <span>${user.displayName || user.email}</span>
       <button onclick="logout()">Logout</button>
     `;
+    
+
+    
   }
+
 });
 
 window.login = () => signInWithPopup(auth, new GoogleAuthProvider());

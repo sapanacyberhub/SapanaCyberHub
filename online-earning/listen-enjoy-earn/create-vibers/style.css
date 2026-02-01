@@ -25,6 +25,7 @@ body {
 
 .page {
     position: absolute;
+    inset: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
@@ -32,34 +33,38 @@ body {
 .visual {
     display: flex;
     width: 100%;
+    z-index: 1;
 }
 
 .visual img {
     width: 100%;
     object-fit: cover;
     margin-left: 10px;
+    filter: brightness(1) contrast(1.2);
 }
 
 .auth {
     display: flex;
-    width: max-content;
-    height: max-content;
-    align-self: center;
-    justify-self: center;
-    max-width: 450px;
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.103);
-    border: 2px solid #ffffff91;
-    box-shadow: 0 4px 2px rgba(255, 255, 255, 0.5);
-    border-radius: 25px;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: transparent;
 }
 
 .card {
     display: flex;
-    width: 100%;
+    width: max-content;
+    height: max-content;
     justify-content: center;
     flex-direction: column;
+    max-width: 450px;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 204, 0, 0.108);
+    border: 2px solid #ffd000;
+    box-shadow: 0 4px 120px rgb(227, 167, 14);
+    border-radius: 25px;
     padding: 10px;
+    z-index: 2;
 }
 
 .card #title {
@@ -106,7 +111,7 @@ body {
 
 
 .card input:focus {
-    filter: brightness(10) drop-shadow(0 0 4px white);
+    filter: brightness(10) drop-shadow(0 0 4px rgb(0, 0, 0));
 }
 
 /* Shake animation */
@@ -138,23 +143,24 @@ body {
 
 /* Apply shake */
 .shake {
-    animation: shake 0.35s ease;
-}
-
-/* Optional red glow for error */
-.error {
+    
     box-shadow: 0 0 12px rgba(255, 80, 80, 0.8);
-}
+    border: 2px solid #ff5050;
+    animation: shake 0.35s ease;
 
+}
 
 .actions {
     display: flex;
+    gap: 10px;
     align-items: center;
+    margin: 4px;
+    padding: 4px;
 }
 
 .btn-primary {
     width: 120px;
-    filter: drop-shadow(0 5px 4px rgb(255, 255, 255));
+    filter: drop-shadow(0 5px 4px rgba(38, 255, 0, 0.455));
     transition: all 0.5s ease;
 }
 
@@ -185,8 +191,8 @@ body {
 .auth-progress {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.541);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
+    background-color: transparent;
     display: flex;
     border-radius: 26px;
     align-items: center;
@@ -201,16 +207,38 @@ body {
 
 /* Card */
 .progress-card {
-    width: 100%;
     padding: 28px;
     border-radius: 26px;
     backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.4);
     align-content: center;
     justify-content: center;
     text-align: center;
     color: #000000;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
+    /* The Gradient: Pink to Purple to Blue */
+    background: linear-gradient(90deg, #ff00cc, #3333ff, #00d4ff);
+    background-size: 200% 100%;
+    animation: gradientMove 2s infinite ease-in-out;
+}
+.progress-card .failed {
+    color: #ff0000;
+    border: 2px solid #ff0000;
+    border-radius: 26px;
+}
+
+
+
+/* Shimmer animation to make it feel "alive" */
+@keyframes gradientMove {
+    0% {
+        background-position: 100% 0%;
+    }
+
+    50% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
 }
 
 
@@ -340,23 +368,28 @@ body {
 
     .visual {
         display: flex;
-        width: 100%;
         justify-content: center;
+        align-items: center;
     }
 
     .visual img {
+        width: 100%;
         height: 100vh;
+
     }
 
     .auth {
         width: 80%;
-        border: 2px solid #ffffff62;
-        box-shadow: 0 4px 2px rgba(255, 255, 255, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
         position: absolute;
-        margin-top: 100px;
+    }
+
+    .card {
+        box-shadow: 0 4px 120px rgb(174, 0, 255);
+        border: 2px solid #ff00ff;
+
     }
 
 

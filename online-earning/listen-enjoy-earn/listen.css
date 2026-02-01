@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Fascinate&display=swap');
 
 :root {
@@ -107,27 +106,36 @@ body {
   display: flex;
   max-width: max-content;
   border: 2px solid var(--accent-2);
-  padding: 5px 1px;
+  padding: 8px 12px;
   border-radius: 999px;
   align-items: center;
+  justify-content: center;
   gap: 4px;
 }
 
 .user-wallet a {
   color: var(--text);
   margin-left: 4px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   text-decoration: none;
   font-weight: 400;
+
 }
 
 #user_name {
   width: auto;
   font-weight: bolder;
-  padding: 6px 12px;
-  font-size: 16px;
+  padding: 10px;
+  font-size: clamp(0.5rem, 2vw, 1rem);
   border-left: 3px solid rgb(255, 0, 0);
-  box-shadow:  -4px 0px 10px rgba(255, 0, 0, 0.5);;
+  box-shadow: -4px 2px 10px rgba(255, 0, 0, 0.5);
   border-radius: 999px;
+  white-space: nowrap;
+  /* Keeps text on one line */
+  overflow: hidden;
+  /* Hides the extra text */
+  text-overflow: ellipsis;
+  /* Adds the "..." dots */
 }
 
 
@@ -176,6 +184,7 @@ main {
 .header {
   text-align: center;
   margin-bottom: 8px;
+
 }
 
 /* ----------player------------------ */
@@ -192,6 +201,11 @@ main {
 
 .card {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   background: rgba(15, 23, 42, 0.98);
   border-radius: 18px;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -242,84 +256,33 @@ main {
   display: none;
 }
 
-
-.event-page-btn{
+.event-page-btn {
   display: flex;
-  position: absolute;
-  width: max-content;
-  transform: rotate(-5deg);
-  top: 50%;
-  left: 10%;
-  background: rgba(0, 0, 0, 0.558);
+  font-size: clamp(.6rem, 2vw, 1.2rem);
+  justify-content: center;
+  width: 60%;
+  transform: scale(.8);
+  background: rgba(255, 255, 255, 0.534);
+  backdrop-filter: blur(10px);
   padding: 10px;
   border-radius: 25px;
-  box-shadow: 0 0 4px rgb(255, 120, 120), 0 0 8px rgb(106, 255, 0),
-  inset 0 0 4px red, 0 0 10px red ;
-  font-family: "Fascinate", system-ui;
+  box-shadow: 0 0 4px rgb(8, 0, 255), 0 0 8px rgb(106, 255, 0),
+    inset 0 0 4px rgb(85, 0, 255), 0 0 10px rgb(0, 51, 255);
+    font-family: Georgia, 'Times New Roman', Times, serif;
+  color: #ff0e0e;
+  text-shadow: 1px 1px 2px rgb(190, 69, 69);
+  transition: all .3s ease;
 }
 
-
-
-.track-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 164px;
-  overflow: auto;
-  padding-right: 4px;
-  margin-top: 4px;
+.event-page-btn:hover {
+  box-shadow: 0 0 10px red;
+  transform: scale(1);
+}
+.event-page-btn:active {
+  box-shadow: 0 0 10px rgb(0, 0, 0);
+  transform: scale(.8);
 }
 
-.track-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 7px;
-  border-radius: 10px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.track-item.active {
-  border-color: var(--accent-2);
-  background: radial-gradient(circle at left, var(--accent-soft), transparent 60%);
-  color: var(--text);
-}
-
-.track-thumb {
-  width: 26px;
-  height: 26px;
-  border-radius: 9px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.track-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.track-meta {
-  flex: 1;
-  min-width: 0;
-}
-
-.track-meta strong {
-  font-size: 11px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.track-meta span {
-  font-size: 10px;
-  color: var(--muted);
-}
 
 /* 2️⃣ HERO SECTION */
 .hero {
@@ -327,7 +290,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 22px;
-  
+
 }
 
 .hero-copy {
@@ -335,7 +298,7 @@ main {
 }
 
 .hero-copy h1 {
-  font-size: clamp(26px, 3.2vw, 34px);
+  font-size: clamp(.8rem, 5vw, 1.2rem);
   line-height: 1.15;
   margin-bottom: 10px;
 }
@@ -348,7 +311,7 @@ main {
 
 .hero-copy p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: clamp(.4rem, 2vw, .5rem);
   max-width: max-content;
   margin-bottom: 20px;
 }
@@ -410,8 +373,9 @@ main {
   object-fit: cover;
   transform: translateY(0);
 }
+
 /* state */
-.girlActive{
+.girlActive {
   animation: floatGirl 5s ease-in-out infinite;
 }
 
@@ -430,7 +394,7 @@ main {
 
 
 .audio-ring {
-  position:relative;
+  position: relative;
   transform: translateY(-20px);
   border-radius: 999px;
   background: rgb(0, 1, 3);
@@ -438,24 +402,9 @@ main {
   width: 95%;
   justify-self: center;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 20px;
   box-shadow: 0 0 4px rgba(129, 140, 248, 0.6);
-}
-
-.audio-ring::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    #00e5ff,
-    #818cf8,
-    #ff3c7d
-  );
-  filter: blur(6px);
-  opacity: 0.7;
-  z-index: -1;
 }
 
 .eq-bars {
@@ -471,10 +420,11 @@ main {
   border-radius: 999px;
   background: linear-gradient(var(--accent), var(--accent-2));
   height: 4px;
-  
+
 }
+
 /* vibing state */
-.vibing{
+.vibing {
   animation: equalizer 0.9s infinite ease-in-out;
 }
 
@@ -513,32 +463,37 @@ main {
 }
 
 
-.top{
+.top {
   width: 100%;
   display: flex;
   justify-content: center;
 }
-.top a{
+
+.top a {
   gap: 10px;
 }
-.vibing-title  {
+
+.vibing-title {
   text-align: center;
   display: flex;
   white-space: nowrap;
   overflow: hidden;
 }
-.counter{
+
+.counter {
   display: flex;
   align-items: center;
-  margin-left: 10px
+  justify-content: space-between;
+  font-size: clamp(.7rem, 2vw, 1rem);
 }
+
 .next-btn {
   width: 40px;
   box-shadow: inset 0 0 10px red;
   border-radius: 999px;
   margin-left: 10px;
   filter: drop-shadow(0 0 40px rgb(255, 0, 0));
-  
+
 
 }
 
@@ -633,25 +588,52 @@ main {
   color: var(--muted);
 }
 
-.event-grid {
-  display: grid;
-  padding: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-top: 12px;
+.listen-event-grid {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 10px 25px;
+  /* Increased vertical padding so scale doesn't clip */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding: 0 10%;
+  align-items: center;
+  /* Ensures cards align vertically in the middle */
 }
+
+.listen-event-grid::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari hide scrollbar */
+}
+
 
 .event-card {
   position: relative;
-  height: max-content;
+  flex: 0 0 280px;
+  /* Fixed height for uniformity */
   border-radius: 18px;
-  background: radial-gradient(circle at top, var(--accent-soft), transparent 60%), linear-gradient(145deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.98));
+  background: radial-gradient(circle at top, var(--accent-soft), transparent 60%),
+    linear-gradient(145deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.98));
   padding: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  scroll-snap-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
-  isolation: isolate;
-  animation: pulse 2.2s infinite;
+  /* Side cards: Dim and Small */
+  transform: scale(0.8);
+  opacity: 0.6;
+  filter: blur(4px);
+}
+
+/* Logic for the card the JavaScript marks as 'active' */
+.event-card.active {
+  transform: scale(1);
+  opacity: 1;
+  filter: blur(0);
+  z-index: 1;
+  border-color: #00ffdd;
+  animation: pulse 3s infinite;
 }
 
 .event-tag-row {
@@ -758,23 +740,46 @@ main {
 
 
 .hit-event-grid {
-  display: grid;
-  padding: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  justify-content: center;
-  gap: 14px;
-  margin-top: 12px;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 10px 25px;
+  /* Vertical padding for the 'scale' effect */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding: 0 10%;
+}
+
+
+.hit-card.active {
+  opacity: 1;
+  z-index: 1;
+  transform: scale(1);
+  /* Bring it closer to the user */
+
+  filter: blur(0);
+  border-color: #ff0000;
+  
+  animation: pulse 3s infinite;
 }
 
 .hit-card {
+  flex: 0 0 280px;
+  height: fit-content;
+  background: #111;
+  border-radius: 24px;
+  filter: blur(4px);
   position: relative;
-  /* participate in grid */
-  width: 100%;
-  border-radius: 18px;
-  border: 1px solid rgb(0, 0, 0);
-  box-shadow: 0 0 20px rgb(0, 0, 0), 0 0 40px rgb(0, 0, 0), 0 0 60px rgb(255, 0, 43);
-  animation: pulse 3s infinite;
+  scroll-snap-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid #222;
+  overflow: hidden;
+  /* Visual stacking: Side cards are dim and small */
+  transform: scale(0.8);
 }
+
+
+
 
 .hit-event-content {
   position: relative;
@@ -792,28 +797,86 @@ main {
 
 .prison-hexagon {
   display: flex;
-  width: 250px;
-  height: 288px;
+  width: clamp(100px, 50vw, 150px);
+  aspect-ratio: 1 / 1.15;
+  /* 🔥 auto height */
+
+  margin-top: 20px;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(360deg, rgba(255, 255, 255, 0.314), rgb(0, 0, 0));
+
+  background: linear-gradient(360deg,
+      rgba(255, 255, 255, 0.314),
+      rgb(0, 0, 0));
 
   box-shadow:
-    inset 0 0 20px rgb(255, 0, 43), inset 0 0 40px rgb(255, 0, 43), inset 0 0 60px rgb(255, 0, 43);
+    inset 0 0 20px rgb(255, 0, 43),
+    inset 0 0 40px rgb(255, 0, 43),
+    inset 0 0 60px rgb(255, 0, 43);
 
   clip-path: polygon(50% 0%,
-      /* top */
       100% 25%,
-      /* top-right */
       100% 75%,
-      /* bottom-right */
       50% 100%,
-      /* bottom */
       0% 75%,
-      /* bottom-left */
-      0% 25%
-      /* top-left */
-    );
+      0% 25%);
+}
+
+
+
+.hit-top {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 25px;
+  padding: 4px;
+  border-bottom: 2px solid red;
+  box-shadow: 4px 4px 4px rgba(255, 0, 0, 0.5);
+  border-radius: 25px;
+  width: 100%;
+}
+
+
+.event-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fee-data {
+  font-weight: bold;
+  position: absolute;
+  font-size: .6rem;
+  color: rgb(255, 231, 97);
+  text-shadow: .5px 1px 2px gold;
+
+}
+
+.total-hit-data {
+  font-weight: bold;
+  position: absolute;
+  font-size: .6rem;
+  color: rgb(255, 231, 97);
+  text-shadow: .5px 1px 2px gold;
+
+}
+
+.event-end-timmer {
+  font-weight: bold;
+  position: absolute;
+  margin-left: 10px;
+  font-size: .6rem;
+  color: rgb(255, 231, 97);
+  text-shadow: .5px 1px 2px gold;
+
+}
+
+.content-holder {
+  position: relative;
+  width: 90%;
+  filter: brightness(1.2) drop-shadow(1px 1px 4px blue);
 }
 
 .event-img {
@@ -833,10 +896,7 @@ main {
 
 
 .lock {
-  width: 70%;
-  min-width: 320px;
-  max-width: 250px;
-  translate: 0px 50px;
+  width: clamp(160px, 50vw, 260px);
   height: auto;
   position: absolute;
   animation: lockPulse 2s infinite;
@@ -849,15 +909,21 @@ main {
 /* event btn  */
 .hit-lock {
   display: flex;
+  width: 100%;
   align-items: center;
-  justify-content: center;
-  height: 80px;
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  border-radius: 25px;
+  padding: 10px;
+  margin-top: 10px;
+  justify-content: space-around;
   overflow: hidden;
 }
 
 .hit-btn {
-  width: 200px;
+  width: clamp(100px, 30vw, 100px);
   object-fit: cover;
+  margin-left: 50px;
   mix-blend-mode: screen;
   filter: brightness(1) contrast(1.4);
   /* IMPORTANT */
@@ -869,13 +935,37 @@ main {
   mix-blend-mode: screen;
   /* switches instantly */
   transform: scale(0.9);
+  ;
 }
 
 .hit-btn:active {
   opacity: 0;
-  transform: rotate(180deg) scale(0.2);
+  transform: rotate(180deg) scale(0.1);
 }
 
+.prize-pool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 50px;
+}
+
+.prize-pool-data {
+  font-size: clamp(.6rem, 2vw, 1.5rem);
+  font-weight: bold;
+  position: relative;
+  color: rgb(255, 231, 97);
+  margin-bottom: 5px;
+  text-shadow: .5px 1px 12px gold;
+}
+
+.prize-pool-holder {
+  width: clamp(50px, 40vw, 150px);
+  height: auto;
+  position: absolute;
+  filter: drop-shadow(0px 0px 10px blue) brightness(1.2);
+}
 
 @keyframes shake {
   0% {
@@ -1054,7 +1144,7 @@ main {
   text-decoration: none;
   display: flex;
   align-content: center;
-  justify-content: center;
+  justify-content: start;
   transition: all 0.3s;
 }
 
@@ -1114,10 +1204,7 @@ main {
 /* dialog  */
 .overlay_hidden {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   backdrop-filter: blur(5px);
   border-radius: 25px;
   align-items: center;
@@ -1130,9 +1217,8 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 400px;
-  max-width: 90%;
-  overflow-y: auto;
+  width: clamp(280px, 90vw, 600px);
+  height: clamp(200px, 90vh, max-content);
   background-color: rgba(15, 23, 42, 0.9);
   border-radius: 25px;
   padding: 20px;
@@ -1142,17 +1228,57 @@ main {
     0 0 30px rgba(255, 0, 0, 0.6);
 }
 
+/* dynamic prize pool */
+.dynamic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dynamic-prize-pool {
+  width: 20%;
+  height: auto;
+}
+
+.dynamic .dynamic-prize-text {
+  /* gradient text */
+  font-family: 'Arial Black', sans-serif;
+  /* Use a thick font */
+  text-transform: uppercase;
+  background: linear-gradient(to bottom, #000000 0%, #fffefeb1 50%, #000000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(1.5px 1px 0px rgba(255, 255, 255, 0.658));
+  font-size: clamp(.8rem, 2vw, 1rem);
+  margin-bottom: 10px;
+}
+
+.dynamic .dynamic-explain {
+  color: #ff7700eb;
+  font-family: cursive;
+  margin: 0;
+  font-size: clamp(.8rem, 2vw, 1rem);
+  text-align: center;
+}
+
+
+
 .dialog h2 {
   color: #ff6f6f;
-  margin-bottom: 10px;
+  width: 100%;
+  border-bottom: 2px dashed #ff0000;
   justify-self: center;
+  margin-top: -20px;
+  text-shadow: 1px 1px .5px black;
+  font-size: clamp(1rem, 2vw, .8rem);
 }
 
 .dialog h3 {
   color: #ff8f8f;
-  margin-bottom: 10px;
+  margin-top: 10px;
   justify-self: start;
   text-align: center;
+  font-size: clamp(.6rem, 2vw, .8rem);
 }
 
 .dialog p {
@@ -1160,6 +1286,7 @@ main {
   margin-bottom: 20px;
   text-align: start;
   margin-left: 20px;
+  font-size: clamp(.4rem, 2vw, .8rem);
 }
 
 .dialog span {
@@ -1168,23 +1295,28 @@ main {
   text-align: start;
 }
 
-.dialog button {
-  background-color: #000000;
+.dialog-close {
   border: 2px solid var(--card);
-  color: #ff9494;
+  color: #ff0000;
   border-radius: 25px;
-  padding: 10px 20px;
   gap: 4px;
-  text-decoration: none;
   display: flex;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  text-shadow: 1px 1px 4px;
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
   align-content: center;
   justify-content: center;
   justify-self: right;
   transition: all 0.3s;
+  cursor: pointer;
 }
+
 
 .dialog-content ul {
   margin-left: 20px;
+  margin-bottom: 20px;
+  text-align: start;
+  font-size: clamp(.4rem, 2vw, .8rem);
   color: #ffa3a3;
 }
 
@@ -1201,17 +1333,12 @@ main {
   border: 2px solid rgb(255, 196, 0);
 }
 
-.dialog button:hover {
-  color: #000000;
-  background-color: rgb(255, 255, 255);
-  box-shadow:
-    0 0 10px rgb(255, 0, 0),
-    0 0 20px rgb(255, 0, 0),
-    0 0 30px rgb(255, 0, 0);
-  border: 2px solid rgb(255, 0, 0);
-  transform: scale(1.1);
-  border-radius: 25px;
-  text-decoration: none;
+.btm {
+  width: 100%;
+  display: flex;
+  border-top: 2px dashed #ff0000;
+  align-items: end;
+  justify-content: center;
 }
 
 .join-now {
@@ -1255,3 +1382,26 @@ main {
 }
 
 
+
+
+/* premium league */
+
+/* lakhpati-loop */
+
+.lakhpati-loop {
+  background: black;
+  border-radius: 25px;
+}
+
+.lakhpati-card {
+  display: flex;
+  flex-direction: column;
+  background: black;
+  border-radius: 25px;
+}
+
+.lakhpati-top-banner {
+  width: 100%;
+  border-radius: 25px;
+  object-fit: cover;
+}

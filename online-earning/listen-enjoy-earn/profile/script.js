@@ -44,18 +44,9 @@ const storage = getStorage();
 const functions = getFunctions(app);
 
 
-const ICONS = {
-  withdrawal:
-    "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/withdrawal%20symbole.png",
-  vibe:
-    "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png",
-  hit:
-    "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/rupee%20symbol.png",
-  convert:
-    "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-};
-
 const userNameEl = document.getElementById("userName");
+const userCashEarning = document.getElementById("cashBalance");
+const userCoinEarning = document.getElementById("coinBalance");
 const withdrawal_history = document.getElementById("withdrawalHistory");
 const open_withdrawal_page = document.getElementById("openWithdrawal");
 const close_withdrawal_page = document.getElementById("close")
@@ -91,6 +82,32 @@ const idProofPreview = document.getElementById("idProofPreview");
 
 const submitBtn = document.getElementById("submit-kyc");
 
+// withdrawal el
+const withdrawalAmount = document.getElementById("reqAmount");
+const paymentMethod = document.getElementById("paymentMethod");
+const bankName = document.getElementById("bankName");
+const upiAccountNo = document.getElementById("upiAccountNo");
+const bankIfscCode = document.getElementById("bankIfscCode");
+const riseReq = document.getElementById("submitWithdrawalReq");
+
+// convert el
+const openConvertOverlay = document.getElementById("openConvertOverlay");
+const closeConvertOverlay = document.getElementById("close-convert");
+const convertOverlay = document.getElementById("convert-overlay");
+const availLC = document.getElementById("coinDisplay");
+const enterCoinToConvert = document.getElementById("coinToConvert");
+const convertedCash = document.getElementById("convertedCash");
+const convertCoinBtn = document.getElementById("convert");
+const noteOrError = document.getElementById("note");
+const howToUseLc = document.getElementById("how-to-use-coin");
+const lcHelpOverlay = document.getElementById("lcHelpOverlay");
+const closeLcHelp = document.getElementById("closeLcHelp");
+const gotItBtn = document.getElementById("gotItBtn");
+
+const progressDialogOverlay = document.getElementById("progress-dialog");
+const progressTitle = document.getElementById("progressTitle");
+const progressDesc = document.getElementById("progressText");
+
 // =====================
 // GLOBAL FILE HOLDERS
 // =====================
@@ -109,12 +126,13 @@ let uiData = null;
 
 const getUserA = httpsCallable(functions, "loadUserData");
 const submitUserKYC = httpsCallable(functions, "submitUserKYC");
+const createWithdrawalTxn = httpsCallable(functions, "createTransactionRecord");
+const lcToCash = httpsCallable(functions, "convertListenCoinToCash");
 let transactions = []; // empty array to hold transactions
 
 // =======================
 // Auth Listener
 // =======================
-
 
 onAuthStateChanged(auth, async (user) => {
 
@@ -133,15 +151,15 @@ onAuthStateChanged(auth, async (user) => {
   // load user data till it loading disable all click 
   await getUser();
 
-  checkKycStatus(uiData.kyc);
+  isUserDataLoading = false;
 
+  init();
+  checkKycStatus(uiData.kyc);
+  handleUserDp();
   // load transactions
   await loadTransactions(currentUser.uid);
 
-  enableUI();
-
   enableUI(); // 🔓 unlock UI
-  isUserDataLoading = false;
 
 });
 
@@ -154,20 +172,19 @@ async function getUser() {
 
     // ✅ assign globally
     uiData = userData;
-
-    console.log("GLOBAL_USER set:", uiData);
+    init();
+    // load transactions 
+    await loadTransactions(currentUser.uid);
 
     return uiData;
   } catch (err) {
     console.error("Failed to load user data:", err);
 
     enableUI();
+
     return null;
   }
 }
-
-
-
 
 // transaction list
 async function loadTransactions(transactionid) {
@@ -177,7 +194,7 @@ async function loadTransactions(transactionid) {
       "SapanaCyberHub",
       "Listen",
       "user",
-      userId,
+      currentUser.uid,
       "transactions"
     );
     const transactionsSnap = await getDocs(transactionsRef);
@@ -191,6 +208,29 @@ async function loadTransactions(transactionid) {
     enableUI();
   }
 }
+
+const ICONS = {
+  withdrawal: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/withdrawal%20symbole.png",
+
+  hitCash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/rupee%20symbol.png",
+  hitLC: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png",
+
+  vibeCash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+  vibeLC: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png",
+
+  convertCash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+  convertLC: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/convert-ic.png"
+};
+
+const formatIc = (isCash, desc = "") => {
+  desc = desc.toLowerCase();
+
+  return desc === "withdrawal"
+    ? ICONS.withdrawal
+    : ICONS[`${desc}${isCash ? "Cash" : "LC"}`] || ICONS.vibeLC;
+};
+
+
 function capitalize(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -199,7 +239,7 @@ function formatAmount(isCash, amount) {
 }
 function renderTransaction(tx) {
   const sign = tx.isCredit ? "+" : "-";
-  const showStatus = tx.txReason === "withdrawal";
+  const showStatus = tx.txnDescription === "withdrawal";
   const statusText =
     tx.status === "pending" ? "• Pending" : "• Success";
   const statusClass =
@@ -208,16 +248,16 @@ function renderTransaction(tx) {
   return `
     <div class="transaction">
       <div class="left">
-        <img src="${ICONS[tx.txReason]}" alt="${tx.txReason}">
+        <img src="${formatIc(tx.isCash, tx.txnDescription)}" alt="${tx.txnDescription}">
         <div class="left-content">
-          <span class="transaction-desc">${capitalize(tx.txReason)}</span>
-          <small class="transaction-date">${tx.transactionDate}</small>
+          <span class="transaction-desc">${capitalize(tx.txnDescription)}</span>
+          <small class="transaction-date">${timeAgo(tx.transactionDate)}</small>
         </div>
       </div>
 
       <div class="right">
         <strong class="transaction-type">${sign}</strong>
-        <span class="transaction-amount">${formatAmount(tx.isCash, tx.amount)}</span>
+        <span class="transaction-amount">${formatAmount(tx.isCash, tx.txnAmount)}</span>
 
         ${showStatus
       ? `<small class="transaction-status ${statusClass}">
@@ -229,7 +269,6 @@ function renderTransaction(tx) {
     </div>
   `;
 }
-
 function renderList(list) {
   // default inner HTML (empty state)
   container.innerHTML = `
@@ -245,12 +284,13 @@ function renderList(list) {
   // clear container
   container.innerHTML = "";
 
+  list.sort(
+    (a, b) => b.transactionDate.seconds - a.transactionDate.seconds
+  );
   list.forEach(tx => {
     container.innerHTML += renderTransaction(tx);
   });
 }
-
-
 // filter transactions
 filterActions.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -263,13 +303,13 @@ filterActions.forEach(btn => {
     let filteredList = [];
 
     switch (filter) {
-      case "ALL":
+      case "All":
         filteredList = transactions;
         break;
 
       case "Withdrawal":
         filteredList = transactions.filter(
-          tx => tx.txReason === "withdrawal"
+          tx => tx.txnDescription === "withdrawal"
         );
         break;
 
@@ -315,11 +355,8 @@ updateKycBtn.addEventListener("click", () => {
   showKycOverlay();
 });
 
-
-
 // kyc overlay
 async function showKycOverlay() {
-
   kycUpdateOverlay.classList.add("show");
 
   resetKycUI();
@@ -331,7 +368,7 @@ async function showKycOverlay() {
     submitKycForm.style.display = "none";
 
     kycBanner.src =
-      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20veryfied.png";
+      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-verified.png";
 
     kycGhost.textContent = "Start Vibe 🎧";
     kycGhost.onclick = () => {
@@ -493,8 +530,10 @@ submitBtn.addEventListener("click", async (e) => {
     const idLastFour = idLastFourInput.value.trim();
     const uid = auth.currentUser.uid;
 
+    // submiting kyc details to approval
+    showProgress("KYC Details Submiting","Make sure All Details are Correct to avoid KYC Rejection.");
     // ⚡ parallel uploads
-    const [profilePath, idProofPath] = await Promise.all([
+    const [profileRes, idProofRes] = await Promise.all([
       uploadKycFile(
         profileImageFile,
         `kyc/${uid}/profile.jpg`
@@ -512,30 +551,260 @@ submitBtn.addEventListener("click", async (e) => {
       age: Number(ageInput.value),
       phone: phoneInput.value.trim(),
       idLastFour: idLastFourInput.value.trim(),
-      profilePath,
-      idProofPath
+
+      profilePath: profileRes.path,
+      profileURL: profileRes.url,
+
+      idProofPath: idProofRes.path,
+      idProofURL: idProofRes.url
     };
 
     const res = await submitUserKYC(kycData);
 
+    // show creating message
+    kycHeader.textContent = "Submitting KYC Details...";
+
     if (res.data?.success) {
       showKycOverlay();
+      await finishProgress(true);
       enableUI();
       return;
     }
-
+    await finishProgress(false);
     enableUI();
 
   } catch (err) {
     console.error(err);
-    alert("KYC failed");
+    await finishProgress(false);
+    kycHeader.textContent = "Submitting KYC Details..." + err.message;
+    enableUI();
+  }
+});
+
+// function to show or hide input field like upi/bank details if method value is gift-card if upi so show only upi/account no input if bank show bank name field and ifsc field 
+function togglePaymentFields() {
+  const m = paymentMethod.value;
+  // reset btn 
+  riseReq.textContent = "REQUEST WITHDRAW";
+  riseReq.style.pointerEvents = "auto";
+
+  bankName.style.display = m === "bank" && "block" || "none";
+  bankIfscCode.style.display = m === "bank" && "block" || "none";
+  upiAccountNo.style.display = (m === "upi" || m === "bank") && "block" || "none";
+  if (m === "giftCard") {
+      riseReq.textContent = "Gift Card Withdrawal Coming Soon";
+      // block click
+      riseReq.style.pointerEvents = "none";
+    }
+
+}
+
+
+paymentMethod.addEventListener("change", togglePaymentFields);
+
+// withdrawal req intenet
+riseReq.addEventListener("click", async (e) => {
+  e.preventDefault();
+  disableUI();
+
+  try {
+    const amount = withdrawalAmount.value;
+    const method = paymentMethod.value;
+    const bank = bankName.value;
+    const upi = upiAccountNo.value;
+    const ifsc = bankIfscCode.value;
+
+    if (!amount || !method) {
+      shakeField(withdrawalAmount);
+      shakeField(paymentMethod);
+      return enableUI();
+    }
+
+    if (amount < 200) {
+      shakeField(withdrawalAmount);
+      return enableUI();
+    }
+
+    if (method === "bank" && (!bank || !ifsc)) {
+      shakeField(bankName);
+      shakeField(bankIfscCode);
+      return enableUI();
+    }
+
+    if (method === "upi" && !upi) {
+      shakeField(upiAccountNo);
+      return enableUI();
+    }
+    
+
+    const withdrawalDetails = {
+      paymentMethod: method,
+      bankName: bank,
+      upiAccountNo: upi,
+      bankIfscCode: ifsc
+    };
+
+    const intent = {
+      txnAmount: Number(amount),
+      txnDescription: "withdrawal",
+      isCredit: false,
+      isCash: true,
+      withdrawalData: withdrawalDetails
+    };
+
+
+    showProgress("Processing Withdrawal Request", "Please wait while we process your request. It's may take a few minutes or 48 hours in Processed.");
+    const res = await createWithdrawalTxn({
+      intent
+    });
+
+    if (res.data?.success) {
+      await finishProgress(true);
+      await getUser();
+      enableUI();
+      return;
+    }
+  } catch (err) {
+    console.error(err);
+    await finishProgress(false);
+    alert("Failed to submit withdrawal request.");
     enableUI();
   }
 });
 
 
+// convert coin into cash 
+openConvertOverlay.addEventListener("click", () => {
+  // Show conversion overlay
+  convertOverlay.classList.add("show");
+});
+
+// close conversion overlay
+closeConvertOverlay.addEventListener("click", () => {
+  convertOverlay.classList.remove("show");
+});
+
+
+// handle live converting add using input change listen in enterCoinToConvert
+enterCoinToConvert.addEventListener("input", () => {
+  const coinAmount = Number(enterCoinToConvert.value);
+  const availLC = Number(uiData.listenCoin);
+
+  // reset state
+  convertedCash.style.color = "inherit";
+  enterCoinToConvert.classList.remove("field-error");
+
+  if (availLC === 0 && coinAmount > 0) {
+    shakeField(enterCoinToConvert);
+    convertedCash.style.color = "red";
+    convertedCash.textContent = "₹0";
+    // show no coin have to convert
+
+    noteOrError.textContent = `NOTE : Not enough LC: You have ${availLC} LC`;
+    return;
+  }
+
+  if (coinAmount > availLC) {
+    shakeField(enterCoinToConvert);
+    convertedCash.style.color = "red";
+    noteOrError.textContent = `NOTE : Not enough LC: You have ${availLC} LC`;
+    return;
+  }
+  // if amount not divided by 10 return 
+  if (coinAmount % 10 !== 0) {
+    shakeField(enterCoinToConvert);
+    convertedCash.style.color = "red";
+    noteOrError.textContent = "NOTE : Amount must be divisible by 10";
+    return;
+  }
+
+  // ✅ Valid input
+  if (coinAmount > 0) {
+    const cashAmount = coinAmount / 10;
+    convertedCash.style.color = "#2cff68";
+    convertedCash.textContent = `₹${cashAmount}`;
+
+    noteOrError.textContent = "NOTE : Conversion rate is 10 LC = ₹1";
+  } else {
+    convertedCash.textContent = "₹0";
+
+  }
+});
+
+
+// handle coin conversion 10LC = 1 rupee take input from 
+convertCoinBtn.addEventListener("click", async () => {
+  const coinAmount = Number(enterCoinToConvert.value);
+
+  if (coinAmount <= 0) {
+    shakeField(enterCoinToConvert);
+    return;
+  }
+
+  if (coinAmount % 10 !== 0) {
+    shakeField(enterCoinToConvert);
+    return;
+  }
+
+  if(coinAmount < 3000) {
+    shakeField(enterCoinToConvert);
+    return;
+  }
+
+  showProgress("Converting LC To Cash", "we hope You're in Joy");
+
+  try {
+    const res = await lcToCash({
+      listenCoinAmount: coinAmount
+    });
+
+    if (res.data?.success) {
+      await finishProgress(true);
+      convertOverlay.classList.remove("show");
+      enterCoinToConvert.value = "";
+      convertedCash.textContent = "₹0";
+      noteOrError.textContent = "";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Failed to convert Listen Coin to Cash.");
+    await finishProgress(false);
+  }
+});
 
 // helpers
+
+howToUseLc.addEventListener("click", openLcHelp);
+// open dialog
+function openLcHelp() {
+  lcHelpOverlay.style.display = "flex";
+}
+
+// close dialog
+function closeLcHelpDialog() {
+  lcHelpOverlay.style.display = "none";
+}
+
+closeLcHelp.addEventListener("click", closeLcHelpDialog);
+gotItBtn.addEventListener("click", closeLcHelpDialog);
+
+// show progress overlay 
+function showProgress(title, desc) {
+  progressDialogOverlay.classList.add("show-progress");
+  progressTitle.textContent = title;
+  progressDesc.textContent = desc;
+}
+// finish progress
+async function finishProgress(isSuccess) {
+  if(isSuccess) {
+    await getUser()
+    progressDialogOverlay.classList.remove("show-progress");
+  }
+  
+    progressDialogOverlay.classList.remove("show-progress");
+
+}
+
 // close kyc update overlay
 closeKyc.addEventListener("click", () => {
   kycUpdateOverlay.classList.remove("show");
@@ -578,12 +847,22 @@ function shakeField(inputEl) {
   inputEl.focus({ preventScroll: false });
 }
 
-
 async function uploadKycFile(file, path) {
   const fileRef = ref(storage, path);
+
+  // upload file
   await uploadBytes(fileRef, file);
-  return path; // store path, not URL
+
+  // get download URL
+  const downloadURL = await getDownloadURL(fileRef);
+
+  // return both (best practice)
+  return {
+    path,
+    url: downloadURL
+  };
 }
+
 // reset kyc form
 function resetKycUI() {
   // Reset sections
@@ -622,8 +901,6 @@ async function checkUserKycStatus() {
   }
 }
 
-// withdrawal history btn 
-
 // withdrawal history click scroll page to wher transaction & filter transaction  withdrawal only and
 withdrawal_history.addEventListener("click", () => {
   // scroll to transaction section
@@ -648,5 +925,67 @@ function checkKycStatus(kyc) {
     kycStatusEl.classList.add("na");
     kycStatusEl.textContent = "NA";
   }
+}
+
+
+// handle user dp
+function handleUserDp() {
+  const userImg = document.getElementById("profileUrl");
+
+  if (!uiData.userDp || "") {
+    userImg.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png";
+    return
+  }
+  userImg.src = uiData.userDp;
+
+}
+
+// init ui
+function init() {
+  handleUserDp();
+  checkKycStatus(uiData.kyc);
+  updateWalletDisplay();
+}
+
+// update wallet display
+function updateWalletDisplay() {
+  userCashEarning.textContent = uiData.cash;
+  userCoinEarning.textContent = uiData.listenCoin;
+
+  const withdrawalPageBalance = document.getElementById("accountBalance");
+  withdrawalPageBalance.textContent = uiData.cash;
+  availLC.textContent = `${uiData.listenCoin} LC`;
+
+}
+
+// data convertion 
+function timeAgo(ts) {
+  if (!ts) return "";
+
+  const date =
+    typeof ts.toDate === "function"
+      ? ts.toDate()          // Firestore Timestamp
+      : new Date(ts);        // number / string
+
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  if (diff < 5) return "Just now";
+  if (diff < 60) return `${diff}s ago`;
+
+  const mins = Math.floor(diff / 60);
+  if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr${hrs > 1 ? "s" : ""} ago`;
+
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
 }
 
