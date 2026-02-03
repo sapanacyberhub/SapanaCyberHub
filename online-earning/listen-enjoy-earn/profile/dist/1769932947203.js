@@ -6,6 +6,7 @@ import{initializeApp}from"\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u0077
           <span class="transaction-desc">${capitalize(tx['\u0074\u0078\u006E\u0044\u0065\u0073\u0063\u0072\u0069\u0070\u0074\u0069\u006F\u006E'])}</span>
           <small class="transaction-date">${timeAgo(tx['\u0074\u0072\u0061\u006E\u0073\u0061\u0063\u0074\u0069\u006F\u006E\u0044\u0061\u0074\u0065'])}</small>
         </div>
+        
       </div>
 
       <div class="right">
