@@ -344,7 +344,7 @@ async function showKycOverlay() {
 
     // 2. SUCCESS / VERIFIED
     // Check both local flag OR server status for safety
-    if (isKycComplete || (kyc && kyc.status === "verified")) {
+    if (isKycComplete || (kyc === "verified" || kyc === "approved")) {
       kycHeader.textContent = "KYC Verified";
       kycPreview.style.display = "flex";
       submitKycForm.style.display = "none";
@@ -368,7 +368,7 @@ async function showKycOverlay() {
     }
 
     // 4. PENDING
-    if (kyc.status === "pending") {
+    if (kyc === "pending") {
       kycHeader.textContent = "KYC Pending";
       kycPreview.style.display = "flex";
       submitKycForm.style.display = "none";
@@ -381,7 +381,7 @@ async function showKycOverlay() {
     }
 
     // 5. REJECTED
-    if (kyc.status === "rejected") {
+    if (kyc === "rejected") {
       kycHeader.textContent = "KYC Rejected";
       kycPreview.style.display = "flex";
       submitKycForm.style.display = "none"; // Ensure form is hidden until Re-verify is clicked
@@ -877,6 +877,7 @@ async function checkUserKycStatus() {
     if (result.data?.success) {
       return result.data.status;
     }
+
     return null;
   } catch (error) {
     console.error("Error calling checkMyKycStatus:", error);
