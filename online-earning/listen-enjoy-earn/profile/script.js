@@ -336,66 +336,55 @@ updateKycBtn.addEventListener("click", () => {
 
 async function showKycOverlay() {
   kycUpdateOverlay.classList.add("show");
-  resetKycUI(); // Ensure pointerEvents = "auto" is inside here!
+  resetKycUI(); 
 
   try {
-    // 1. Fetch fresh data from server
-    const kyc = await checkUserKycStatus();
+    const kyc = await checkUserKycStatus(); // This returns the object { status: '...', ... }
 
-    // 2. SUCCESS / VERIFIED
-    // Check both local flag OR server status for safety
-    if (isKycComplete || (kyc === "verified" || kyc === "approved")) {
-      kycHeader.textContent = "KYC Verified";
-      kycPreview.style.display = "flex";
-      submitKycForm.style.display = "none";
-      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-verified.png";
-      
-      kycGhost.textContent = "Start Vibe 🎧";
-      kycGhost.onclick = () => kycUpdateOverlay.classList.remove("show");
-      return;
-    }
-
-    // 3. NOT SUBMITTED
+    // 1. NOT SUBMITTED (Server returns kyc: null)
     if (!kyc) {
       kycHeader.textContent = "Complete Your KYC";
       kycPreview.style.display = "flex";
-      submitKycForm.style.display = "none";
       kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-recuire.png";
-      
       kycGhost.textContent = "Continue";
       kycGhost.onclick = () => showKycForm();
       return;
     }
 
-    // 4. PENDING
-    if (kyc === "pending") {
-      kycHeader.textContent = "KYC Pending";
+    // 2. SUCCESS / VERIFIED
+    if (kyc.status === "verified" || kyc.status === "approved") {
+      kycHeader.textContent = "KYC Verified";
       kycPreview.style.display = "flex";
       submitKycForm.style.display = "none";
-      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20verification%20in%20progress.png";
-
-      kycGhost.textContent = "Waiting for verification…";
-      kycGhost.style.pointerEvents = "none";
-      kycGhost.style.opacity = "0.6"; // Visual feedback for disabled button
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-verified.png";
+      kycGhost.textContent = "Start Vibe 🎧";
+      kycGhost.onclick = () => kycUpdateOverlay.classList.remove("show");
       return;
     }
 
-    // 5. REJECTED
-    if (kyc === "rejected") {
+    // 3. PENDING
+    if (kyc.status === "pending") {
+      kycHeader.textContent = "KYC Pending";
+      kycPreview.style.display = "flex";
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20verification%20in%20progress.png";
+      kycGhost.textContent = "Waiting for verification…";
+      kycGhost.style.pointerEvents = "none";
+      kycGhost.style.opacity = "0.6";
+      return;
+    }
+
+    // 4. REJECTED
+    if (kyc.status === "rejected") {
       kycHeader.textContent = "KYC Rejected";
       kycPreview.style.display = "flex";
-      submitKycForm.style.display = "none"; // Ensure form is hidden until Re-verify is clicked
+      // ✅ Now kyc.reason will work because kyc is the data object!
       kycRejectedMessage.textContent = kyc.reason || "Verification failed";
       kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-rejected.png";
-
       kycGhost.textContent = "Re-verify";
       kycGhost.onclick = () => showKycForm();
     }
   } catch (err) {
     console.error("KYC Overlay Error:", err);
-    kycHeader.textContent = "Connection Error";
-    kycGhost.textContent = "Try Again";
-    kycGhost.onclick = () => showKycOverlay();
   }
 }
 
@@ -874,8 +863,11 @@ async function checkUserKycStatus() {
   try {
     const result = await getKycSts();
     
-    if (result.data?.success) {
-      return result.data.status;
+    // 1. Check if the network call actually succeeded
+    if (result.data && result.data.success) {
+      // 2. Return ONLY the kyc data object { status, reason, etc. }
+      // This matches your server's return: { success: true, kyc: kycSnap.data() }
+      return result.data.kyc; 
     }
 
     return null;
