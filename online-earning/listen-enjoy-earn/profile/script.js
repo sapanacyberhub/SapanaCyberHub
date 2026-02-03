@@ -874,7 +874,7 @@ function resetKycUI() {
 // check kyc status
 async function checkUserKycStatus() {
   try {
-    const result = await getKycFromServer();
+    const result = await getKycSts();
     
     if (result.data?.success) {
       return result.data.kyc;

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sapana CyberHub - Prize Pool</title>
+    <style>
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-pink: #ff00cc;
+            --neon-green: #00ff88;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: #050505; /* Deep cyber black */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Glassmorphism Container */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px 60px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .label {
+            color: var(--neon-blue);
+            letter-spacing: 3px;
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .prize-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .currency {
+            font-size: 35px;
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .number {
+            font-size: 70px;
+            color: #fff;
+            margin: 0;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6), 0 0 40px rgba(255, 0, 204, 0.3);
+            font-variant-numeric: tabular-nums; /* Prevents text jumping */
+        }
+
+        /* Growth Indicator with Pulse */
+        .growth-note {
+            color: var(--neon-green);
+            font-size: 14px;
+            margin-top: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .growth-note.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <p class="label">Live Prize Pool</p>
+        <div class="prize-wrapper">
+            <span class="currency">₹</span>
+            <h1 class="number" id="prizeNumber">0</h1>
+        </div>
+        
+        <div class="growth-note" id="growthNote">
+            <span class="dot"></span>
+            🚀 Pool Increasing!
+        </div>
+    </div>
+
+    <script>
+        let currentAmount = 0;
+        const prizeElement = document.getElementById('prizeNumber');
+        const growthNote = document.getElementById('growthNote');
+
+        // Function to animate the number smoothly
+        function animateValue(start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                
+                // Format with Indian Currency System (en-IN)
+                prizeElement.innerHTML = value.toLocaleString('en-IN');
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Simulate a new user joining and the prize pool growing
+        function updatePrize(newTotal) {
+            const oldAmount = currentAmount;
+            currentAmount = newTotal;
+            
+            // Trigger the number animation
+            animate
+            Value(oldAmount, currentAmount, 1000); // 1 second duration
+
+            // Show the "Growth Note" for 2 seconds
+            growthNote.classList.add('show');
+            setTimeout(() => {
+                growthNote.classList.remove('show');
+            }, 3000);
+        }
+
+        // INITIAL LOAD: Set a starting value
+        setTimeout(() => updatePrize(45678), 500);
+
+        // REAL-TIME DEMO: Every 5 seconds, add a small amount
+        setInterval(() => {
+            const extra = Math.floor(Math.random() * 500) + 100;
+            updatePrize(currentAmount + extra);
+        }, 7000);
+    </script>
+</body>
+</html>

@@ -650,6 +650,8 @@ main {
   overflow: hidden;
   position: relative;
   margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .event-thumb img {
@@ -663,16 +665,22 @@ main {
   transform: scale(1.06);
 }
 
-.event-prize-badge {
+.event-badge {
   position: absolute;
-  left: 10px;
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
   bottom: 10px;
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 11px;
-  background: rgba(15, 23, 42, 0.9);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
   border: 1px solid rgba(250, 250, 250, 0.35);
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
+
+
 
 .event-title {
   font-size: 14px;
@@ -777,8 +785,6 @@ main {
   /* Visual stacking: Side cards are dim and small */
   transform: scale(0.8);
 }
-
-
 
 
 .hit-event-content {
@@ -951,12 +957,17 @@ main {
   margin-left: 50px;
 }
 
-.prize-pool-data {
+.dynamic-prize {
   font-size: clamp(.6rem, 2vw, 1.5rem);
   font-weight: bold;
   position: relative;
-  color: rgb(255, 231, 97);
   margin-bottom: 5px;
+    color: #0ff;
+}
+
+/* When the card is active, give it the Cyberpunk glow */
+.active .dynamic-prize {
+  color: rgb(255, 231, 97);
   text-shadow: .5px 1px 12px gold;
 }
 
