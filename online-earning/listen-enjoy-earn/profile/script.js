@@ -334,70 +334,68 @@ updateKycBtn.addEventListener("click", () => {
   showKycOverlay();
 });
 
-// kyc overlay
 async function showKycOverlay() {
   kycUpdateOverlay.classList.add("show");
+  resetKycUI(); // Ensure pointerEvents = "auto" is inside here!
 
-  resetKycUI();
+  try {
+    // 1. Fetch fresh data from server
+    const kyc = await checkUserKycStatus();
 
-  // VERIFIED (local flag)
-  if (isKycComplete) {
-    kycHeader.textContent = "KYC Verified";
-    kycPreview.style.display = "flex";
-    submitKycForm.style.display = "none";
+    // 2. SUCCESS / VERIFIED
+    // Check both local flag OR server status for safety
+    if (isKycComplete || (kyc && kyc.status === "verified")) {
+      kycHeader.textContent = "KYC Verified";
+      kycPreview.style.display = "flex";
+      submitKycForm.style.display = "none";
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-verified.png";
+      
+      kycGhost.textContent = "Start Vibe 🎧";
+      kycGhost.onclick = () => kycUpdateOverlay.classList.remove("show");
+      return;
+    }
 
-    kycBanner.src =
-      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-verified.png";
+    // 3. NOT SUBMITTED
+    if (!kyc) {
+      kycHeader.textContent = "Complete Your KYC";
+      kycPreview.style.display = "flex";
+      submitKycForm.style.display = "none";
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-recuire.png";
+      
+      kycGhost.textContent = "Continue";
+      kycGhost.onclick = () => showKycForm();
+      return;
+    }
 
-    kycGhost.textContent = "Start Vibe 🎧";
-    kycGhost.onclick = () => {
-      kycUpdateOverlay.classList.remove("show");
-    };
-    return;
-  }
+    // 4. PENDING
+    if (kyc.status === "pending") {
+      kycHeader.textContent = "KYC Pending";
+      kycPreview.style.display = "flex";
+      submitKycForm.style.display = "none";
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20verification%20in%20progress.png";
 
-  const kyc = await checkUserKycStatus();
+      kycGhost.textContent = "Waiting for verification…";
+      kycGhost.style.pointerEvents = "none";
+      kycGhost.style.opacity = "0.6"; // Visual feedback for disabled button
+      return;
+    }
 
-  // ⚪ NOT SUBMITTED
-  if (!kyc) {
-    kycHeader.textContent = "Complete Your KYC";
-    kycPreview.style.display = "flex";
-    submitKycForm.style.display = "none";
+    // 5. REJECTED
+    if (kyc.status === "rejected") {
+      kycHeader.textContent = "KYC Rejected";
+      kycPreview.style.display = "flex";
+      submitKycForm.style.display = "none"; // Ensure form is hidden until Re-verify is clicked
+      kycRejectedMessage.textContent = kyc.reason || "Verification failed";
+      kycBanner.src = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-rejected.png";
 
-    kycBanner.src =
-      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-recuire.png";
-
-    kycGhost.textContent = "Continue";
-    kycGhost.onclick = () => showKycForm();
-    return;
-  }
-
-  // 🟡 PENDING
-  if (kyc.status === "pending") {
-    kycHeader.textContent = "KYC Pending";
-    kycPreview.style.display = "flex";
-    submitKycForm.style.display = "none";
-
-    kycBanner.src =
-      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc%20verification%20in%20progress.png";
-
-    kycGhost.textContent = "Waiting for verification…";
-    kycGhost.style.pointerEvents = "none";
-    return;
-  }
-
-  // 🔴 REJECTED
-  if (kyc.status === "rejected") {
-    kycHeader.textContent = "KYC Rejected";
-    kycPreview.style.display = "flex";
-
-    kycRejectedMessage.textContent = kyc.reason || "Verification failed";
-
-    kycBanner.src =
-      "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/kyc-rejected.png";
-
-    kycGhost.textContent = "Re-verify";
-    kycGhost.onclick = () => showKycForm();
+      kycGhost.textContent = "Re-verify";
+      kycGhost.onclick = () => showKycForm();
+    }
+  } catch (err) {
+    console.error("KYC Overlay Error:", err);
+    kycHeader.textContent = "Connection Error";
+    kycGhost.textContent = "Try Again";
+    kycGhost.onclick = () => showKycOverlay();
   }
 }
 
@@ -877,7 +875,7 @@ async function checkUserKycStatus() {
     const result = await getKycSts();
     
     if (result.data?.success) {
-      return result.data.kyc;
+      return result.data.status;
     }
     return null;
   } catch (error) {
