@@ -830,6 +830,7 @@ body {
 .kyc-image-box img {
     width: 100px;
     height: 100px;
+    border: 2px solid red;
     border-radius: 50px;
     object-fit: cover;
 }

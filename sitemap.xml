@@ -44,129 +44,14 @@
   </url>
 
   <!-- govt-schemes -->
-  <url>
-    <loc>https://sapanacyberhub.in/govt-schemes/epfo-kyc-complete-guide-2025/</loc>
-    <lastmod>2025-12-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
 
-  <!-- cricket - cricket news  -->
-  <url>
-    <loc>https://sapanacyberhub.in/cricket/india-vs-sa-3rd-t20i-analysis/</loc>
-    <lastmod>2025-12-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
 
-  <!-- CYBER SAFETY POSTS (use monthly for typical blog posts) -->
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/whatsapp-otp-scam/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
 
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/protect-your-phone/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/spy-app-detection/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/upi-fraud-prevention/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/phone-hacked-detection/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/cyber-safety/CyberPsychology/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
 
   
 
   <!-- TECH NEWS POSTS -->
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/realme-p4x-5g-full-review/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/cloudflare-down-again-dec-2025/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/jio-6g-testing/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/whatsapp-hidden-features-2026/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/sanchar-sathi-news/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/whatsapp-hidden-features-2025/</loc>
-    <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://sapanacyberhub.in/tech-news/whatsapp-anti-hacking-update-2026/</loc>
-    <lastmod>2025-12-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <!-- News -->
-  <url>
-    <loc>https://sapanacyberhub.in/news/mozambique-trends/</loc>
-    <lastmod>2025-12-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://sapanacyberhub.in/news/latest-1000cr-scam-revealed/</loc>
-    <lastmod>2025-12-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
+  
 
 
   <!-- OPTIONAL: add XML sitemap footer note as comment -->

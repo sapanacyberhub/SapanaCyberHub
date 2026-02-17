@@ -8,7 +8,7 @@
 
   <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="script.js" defer > </script>
+  <script type="module" src="script.js" defer> </script>
 
 
 </head>
@@ -44,7 +44,7 @@
 
     <!-- WELCOME -->
     <section class="welcome-box">
-      <h1>Welcome Back, Admin ⚡</h1>
+      <h1>Welcome Back, Dear ⚡💸</h1>
       <p>System status is <span class="online">ONLINE</span></p>
     </section>
 
@@ -52,36 +52,40 @@
     <section class="stats-grid">
       <div class="stat-card cyan">
         <h4>Active Vibers</h4>
-        <h2 id="active-users"></h2>
+        <h2 id="active-users">0</h2>
       </div>
-      <div class="stat-card cyan">
+      <div class="stat-card pink">
+        <h4>Active Events</h4>
+        <h2 id="active-events">0</h2>
+      </div>
+      <div class="stat-card pink">
         <h4>KYC Pending</h4>
-        <h2 id="kyc-pending"></h2>
+        <h2 id="kyc-pending">0</h2>
       </div>
 
-      <div class="stat-card pink">
+      <div class="stat-card cyan">
         <h4>Pending Withdrawals</h4>
-        <h2 id="pending-withdrwal"></h2>
+        <h2 id="pending-withdrwal">0</h2>
       </div>
 
       <div class="stat-card purple">
         <h4>Support Tickets</h4>
-        <h2 id="support-tickets"></h2>
+        <h2 id="support-tickets">0</h2>
       </div>
 
       <div class="stat-card green">
         <h4>Total Payout</h4>
-        <h2 id="total-payout"></h2>
+        <h2 id="total-payout">0</h2>
       </div>
 
       <div class="stat-card green">
         <h4>Daily Tip💖</h4>
-        <h2 id="daily-tip"></h2>
+        <h2 id="daily-tip">0</h2>
       </div>
 
-      <div class="stat-card green">
+      <div class="stat-card purple">
         <h4>User Feedback😎</h4>
-        <h2 id="user-feedback"></h2>
+        <h2 id="user-feedback">0</h2>
       </div>
     </section>
 
@@ -90,7 +94,7 @@
       <button id="review-withdrawal">💸 Review Withdrawals</button>
       <button id="review-KYC">📃 Review KYC</button>
       <button id="support-requests">🎧 Support Requests</button>
-      <button id="Manage-users">👤 Manage Users</button>
+      <button id="Manage-users">👤 Manage Members</button>
       <button id="logs">⚠️Logs</button>
     </section>
 
@@ -99,40 +103,58 @@
 
   <!-- event create dialogs -->
 
-  <!-- listen event  -->
-
   <div class="host-dialog hidden" id="host-dialog">
     <div class="content">
 
       <div class="top-dialog">
-        
-      <span class="active-dot"></span> 
-      <span class="close" id="close-dialog">X</span>
+
+        <span class="active-dot"></span>
+        <span class="close" id="close-dialog">X</span>
       </div>
 
       <div class="dropdown">
         <div class="dropdown-btn">Choose Event to be Host </div>
 
         <ul class="dropdown-menu">
-          <li data-value="hitEvents">Hit-event</li>
-          <li data-value="listenEvents">Listen-event</li>
+          <li data-value="hitEvent">Hit Event</li>
+          <li data-value="listenEvent">Listen Event</li>
+          <li data-value="lakhpatiLoop">Lakhpati Loop</li>
+          <li data-value="cashHaandi">Cash Haandi</li>
         </ul>
+
+      </div>
+      <div class="event-container" id="event-container">
+
+        <input type="text" id="eventTitle" placeholder="Event Title">
+        <input type="text" id="eventImgUrl" placeholder=" creature url">
+        <input type="text" id="eventPrizePool" placeholder=" prize-pool">
+        <input type="text" id="eventDuration" placeholder=" Duration (hours)">
+        <input type="text" id="eventEntryFee" placeholder=" Entry Fee">
+        <input type="text" id="eventLoopCount" placeholder=" Lakhpati Loop - Loop Count">
+
       </div>
 
-
-
-      <input type="text" id="eventTitle" placeholder="Event Title">
-      <input type="text" id="eventImgUrl" placeholder=" creature url">
-      <input type="text" id="eventPrizePool" placeholder=" prize-pool">
-
-      <div class="host" id="host"> Host</div>
+      <div class="host"> <span class="create" id="hostBtn">Post Event</span> </div>
 
 
     </div>
   </div>
 
+  <div class="progress-dialog" id="progress-dialog">
+    <div class="progress-card" id="progress-card">
+
+      <h3 id="progressTitle">Gettin you in Vibe</h3>
+
+      <div class="eq-progress">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p id="progressText">Please wait… warming up the vibes ❄️</p>
+
+    </div>
+  </div>
   <div class="bottom-bar"> <span class="create" id="create">+</span> </div>
-  
+
 </body>
 
 </html>

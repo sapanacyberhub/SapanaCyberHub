@@ -1,170 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sapana CyberHub - Prize Pool</title>
-    <style>
-        :root {
-            --neon-blue: #00d4ff;
-            --neon-pink: #ff00cc;
-            --neon-green: #00ff88;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-        }
-
-        body {
-            background: #050505; /* Deep cyber black */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* Glassmorphism Container */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 40px 60px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .label {
-            color: var(--neon-blue);
-            letter-spacing: 3px;
-            font-size: 14px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .prize-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .currency {
-            font-size: 35px;
-            color: #fff;
-            font-weight: 900;
-        }
-
-        .number {
-            font-size: 70px;
-            color: #fff;
-            margin: 0;
-            font-weight: 900;
-            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6), 0 0 40px rgba(255, 0, 204, 0.3);
-            font-variant-numeric: tabular-nums; /* Prevents text jumping */
-        }
-
-        /* Growth Indicator with Pulse */
-        .growth-note {
-            color: var(--neon-green);
-            font-size: 14px;
-            margin-top: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
-        }
-
-        .growth-note.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--neon-green);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insta Gift Demo</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0b0f14;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #121826;
+      padding: 24px;
+      border-radius: 16px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    }
+    .btn {
+      margin-top: 16px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ff4d6d, #ffa63d);
+      color: #000;
+    }
+    .timer {
+      margin-top: 12px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup .box {
+      background: #121826;
+      padding: 24px;
+      border-radius: 16px;
+      width: 300px;
+      text-align: center;
+    }
+    .reward {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #7CFF7A;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <p class="label">Live Prize Pool</p>
-        <div class="prize-wrapper">
-            <span class="currency">₹</span>
-            <h1 class="number" id="prizeNumber">0</h1>
-        </div>
-        
-        <div class="growth-note" id="growthNote">
-            <span class="dot"></span>
-            🚀 Pool Increasing!
-        </div>
+  <div class="card">
+    <h2>Enjoy Insta Vibes 🎉</h2>
+    <p>Relax for 5 seconds and unlock a surprise gift 🎁</p>
+    <button id="startBtn" class="btn">Enjoy Insta</button>
+    <div id="timer" class="timer"></div>
+  </div>
+
+  <!-- Gift Popup -->
+  <div id="popup" class="popup">
+    <div class="box">
+      <h3>You unlocked a gift 🎁</h3>
+      <p>Tap to claim your reward</p>
+      <button id="claimBtn" class="btn">Claim Gift</button>
+      <div id="reward" class="reward"></div>
     </div>
+  </div>
 
-    <script>
-        let currentAmount = 0;
-        const prizeElement = document.getElementById('prizeNumber');
-        const growthNote = document.getElementById('growthNote');
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const timerEl = document.getElementById("timer");
+    const popup = document.getElementById("popup");
+    const claimBtn = document.getElementById("claimBtn");
+    const rewardEl = document.getElementById("reward");
 
-        // Function to animate the number smoothly
-        function animateValue(start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-                
-                // Format with Indian Currency System (en-IN)
-                prizeElement.innerHTML = value.toLocaleString('en-IN');
-                
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
+    let countdown;
+
+    startBtn.addEventListener("click", () => {
+      // Open Instagram in new tab (safe way)
+      window.open("https://www.instagram.com", "_blank");
+
+      let time = 5;
+      timerEl.textContent = time + "s";
+
+      countdown = setInterval(() => {
+        time--;
+        timerEl.textContent = time + "s";
+
+        if (time <= 0) {
+          clearInterval(countdown);
+          timerEl.textContent = "Gift unlocked 🎁";
+          popup.style.display = "flex";
         }
+      }, 1000);
+    });
 
-        // Simulate a new user joining and the prize pool growing
-        function updatePrize(newTotal) {
-            const oldAmount = currentAmount;
-            currentAmount = newTotal;
-            
-            // Trigger the number animation
-            animate
-            Value(oldAmount, currentAmount, 1000); // 1 second duration
+    claimBtn.addEventListener("click", () => {
+      // Open ad link (demo placeholder)
+      window.open("https://example.com", "_blank"); // replace with Monetag/Adsterra link
 
-            // Show the "Growth Note" for 2 seconds
-            growthNote.classList.add('show');
-            setTimeout(() => {
-                growthNote.classList.remove('show');
-            }, 3000);
-        }
+      // Fake reward (random LC)
+      const reward = Math.floor(Math.random() * 5) + 1; // 1–5 LC
+      rewardEl.textContent = `+${reward} Luck Credits 🎧✨`;
 
-        // INITIAL LOAD: Set a starting value
-        setTimeout(() => updatePrize(45678), 500);
+      // In real app → call your Cloud Function here
+    });
+  </script>
 
-        // REAL-TIME DEMO: Every 5 seconds, add a small amount
-        setInterval(() => {
-            const extra = Math.floor(Math.random() * 500) + 100;
-            updatePrize(currentAmount + extra);
-        }, 7000);
-    </script>
 </body>
 </html>

@@ -208,7 +208,7 @@ const formatIc = (isCash, desc = "") => {
 
   return desc === "withdrawal"
     ? ICONS.withdrawal
-    : ICONS[`${desc}${isCash ? "Cash" : "LC"}`] || ICONS.vibeLC;
+    : ICONS[`${desc}${isCash ? "Cash" : "LC"}`] || (isCash ? ICONS.vibeCash : ICONS.vibeLC);
 };
 
 
