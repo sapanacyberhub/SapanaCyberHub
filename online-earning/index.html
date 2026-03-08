@@ -1,369 +1,703 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Marathon Pro | Track & Vibe</title>
-    <style>
-        :root {
-            --primary: #ff4757;
-            --secondary: #2f3542;
-            --bg: #0a0a0a;
-            --card: #181818;
-            --text: #ffffff;
-            --success: #2ed573;
-            --error: #ff6b6b;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SapanaCyberHub — Playlist Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0a0a0f;
+    --surface: #111118;
+    --card:    #16161f;
+    --border:  rgba(255,255,255,0.07);
+    --accent:  #ff6b35;
+    --accent2: #ffb347;
+    --green:   #39d98a;
+    --red:     #ff4d6d;
+    --yellow:  #ffd166;
+    --text:    #e8e8f0;
+    --muted:   rgba(232,232,240,0.4);
+    --mono:    'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            background: var(--card);
-            padding: 2rem;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            width: 100%;
-            max-width: 850px;
-            text-align: center;
-            border: 1px solid #222;
-        }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--display); min-height: 100vh; overflow-x: hidden;
+  }
 
-        h1 { margin-bottom: 1.5rem; font-weight: 800; font-size: 2.2rem; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,107,53,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,107,53,0.03) 1px, transparent 1px);
+    background-size: 48px 48px; pointer-events: none; z-index: 0;
+  }
 
-        /* Video Player */
-        #player-container {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 25px;
-            border: 2px solid #333;
-        }
+  .orb { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
+  .orb-1 { width:500px; height:500px; background:rgba(255,107,53,0.08); top:-200px; right:-100px; }
+  .orb-2 { width:400px; height:400px; background:rgba(57,217,138,0.05); bottom:-150px; left:-100px; }
 
-        /* Controls */
-        .input-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
+  .wrap { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:48px 24px 100px; }
 
-        input {
-            flex: 1;
-            padding: 14px 20px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            background: #252525;
-            color: white;
-            outline: none;
-            font-size: 1rem;
-        }
+  /* ── Header ── */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:48px; padding-bottom:24px; border-bottom:1px solid var(--border);
+  }
+  .logo-block { display:flex; flex-direction:column; gap:2px; }
+  .logo-eyebrow { font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
+  .logo-title { font-size:22px; font-weight:800; letter-spacing:-.5px; background:linear-gradient(135deg,#fff 30%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .header-badge {
+    display:flex; align-items:center; gap:8px; background:rgba(57,217,138,0.08);
+    border:1px solid rgba(57,217,138,0.2); border-radius:100px; padding:6px 14px;
+    font-family:var(--mono); font-size:11px; color:var(--green);
+  }
+  .header-badge::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
 
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); }
+  .section-label { font-family:var(--mono); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
 
-        button {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 12px;
-            background: var(--primary);
-            color: white;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.2s;
-        }
+  /* ══ ADD ZONE ══════════════════════════════════════════════════════════ */
+  .add-zone {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:20px; overflow:hidden; margin-bottom:12px; position:relative;
+  }
+  .add-zone::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:.5;
+  }
 
-        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  /* ── iframe player ── */
+  .player-wrap {
+    position:relative; width:100%; padding-top:56.25%; /* 16:9 */
+    background:#000; border-bottom:1px solid var(--border);
+  }
 
-        /* Timer UI */
-        .timer-display {
-            font-size: 4.5rem;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 900;
-            color: var(--primary);
-            margin: 10px 0;
-            letter-spacing: 2px;
-        }
+  .player-wrap iframe {
+    position:absolute; inset:0; width:100%; height:100%; border:none;
+    transition: opacity .25s;
+  }
 
-        .stats-box {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-        }
+  /* Placeholder over the iframe when no URL yet */
+  .player-placeholder {
+    position:absolute; inset:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    background:var(--surface); pointer-events:none;
+    transition:opacity .3s;
+  }
+  .player-placeholder.gone { opacity:0; }
+  .ph-icon { font-size:40px; opacity:.35; }
+  .ph-text { font-family:var(--mono); font-size:12px; color:var(--muted); }
 
-        .stat-item { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-val { color: var(--success); font-weight: bold; }
+  /* ── confirm bar below player ── */
+  .confirm-bar {
+    display:none; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border);
+  }
+  .confirm-bar.visible { display:flex; }
 
-        /* Toast Dialogs */
-        .toast-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 9999;
-        }
+  .confirm-question {
+    font-family:var(--mono); font-size:12px; color:var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .confirm-question::before { content:'👁'; font-size:14px; }
 
-        .toast {
-            background: #ffffff;
-            color: #1a1a1a;
-            padding: 20px;
-            border-radius: 18px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transform: translateX(180%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-width: 300px;
-        }
+  .confirm-actions { display:flex; gap:8px; }
 
-        .toast.show { transform: translateX(0); }
-        .toast.error-theme { border-left: 6px solid var(--error); background: #fff5f5; }
-        .toast.error-theme .toast-header { color: var(--error); }
+  .btn-yes {
+    height:34px; padding:0 18px; background:var(--green); color:#000;
+    font-family:var(--display); font-size:12px; font-weight:800;
+    border:none; border-radius:8px; cursor:pointer;
+    transition:transform .1s, box-shadow .2s;
+  }
+  .btn-yes:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(57,217,138,.4); }
 
-        .toast-header { font-weight: 800; font-size: 1.1rem; }
-        .toast-body { font-size: 0.95rem; color: #444; }
+  .btn-no {
+    height:34px; padding:0 18px; background:transparent;
+    border:1px solid rgba(255,77,109,.4); color:var(--red);
+    font-family:var(--display); font-size:12px; font-weight:700;
+    border-radius:8px; cursor:pointer; transition:background .15s;
+  }
+  .btn-no:hover { background:rgba(255,77,109,.1); }
 
-        .toast-actions { display: flex; gap: 10px; margin-top: 5px; }
-        .btn-play { background: var(--primary); color: white; flex: 2; padding: 10px; }
-        .btn-save { background: #eee; color: #333; flex: 1; padding: 10px; }
+  /* ── meta strip ── */
+  .meta-strip {
+    display:none; align-items:center; gap:12px;
+    padding:12px 20px; border-bottom:1px solid var(--border);
+    animation:slide-in .25s ease;
+  }
+  .meta-strip.visible { display:flex; }
+  @keyframes slide-in { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+  .ms-thumb { width:64px; height:42px; border-radius:8px; object-fit:cover; background:#222; flex-shrink:0; border:1px solid var(--border); }
+  .ms-info { flex:1; min-width:0; }
+  .ms-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+  .ms-id { font-family:var(--mono); font-size:11px; color:var(--accent); }
 
-        /* Modal Popup */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            justify-content: center;
-            align-items: center;
-            z-index: 5000;
-        }
+  /* ── input row ── */
+  .input-area { padding:20px 24px; }
+  .input-row { display:flex; gap:12px; align-items:stretch; }
+  .url-input-wrap { flex:1; position:relative; }
+  .url-input-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:15px; pointer-events:none; }
+  .url-input {
+    width:100%; height:52px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; color:var(--text); font-family:var(--mono); font-size:13px;
+    padding:0 16px 0 44px; outline:none; transition:border-color .2s, box-shadow .2s;
+  }
+  .url-input::placeholder { color:var(--muted); }
+  .url-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,107,53,.12); }
 
-        .popup {
-            background: var(--secondary);
-            padding: 3rem;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            border: 1px solid #444;
-        }
+  /* ── Bulk section ── */
+  .bulk-section { padding:0 24px 20px; border-top:1px solid var(--border); padding-top:16px; }
+  .bulk-toggle {
+    display:flex; align-items:center; gap:8px; background:none;
+    border:1px solid var(--border); color:var(--muted); font-family:var(--mono);
+    font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    padding:8px 16px; border-radius:8px; cursor:pointer; transition:color .2s, border-color .2s;
+  }
+  .bulk-toggle:hover { color:var(--text); border-color:rgba(255,255,255,.2); }
+  .bulk-toggle svg { transition:transform .25s; }
+  .bulk-toggle.open svg { transform:rotate(180deg); }
+  .bulk-panel { display:none; margin-top:14px; }
+  .bulk-panel.open { display:block; animation:slide-in .2s ease; }
+  .bulk-textarea {
+    width:100%; height:120px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; color:var(--text); font-family:var(--mono); font-size:12px;
+    padding:14px 16px; resize:vertical; outline:none; transition:border-color .2s; line-height:1.7;
+  }
+  .bulk-textarea::placeholder { color:var(--muted); }
+  .bulk-textarea:focus { border-color:var(--accent); }
+  .bulk-hint { font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:8px; line-height:1.6; }
+  .btn-bulk-add {
+    margin-top:12px; height:44px; padding:0 24px; background:transparent;
+    border:1px solid var(--accent); color:var(--accent); font-family:var(--display);
+    font-size:12px; font-weight:700; border-radius:10px; cursor:pointer;
+    transition:background .2s, color .2s; display:flex; align-items:center; gap:8px;
+  }
+  .btn-bulk-add:hover:not(:disabled) { background:var(--accent); color:#fff; }
+  .btn-bulk-add:disabled { opacity:.5; cursor:not-allowed; }
+  .bulk-progress { margin-top:12px; display:none; }
+  .bulk-progress.visible { display:block; }
+  .bulk-prog-bar-wrap { height:4px; background:rgba(255,255,255,.07); border-radius:4px; overflow:hidden; margin-bottom:6px; }
+  .bulk-prog-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:4px; transition:width .3s; width:0%; }
+  .bulk-prog-text { font-family:var(--mono); font-size:10px; color:var(--muted); }
 
-        .active { display: flex; }
-    </style>
+  /* ── Divider ── */
+  .divider { display:flex; align-items:center; gap:16px; margin:32px 0 20px; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .divider span { font-family:var(--mono); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+
+  /* ── Stats ── */
+  .stats-bar { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .stat-chip { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .stat-chip strong { color:var(--text); font-size:13px; }
+
+  /* ── Song list ── */
+  .song-list { display:flex; flex-direction:column; gap:8px; }
+  .song-item {
+    display:flex; align-items:center; gap:14px;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:14px; padding:12px 16px;
+    transition:border-color .2s, transform .2s;
+    animation:item-in .3s ease both;
+  }
+  .song-item:hover { transform:translateX(3px); border-color:rgba(255,107,53,.25); }
+  .song-item.removing { animation:item-out .3s ease forwards; }
+  @keyframes item-in  { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes item-out { to{opacity:0;transform:translateX(12px);max-height:0;padding:0;margin:0;border-width:0} }
+
+  .song-num { font-family:var(--mono); font-size:11px; color:var(--muted); width:24px; flex-shrink:0; text-align:right; }
+  .song-thumb { width:64px; height:42px; border-radius:8px; object-fit:cover; background:#1a1a24; flex-shrink:0; border:1px solid var(--border); }
+  .song-meta { flex:1; min-width:0; }
+  .song-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+  .song-id-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .song-vid-id { font-family:var(--mono); font-size:11px; color:var(--accent); background:rgba(255,107,53,.08); border:1px solid rgba(255,107,53,.15); border-radius:5px; padding:2px 7px; }
+  .song-status { font-family:var(--mono); font-size:10px; }
+  .song-status.saved   { color:var(--green); }
+  .song-status.pending { color:var(--yellow); }
+
+  .song-actions { display:flex; gap:6px; flex-shrink:0; }
+  .btn-icon { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; transition:background .2s, color .2s, border-color .2s; }
+  .btn-icon:hover       { background:rgba(255,77,109,.1); color:var(--red); border-color:rgba(255,77,109,.3); }
+  .btn-icon.play:hover  { background:rgba(57,217,138,.1); color:var(--green); border-color:rgba(57,217,138,.3); }
+
+  /* ── Empty state ── */
+  .empty-state { text-align:center; padding:56px 24px; border:1px dashed var(--border); border-radius:16px; }
+  .empty-icon  { font-size:42px; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .empty-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .empty-sub   { font-size:13px; color:var(--muted); font-family:var(--mono); }
+
+  /* ── Save footer ── */
+  .save-footer {
+    position:fixed; bottom:0; left:0; right:0; z-index:100;
+    background:rgba(10,10,15,.93); backdrop-filter:blur(20px);
+    border-top:1px solid var(--border); padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .save-footer.visible { transform:translateY(0); }
+  .save-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
+  .save-count strong { color:var(--text); }
+  .save-actions { display:flex; gap:10px; }
+  .btn-clear { height:44px; padding:0 20px; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:12px; font-weight:600; border-radius:10px; cursor:pointer; transition:color .2s, border-color .2s; }
+  .btn-clear:hover { color:var(--red); border-color:var(--red); }
+  .btn-save {
+    height:44px; padding:0 28px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; border:none; font-family:var(--display); font-size:13px; font-weight:700;
+    border-radius:10px; cursor:pointer; transition:transform .15s, box-shadow .2s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .btn-save:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,107,53,.4); }
+  .btn-save:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+  .btn-save .spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+  .btn-save.loading .spinner { display:block; }
+  .btn-save.loading .btn-save-text { display:none; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── Toast ── */
+  .toast-rack { position:fixed; top:24px; right:24px; display:flex; flex-direction:column; gap:8px; z-index:9999; }
+  .toast { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 18px; display:flex; align-items:center; gap:10px; font-size:13px; min-width:220px; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,.4); animation:toast-in .3s cubic-bezier(.34,1.56,.64,1); }
+  .toast.success { border-color:rgba(57,217,138,.3); }
+  .toast.error   { border-color:rgba(255,77,109,.3); }
+  .toast.info    { border-color:rgba(255,107,53,.3); }
+  @keyframes toast-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:3px; }
+
+  @media (max-width:600px) {
+    .input-row { flex-direction:column; }
+    header { flex-direction:column; align-items:flex-start; gap:12px; }
+    .input-area,.bulk-section { padding-left:16px; padding-right:16px; }
+    .confirm-bar { flex-direction:column; align-items:flex-start; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🎧 Music Marathon</h1>
-        
-        <div class="input-group">
-            <input type="text" id="ytLink" placeholder="Paste YouTube link here (e.g., https://youtu.be/...)">
-            <button onclick="handleInput()">Load Song</button>
-        </div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="toast-rack" id="toastRack"></div>
 
-        <div id="player-container">
-            <div id="player"></div>
-        </div>
+<div class="wrap">
 
-        <div class="timer-display" id="timer">00:00:00</div>
-        
-        <div class="stats-box">
-            <div class="stat-item">SESSION ACTIVE</div>
-            <div style="color: #444;">|</div>
-            <div class="stat-item">TOTAL MARATHON TIME: <span id="totalSaved" class="stat-val">0</span>s</div>
-        </div>
+  <header>
+    <div class="logo-block">
+      <span class="logo-eyebrow">SapanaCyberHub</span>
+      <span class="logo-title">Playlist Studio</span>
+    </div>
+    <div class="header-badge" id="authBadge">Connecting…</div>
+  </header>
+
+  <p class="section-label">Add Song</p>
+
+  <div class="add-zone">
+
+    <!-- ── Instant iframe preview ── -->
+    <div class="player-wrap">
+      <iframe id="ytFrame" src="about:blank" allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+      </iframe>
+      <div class="player-placeholder" id="placeholder">
+        <div class="ph-icon">🎬</div>
+        <div class="ph-text">Paste a YouTube URL below — video loads instantly</div>
+      </div>
     </div>
 
-    <div class="overlay" id="finishPopup">
-        <div class="popup">
-            <h2 style="font-size: 2.2rem; margin-top: 0;">Nicely Done! 🏆</h2>
-            <p>You vibed for <strong id="sessionTime" style="color:var(--primary)">0</strong> seconds this session.</p>
-            <div style="display:flex; flex-direction: column; gap: 12px; margin-top: 30px;">
-                <button onclick="saveTime()">Save Progress & Reset</button>
-                <button style="background:transparent; border: 1px solid #555" onclick="closePopup()">Keep Current Session</button>
-            </div>
-        </div>
+    <!-- ── "Can you see it playing?" bar ── -->
+    <div class="confirm-bar" id="confirmBar">
+      <span class="confirm-question">Can the video be seen and played above?</span>
+      <div class="confirm-actions">
+        <button class="btn-yes" id="btnYes">✓ Yes — Add Song</button>
+        <button class="btn-no"  id="btnNo">✕ No — Skip</button>
+      </div>
     </div>
 
-    <div class="toast-container">
-        <div id="songToast" class="toast">
-            <div class="toast-header" id="toastHeader">New Song Detected</div>
-            <div class="toast-body" id="toastMessage">Would you like to start a new session with this track?</div>
-            <div id="toastActions" class="toast-actions">
-                <button class="btn-play" onclick="confirmPlay()">Play Now</button>
-                <button class="btn-save" onclick="hideToast()">Cancel</button>
-            </div>
-        </div>
+    <!-- ── Video meta ── -->
+    <div class="meta-strip" id="metaStrip">
+      <img class="ms-thumb" id="msThumb" src="" alt="">
+      <div class="ms-info">
+        <div class="ms-title" id="msTitle">—</div>
+        <div class="ms-id"   id="msId"></div>
+      </div>
     </div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-        let player;
-        let timerInterval;
-        let seconds = 0;
-        let isRunning = false;
-        let pendingVideoId = null;
+    <!-- ── URL input ── -->
+    <div class="input-area">
+      <div class="input-row">
+        <div class="url-input-wrap">
+          <input id="urlInput" class="url-input" type="text"
+            placeholder="Paste YouTube URL or Video ID…"
+            autocomplete="off" spellcheck="false"/>
+          <span class="url-input-icon">⌕</span>
+        </div>
+      </div>
+    </div>
 
-        // 1. YouTube API Initialization
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: 'jfKfPfyJRdk', // Initial Lofi track
-                playerVars: { 
-                    'autoplay': 0, 
-                    'modestbranding': 1,
-                    'rel': 0 
-                },
-                events: { 
-                    'onStateChange': onPlayerStateChange,
-                    'onError': onPlayerError 
-                }
-            });
-        }
+    <!-- ── Bulk ── -->
+    <div class="bulk-section">
+      <button class="bulk-toggle" id="bulkToggle">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Bulk Upload
+      </button>
+      <div class="bulk-panel" id="bulkPanel">
+        <textarea class="bulk-textarea" id="bulkInput"
+          placeholder="One URL or video ID per line:&#10;https://youtube.com/watch?v=dQw4w9WgXcQ&#10;dQw4w9WgXcQ"></textarea>
+        <p class="bulk-hint">Uses oEmbed to quickly filter deleted / embedding-disabled videos.</p>
+        <button class="btn-bulk-add" id="btnBulkAdd">
+          <span id="bulkBtnTxt">Add All Valid</span>
+        </button>
+        <div class="bulk-progress" id="bulkProgress">
+          <div class="bulk-prog-bar-wrap"><div class="bulk-prog-bar" id="bulkProgBar"></div></div>
+          <div class="bulk-prog-text" id="bulkProgText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // 
+  <div class="divider"><span>Playlist</span></div>
 
-        // 2. State & Error Handling
-        function onPlayerStateChange(event) {
-            // PLAYING = 1
-            if (event.data == YT.PlayerState.PLAYING) {
-                startTimer();
-            } else {
-                stopTimer();
-            }
-            // ENDED = 0
-            if (event.data == YT.PlayerState.ENDED) {
-                showFinishPopup();
-            }
-        }
+  <div class="stats-bar">
+    <div class="stat-chip"><strong id="statTotal">0</strong>&nbsp;songs</div>
+    <div class="stat-chip"><strong id="statSaved">0</strong>&nbsp;saved</div>
+    <div class="stat-chip"><strong id="statPending">0</strong>&nbsp;pending</div>
+  </div>
 
-        function onPlayerError(event) {
-            // Error 101/150 = Embedding restricted by uploader
-            if (event.data === 101 || event.data === 150) {
-                showToast("Embedding Restricted", "This video cannot be played on external sites. Try another one!", true);
-            } else {
-                showToast("Playback Error", "YouTube couldn't load this video (Error code: " + event.data + ")", true);
-            }
-        }
+  <div class="song-list" id="songList">
+    <div class="empty-state">
+      <div class="empty-icon">🎵</div>
+      <div class="empty-title">No songs yet</div>
+      <div class="empty-sub">Paste a YouTube URL above to get started</div>
+    </div>
+  </div>
+</div>
 
-        // 3. Timer Engine
-        function startTimer() {
-            if (!isRunning) {
-                isRunning = true;
-                timerInterval = setInterval(() => {
-                    seconds++;
-                    updateDisplay();
-                }, 1000);
-            }
-        }
+<!-- Save Footer -->
+<div class="save-footer" id="saveFooter">
+  <div class="save-count"><strong id="pendingCount">0</strong> unsaved song(s) ready to save</div>
+  <div class="save-actions">
+    <button class="btn-clear" id="btnClearPending">Discard</button>
+    <button class="btn-save" id="btnSave">
+      <div class="spinner"></div>
+      <span class="btn-save-text">Save to Firebase</span>
+    </button>
+  </div>
+</div>
 
-        function stopTimer() {
-            isRunning = false;
-            clearInterval(timerInterval);
-        }
+<!-- Firebase -->
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc, deleteDoc,
+  query, orderBy, serverTimestamp, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        function updateDisplay() {
-            const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
-            const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-            const secs = (seconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `${hrs}:${mins}:${secs}`;
-        }
+const app = initializeApp({
+  apiKey:            "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+  authDomain:        "sapanacyberhub-26310.firebaseapp.com",
+  projectId:         "sapanacyberhub-26310",
+  storageBucket:     "sapanacyberhub-26310.firebasestorage.app",
+  messagingSenderId: "448116453690",
+  appId:             "1:448116453690:web:01a91dd284b715bf0a2003"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const PLAYLIST_COL = () => collection(db, "SapanaCyberHub", "Listen", "Playlist");
 
-        // 4. Link & Toast Logic
-        function handleInput() {
-            const url = document.getElementById('ytLink').value;
-            const videoId = extractId(url);
-            
-            if (videoId) {
-                pendingVideoId = videoId;
-                showToast("New Song Detected", "Ready to start the marathon with this track?");
-            } else {
-                showToast("Invalid URL", "Please paste a valid YouTube video link.", true);
-            }
-        }
+// ── State ────────────────────────────────────────────────────────────────
+let songs        = [];
+let currentId    = null;
+let currentTitle = "";
+const REDIRECT_URL = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
 
-        function extractId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length == 11) ? match[2] : null;
-        }
 
-        function showToast(header, msg, isError = false) {
-            const toast = document.getElementById('songToast');
-            const actions = document.getElementById('toastActions');
-            
-            document.getElementById('toastHeader').innerText = header;
-            document.getElementById('toastMessage').innerText = msg;
-            
-            if (isError) {
-                toast.classList.add('error-theme');
-                actions.style.display = 'none';
-                setTimeout(hideToast, 4000);
-            } else {
-                toast.classList.remove('error-theme');
-                actions.style.display = 'flex';
-            }
-            
-            toast.classList.add('show');
-        }
+// ── DOM ──────────────────────────────────────────────────────────────────
+const ytFrame        = document.getElementById("ytFrame");
+const placeholder    = document.getElementById("placeholder");
+const confirmBar     = document.getElementById("confirmBar");
+const metaStrip      = document.getElementById("metaStrip");
+const msThumb        = document.getElementById("msThumb");
+const msTitle        = document.getElementById("msTitle");
+const msId           = document.getElementById("msId");
+const urlInput       = document.getElementById("urlInput");
+const btnYes         = document.getElementById("btnYes");
+const btnNo          = document.getElementById("btnNo");
+const bulkToggle     = document.getElementById("bulkToggle");
+const bulkPanel      = document.getElementById("bulkPanel");
+const bulkInput      = document.getElementById("bulkInput");
+const btnBulkAdd     = document.getElementById("btnBulkAdd");
+const bulkProgress   = document.getElementById("bulkProgress");
+const bulkProgBar    = document.getElementById("bulkProgBar");
+const bulkProgText   = document.getElementById("bulkProgText");
+const songList       = document.getElementById("songList");
+const saveFooter     = document.getElementById("saveFooter");
+const btnSave        = document.getElementById("btnSave");
+const btnClearPending= document.getElementById("btnClearPending");
+const authBadge      = document.getElementById("authBadge");
+const statTotal      = document.getElementById("statTotal");
+const statSaved      = document.getElementById("statSaved");
+const statPending    = document.getElementById("statPending");
+const pendingCount   = document.getElementById("pendingCount");
 
-        function hideToast() {
-            document.getElementById('songToast').classList.remove('show');
-            document.getElementById('ytLink').value = "";
-        }
+// ── Auth ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  if (user) {
+    authBadge.textContent = user.displayName || user.email?.split("@")[0] || "Admin";
+    Object.assign(authBadge.style, { background:"rgba(57,217,138,0.08)", borderColor:"rgba(57,217,138,0.25)", color:"#39d98a" });
+    loadFromFirestore();
+  } else {
+    authBadge.textContent = "Not signed in";
+    Object.assign(authBadge.style, { background:"rgba(255,77,109,0.08)", borderColor:"rgba(255,77,109,0.25)", color:"#ff4d6d" });
+    toast("Sign in to save songs to Firebase", "error");
+    window.location.href = REDIRECT_URL;
+  }
+});
 
-        function confirmPlay() {
-            if (pendingVideoId) {
-                player.loadVideoById(pendingVideoId);
-                seconds = 0; // Reset for new marathon
-                updateDisplay();
-                hideToast();
-            }
-        }
+async function loadFromFirestore() {
+  try {
+    const snap = await getDocs(query(PLAYLIST_COL(), orderBy("createdAt","desc")));
+    snap.forEach(d => {
+      const data = d.data();
+      if (!songs.some(s => s.youtubeId === data.youtubeId))
+        songs.push({ youtubeId: data.youtubeId, title: data.title || data.youtubeId, status:"saved", docId: d.id });
+    });
+    render();
+    toast(`Loaded ${snap.size} songs`, "success");
+  } catch (err) { toast("Load failed — " + err.message, "error"); }
+}
 
-        // 5. Progress Management
-        function showFinishPopup() {
-            document.getElementById('sessionTime').innerText = seconds;
-            document.getElementById('finishPopup').classList.add('active');
-        }
+// ── URL extractor ─────────────────────────────────────────────────────────
+function extractId(raw) {
+  const s = (raw || "").trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  try {
+    const u = new URL(s), host = u.hostname.replace("www.","");
+    if (host === "youtube.com") {
+      if (u.searchParams.get("v"))           return u.searchParams.get("v");
+      if (u.pathname.startsWith("/shorts/")) return u.pathname.split("/")[2];
+      if (u.pathname.startsWith("/live/"))   return u.pathname.split("/")[2];
+      if (u.pathname.startsWith("/embed/"))  return u.pathname.split("/")[2];
+    }
+    if (host === "youtu.be") return u.pathname.slice(1).split("?")[0];
+  } catch {}
+  return null;
+}
 
-        function saveTime() {
-            let total = parseInt(localStorage.getItem('marathonTime_v1') || 0);
-            total += seconds;
-            localStorage.setItem('marathonTime_v1', total);
-            document.getElementById('totalSaved').innerText = total;
-            
-            seconds = 0;
-            updateDisplay();
-            closePopup();
-        }
+// ── Load video into visible iframe (instant — no API, just src) ───────────
+function loadPreview(id) {
+  currentId    = id;
+  currentTitle = "";
 
-        function closePopup() {
-            document.getElementById('finishPopup').classList.remove('active');
-        }
+  // Set src directly — browser loads it immediately, no JS overhead
+  ytFrame.src = `https://www.youtube.com/embed/${id}?autoplay=0&rel=0&modestbranding=1`;
 
-        window.onload = () => {
-            const saved = localStorage.getItem('marathonTime_v1') || 0;
-            document.getElementById('totalSaved').innerText = saved;
-        }
-    </script>
+  placeholder.classList.add("gone");
+  confirmBar.classList.add("visible");
+  metaStrip.classList.remove("visible");
+
+  // Fetch title in the background (non-blocking)
+  fetchTitle(id).then(title => {
+    currentTitle = title;
+    msThumb.src  = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+    msTitle.textContent = title;
+    msId.textContent    = id;
+    metaStrip.classList.add("visible");
+  });
+}
+
+function resetPlayer() {
+  ytFrame.src  = "about:blank";
+  currentId    = null;
+  currentTitle = "";
+  placeholder.classList.remove("gone");
+  confirmBar.classList.remove("visible");
+  metaStrip.classList.remove("visible");
+}
+
+// ── Title fetch ───────────────────────────────────────────────────────────
+async function fetchTitle(id) {
+  try {
+    const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+    if (!r.ok) return id;
+    return ((await r.json()).title || id) + "";
+  } catch { return id + ""; }
+}
+
+// ── Input → instant iframe load ───────────────────────────────────────────
+let _deb;
+urlInput.addEventListener("input", () => {
+  clearTimeout(_deb);
+  const id = extractId(urlInput.value);
+  if (!id) { resetPlayer(); return; }
+  // 300ms debounce so we don't reload on every keystroke
+  _deb = setTimeout(() => {
+    if (songs.some(s => s.youtubeId === id)) {
+      toast("Already in playlist", "info"); return;
+    }
+    loadPreview(id);
+  }, 300);
+});
+
+urlInput.addEventListener("keydown", e => { if (e.key === "Escape") { urlInput.value = ""; resetPlayer(); } });
+
+// ── Yes / No buttons ──────────────────────────────────────────────────────
+btnYes.addEventListener("click", () => {
+  if (!currentId) return;
+  const title = (currentTitle && currentTitle !== currentId) ? currentTitle : currentId;
+  if (songs.some(s => s.youtubeId === currentId)) { toast("Already in playlist","info"); return; }
+
+  songs.unshift({ youtubeId: currentId, title, status: "pending" });
+  urlInput.value = "";
+  resetPlayer();
+  render();
+  toast(`Added: ${title}`, "success");
+});
+
+btnNo.addEventListener("click", () => {
+  toast("Skipped — video can't play in embed", "error");
+  urlInput.value = "";
+  resetPlayer();
+});
+
+// ── Bulk toggle ───────────────────────────────────────────────────────────
+bulkToggle.addEventListener("click", () => {
+  bulkToggle.classList.toggle("open");
+  bulkPanel.classList.toggle("open");
+});
+
+// ── Bulk add (oEmbed filter — fast for batches) ───────────────────────────
+btnBulkAdd.addEventListener("click", async () => {
+  const lines  = bulkInput.value.split("\n").map(l => l.trim()).filter(Boolean);
+  if (!lines.length) { toast("Paste some URLs first","info"); return; }
+
+  const ids    = [...new Set(lines.map(extractId).filter(Boolean))];
+  const newIds = ids.filter(id => !songs.some(s => s.youtubeId === id));
+  if (!newIds.length) { toast("All entries already in playlist or invalid","info"); return; }
+
+  btnBulkAdd.disabled = true;
+  document.getElementById("bulkBtnTxt").textContent = "Checking…";
+  bulkProgress.classList.add("visible");
+  bulkProgBar.style.width = "0%";
+
+  let added = 0, skipped = 0;
+  for (let i = 0; i < newIds.length; i++) {
+    const id = newIds[i];
+    bulkProgText.textContent = `${i+1} / ${newIds.length} — ${id}`;
+    bulkProgBar.style.width  = Math.round(((i+1)/newIds.length)*100) + "%";
+    try {
+      const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+      if (!r.ok) { skipped++; continue; }
+      const title = ((await r.json()).title || id) + "";
+      songs.unshift({ youtubeId: id, title, status: "pending" });
+      added++;
+    } catch { skipped++; }
+  }
+
+  bulkInput.value = "";
+  btnBulkAdd.disabled = false;
+  document.getElementById("bulkBtnTxt").textContent = "Add All Valid";
+  bulkProgress.classList.remove("visible");
+  render();
+  toast(`Added ${added} songs${skipped ? ` — skipped ${skipped}` : ""}`, added ? "success" : "error");
+});
+
+// ── Delete ────────────────────────────────────────────────────────────────
+async function deleteSong(idx) {
+  const song = songs[idx];
+  if (!song) return;
+  const el = songList.querySelectorAll(".song-item")[idx];
+  if (el) el.classList.add("removing");
+
+  if (song.status === "saved" && song.docId) {
+    try { await deleteDoc(doc(db, "SapanaCyberHub","Listen","Playlist", song.docId)); }
+    catch (err) { toast("Delete failed — "+err.message,"error"); if(el) el.classList.remove("removing"); return; }
+  }
+  toast(`Removed: ${song.title}`,"info");
+  setTimeout(() => { songs.splice(idx,1); render(); }, 280);
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────
+btnSave.addEventListener("click", async () => {
+  const pending = songs.filter(s => s.status === "pending");
+  if (!pending.length) return;
+  if (!auth.currentUser) { toast("Please sign in to save","error"); return; }
+
+  btnSave.classList.add("loading"); btnSave.disabled = true;
+  try {
+    const batch = writeBatch(db);
+    pending.forEach(song => {
+      const safeTitle = (song.title && song.title.trim()) ? song.title.trim() : song.youtubeId;
+      const ref       = doc(PLAYLIST_COL());
+      batch.set(ref, { youtubeId:song.youtubeId, title:safeTitle, createdAt:serverTimestamp(), addedBy:auth.currentUser.uid });
+      song.title = safeTitle; song.docId = ref.id; song.status = "saved";
+    });
+    await batch.commit();
+    render();
+    toast(`Saved ${pending.length} song${pending.length>1?"s":""} 🎉`,"success");
+  } catch (err) { toast("Save failed — "+err.message,"error"); }
+  finally { btnSave.classList.remove("loading"); btnSave.disabled = false; }
+});
+
+btnClearPending.addEventListener("click", () => {
+  songs = songs.filter(s => s.status !== "pending");
+  render(); toast("Pending discarded","info");
+});
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  const tot = songs.length, sav = songs.filter(s=>s.status==="saved").length, pen = songs.filter(s=>s.status==="pending").length;
+  statTotal.textContent = tot; statSaved.textContent = sav; statPending.textContent = pen;
+  pendingCount.textContent = pen;
+  saveFooter.classList.toggle("visible", pen > 0);
+
+  if (!tot) {
+    songList.innerHTML = `<div class="empty-state"><div class="empty-icon">🎵</div><div class="empty-title">No songs yet</div><div class="empty-sub">Paste a YouTube URL above to get started</div></div>`;
+    return;
+  }
+  songList.innerHTML = "";
+  songs.forEach((song, i) => {
+    const el = document.createElement("div");
+    el.className = "song-item";
+    el.style.animationDelay = `${Math.min(i*25,250)}ms`;
+    el.innerHTML = `
+      <span class="song-num">${i+1}</span>
+      <img class="song-thumb" src="https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg" alt="" loading="lazy">
+      <div class="song-meta">
+        <div class="song-title">${esc(song.title)}</div>
+        <div class="song-id-row">
+          <span class="song-vid-id">${song.youtubeId}</span>
+          <span class="song-status ${song.status}">${song.status==="saved"?"✓ saved":"⏳ pending"}</span>
+        </div>
+      </div>
+      <div class="song-actions">
+        <button class="btn-icon play" data-idx="${i}" title="Open on YouTube">▶</button>
+        <button class="btn-icon"      data-del="${i}" title="Remove">✕</button>
+      </div>`;
+    songList.appendChild(el);
+  });
+  songList.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => deleteSong(+b.dataset.del)));
+  songList.querySelectorAll("[data-idx]").forEach(b => b.addEventListener("click", () => window.open(`https://youtube.com/watch?v=${songs[+b.dataset.idx]?.youtubeId}`,"_blank")));
+}
+
+function esc(s="") { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function toast(msg, type="info") {
+  const rack=document.getElementById("toastRack"), icons={success:"✅",error:"❌",info:"ℹ️"};
+  const t=document.createElement("div"); t.className=`toast ${type}`;
+  t.innerHTML=`<span>${icons[type]||"ℹ️"}</span><span>${msg}</span>`;
+  rack.appendChild(t);
+  setTimeout(()=>{ t.style.cssText+=";opacity:0;transition:opacity .3s"; setTimeout(()=>t.remove(),320); },4000);
+}
+
+render();
+</script>
 </body>
 </html>
