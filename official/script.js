@@ -25,6 +25,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app);
 const postEvent = httpsCallable(functions, "postNewEvents");
+const postSponsorTask = httpsCallable(functions, "sponsorAppTask");
 
 // --- UI Elements Map ---
 const ui = {
@@ -46,12 +47,22 @@ const ui = {
     submitBtn: document.getElementById("hostBtn"),
     container: document.getElementById("event-container"),
     // Inputs
+    eventContainer: document.getElementById("event-container"),
     title: document.getElementById("eventTitle"),
     fee: document.getElementById("eventEntryFee"),
     prize: document.getElementById("eventPrizePool"),
     img: document.getElementById("eventImgUrl"),
     duration: document.getElementById("eventDuration"),
     loopCount: document.getElementById("eventLoopCount"),
+
+    sponsorAppTask: document.getElementById("sponsorAppTask"),
+    sponsorName: document.getElementById("sponsorName"),
+    sponsorImgUrl: document.getElementById("sponsorImgUrl"),
+    sponsorTaskDesc: document.getElementById("sponsorTaskDesc"),
+    sponsorAppUrl: document.getElementById("sponsorAppUrl"),
+    taskTarget: document.getElementById("taskTarget"),
+    sponsorTargetType: document.getElementById("sponsorTargetType"),
+    sponsorReward: document.getElementById("taskReward"),
     // Dropdown
     dropdown: document.querySelector(".dropdown"),
     dropBtn: document.querySelector(".dropdown-btn"),
@@ -77,7 +88,7 @@ onAuthStateChanged(auth, async (user) => {
     startAdminDashboard();
   } catch (err) {
     console.error("Auth Error:", err);
-    handleAuthFailure("Security verification failed.");
+    handleAuthFailure("Security verification failed. " + (err.message || ""));
   }
 });
 
@@ -126,19 +137,66 @@ function startAdminDashboard() {
 // --- 3. Form Logic ---
 function toggleFormInputs(type) {
   ui.form.container.style.display = "flex";
-  
+
   // Specific Logic for ListenEvents
   const isListenEvent = (type === "listenEvent");
   ui.form.title.style.display = isListenEvent ? "block" : "none";
   ui.form.title.required = isListenEvent;
 
-  
+  if (type === "sponsorAppTask") {
+    ui.form.sponsorAppTask.style.display = "flex";
+    ui.form.eventContainer.style.display = "none";
+  }
+
+}
+// handle newinputBox click for adding new task completion steps
+ui.form.sponsorAppTask.querySelector(".newinputBox").onclick = () => {
+  const newStepInput = document.createElement("input");
+  newStepInput.type = "text";
+  newStepInput.className = "taskCompletStep";
+  newStepInput.placeholder = "Task Completion Step";
+  ui.form.sponsorAppTask.insertBefore(newStepInput, ui.form.sponsorAppTask.querySelector(".newinputBox"));
 }
 
 async function handleHostEvent() {
   // Basic Validation
   if (!selectedType) return showToast("Please select an event type", "error");
-  
+
+  if (selectedType === "sponsorAppTask") {
+    
+    const sponsorData = {
+      sponsorAppName: ui.form.sponsorName.value.trim(),
+      sponsorAppLogoUrl: ui.form.sponsorImgUrl.value.trim(),
+      sponsorLink: ui.form.sponsorAppUrl.value.trim(),
+      taskReward: ui.form.sponsorReward.value.trim(),
+      taskTarget: ui.form.taskTarget.value.trim(),
+      sponsorTargetType: ui.form.sponsorTargetType.value.trim(),
+      taskSteps: Array.from(ui.form.sponsorAppTask.querySelectorAll(".taskCompletStep")).map(input => input.value.trim()).filter(val => val)
+    };
+
+    if (!sponsorData.sponsorAppName || !sponsorData.sponsorAppLogoUrl || !sponsorData.sponsorLink || !sponsorData.taskReward || !sponsorData.taskTarget||!sponsorData.sponsorTargetType) {
+      return showToast("Please fill all required sponsor fields", "error");
+    }
+
+    try {
+      showProgress("Hosting Sponsor Task", "Communicating with Cloud Functions...");
+      const result = await postSponsorTask(sponsorData);
+
+      if (result.data.success) {
+        finishProgress(true, "Sponsor Task is now LIVE! 🚀");
+        showToast("Sponsor Task created successfully!", "success");
+        ui.form.dialog.classList.add("hidden");
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Submission Error:", error);
+      finishProgress(false, error.message || "Failed to host sponsor task.");
+      showToast("Server Error: Check Console", "error");
+    }
+    return;
+  }
+
+
   const payload = {
     eventType: selectedType,
     title: ui.form.title.value.trim(),
@@ -156,7 +214,7 @@ async function handleHostEvent() {
 
   try {
     showProgress("Hosting Event", "Communicating with Cloud Functions...");
-    
+
     const result = await postEvent(payload);
 
     if (result.data.success) {
@@ -201,7 +259,7 @@ function finishProgress(isSuccess, message) {
   ui.progress.title.textContent = isSuccess ? "Success" : "Error";
   ui.progress.text.textContent = message;
   ui.progress.card.className = `progress-card ${isSuccess ? 'success' : 'failed'}`;
-  
+
   if (isSuccess) {
     setTimeout(() => {
       ui.progress.overlay.classList.remove("show-progress");

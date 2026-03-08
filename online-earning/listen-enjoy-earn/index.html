@@ -62,17 +62,16 @@
           <!-- HERO VISUAL WITH GIRL IMAGE (FIREBASE) -->
           <div class="hero-visual">
             <div class="hero-visual-inner">
-              <!-- 🔥 Replace src with your Firebase Storage download URL -->
-              <img class="floating-girl" src="/assets/logo/listen_avatar.png"
+              <img class="floating-girl" id="floatingGirl" src="/assets/logo/listen_avatar.png"
                 alt="Futuristic girl listening to music in neon environment" loading="lazy">
-              <!-- Audio pill over image -->
-              <div class="audio-ring">
-                <div class="eq-bars">
+              
+              <div class="audio-ring" id="audio-ring">
+                <div class="eq-bars" id="audio-ring">
                   <span></span><span></span><span></span><span></span><span></span>
                 </div>
                 <div class="audio-info">
                   <div class="counter">
-                    <small id="accumulated-hours">00:00:00 <strong>• SapanaCyberHub X Listen</strong> </small>
+                    <small id="accumulated-timmer">00:00:00 <strong>• SapanaCyberHub X Listen</strong> </small>
                   </div>
                 </div>
               </div>
@@ -85,11 +84,10 @@
 
               <div class="player-frame not-joined">
                 <!-- YT Player -->
-                <iframe class="yt-player" src="https://music.youtube.com/watch?v=P7QgZ5aXn0w&list=RDAMVMP7QgZ5aXn0w"
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen>
-                </iframe>
+                <iframe id="player" width="560" height="315" src="https://www.youtube.com/embed/D8PDOYDSwAw?si=imVgv6Iw4rHhqeng"
+                  title="SapanaCyberHub X Listen" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
                 <!-- Waitlist Image -->
                 <img class="waitlist" id="waitlist"
@@ -122,8 +120,8 @@
               <span></span>
             </div>
             <div class="filters">
-              <span class="vibing-btn" id="vibing-btn"> LIVE</span>
-              <span class="vibing-over-btn" id="vibing-over-btn">JOINED</span>
+              <span class="vibing-btn" data-event-type="L"> LIVE</span>
+              <span class="vibing-over-btn" data-event-type="L">JOINED</span>
             </div>
           </div>
 
@@ -140,8 +138,8 @@
             <span></span>
           </div>
           <div class="filters">
-            <span class="live-event"> LIVE</span>
-            <span class="joined-event">JOINED</span>
+            <span class="vibing-btn" data-event-type="H"> LIVE</span>
+            <span class="vibing-over-btn" data-event-type="H">JOINED</span>
           </div>
         </div>
 
@@ -157,114 +155,41 @@
               <span></span>
             </div>
             <div class="filters">
-              <span class="vibing-btn" id="vibing-btn"> LIVE</span>
-              <span class="vibing-over-btn" id="vibing-over-btn">JOINED</span>
+              <span class="vibing-btn" data-event-type="PL"> LIVE</span>
+              <span class="vibing-over-btn" data-event-type="PL">JOINED</span>
             </div>
           </div>
 
           <!-- lakhpati loop container -->
           <div class="lakhpati-loop" id="lakhpati-loop">
-            <div class="lakhpati-card">
-              <div class="lakhpati-content">
-                <div class="lp-top">
-                  <img
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/header-%20elements%20of%20lakhpatis.png"
-                    alt="lakhpati loop banner">
-
-                </div>
-                <div class="lp-center">
-                  <div class="lp-c-top">
-                    <span class="lakh" id="l1">1 Lakhs</span>
-                    <span class="lakh" id="l2">2 Lakhs</span>
-                    <span class="lakh" id="l3">3 Lakhs</span>
-                    <span class="lakh" id="l4">4 Lakhs</span>
-                    <span class="lakh" id="l5">5 Lakhs</span>
-                  </div>
-                  <div class="l-p-p">
-                    <div class="l-p-m">
-                      <img
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/motivator-elements%20of%20lakhpatis1.png"
-                        alt="">
-                      <span class="t-p-p" id="t-p-p">₹0</span>
-                      <div class="T-J" id="t-j">
-                        0
-                      </div>
-                    </div>
-                    <div class="p-b">
-                      <img
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/prize-box%20of%20lakhpatis.png"
-                        alt="">
-
-                    </div>
-                  </div>
-                  <div class="l-p-bottom">
-                    <div class="left">
-                      <img class="j-m-l"
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/join-btnelements%20of%20lakhpatis.png"
-                        alt="">
-                      <span class="E-f-l"> Entry Fee : ₹0</span>
-
-                    </div>
-                    <div class="right">
-                      <strong class="t-h" id="t-h">00:00:00</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-            <div class="lakhpati-card">
-              <div class="lakhpati-content">
-                <div class="lp-top">
-                  <img
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/header-%20elements%20of%20lakhpatis.png"
-                    alt="lakhpati loop banner">
-
-                </div>
-                <div class="lp-center">
-                  <div class="lp-c-top">
-                    <span class="lakh" id="l1">1 Lakhs</span>
-                    <span class="lakh" id="l2">2 Lakhs</span>
-                    <span class="lakh" id="l3">3 Lakhs</span>
-                    <span class="lakh" id="l4">4 Lakhs</span>
-                    <span class="lakh" id="l5">5 Lakhs</span>
-                  </div>
-                  <div class="l-p-p">
-                    <div class="l-p-m">
-                      <img
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/motivator-elements%20of%20lakhpatis1.png"
-                        alt="">
-                      <span class="t-p-p" id="t-p-p">₹0</span>
-                      <div class="T-J" id="t-j">
-                        0
-                      </div>
-                    </div>
-                    <div class="p-b">
-                      <img
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/prize-box%20of%20lakhpatis.png"
-                        alt="">
-
-                    </div>
-                  </div>
-                  <div class="l-p-bottom">
-                    <div class="left">
-                      <img class="j-m-l"
-                        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/join-btnelements%20of%20lakhpatis.png"
-                        alt="">
-                      <span class="E-f-l"> Entry Fee : ₹0</span>
-
-                    </div>
-                    <div class="right">
-                      <strong class="t-h" id="t-h">00:00:00</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+            <!-- lakhpati-card -->
           </div>
 
 
+        </div>
+
+        <div class="m-t">
+          <div class="a-t">
+            <span class="a-t-t"> <strong>Sponsor App Task</strong></span>
+            <div class="filters">
+              <span class="vibing-btn" data-event-type="SAT"> LIVE</span>
+              <span class="vibing-over-btn" data-event-type="SAT">JOINED</span>
+            </div>
+            <div class="t-l" id="task-list">
+              <div class="t-b">
+                <div class="a-t-h">
+                  <img class="app-icon"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cyber-toe.png"
+                    alt="app-task">
+                  <strong class="a-n">Cyber Tic Tac Toe</strong>
+                </div>
+                <span class="t-d">
+                  <strong class="t-p-p"> ₹75</strong>
+                  <strong class="a-t-get" data-task-id="task1542"> Vibe</strong>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
 
@@ -308,9 +233,10 @@
             <div class="dialog-content">
               <div class="dialog-close" id="dialog-close" aria-label="Close dialog">&times;</div>
               <h2>Event Details</h2>
-              <h3 >Event Title</h3>
+              <h3>Event Title</h3>
               <p>
-                <span class="event-tittle" id="event-tittle">Join the Neon Night Vibes event to immerse yourself in a futuristic music
+                <span class="event-tittle" id="event-tittle">Join the Neon Night Vibes event to immerse yourself in a
+                  futuristic music
                   experience.</span>
               </p>
               <h3>Prize Pool</h3>
@@ -319,7 +245,8 @@
                   src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png"
                   loading="eager" alt="dynamic prize pool">
                 <strong class="dynamic-prize-text" id="event-prize">Dynamic Prize Pool</strong>
-                <p class="dynamic-explain" id="prizePoolExplain"> "The more who join, the bigger the pot! Every new listener scales the
+                <p class="dynamic-explain" id="prizePoolExplain"> "The more who join, the bigger the pot! Every new
+                  listener scales the
                   rewards, creating more winning spots for everyone."</p>
               </div>
 
@@ -338,14 +265,14 @@
                     alt="Listen Coin">
                 </li>
                 <li>
-                  <strong> Secret:  Your Daily Activity increase Your Luck Credit that help You in Win Big </strong>
+                  <strong> Secret: Your Daily Activity increase Your Luck Credit that help You in Win Big </strong>
                 </li>
               </ul>
 
 
               <div class="btm">
 
-                <div class="join-now">VIBE<img
+                <div class="join-now" id="join-now">VIBE<img
                     src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
                     alt=" Listen-coin-og">
                 </div>
@@ -400,6 +327,86 @@
             <p id="progressText">Please wait… warming up the vibes ❄️</p>
 
           </div>
+        </div>
+
+        <!-- app-task details overlay -->
+        <div class="a-t-d-overlay" id="app-task-overlay">
+          <div class="a-t-d-card">
+            <div class="eventData">
+              <div class="a-t-d-header">
+                <span></span>
+                <h2 class="a-t-d-title" id="a-t-d-title">Cyber tic tac toe</h2>
+                <div class="a-t-d-close" id="a-t-d-close" aria-label="Close dialog">&times;</div>
+              </div>
+              <p class="a-t-d-desc" id="a-t-d-desc">Task Description</p>
+              <ul class="a-t-d-guide">
+                <li><strong>Step 1:</strong> Download and install the app via the provided link.</li>
+                <li><strong>Step 2:</strong> Register your account and achieve a 10-win streak.</li>
+                <li><strong>Step 3:</strong> Make a minimum in-app purchase of ₹20 to unlock premium rewards.</li>
+                <li><strong>Step 4:</strong> Maintain a 3-day Daily Check-in streak to claim your <strong>₹75
+                    bonus</strong>.</li>
+              </ul>
+              <div class="a-t-d-reward">
+                <strong>Reward: </strong><span id="a-t-d-reward">₹x</span>
+              </div>
+
+            </div>
+
+            <div class="leaderBoard">
+
+              <div class="high-rank">
+
+                <div class="rank two">
+                  <img class="rank-two-frame" src="/assets/leaderboard/rank-2.png" alt="winner-rank-two">
+                  <img class="viberDp"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
+                    alt="">
+                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span> </div>
+
+                </div>
+
+                <div class="rank one">
+                  <img class="rank-one-frame" src="/assets/leaderboard/rank-1.png" alt="winner-rank-two">
+                  <img class="viberDp"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
+                    alt="">
+                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span></div>
+
+                </div>
+
+                <div class="rank three">
+                  <img class="rank-three-frame" src="/assets/leaderboard/rank-3.png" alt="winner-rank-two">
+                  <img class="viberDp"
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
+                    alt="">
+                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span></div>
+
+                </div>
+              </div>
+
+              <div class="midRank">
+                <div class="winnerData">
+                  <div class="winner-details">
+                    <span class="rank">#4</span>
+                    <img class="winnerDp"
+                      src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
+                      alt="winnerDp">
+                    <strong class="winnerName">xxx xxx</strong>
+                  </div>
+                  <span class="winAmount">₹xxx</span>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="eq-progress loadingEventStatus" id="loadingEventStatus">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <button class="vibe-btn" id="a-t-d-vibe-btn">Vibe & Earn</button>
+          </div>
+
         </div>
 
     </main>

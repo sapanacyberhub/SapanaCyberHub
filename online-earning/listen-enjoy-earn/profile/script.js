@@ -43,6 +43,7 @@ const withdrawal_history = document.getElementById("withdrawalHistory");
 const open_withdrawal_page = document.getElementById("openWithdrawal");
 const close_withdrawal_page = document.getElementById("close")
 const withdrawal_page = document.getElementById("withdrawOverlay");
+const luckCredit = document.getElementById("luckCredit");
 
 const container = document.getElementById("transactionList");
 
@@ -928,6 +929,8 @@ function init() {
 function updateWalletDisplay() {
   userCashEarning.textContent = uiData.cash;
   userCoinEarning.textContent = uiData.listenCoin;
+  luckCredit.textContent = uiData?.luckCredit || 1;
+
 
   const withdrawalPageBalance = document.getElementById("accountBalance");
   withdrawalPageBalance.textContent = uiData.cash;

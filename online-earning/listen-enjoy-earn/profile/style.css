@@ -1322,6 +1322,12 @@ body {
     }
 }
 
+.luckCredit{
+    display: flex;
+    align-items: center;
+}
+
+
 
 /* Overlay */
 .lc-help-overlay {
