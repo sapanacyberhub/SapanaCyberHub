@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Center | SapanaCyberHub</title>
+  <link rel="shortcut icon" href="/assets/SapanaCyberHub-Logo.webp" type="image/x-icon">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="./dist/con96.js"></script>
+</head>
+
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div id="particles"></div>
+
+  <div class="back">&times;</div>
+  <div class="page">
+
+    <!-- Header -->
+    <div class="page-top">
+      <div class="badge">
+        <div class="badge-dot"></div> Support Center
+      </div>
+      <div class="icon-ring">💗</div>
+      <h1 class="page-title">How can we help?</h1>
+      <p class="page-subtitle">Create a ticket or track your existing requests.</p>
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <span id="user-label" style="color:var(--muted);font-size:.79rem">Loading…</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="create">✍️ New Ticket</button>
+      <button class="tab" data-tab="history">🗂️ My Tickets <span class="tab-badge" id="tab-count">0</span></button>
+    </div>
+
+    <!-- ══════════ PANEL: CREATE ══════════ -->
+    <div class="panel active" id="panel-create">
+      <div class="card">
+        <form id="ticketForm">
+
+          <div class="row">
+            <div class="field">
+              <label>Email</label>
+              <div class="input-wrap">
+                <span class="input-icon">✉️</span>
+                <input id="email" type="email" placeholder="you@email.com" required>
+              </div>
+            </div>
+            <div class="field">
+              <label>Category</label>
+              <div class="input-wrap">
+                <span class="input-icon">🗂️</span>
+                <select id="category">
+                  <option value="account">Account Issue</option>
+                  <option value="withdrawal">Withdrawal</option>
+                  <option value="ads">Ads / Earnings</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="partnership">Partnership</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Subject</label>
+            <div class="input-wrap">
+              <span class="input-icon">📌</span>
+              <input id="subject" type="text" placeholder="Brief summary of your issue" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Priority</label>
+            <div class="pills">
+              <button type="button" class="pill active" data-priority="low">🟢 Low</button>
+              <button type="button" class="pill" data-priority="normal">🟡 Normal</button>
+              <button type="button" class="pill" data-priority="urgent">🔴 Urgent</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Describe your issue</label>
+            <textarea id="message" rows="5" placeholder="Tell us everything — the more detail, the faster we can help…"
+              required></textarea>
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">
+            <div class="btn-content">Create Ticket &nbsp;🎫</div>
+            <div class="btn-spinner"></div>
+          </button>
+
+        </form>
+        <div id="create-status"></div>
+      </div>
+      <p class="footer-note">Avg. response: <span>under 24 hours</span> · IDs start with <span>SCH-</span></p>
+    </div>
+
+    <!-- ══════════ PANEL: HISTORY ══════════ -->
+    <div class="panel" id="panel-history">
+
+      <div id="auth-gate" style="display:none">
+        <div class="lock-icon">🔐</div>
+        <h2>Sign in to view tickets</h2>
+        <p>You need to be logged in to see your support history.</p>
+        <a href="/online-earning/listen-enjoy-earn/create-vibers/index.html" class="auth-btn">Sign In →</a>
+      </div>
+
+      <div id="history-content" style="display:none">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-total">—</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-open"
+              style="background:linear-gradient(135deg,#fde68a,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+              —</div>
+            <div class="stat-label">Open</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-replied"
+              style="background:linear-gradient(135deg,#6ee7b7,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+              —</div>
+            <div class="stat-label">Replied</div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <button class="filter-pill active" data-filter="all">All <span class="filter-count"
+              id="cnt-all">0</span></button>
+          <button class="filter-pill" data-filter="open">🟡 Open <span class="filter-count"
+              id="cnt-open">0</span></button>
+          <button class="filter-pill" data-filter="replied">🟢 Replied <span class="filter-count"
+              id="cnt-replied">0</span></button>
+          <button class="filter-pill" data-filter="closed">⚫ Closed <span class="filter-count"
+              id="cnt-closed">0</span></button>
+        </div>
+
+        <div id="skeletons">
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+        </div>
+
+        <div id="ticket-list"></div>
+      </div>
+
+    </div><!-- /panel-history -->
+
+  </div><!-- /page -->
+
+  <!-- ══════════ DIALOG ══════════ -->
+  <div id="dlg" role="dialog" aria-modal="true">
+    <div class="dlg-bg" id="dlg-bg"></div>
+    <div class="dlg-sheet">
+      <div class="dlg-handle"></div>
+      <div class="dlg-head">
+        <div class="dlg-top">
+          <span class="ticket-id-badge" id="dlg-id">SCH-00000</span>
+          <button class="dlg-x" id="dlg-x">✕</button>
+        </div>
+        <div class="dlg-title" id="dlg-title">—</div>
+        <div class="dlg-meta" style="margin-top:8px">
+          <span id="dlg-status"></span>
+          <span id="dlg-cat">—</span>
+          <span id="dlg-date" style="margin-left:auto;font-size:.71rem">—</span>
+        </div>
+      </div>
+      <div class="dlg-body" id="dlg-body"></div>
+      <div class="dlg-foot">
+        <button class="f-close" id="dlg-close-foot">Close</button>
+        <button class="f-new" id="dlg-new-ticket">+ New Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+</body>
+
+</html>

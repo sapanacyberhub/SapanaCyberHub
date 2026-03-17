@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SapanaCyberHub Install</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0f172a">
+
+<style>
+
+body{
+margin:0;
+background:#0f172a;
+font-family:sans-serif;
+color:white;
+}
+
+/* screen */
+
+.install-screen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:99999;
+}
+
+/* card */
+
+.install-card{
+background:#020617;
+padding:25px;
+border-radius:18px;
+text-align:center;
+width:90%;
+max-width:340px;
+box-shadow:0 10px 50px rgba(0,0,0,.7);
+animation:fadeIn .4s ease;
+}
+
+/* logo */
+
+.install-logo{
+width:90px;
+border-radius:20px;
+margin-bottom:15px;
+box-shadow:0 0 20px rgba(99,102,241,.4);
+}
+
+/* text */
+
+.install-card h2{
+margin:10px 0;
+font-size:20px;
+}
+
+.install-card p{
+opacity:.7;
+margin-bottom:20px;
+}
+
+/* buttons */
+
+#installBtn{
+width:100%;
+padding:13px;
+border:none;
+border-radius:12px;
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+color:white;
+font-size:16px;
+font-weight:600;
+margin-bottom:10px;
+cursor:pointer;
+}
+
+#skipBtn{
+width:100%;
+padding:10px;
+background:none;
+border:none;
+color:#aaa;
+cursor:pointer;
+}
+
+/* welcome animation */
+
+.app-welcome{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.85);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:999999;
+}
+
+.welcome-box{
+background:#020617;
+padding:30px;
+border-radius:16px;
+text-align:center;
+box-shadow:0 0 40px rgba(99,102,241,.5);
+animation:pop .4s ease;
+}
+
+@keyframes pop{
+0%{transform:scale(.7);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="installScreen" class="install-screen">
+
+  <div class="install-card">
+
+    <img src="/assets/logo.png" class="install-logo">
+
+    <h2>SapanaCyberHub X Listen</h2>
+    <p>Install app for better experience 🚀</p>
+
+    <button id="installBtn">Install Now</button>
+    <button id="skipBtn">Continue in Browser</button>
+
+  </div>
+
+</div>
+
+<script>
+
+/* ------------------ VARIABLES ------------------ */
+
+let deferredPrompt;
+
+const installScreen = document.getElementById("installScreen");
+const installBtn = document.getElementById("installBtn");
+const skipBtn = document.getElementById("skipBtn");
+
+/* ------------------ CHECK APP MODE ------------------ */
+
+function isAppInstalled(){
+  return window.matchMedia('(display-mode: standalone)').matches
+}
+
+/* ------------------ SHOW INSTALL SCREEN ------------------ */
+
+window.addEventListener("load", () => {
+
+  if (isAppInstalled()) {
+    installScreen.style.display = "none";
+    return;
+  }
+
+  if (!localStorage.getItem("installSkipped")) {
+    setTimeout(() => {
+      installScreen.style.display = "flex";
+    }, 800);
+  }
+
+});
+
+/* ------------------ CAPTURE INSTALL EVENT ------------------ */
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+/* ------------------ INSTALL BUTTON ------------------ */
+
+installBtn.addEventListener("click", async () => {
+
+  if (deferredPrompt) {
+
+    deferredPrompt.prompt();
+
+    const choice = await deferredPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+
+      localStorage.setItem("justInstalled", "true");
+
+      installScreen.style.display = "none";
+
+    }
+
+    deferredPrompt = null;
+
+  } else {
+
+    alert("Use browser menu → Add to Home Screen");
+
+  }
+
+});
+
+/* ------------------ SKIP ------------------ */
+
+skipBtn.addEventListener("click", () => {
+  installScreen.style.display = "none";
+  localStorage.setItem("installSkipped", "true");
+});
+
+/* ------------------ AFTER INSTALL (WELCOME + REWARD) ------------------ */
+
+if (isAppInstalled() && localStorage.getItem("justInstalled")) {
+
+  showWelcome();
+
+  localStorage.removeItem("justInstalled");
+}
+
+function showWelcome(){
+
+  const div = document.createElement("div");
+
+  div.className = "app-welcome";
+
+  div.innerHTML = `
+    <div class="welcome-box">
+      <h2>🎉 Welcome to App Mode</h2>
+      <p>You unlocked a reward!</p>
+    </div>
+  `;
+
+  document.body.appendChild(div);
+
+  setTimeout(() => {
+    div.remove();
+  }, 3000);
+}
+
+/* ------------------ SERVICE WORKER ------------------ */
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+
+</script>
+
+</body>
+</html>

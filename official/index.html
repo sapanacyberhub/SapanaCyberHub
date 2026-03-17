@@ -1,21 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SapanaCyberHub | Admin Core</title>
-
   <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="script.js" defer> </script>
-
-
+  <script type="module" src="script.js" defer></script>
 </head>
-
 <body>
 
-  <!-- BACKGROUND GLOW -->
   <div class="glow-bg"></div>
 
   <!-- NAV BAR -->
@@ -24,97 +18,178 @@
       <img src="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
       <h3>SapanaCyberHub</h3>
     </div>
-
-    <!-- CYBER CLOCK -->
     <div class="cyber-clock">
       <div class="ring"></div>
-      <div class="hand hour" id="hour"></div>
+      <div class="hand hour"   id="hour"></div>
       <div class="hand minute" id="minute"></div>
       <div class="hand second" id="second"></div>
       <div class="center-dot"></div>
     </div>
-
     <div class="nav-right">
-      <span class="admin-tag">SANJEET</span>
+      <span class="admin-tag" id="admin-tag">ADMIN</span>
     </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- MAIN DASHBOARD -->
   <main class="dashboard">
-
-    <!-- WELCOME -->
     <section class="welcome-box">
       <h1>Welcome Back, Dear ⚡💸</h1>
       <p>System status is <span class="online">ONLINE</span></p>
     </section>
 
-    <!-- STATS -->
     <section class="stats-grid">
       <div class="stat-card cyan">
         <h4>Active Vibers</h4>
-        <h2 id="active-users">0</h2>
+        <h2 id="active-users">—</h2>
       </div>
       <div class="stat-card pink">
         <h4>Active Events</h4>
-        <h2 id="active-events">0</h2>
+        <h2 id="active-events">—</h2>
       </div>
       <div class="stat-card pink">
         <h4>KYC Pending</h4>
-        <h2 id="kyc-pending">0</h2>
+        <h2 id="kyc-pending">—</h2>
       </div>
-
       <div class="stat-card cyan">
         <h4>Pending Withdrawals</h4>
-        <h2 id="pending-withdrwal">0</h2>
+        <h2 id="pending-withdrwal">—</h2>
       </div>
-
       <div class="stat-card purple">
         <h4>Support Tickets</h4>
-        <h2 id="support-tickets">0</h2>
+        <h2 id="support-tickets">—</h2>
       </div>
-
       <div class="stat-card green">
         <h4>Total Payout</h4>
-        <h2 id="total-payout">0</h2>
-      </div>
-
-      <div class="stat-card green">
-        <h4>Daily Tip💖</h4>
-        <h2 id="daily-tip">0</h2>
-      </div>
-
-      <div class="stat-card purple">
-        <h4>User Feedback😎</h4>
-        <h2 id="user-feedback">0</h2>
+        <h2 id="total-payout">—</h2>
       </div>
     </section>
 
-    <!-- ACTIONS -->
     <section class="action-panel">
-      <button id="review-withdrawal">💸 Review Withdrawals</button>
-      <button id="review-KYC">📃 Review KYC</button>
-      <button id="support-requests">🎧 Support Requests</button>
-      <button id="Manage-users">👤 Manage Members</button>
-      <button id="logs">⚠️Logs</button>
+      <div id="review-withdrawal">💸 Review Withdrawals</div>
+      <div id="review-KYC">📃 Review KYC</div>
+      <div id="support-requests">🎧 Support Tickets</div>
+      <div id="Manage-events">⚡ Manage Events</div>
+      <div id="Manage-users">👤 Manage Vibers</div>
     </section>
-
-
   </main>
 
-  <!-- event create dialogs -->
+  <!-- ═══════════════════════════════════════════════
+       KYC PANEL
+  ═══════════════════════════════════════════════ -->
+  <div class="admin-panel hidden" id="kyc-panel">
+    <div class="panel-nav">
+      <button class="panel-back" data-close="kyc-panel">← Back</button>
+      <h2>📃 KYC Review</h2>
+      <button class="panel-refresh" data-fn="kyc">↻</button>
+    </div>
+    <div class="panel-body">
+      <div class="p-skels" id="kyc-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div id="kyc-list"></div>
+    </div>
+  </div>
 
+  <!-- ═══════════════════════════════════════════════
+       WITHDRAWAL PANEL
+  ═══════════════════════════════════════════════ -->
+  <div class="admin-panel hidden" id="wd-panel">
+    <div class="panel-nav">
+      <button class="panel-back" data-close="wd-panel">← Back</button>
+      <h2>💸 Withdrawals</h2>
+      <button class="panel-refresh" data-fn="wd">↻</button>
+    </div>
+    <div class="panel-body">
+      <div class="p-skels" id="wd-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div id="wd-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SUPPORT PANEL
+  ═══════════════════════════════════════════════ -->
+  <div class="admin-panel hidden" id="sp-panel">
+    <div class="panel-nav">
+      <button class="panel-back" data-close="sp-panel">← Back</button>
+      <h2>🎧 Support Tickets</h2>
+      <button class="panel-refresh" data-fn="sp">↻</button>
+    </div>
+    <div class="sp-toolbar">
+      <div class="sp-filters">
+        <button class="sp-fp active" data-f="all">All</button>
+        <button class="sp-fp" data-f="open">🟡 Open</button>
+        <button class="sp-fp" data-f="replied">🟢 Replied</button>
+        <button class="sp-fp" data-f="closed">⚫ Closed</button>
+        <button class="sp-fp" data-f="urgent">🔴 Urgent</button>
+      </div>
+      <input class="sp-search" id="sp-search" placeholder="🔍 Search…">
+    </div>
+    <div class="panel-body" style="position:relative">
+      <div class="p-skels" id="sp-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div id="sp-list"></div>
+      <!-- reply sub-sheet -->
+      <div class="sub-sheet hidden" id="sp-reply-sheet">
+        <div class="sub-sheet-head">
+          <button class="sub-back" id="sp-reply-back">← Tickets</button>
+          <span class="sub-tid" id="sp-reply-tid">SCH-00000</span>
+        </div>
+        <div class="sub-sheet-body" id="sp-reply-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       EVENTS PANEL
+  ═══════════════════════════════════════════════ -->
+  <div class="admin-panel hidden" id="ev-panel">
+    <div class="panel-nav">
+      <button class="panel-back" data-close="ev-panel">← Back</button>
+      <h2>⚡ Event Manager</h2>
+      <button class="panel-refresh" data-fn="ev">↻</button>
+    </div>
+    <div class="ev-tabs">
+      <button class="ev-tab active" data-et="active">🟢 Active</button>
+      <button class="ev-tab" data-et="ended">🔴 Ended</button>
+      <button class="ev-tab" data-et="sponsors">🎯 Sponsors</button>
+    </div>
+    <div class="panel-body">
+      <div class="p-skels" id="ev-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div id="ev-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       USERS PANEL
+  ═══════════════════════════════════════════════ -->
+  <div class="admin-panel hidden" id="users-panel">
+    <div class="panel-nav">
+      <button class="panel-back" data-close="users-panel">← Back</button>
+      <h2>👤 Manage Vibers</h2>
+      <button class="panel-refresh" data-fn="users">↻</button>
+    </div>
+    <input class="sp-search" id="users-search" placeholder="🔍 Search name or email…" style="margin:0 16px 10px;width:calc(100% - 32px);display:block">
+    <div class="panel-body">
+      <div class="p-skels" id="users-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div id="users-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       IMAGE LIGHTBOX
+  ═══════════════════════════════════════════════ -->
+  <div class="lightbox hidden" id="lightbox">
+    <img id="lb-img" src="" alt="">
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       EVENT CREATE DIALOG  (existing — unchanged)
+  ═══════════════════════════════════════════════ -->
   <div class="host-dialog hidden" id="host-dialog">
     <div class="content">
-
       <div class="top-dialog">
-
         <span class="active-dot"></span>
         <span class="close" id="close-dialog">X</span>
       </div>
-
       <div class="dropdown">
-        <div class="dropdown-btn">Choose Event to be Host </div>
-
+        <div class="dropdown-btn">Choose Event to be Host</div>
         <ul class="dropdown-menu">
           <li data-value="hitEvent">Hit Event</li>
           <li data-value="listenEvent">Listen Event</li>
@@ -122,51 +197,57 @@
           <li data-value="cashHaandi">Cash Haandi</li>
           <li data-value="sponsorAppTask">Sponsor App Task</li>
         </ul>
-
       </div>
       <div class="event-container" id="event-container">
-
-        <input type="text" id="eventTitle" placeholder="Event Title">
-        <input type="text" id="eventImgUrl" placeholder=" creature url">
-        <input type="text" id="eventPrizePool" placeholder=" prize-pool">
-        <input type="text" id="eventDuration" placeholder=" Duration (hours)">
-        <input type="text" id="eventEntryFee" placeholder=" Entry Fee">
-        <input type="text" id="eventLoopCount" placeholder=" Lakhpati Loop - Loop Count">
-
+        <input type="text" id="eventTitle"     placeholder="Event Title">
+        <input type="text" id="eventImgUrl"    placeholder="Creature URL">
+        <input type="text" id="eventPrizePool" placeholder="Prize Pool">
+        <input type="text" id="eventDuration"  placeholder="Duration (hours)">
+        <input type="text" id="eventEntryFee"  placeholder="Entry Fee">
+        <input type="text" id="eventLoopCount" placeholder="Lakhpati Loop - Loop Count">
       </div>
-
-      <div class="event-container" id="sponsorAppTask" style="display: none;">
-        <input type="text" id="sponsorName" placeholder="Sponsor Name">
-        <input type="text" id="sponsorImgUrl" placeholder="Sponsor Logo URL">
-        <input type="text" id="sponsorAppUrl" placeholder="Apk downloading URL">
+      <div class="event-container" id="sponsorAppTask" style="display:none">
+        <input type="text" id="sponsorName"       placeholder="Sponsor Name">
+        <input type="text" id="sponsorImgUrl"     placeholder="Sponsor Logo URL">
+        <input type="text" id="sponsorAppUrl"     placeholder="APK Downloading URL">
         <input type="text" id="sponsorTargetType" placeholder="sponsorTargetType">
-        <input type="text" id="taskTarget" placeholder="taskTarget">
-        <input type="text" id="taskReward" placeholder="Reward (in ₹)">
-        <input type="text" id="taskStep" placeholder="step to complete task">
+        <input type="text" id="taskTarget"        placeholder="taskTarget">
+        <input type="text" id="taskReward"        placeholder="Reward (in ₹)">
+        <input type="text" id="taskStep"          placeholder="Step to complete task">
         <div class="newinputBox">+</div>
       </div>
-
-      <div class="host"> <span class="create" id="hostBtn">Sponsor App Task</span> </div>
-
-
+      <div class="host"><span class="create" id="hostBtn">Host Event</span></div>
     </div>
   </div>
 
+  <!-- PROGRESS DIALOG (existing — unchanged) -->
   <div class="progress-dialog" id="progress-dialog">
     <div class="progress-card" id="progress-card">
-
-      <h3 id="progressTitle">Gettin you in Vibe</h3>
-
+      <h3 id="progressTitle">Getting you in Vibe</h3>
       <div class="eq-progress">
         <span></span><span></span><span></span><span></span><span></span>
         <span></span><span></span><span></span><span></span><span></span>
       </div>
       <p id="progressText">Please wait… warming up the vibes ❄️</p>
-
     </div>
   </div>
-  <div class="bottom-bar"> <span class="create" id="create">+</span> </div>
+
+  <div class="bottom-bar"><span class="create" id="create">+</span></div>
+
+  <!-- ═══════════════════════════════════════════════
+       CUSTOM CONFIRM DIALOG
+  ═══════════════════════════════════════════════ -->
+  <div class="confirm-overlay hidden" id="confirm-overlay">
+    <div class="confirm-box" id="confirm-box">
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
+      <h3 class="confirm-title" id="confirm-title">Are you sure?</h3>
+      <p class="confirm-msg" id="confirm-msg">This action cannot be undone.</p>
+      <div class="confirm-acts">
+        <button class="confirm-cancel" id="confirm-cancel">Cancel</button>
+        <button class="confirm-ok" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
 
 </body>
-
 </html>

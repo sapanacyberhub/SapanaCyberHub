@@ -23,7 +23,24 @@ body {
     flex-direction: column;
     text-align: center;
     justify-content: center;
-    margin-top: 20px
+}
+
+.b-t-h{
+    align-self: flex-end;
+    font-size:x-large;
+    font-weight: bolder;
+    padding: 4px 20px;
+    text-shadow: 0 0 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.b-t-h:hover{
+    transform: rotate(90deg) scale(1.2);
+    color: #ff0000;
+}
+.b-t-h:active{
+    transform: rotate(-90deg) scale(1);
+    color: #000000;
 }
 
 .profile-pic-wrapper {

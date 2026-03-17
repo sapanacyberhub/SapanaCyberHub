@@ -102,6 +102,7 @@ const progressDialogOverlay = document.getElementById("progress-dialog");
 const progressCard = document.getElementById("progress-card");
 const progressTitle = document.getElementById("progressTitle");
 const progressDesc = document.getElementById("progressText");
+const closeWallet = document.querySelector(".b-t-h");
 
 // =====================
 // GLOBAL FILE HOLDERS
@@ -171,12 +172,16 @@ async function getUser() {
   }
 }
 
+closeWallet?.addEventListener("click", () =>
+  window.location.href = "/online-earning/listen-enjoy-earn/index.html"
+);
+
 // transaction list
 async function loadTransactions() {
   try {
     // Calling the Cloud Function instead of direct Firestore query
     const result = await getUserTxns();
-    
+
     if (result.data?.success) {
       // The server already sorted them, so we just assign
       transactions = result.data.transactions;
@@ -187,7 +192,7 @@ async function loadTransactions() {
     }
   } catch (error) {
     console.error("Cloud Function Error:", error);
-    renderList([]); 
+    renderList([]);
   }
 }
 
@@ -337,7 +342,7 @@ updateKycBtn.addEventListener("click", () => {
 
 async function showKycOverlay() {
   kycUpdateOverlay.classList.add("show");
-  resetKycUI(); 
+  resetKycUI();
 
   try {
     const kyc = await checkUserKycStatus(); // This returns the object { status: '...', ... }
@@ -713,7 +718,7 @@ convertCoinBtn.addEventListener("click", async () => {
     return;
   }
 
-  if (coinAmount < 3000) {
+  if (coinAmount < 100) {
     shakeField(enterCoinToConvert);
     return;
   }
@@ -863,12 +868,12 @@ function resetKycUI() {
 async function checkUserKycStatus() {
   try {
     const result = await getKycSts();
-    
+
     // 1. Check if the network call actually succeeded
     if (result.data && result.data.success) {
       // 2. Return ONLY the kyc data object { status, reason, etc. }
       // This matches your server's return: { success: true, kyc: kycSnap.data() }
-      return result.data.kyc; 
+      return result.data.kyc;
     }
 
     return null;
@@ -942,11 +947,11 @@ function timeAgo(ts) {
   if (!ts) return "";
 
   let date;
-  
+
   // 1. Handle Firestore Timestamp object (if any still exist)
   if (ts && typeof ts.toDate === "function") {
     date = ts.toDate();
-  } 
+  }
   // 2. Handle ISO strings from the Cloud Function
   else {
     date = new Date(ts);
@@ -960,7 +965,7 @@ function timeAgo(ts) {
 
   // The Logic Chain
   if (diffInSeconds < 60) return "Just now";
-  
+
   const mins = Math.floor(diffInSeconds / 60);
   if (mins < 60) return `${mins}m ago`;
 

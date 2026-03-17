@@ -1,231 +1,411 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Favicon -->
 <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp" type="image/webp">
-
 <title>Cyber Security India — Scam Alerts, Phone Safety & Fraud Prevention | SapanaCyberHub</title>
-
-<meta name="description"
-content="India’s trusted cyber safety reference hub. Phone protection, WhatsApp & UPI scam alerts, fraud prevention, account recovery and online safety — explained calmly by SapanaCyberHub.">
-
+<meta name="description" content="India's trusted cyber safety hub. Phone protection, WhatsApp & UPI scam alerts, fraud prevention — explained in Hindi & English. साइबर फ्रॉड से बचने के पूरे गाइड।">
 <link rel="canonical" href="https://sapanacyberhub.in/cyber-safety/">
-
 <meta name="robots" content="index, follow, max-image-preview:large">
-
-<!-- Open Graph -->
+<link rel="alternate" hreflang="en" href="https://sapanacyberhub.in/cyber-safety/">
+<link rel="alternate" hreflang="hi" href="https://sapanacyberhub.in/cyber-safety/">
+<link rel="alternate" hreflang="x-default" href="https://sapanacyberhub.in/cyber-safety/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Cyber Security India — Stay Safe Online">
-<meta property="og:description" content="Trusted cyber safety guides for Indian users. Scam alerts, phone protection & fraud prevention explained calmly.">
-<meta property="og:image" content="https://sapanacyberhub.in/assets/cyber-cover.webp">
+<meta property="og:title" content="Cyber Security India — Stay Safe Online | SapanaCyberHub">
+<meta property="og:description" content="Trusted cyber safety guides for Indian users. Scam alerts, phone protection & fraud prevention in Hindi & English.">
 <meta property="og:url" content="https://sapanacyberhub.in/cyber-safety/">
-
-<!-- Schema -->
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"CollectionPage",
-  "name":"Cyber Security India — SapanaCyberHub",
-  "description":"India’s trusted cyber safety reference hub for phone protection, scam alerts, and fraud prevention.",
-  "url":"https://sapanacyberhub.in/cyber-safety/",
-  "publisher":{
-    "@type":"Organization",
-    "name":"SapanaCyberHub",
-    "logo":{
-      "@type":"ImageObject",
-      "url":"https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp"
-    }
-  }
-}
-</script>
-
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Cyber Security India — SapanaCyberHub","description":"India's trusted cyber safety hub. Phone protection, scam alerts, fraud prevention in Hindi & English.","url":"https://sapanacyberhub.in/cyber-safety/","inLanguage":["en","hi"],"publisher":{"@type":"Organization","name":"SapanaCyberHub","logo":{"@type":"ImageObject","url":"https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp"}}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Inter,sans-serif;
-  background:#ffffff;
-  color:#111;
-  line-height:1.7;
-}
-.wrapper{max-width:1100px;margin:auto;padding:32px 18px 60px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#05080f;--surf:#080c18;--card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--red:#ef4444;--orange:#f97316;--blue:#38bdf8;--green:#22c55e;--purple:#a78bfa;--text:#e2e8f0;--muted:rgba(226,232,240,.46);--r:14px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);overflow-x:hidden}
+img{display:block;max-width:100%}
+a{text-decoration:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 45% at 0% 0%,rgba(239,68,68,.08) 0%,transparent 55%),radial-gradient(ellipse 50% 45% at 100% 30%,rgba(249,115,22,.06) 0%,transparent 50%),radial-gradient(ellipse 45% 50% at 50% 100%,rgba(56,189,248,.05) 0%,transparent 52%)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}
+.z1{position:relative;z-index:1}
+
+/* === LANGUAGE TOGGLE: CSS-driven, BOTH versions in DOM for SEO === */
+.hi{display:none !important}.en{display:block}.en-inline{display:inline}.hi-inline{display:none !important}
+html[data-lang="hi"] .en{display:none !important}
+html[data-lang="hi"] .hi{display:block !important}
+html[data-lang="hi"] .en-inline{display:none !important}
+html[data-lang="hi"] .hi-inline{display:inline !important}
+
+/* NAVBAR */
+.navbar{position:sticky;top:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:60px;background:rgba(5,8,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.logo{display:flex;flex-wrap: wrap; align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:.96rem;color:var(--text)}
+.logo img{height:25px}.logo .acc{color:var(--green)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.npill{color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 13px;border-radius:100px;font-size:.79rem;font-weight:500;transition:all .2s}
+.npill:hover{color:var(--green);border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.07)}
+.nhome{color:var(--muted);font-size:.8rem;transition:color .2s}.nhome:hover{color:var(--text)}
+
+/* LANG TOGGLE */
+.lang-toggle{display:flex;align-items:center;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:100px;padding:3px;cursor:pointer;user-select:none;flex-shrink:0}
+.lt-opt{padding:5px 13px;border-radius:100px;font-family:'Syne',sans-serif;font-size:.73rem;font-weight:700;letter-spacing:.04em;transition:all .2s;color:var(--muted)}
+.lt-opt.active{background:linear-gradient(135deg,var(--red),#dc2626);color:#fff;box-shadow:0 2px 10px rgba(239,68,68,.3)}
+
+/* BREADCRUMB */
+.breadcrumb{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:14px 5% 0;display:flex;align-items:center;gap:6px;font-size:.73rem;color:var(--muted);flex-wrap:wrap}
+.breadcrumb a{color:var(--muted);transition:color .2s}.breadcrumb a:hover{color:var(--text)}
+.breadcrumb .sep{opacity:.3}.breadcrumb .cur{color:var(--red);font-weight:600}
 
 /* HERO */
-.hero{
-  max-width:820px;
-  margin:0 auto 30px;
-}
-.hero h1{
-  font-size:2.3rem;
-  font-weight:700;
-  margin-bottom:12px;
-}
-.hero .subtitle{
-  font-size:1.05rem;
-  color:#333;
-}
-.hero .purpose{
-  font-size:0.95rem;
-  color:#555;
-  margin-top:10px;
-}
-.live-update{
-  background:#f4f7fa;
-  border-left:4px solid #0a66ff;
-  padding:10px 14px;
-  margin-top:16px;
-  font-size:0.9rem;
-}
+.hero{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 5% 32px}
+.hero-layout{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+@media(max-width:680px){.hero-layout{grid-template-columns:1fr}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.24);border-radius:100px;padding:4px 12px;font-size:.67rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--red);margin-bottom:13px}
+.hero-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--red);animation:dot 2s ease infinite}
+@keyframes dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.7)}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.65rem,4vw,2.6rem);font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:12px}
+.hero h1 .r{color:var(--red)}.hero h1 .g{color:var(--green)}.hero h1 .b{color:var(--blue)}
+.hero-desc{font-size:.91rem;line-height:1.72;color:var(--muted);margin-bottom:16px;max-width:530px}
+.hero-desc strong{color:var(--text);font-weight:500}
+.live-strip{display:inline-flex;align-items:center;gap:9px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.17);border-radius:9px;padding:8px 13px;font-size:.79rem;color:rgba(226,232,240,.6)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;animation:dot 2s ease infinite}
+.live-strip strong{color:var(--red)}
+.shield-graphic{display:flex;align-items:center;justify-content:center;width:120px;height:120px;background:radial-gradient(circle,rgba(239,68,68,.1) 0%,transparent 70%);border-radius:50%;position:relative;animation:shP 3s ease infinite;flex-shrink:0}
+@keyframes shP{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.1)}50%{box-shadow:0 0 0 20px rgba(239,68,68,.0)}}
+.shield-graphic .icon{font-size:4rem;line-height:1;filter:drop-shadow(0 0 12px rgba(239,68,68,.25))}
+.shield-ring{position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(239,68,68,.14);animation:rR 8s linear infinite}
+.shield-ring::before{content:'';position:absolute;width:6px;height:6px;background:var(--red);border-radius:50%;top:2px;left:50%;transform:translateX(-50%);box-shadow:0 0 5px var(--red)}
+@keyframes rR{to{transform:rotate(360deg)}}
+.hero-stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.hstat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 15px;text-align:center;flex:1;min-width:85px}
+.hstat-n{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:var(--red)}
+.hstat-l{font-size:.64rem;color:var(--muted);margin-top:2px}
 
-/* SECTION */
-.section-title{
-  margin:50px 0 16px;
-  font-size:1.6rem;
-  font-weight:600;
-}
+/* PAGE BODY: 2-col */
+.page-body{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 5% 60px;display:grid;grid-template-columns:1fr 295px;gap:20px;align-items:start}
+@media(max-width:860px){.page-body{grid-template-columns:1fr}}
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:22px;
-}
-.card{
-  border:1px solid #ddd;
-  padding:18px;
-  background:#fff;
-  transition:0.15s;
-}
-.card:hover{border-color:#000}
-.card img{
-  width:100%;
-  border-radius:12px;
-  margin-bottom:10px;
-}
-.card h3{
-  font-size:1.05rem;
-  margin-bottom:6px;
-}
-.card p{
-  font-size:0.9rem;
-  color:#444;
-}
-.card a{
-  display:inline-block;
-  margin-top:8px;
-  font-weight:500;
-  color:#0a66ff;
-  text-decoration:none;
-}
-.card a:hover{text-decoration:underline}
+/* SEC LABEL */
+.sec-label{font-family:'Syne',sans-serif;font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* VIRAL CARD */
+.viral-card{display:block;background:linear-gradient(135deg,rgba(239,68,68,.09),rgba(249,115,22,.06));border:1px solid rgba(239,68,68,.24);border-radius:16px;padding:17px;margin-bottom:20px;transition:border-color .22s,transform .22s}
+.viral-card:hover{border-color:rgba(239,68,68,.44);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.vc-top{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.vc-icon{font-size:2rem}
+.vc-badge{font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:100px;background:rgba(239,68,68,.14);color:var(--red);border:1px solid rgba(239,68,68,.26)}
+.viral-card h3{font-family:'Syne',sans-serif;font-size:.96rem;font-weight:800;line-height:1.3;color:var(--text);margin-bottom:7px}
+.viral-card p{font-size:.8rem;color:var(--muted);line-height:1.63;margin-bottom:11px}
+.viral-read{display:inline-flex;align-items:center;gap:5px;background:var(--red);color:#fff;padding:7px 15px;border-radius:100px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;transition:all .22s}
+.viral-read:hover{background:#dc2626;box-shadow:0 0 14px rgba(239,68,68,.38)}
+
+/* GUIDE CARD */
+.guide-card{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;margin-bottom:8px;transition:border-color .2s,transform .2s}
+.guide-card:hover{border-color:rgba(56,189,248,.27);transform:translateX(4px)}
+.guide-icon{font-size:1.45rem;flex-shrink:0;margin-top:2px}
+.guide-body h3{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:4px}
+.guide-body p{font-size:.77rem;color:var(--muted);line-height:1.58;margin-bottom:6px}
+.guide-link{font-size:.74rem;font-weight:700;color:var(--blue);transition:opacity .2s;display:inline-flex;align-items:center;gap:4px}
+.guide-link:hover{opacity:.75}
+.cat-badge{font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:100px;display:inline-block;margin-bottom:5px}
+.cb-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.22)}
+.cb-blue{background:rgba(56,189,248,.1);color:var(--blue);border:1px solid rgba(56,189,248,.2)}
+.cb-orange{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
+.cb-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+/* ACCORDION */
+.accord{margin-bottom:7px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--card)}
+.accord-btn{width:100%;display:flex;align-items:center;gap:10px;padding:13px 15px;background:transparent;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;color:var(--text);text-align:left;transition:background .2s}
+.accord-btn:hover{background:rgba(255,255,255,.03)}
+.accord-ico{font-size:1.05rem;flex-shrink:0}
+.accord-arrow{margin-left:auto;color:var(--muted);font-size:.72rem;transition:transform .28s;flex-shrink:0}
+.accord-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1),padding .3s;padding:0 15px}
+.accord.open .accord-body{max-height:500px;padding:0 15px 15px}
+.accord.open .accord-arrow{transform:rotate(180deg)}
+.accord.open{border-color:rgba(239,68,68,.24)}
+.accord-body p{font-size:.82rem;color:var(--muted);line-height:1.66;margin-bottom:9px}
+.accord-body p:last-child{margin-bottom:0}
+.accord-body strong{color:var(--text);font-weight:500}
+.accord-link{display:inline-flex;align-items:center;gap:4px;font-size:.76rem;font-weight:700;color:var(--blue);margin-top:6px;transition:gap .2s}
+.accord-link:hover{gap:7px}
+.dc{display:inline-block;font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:100px;margin-left:6px;vertical-align:middle}
+.dc-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.22)}
+.dc-orange{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:13px}
+.helpline-box{background:linear-gradient(135deg,rgba(239,68,68,.09),rgba(249,115,22,.06));border:1px solid rgba(239,68,68,.22);border-radius:16px;padding:18px}
+.helpline-num{font-family:'Syne',sans-serif;font-size:2.3rem;font-weight:800;color:var(--red);line-height:1;margin-bottom:5px}
+.helpline-box h3{font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;margin-bottom:4px}
+.helpline-box p{font-size:.77rem;color:var(--muted);line-height:1.6;margin-bottom:11px}
+.helpline-btn{display:flex;align-items:center;justify-content:center;gap:5px;background:var(--red);color:#fff;padding:8px;border-radius:10px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;transition:all .2s}
+.helpline-btn:hover{background:#dc2626;box-shadow:0 0 14px rgba(239,68,68,.32)}
+.checklist-box{background:var(--card);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:16px}
+.checklist-box h3{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.clist{list-style:none}
+.clist li{display:flex;align-items:flex-start;gap:8px;font-size:.77rem;color:var(--muted);line-height:1.55;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.clist li:last-child{border-bottom:none}
+.clist li::before{content:'✓';color:var(--green);font-weight:700;font-size:.73rem;flex-shrink:0;margin-top:2px}
+.qlinks-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.qlinks-box h3{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:11px}
+.qlink{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;border:1px solid transparent;font-size:.79rem;color:var(--muted);transition:all .2s;margin-bottom:4px}
+.qlink:last-child{margin-bottom:0}
+.qlink:hover{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text);transform:translateX(3px)}
+.qlink-i{font-size:.92rem;flex-shrink:0}.qlink-arr{margin-left:auto;color:rgba(255,255,255,.14);font-size:.63rem}
 
 /* FOOTER */
-.footer{
-  margin-top:60px;
-  padding-top:20px;
-  border-top:1px solid #ddd;
-  font-size:0.85rem;
-  color:#555;
-  max-width:720px;
-}
+footer{background:#080c18;border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:28px 5% 16px;position:relative;z-index:1}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-brand{display:flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem}
+.footer-brand img{height:20px}
+.flinks{display:flex;gap:13px;flex-wrap:wrap}
+.flinks a{font-size:.75rem;color:var(--muted);transition:color .2s}.flinks a:hover{color:var(--text)}
+.fcopy{max-width:1100px;margin:11px auto 0;padding-top:11px;border-top:1px solid var(--border);font-size:.7rem;color:rgba(226,232,240,.2);text-align:center}
+@media(max-width:640px){.navbar,.breadcrumb,.hero,.page-body{padding-left:14px;padding-right:14px}.nav-pills{display:none}.hero h1{font-size:1.6rem}.shield-graphic{width:90px;height:90px}.shield-graphic .icon{font-size:3rem}}
 </style>
 </head>
-
 <body>
-<main class="wrapper">
 
-<section class="hero">
-<h1>Cyber Security India — Stay Safe Online</h1>
-<p class="subtitle">
-Trusted cyber safety guides for Indian users. Phone protection, WhatsApp & UPI scam alerts, fraud prevention and account recovery — explained calmly.
-</p>
-<p class="purpose">
-This reference hub exists to reduce confusion and panic around online fraud, hacking and digital threats affecting everyday internet users in India.
-</p>
-<div class="live-update">
-<strong>Latest update:</strong>
-Scam patterns and phone safety alerts reviewed · December 2025
-</div>
+<nav class="navbar">
+  <a class="logo" href="https://sapanacyberhub.in">
+    <img src="/assets/SapanaCyberHub-Logo.webp" alt="SapanaCyberHub">
+    Sapana<span class="acc">CyberHub</span>
+  </a>
+  <div class="nav-right">
+    <a class="nhome" href="https://sapanacyberhub.in">← Home</a>
+    <div class="lang-toggle" id="lang-toggle" role="switch" aria-label="Toggle language Hindi/English" title="Switch Language / भाषा बदलो">
+      <div class="lt-opt active" id="lt-en">EN</div>
+      <div class="lt-opt" id="lt-hi">हि</div>
+    </div>
+    <a class="npill" href="https://sapanacyberhub.in/online-earning/">💰 Earn</a>
+  </div>
+</nav>
+
+<nav class="breadcrumb z1" aria-label="Breadcrumb">
+  <a href="https://sapanacyberhub.in">Home</a>
+  <span class="sep">›</span>
+  <span class="cur en-inline">🛡 Cyber Safety</span>
+  <span class="cur hi-inline">🛡 साइबर सुरक्षा</span>
+</nav>
+
+<section class="hero z1">
+  <div class="hero-layout">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="en-inline">India's Trusted Safety Hub</span>
+        <span class="hi-inline">भारत का भरोसेमंद Safety Hub</span>
+      </div>
+      <h1 class="en"><span class="r">Cyber Threats</span> — Stay<br><span class="g">Protected</span> with<br><span class="b">Verified Guides</span></h1>
+      <h1 class="hi"><span class="r">Cyber Fraud</span> से<br><span class="g">सुरक्षित</span> रहो —<br><span class="b">पूरी जानकारी</span> यहाँ है</h1>
+      <p class="hero-desc en">Phone protection, <strong>WhatsApp & UPI scam alerts</strong>, fraud prevention and account recovery — verified guides in Hindi &amp; English.</p>
+      <p class="hero-desc hi">Phone security, <strong>WhatsApp और UPI fraud alerts</strong>, account recovery — हिंदी और English में <strong>verified guides</strong> यहाँ पर।</p>
+      <div class="live-strip">
+        <div class="live-dot"></div>
+        <span><strong class="en-inline">Latest update:</strong><strong class="hi-inline">ताज़ा अपडेट:</strong><span class="en-inline"> Scam patterns reviewed · December 2025</span><span class="hi-inline"> Scam patterns reviewed · December 2025</span></span>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-n">₹11K Cr</div><div class="hstat-l">2024 Cyber Fraud</div></div>
+        <div class="hstat"><div class="hstat-n">1.8 Cr+</div><div class="hstat-l en-inline">Indians Affected</div><div class="hstat-l hi-inline">Indians प्रभावित</div></div>
+        <div class="hstat"><div class="hstat-n">1930</div><div class="hstat-l en-inline">Helpline No.</div><div class="hstat-l hi-inline">Helpline नंबर</div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center">
+      <div class="shield-graphic"><div class="shield-ring"></div><div class="icon">🛡</div></div>
+    </div>
+  </div>
 </section>
 
-<!-- FEATURED -->
-<h2 class="section-title">Featured Cyber Safety Guides</h2>
-<div class="grid">
-<div class="card">
-<img src="/assets/phone-security-cover.webp" alt="Phone security guide">
-<h3>Protect Your Phone From Hackers</h3>
-<p>21 proven methods to secure Android phones, remove spyware and stop background tracking.</p>
-<a href="/cyber-safety/protect-your-phone/">Read →</a>
+<div class="page-body">
+  <div>
+    <!-- VIRAL -->
+    <a class="viral-card" href="/cyber-safety/7-dangerous-apps-delete-now/">
+      <div class="vc-top"><div class="vc-icon">⚠️</div><span class="vc-badge">🔥 2.4M Views</span></div>
+      <h3 class="en">⚠️ Delete These 7 Apps NOW — They Are Silently Emptying Your Bank Account</h3>
+      <h3 class="hi">⚠️ इन 7 Apps को अभी Delete करो — ये Secretly आपका Bank Account खाली कर रहे हैं</h3>
+      <p class="en">CERT-In &amp; RBI have issued warnings. These apps steal your SMS, OTP and UPI PIN in the background. Is one on your phone?</p>
+      <p class="hi">CERT-In और RBI ने Warning जारी की है। ये Apps आपके SMS, OTP और UPI PIN चुराती हैं। क्या ये आपके Phone में भी हैं?</p>
+      <span class="viral-read"><span class="en-inline">Check Now →</span><span class="hi-inline">अभी Check करें →</span></span>
+    </a>
+
+    <!-- FEATURED GUIDES -->
+    <div class="sec-label en">📌 Featured Safety Guides</div>
+    <div class="sec-label hi">📌 मुख्य Safety Guides</div>
+
+    <a class="guide-card" href="/cyber-safety/protect-your-phone/">
+      <div class="guide-icon">📱</div>
+      <div class="guide-body">
+        <span class="cat-badge cb-blue">Phone Security</span>
+        <h3 class="en">Protect Your Phone From Hackers — 21 Proven Methods</h3>
+        <h3 class="hi">अपने Phone को Hackers से बचाओ — 21 Proven Methods</h3>
+        <p class="en">Secure Android, remove spyware and stop background tracking.</p>
+        <p class="hi">Android Secure करो, Spyware हटाओ और Background Tracking बंद करो।</p>
+        <span class="guide-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="guide-card" href="/cyber-safety/whatsapp-otp-scam/">
+      <div class="guide-icon">💬</div>
+      <div class="guide-body">
+        <span class="cat-badge cb-orange">WhatsApp Alert</span>
+        <h3 class="en">WhatsApp OTP Scam — How Accounts Get Hijacked</h3>
+        <h3 class="hi">WhatsApp OTP Scam — Account कैसे Hijack होता है</h3>
+        <p class="en">How scammers take over WhatsApp and exactly how to prevent it.</p>
+        <p class="hi">Scammers WhatsApp कैसे लेते हैं — पूरी जानकारी और बचाव।</p>
+        <span class="guide-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="guide-card" href="/cyber-safety/upi-fraud-prevention/">
+      <div class="guide-icon">💳</div>
+      <div class="guide-body">
+        <span class="cat-badge cb-red">UPI Fraud</span>
+        <h3 class="en">UPI Fraud Prevention — Fake Apps, QR Scams &amp; Auto-Debit</h3>
+        <h3 class="hi">UPI Fraud से बचाव — Fake Apps, QR Scam और Auto-Debit</h3>
+        <p class="en">Complete guide with prevention steps for every UPI scam type in India.</p>
+        <p class="hi">India के हर UPI Scam के लिए complete prevention guide।</p>
+        <span class="guide-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="guide-card" href="/cyber-safety/instagram-recovery/">
+      <div class="guide-icon">📷</div>
+      <div class="guide-body">
+        <span class="cat-badge cb-purple">Account Recovery</span>
+        <h3 class="en">Instagram Hacked? Full Recovery Guide 2025</h3>
+        <h3 class="hi">Instagram Hack हो गया? Complete Recovery Guide 2025</h3>
+        <p class="en">Recover your account and prevent future takeovers step-by-step.</p>
+        <p class="hi">Account वापस लो और भविष्य में Hack होने से रोको — step-by-step।</p>
+        <span class="guide-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <!-- SCAM ALERTS ACCORDION -->
+    <div class="sec-label en" style="margin-top:26px">🚨 Scam Alerts — Click to Expand</div>
+    <div class="sec-label hi" style="margin-top:26px">🚨 Scam Alerts — Click करके पढ़ो</div>
+
+    <div class="accord" id="ac1">
+      <button class="accord-btn" onclick="toggleAccord('ac1')">
+        <span class="accord-ico">📞</span>
+        <span class="en-inline">Fake Police / Bank Call — "Digital Arrest" Scam</span>
+        <span class="hi-inline">Fake Police / Bank Call — "Digital Arrest" Scam</span>
+        <span class="dc dc-red">🔴 Critical</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">Scammers pose as CBI, ED, Police or Bank officials on video call, claiming you're under "Digital Arrest". <strong>₹1,600 Cr lost in India in 2024.</strong> Real govt officials NEVER arrest over video call.</p>
+        <p class="hi">Scammers CBI, ED, Police या Bank Official बनकर Video Call करते हैं, कहते हैं कि आप "Digital Arrest" में हो। <strong>2024 में ₹1,600 Cr इसी scam से गए।</strong> Real सरकारी officials कभी Video Call पर Arrest नहीं करते।</p>
+        <a class="accord-link" href="/cyber-guides/fake-call-scam/"><span class="en-inline">How to Identify &amp; Report →</span><span class="hi-inline">कैसे पहचानें और Report करें →</span></a>
+      </div>
+    </div>
+
+    <div class="accord" id="ac2">
+      <button class="accord-btn" onclick="toggleAccord('ac2')">
+        <span class="accord-ico">💼</span>
+        <span class="en-inline">Online Job / Task Scam — WhatsApp Recruitment Fraud</span>
+        <span class="hi-inline">Online Job / Task Scam — WhatsApp Recruitment Fraud</span>
+        <span class="dc dc-red">🔴 Critical</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">Fake "Like YouTube videos and earn money" jobs. Pay small amounts first to build trust, then demand a large deposit and disappear. <strong>Thousands lose ₹50K–₹10L.</strong></p>
+        <p class="hi">Fake "YouTube Like करो पैसे कमाओ" jobs। पहले थोड़े पैसे देते हैं, फिर बड़ा Deposit मांगते हैं और गायब। <strong>हजारों लोग ₹50K–₹10L गंवा चुके हैं।</strong></p>
+        <a class="accord-link" href="/cyber-guides/job-scam/"><span class="en-inline">Full Scam Breakdown →</span><span class="hi-inline">पूरा Scam कैसे काम करता है →</span></a>
+      </div>
+    </div>
+
+    <div class="accord" id="ac3">
+      <button class="accord-btn" onclick="toggleAccord('ac3')">
+        <span class="accord-ico">📲</span>
+        <span class="en-inline">Illegal Loan App Blackmail — Contacts &amp; Photos Stolen</span>
+        <span class="hi-inline">Illegal Loan App Blackmail — Contacts और Photos चोरी</span>
+        <span class="dc dc-orange">🟠 High</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">These apps access your contacts and gallery then send morphed photos demanding repayment. <strong>Government has banned 200+ such apps</strong> but new ones keep appearing.</p>
+        <p class="hi">ये Apps सारे Contacts और Gallery का Access लेती हैं, फिर edited photos Contacts को भेजकर पैसे मांगती हैं। <strong>Government ने 200+ Apps Ban की हैं।</strong></p>
+        <a class="accord-link" href="/cyber-guides/loan-app-scam/"><span class="en-inline">Removal &amp; Complaint Guide →</span><span class="hi-inline">App हटाओ और Complaint करो →</span></a>
+      </div>
+    </div>
+
+    <div class="accord" id="ac4">
+      <button class="accord-btn" onclick="toggleAccord('ac4')">
+        <span class="accord-ico">📡</span>
+        <span class="en-inline">SIM Swap Fraud — Your Number in Someone Else's Phone</span>
+        <span class="hi-inline">SIM Swap Fraud — आपका Number किसी और के Phone में</span>
+        <span class="dc dc-red">🔴 Critical</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">Scammers convince your telecom to issue a new SIM with your number. All OTPs go to them. <strong>Bank accounts emptied within hours.</strong> If phone shows "No Service" suddenly — call your telecom immediately.</p>
+        <p class="hi">Scammers Telecom Provider को convince करके आपके Number की नई SIM लेते हैं। फिर सारे OTP उन्हें जाते हैं। <strong>घंटों में Bank Account खाली।</strong> Phone पर अचानक No Service आए तो तुरंत Telecom Call करो।</p>
+        <a class="accord-link" href="/cyber-guides/sim-swap-fraud/"><span class="en-inline">Prevention Guide →</span><span class="hi-inline">SIM Swap से बचाव →</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="helpline-box">
+      <div class="helpline-num">1930</div>
+      <h3 class="en">National Cyber Helpline</h3>
+      <h3 class="hi">National Cyber Helpline</h3>
+      <p class="en">Cyber fraud happened? Call <strong>1930</strong> immediately. 24×7 available. Faster you report, higher the chance of recovering money.</p>
+      <p class="hi">Cyber Fraud हो गया? तुरंत <strong>1930</strong> Dial करो। 24×7 Available। जल्दी Report करने पर पैसे वापस मिलने के Chance ज्यादा।</p>
+      <a class="helpline-btn" href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in →</a>
+    </div>
+
+    <div class="checklist-box">
+      <h3>✅ <span class="en-inline">Quick Safety Check</span><span class="hi-inline">Quick Safety Check</span></h3>
+      <ul class="clist">
+        <li class="en">Check SMS &amp; Camera permissions in Settings → Apps</li>
+        <li class="hi">Settings → Apps में SMS &amp; Camera Permission Check करो</li>
+        <li class="en">Keep Play Protect ON at all times</li>
+        <li class="hi">Play Protect हमेशा ON रखो</li>
+        <li class="en">App Lock on all UPI apps</li>
+        <li class="hi">UPI Apps पर App Lock लगाओ</li>
+        <li class="en">NEVER install APK files from outside Play Store</li>
+        <li class="hi">बाहर से APK कभी Install मत करो</li>
+        <li class="en">NEVER share OTP with anyone — ever</li>
+        <li class="hi">OTP कभी किसी को मत बताओ</li>
+        <li class="en">Save 1930 in contacts right now</li>
+        <li class="hi">1930 अभी Contacts में Save करो</li>
+      </ul>
+    </div>
+
+    <div class="qlinks-box">
+      <h3>🔗 <span class="en-inline">More Guides</span><span class="hi-inline">और Guides</span></h3>
+      <a class="qlink" href="/cyber-safety/spy-app-detection/"><span class="qlink-i">🕵️</span><span class="en-inline">Detect Spyware in Phone</span><span class="hi-inline">Phone में Spyware पकड़ो</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/cyber-safety/data-leak-check/"><span class="qlink-i">🔓</span><span class="en-inline">Check If Data Was Leaked</span><span class="hi-inline">Data Leak हुआ? Check करो</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/cyber-safety/password-security/"><span class="qlink-i">🔑</span><span class="en-inline">Strong Password Guide</span><span class="hi-inline">Strong Password कैसे बनाएं</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/cyber-safety/email-phishing/"><span class="qlink-i">📧</span><span class="en-inline">Spot Phishing Emails</span><span class="hi-inline">Phishing Email पहचानो</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="https://sapanacyberhub.in/online-earning/listen-enjoy-earn/"><span class="qlink-i">🎧</span><span class="en-inline">Listen &amp; Earn Platform</span><span class="hi-inline">Listen &amp; Earn Platform</span><span class="qlink-arr">›</span></a>
+    </div>
+  </div>
 </div>
 
-<div class="card">
-<img src="/assets/whatsapp-scam-cover.webp">
-<h3>WhatsApp OTP Scam Alert</h3>
-<p>How scammers take over WhatsApp accounts and exactly how you can prevent it.</p>
-<a href="/cyber-safety/whatsapp-otp-scam/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/upi-fraud-cover.webp">
-<h3>UPI Fraud Prevention Guide</h3>
-<p>Fake apps, QR scams and auto-debit fraud explained with prevention steps.</p>
-<a href="/cyber-safety/upi-fraud-prevention/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/instagram-hack-cover.webp">
-<h3>Instagram Hacked? Recovery Guide</h3>
-<p>Recover hacked Instagram accounts and prevent future takeovers.</p>
-<a href="/cyber-safety/instagram-recovery/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/spy-app-detection.webp">
-<h3>How to Detect Spyware in Phone</h3>
-<p>Hidden signs, codes and tools to find stalkerware and tracking apps.</p>
-<a href="/cyber-safety/spy-app-detection/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/data-breach.webp">
-<h3>Check If Your Data Was Leaked</h3>
-<p>Find if your email, phone or password was exposed in a data breach.</p>
-<a href="/cyber-safety/data-leak-check/">Read →</a>
-</div>
-</div>
-
-<!-- SCAM ALERTS -->
-<h2 class="section-title">Scam Alerts & Warnings</h2>
-<div class="grid">
-<div class="card">
-<img src="/assets/call-scam.webp">
-<h3>Fake Call Scams (Police / Bank)</h3>
-<p>How scammers fake officials and how to identify them instantly.</p>
-<a href="/cyber-guides/fake-call-scam/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/job-scam.webp">
-<h3>Online Job Scams in India</h3>
-<p>Fake recruiters, task scams and WhatsApp job frauds explained.</p>
-<a href="/cyber-guides/job-scam/">Read →</a>
-</div>
-
-<div class="card">
-<img src="/assets/loan-app-scam.webp">
-<h3>Loan App Blackmail Scam</h3>
-<p>Illegal loan apps stealing contacts & photos — full removal guide.</p>
-<a href="/cyber-guides/loan-app-scam/">Read →</a>
-</div>
-</div>
-
-<footer class="footer">
-SapanaCyberHub publishes verified cyber safety information.
-This page is updated responsibly to help users stay informed without fear or misinformation.
+<footer>
+  <div class="footer-inner">
+    <a class="footer-brand" href="https://sapanacyberhub.in"><img src="/assets/SapanaCyberHub-Logo.webp" alt="">SapanaCyberHub</a>
+    <div class="flinks">
+      <a href="/about-us.html">About</a>
+      <a href="/privacy&policy.html">Privacy</a>
+      <a href="/term.html">Terms</a>
+      <a href="/official/connect/index.html">Contact</a>
+    </div>
+  </div>
+  <p class="fcopy">© 2026 SapanaCyberHub · Verified cyber safety for Indian users · Learn · Earn · Stay Secure</p>
 </footer>
 
-</main>
+<script>
+// LANGUAGE TOGGLE — CSS-only show/hide, both versions stay in DOM for Google indexing
+const root=document.getElementById("html-root"),toggle=document.getElementById("lang-toggle"),optEN=document.getElementById("lt-en"),optHI=document.getElementById("lt-hi");
+let lang=localStorage.getItem("sch-lang")||"en";
+function applyLang(l){lang=l;root.setAttribute("data-lang",l);root.setAttribute("lang",l==="hi"?"hi":"en");optEN.classList.toggle("active",l==="en");optHI.classList.toggle("active",l==="hi");localStorage.setItem("sch-lang",l)}
+applyLang(lang);
+toggle.addEventListener("click",()=>applyLang(lang==="en"?"hi":"en"));
+
+// ACCORDION
+function toggleAccord(id){const el=document.getElementById(id),was=el.classList.contains("open");document.querySelectorAll(".accord.open").forEach(a=>a.classList.remove("open"));if(!was)el.classList.add("open")}
+</script>
 </body>
 </html>

@@ -1,703 +1,608 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SapanaCyberHub — Playlist Studio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp" type="image/webp">
+
+<title>Online Earning India — Real Methods, Apps & Work From Home 2025 | SapanaCyberHub</title>
+<meta name="description" content="India's trusted online earning hub. Real methods to make money online — freelancing, AI tools, earning apps, drop servicing & work from home guides. घर बैठे पैसे कमाने के असली तरीके।">
+<meta name="keywords" content="online earning india, make money online, earn money from home, earning apps 2025, freelancing india, AI tools earning, work from home, drop servicing, online paise kaise kamaye">
+<link rel="canonical" href="https://sapanacyberhub.in/online-earning/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="alternate" hreflang="en" href="https://sapanacyberhub.in/online-earning/">
+<link rel="alternate" hreflang="hi" href="https://sapanacyberhub.in/online-earning/">
+<link rel="alternate" hreflang="x-default" href="https://sapanacyberhub.in/online-earning/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Online Earning India — Real Methods to Make Money | SapanaCyberHub">
+<meta property="og:description" content="Verified online earning guides for Indians. Freelancing, AI tools, earning apps & work from home — explained in Hindi & English.">
+<meta property="og:image" content="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
+<meta property="og:url" content="https://sapanacyberhub.in/online-earning/">
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"CollectionPage",
+  "name":"Online Earning India — SapanaCyberHub",
+  "description":"India's trusted online earning hub. Real methods to make money online in Hindi & English.",
+  "url":"https://sapanacyberhub.in/online-earning/",
+  "inLanguage":["en","hi"],
+  "publisher":{"@type":"Organization","name":"SapanaCyberHub","logo":{"@type":"ImageObject","url":"https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp"}}
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg:      #0a0a0f;
-    --surface: #111118;
-    --card:    #16161f;
-    --border:  rgba(255,255,255,0.07);
-    --accent:  #ff6b35;
-    --accent2: #ffb347;
-    --green:   #39d98a;
-    --red:     #ff4d6d;
-    --yellow:  #ffd166;
-    --text:    #e8e8f0;
-    --muted:   rgba(232,232,240,0.4);
-    --mono:    'DM Mono', monospace;
-    --display: 'Syne', sans-serif;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --bg:#05080f;--surf:#080c18;--card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
+  --green:#22c55e;--blue:#38bdf8;--purple:#a78bfa;--yellow:#fbbf24;--pink:#f472b6;--orange:#f97316;
+  --text:#e2e8f0;--muted:rgba(226,232,240,.46);--r:14px;
+}
 
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: var(--display); min-height: 100vh; overflow-x: hidden;
-  }
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);overflow-x:hidden}
+img{display:block;max-width:100%}
+a{text-decoration:none}
 
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,107,53,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,107,53,0.03) 1px, transparent 1px);
-    background-size: 48px 48px; pointer-events: none; z-index: 0;
-  }
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 65% 50% at 5% 0%,   rgba(34,197,94,.1)  0%,transparent 55%),
+    radial-gradient(ellipse 50% 45% at 95% 25%,  rgba(251,191,36,.07) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 55% at 50% 100%, rgba(167,139,250,.06) 0%,transparent 52%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.2;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.z1{position:relative;z-index:1}
 
-  .orb { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
-  .orb-1 { width:500px; height:500px; background:rgba(255,107,53,0.08); top:-200px; right:-100px; }
-  .orb-2 { width:400px; height:400px; background:rgba(57,217,138,0.05); bottom:-150px; left:-100px; }
+/* ── LANGUAGE TOGGLE: CSS-driven, both versions stay in DOM for SEO ── */
+.hi{display:none !important}.en{display:block}.en-inline{display:inline}.hi-inline{display:none !important}
+html[data-lang="hi"] .en{display:none !important}
+html[data-lang="hi"] .hi{display:block !important}
+html[data-lang="hi"] .en-inline{display:none !important}
+html[data-lang="hi"] .hi-inline{display:inline !important}
 
-  .wrap { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:48px 24px 100px; }
+/* NAVBAR */
+.navbar{position:sticky;top:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:60px;background:rgba(5,8,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.logo{display:flex;flex-wrap: wrap; align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:.96rem;color:var(--text)}
+.logo img{height:25px}.logo .acc{color:var(--green)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.npill{color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 13px;border-radius:100px;font-size:.79rem;font-weight:500;transition:all .2s}
+.npill:hover{color:var(--green);border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.07)}
+.nhome{color:var(--muted);font-size:.8rem;transition:color .2s}.nhome:hover{color:var(--text)}
 
-  /* ── Header ── */
-  header {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:48px; padding-bottom:24px; border-bottom:1px solid var(--border);
-  }
-  .logo-block { display:flex; flex-direction:column; gap:2px; }
-  .logo-eyebrow { font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
-  .logo-title { font-size:22px; font-weight:800; letter-spacing:-.5px; background:linear-gradient(135deg,#fff 30%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .header-badge {
-    display:flex; align-items:center; gap:8px; background:rgba(57,217,138,0.08);
-    border:1px solid rgba(57,217,138,0.2); border-radius:100px; padding:6px 14px;
-    font-family:var(--mono); font-size:11px; color:var(--green);
-  }
-  .header-badge::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse-dot 2s ease-in-out infinite; }
-  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+/* LANG TOGGLE */
+.lang-toggle{display:flex;align-items:center;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:100px;padding:3px;cursor:pointer;user-select:none;flex-shrink:0}
+.lt-opt{padding:5px 13px;border-radius:100px;font-family:'Syne',sans-serif;font-size:.73rem;font-weight:700;letter-spacing:.04em;transition:all .2s;color:var(--muted)}
+.lt-opt.active{background:linear-gradient(135deg,var(--green),#16a34a);color:#000;box-shadow:0 2px 10px rgba(34,197,94,.3)}
 
-  .section-label { font-family:var(--mono); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+/* BREADCRUMB */
+.breadcrumb{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:14px 5% 0;display:flex;align-items:center;gap:6px;font-size:.73rem;color:var(--muted);flex-wrap:wrap}
+.breadcrumb a{color:var(--muted);transition:color .2s}.breadcrumb a:hover{color:var(--text)}
+.breadcrumb .sep{opacity:.3}.breadcrumb .cur{color:var(--green);font-weight:600}
 
-  /* ══ ADD ZONE ══════════════════════════════════════════════════════════ */
-  .add-zone {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:20px; overflow:hidden; margin-bottom:12px; position:relative;
-  }
-  .add-zone::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:.5;
-  }
+/* HERO */
+.hero{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 5% 32px}
+.hero-layout{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+@media(max-width:680px){.hero-layout{grid-template-columns:1fr}}
 
-  /* ── iframe player ── */
-  .player-wrap {
-    position:relative; width:100%; padding-top:56.25%; /* 16:9 */
-    background:#000; border-bottom:1px solid var(--border);
-  }
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.24);border-radius:100px;padding:4px 12px;font-size:.67rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green);margin-bottom:13px}
+.hero-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:dot 2s ease infinite}
+@keyframes dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.7)}}
 
-  .player-wrap iframe {
-    position:absolute; inset:0; width:100%; height:100%; border:none;
-    transition: opacity .25s;
-  }
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.65rem,4vw,2.7rem);font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:12px}
+.hero h1 .g{color:var(--green)}.hero h1 .y{color:var(--yellow)}.hero h1 .b{color:var(--blue)}
+.hero-desc{font-size:.91rem;line-height:1.72;color:var(--muted);margin-bottom:16px;max-width:530px}
+.hero-desc strong{color:var(--text);font-weight:500}
 
-  /* Placeholder over the iframe when no URL yet */
-  .player-placeholder {
-    position:absolute; inset:0; z-index:2;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-    background:var(--surface); pointer-events:none;
-    transition:opacity .3s;
-  }
-  .player-placeholder.gone { opacity:0; }
-  .ph-icon { font-size:40px; opacity:.35; }
-  .ph-text { font-family:var(--mono); font-size:12px; color:var(--muted); }
+.live-strip{display:inline-flex;align-items:center;gap:9px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.17);border-radius:9px;padding:8px 13px;font-size:.79rem;color:rgba(226,232,240,.6)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:dot 2s ease infinite}
+.live-strip strong{color:var(--green)}
 
-  /* ── confirm bar below player ── */
-  .confirm-bar {
-    display:none; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border);
-  }
-  .confirm-bar.visible { display:flex; }
+/* hero money graphic */
+.money-graphic{display:flex;align-items:center;justify-content:center;width:120px;height:120px;background:radial-gradient(circle,rgba(34,197,94,.1) 0%,transparent 70%);border-radius:50%;position:relative;animation:mgP 3s ease infinite;flex-shrink:0}
+@keyframes mgP{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.1)}50%{box-shadow:0 0 0 20px rgba(34,197,94,.0)}}
+.money-graphic .icon{font-size:4rem;line-height:1;filter:drop-shadow(0 0 12px rgba(34,197,94,.3))}
+.money-ring{position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(34,197,94,.14);animation:rR 8s linear infinite}
+.money-ring::before{content:'₹';position:absolute;font-size:.75rem;font-weight:800;color:var(--green);top:1px;left:50%;transform:translateX(-50%);font-family:'Syne',sans-serif}
+@keyframes rR{to{transform:rotate(360deg)}}
 
-  .confirm-question {
-    font-family:var(--mono); font-size:12px; color:var(--text);
-    display:flex; align-items:center; gap:8px;
-  }
-  .confirm-question::before { content:'👁'; font-size:14px; }
+/* stats */
+.hero-stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.hstat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 15px;text-align:center;flex:1;min-width:85px}
+.hstat-n{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:var(--green)}
+.hstat-l{font-size:.64rem;color:var(--muted);margin-top:2px}
 
-  .confirm-actions { display:flex; gap:8px; }
+/* PAGE BODY 2-col */
+.page-body{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 5% 60px;display:grid;grid-template-columns:1fr 295px;gap:20px;align-items:start}
+@media(max-width:860px){.page-body{grid-template-columns:1fr}}
 
-  .btn-yes {
-    height:34px; padding:0 18px; background:var(--green); color:#000;
-    font-family:var(--display); font-size:12px; font-weight:800;
-    border:none; border-radius:8px; cursor:pointer;
-    transition:transform .1s, box-shadow .2s;
-  }
-  .btn-yes:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(57,217,138,.4); }
+/* SEC LABEL */
+.sec-label{font-family:'Syne',sans-serif;font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  .btn-no {
-    height:34px; padding:0 18px; background:transparent;
-    border:1px solid rgba(255,77,109,.4); color:var(--red);
-    font-family:var(--display); font-size:12px; font-weight:700;
-    border-radius:8px; cursor:pointer; transition:background .15s;
-  }
-  .btn-no:hover { background:rgba(255,77,109,.1); }
+/* CAT BADGES */
+.cat-badge{font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:100px;display:inline-block;margin-bottom:5px}
+.cb-green {background:rgba(34,197,94,.1);  color:var(--green); border:1px solid rgba(34,197,94,.2)}
+.cb-blue  {background:rgba(56,189,248,.1); color:var(--blue);  border:1px solid rgba(56,189,248,.2)}
+.cb-yellow{background:rgba(251,191,36,.1); color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+.cb-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.cb-pink  {background:rgba(244,114,182,.1);color:var(--pink);  border:1px solid rgba(244,114,182,.2)}
+.cb-orange{background:rgba(249,115,22,.1); color:var(--orange);border:1px solid rgba(249,115,22,.2)}
 
-  /* ── meta strip ── */
-  .meta-strip {
-    display:none; align-items:center; gap:12px;
-    padding:12px 20px; border-bottom:1px solid var(--border);
-    animation:slide-in .25s ease;
-  }
-  .meta-strip.visible { display:flex; }
-  @keyframes slide-in { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-  .ms-thumb { width:64px; height:42px; border-radius:8px; object-fit:cover; background:#222; flex-shrink:0; border:1px solid var(--border); }
-  .ms-info { flex:1; min-width:0; }
-  .ms-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
-  .ms-id { font-family:var(--mono); font-size:11px; color:var(--accent); }
+/* FEATURED / LISTEN CARD */
+.featured-card{
+  display:block;
+  background:linear-gradient(135deg,#071510,#060d0a);
+  border:1px solid rgba(34,197,94,.25);border-radius:18px;
+  overflow:hidden;margin-bottom:20px;
+  position:relative;transition:transform .25s,box-shadow .25s;
+  box-shadow:0 0 24px rgba(34,197,94,.07);
+}
+.featured-card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(34,197,94,.14),0 0 0 1px rgba(34,197,94,.28)}
+.featured-card::before{
+  content:'';position:absolute;inset:-1px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(34,197,94,.28),transparent 45%,rgba(56,189,248,.15));
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:destination-out;mask-composite:exclude;pointer-events:none;
+}
+.featured-card::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(34,197,94,.12);filter:blur(55px);top:-40px;right:-30px;pointer-events:none}
+.fc-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-bottom:1px solid rgba(34,197,94,.14);position:relative;z-index:1}
+.fc-body{padding:16px 18px 18px;position:relative;z-index:1}
+.fc-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.28);border-radius:100px;padding:3px 10px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--green);margin-bottom:9px}
+.fc-body h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:6px}
+.fc-body p{font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:12px}
+.fc-cta{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:9px 16px;border-radius:100px;font-size:.81rem;font-weight:700;transition:all .22s}
+.fc-cta:hover{box-shadow:0 0 18px rgba(34,197,94,.42);transform:translateY(-1px)}
 
-  /* ── input row ── */
-  .input-area { padding:20px 24px; }
-  .input-row { display:flex; gap:12px; align-items:stretch; }
-  .url-input-wrap { flex:1; position:relative; }
-  .url-input-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:15px; pointer-events:none; }
-  .url-input {
-    width:100%; height:52px; background:var(--surface); border:1px solid var(--border);
-    border-radius:12px; color:var(--text); font-family:var(--mono); font-size:13px;
-    padding:0 16px 0 44px; outline:none; transition:border-color .2s, box-shadow .2s;
-  }
-  .url-input::placeholder { color:var(--muted); }
-  .url-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,107,53,.12); }
+/* METHOD CARD */
+.method-card{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;margin-bottom:8px;transition:border-color .2s,transform .2s}
+.method-card:hover{border-color:rgba(34,197,94,.28);transform:translateX(4px)}
+.method-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.method-body h3{font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:4px}
+.method-body p{font-size:.78rem;color:var(--muted);line-height:1.58;margin-bottom:6px}
+.method-link{font-size:.74rem;font-weight:700;color:var(--green);transition:opacity .2s;display:inline-flex;align-items:center;gap:4px}
+.method-link:hover{opacity:.75}
+.earn-chip{display:inline-flex;align-items:center;gap:4px;font-size:.63rem;font-weight:700;color:var(--yellow);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:100px;padding:2px 8px;margin-left:6px}
 
-  /* ── Bulk section ── */
-  .bulk-section { padding:0 24px 20px; border-top:1px solid var(--border); padding-top:16px; }
-  .bulk-toggle {
-    display:flex; align-items:center; gap:8px; background:none;
-    border:1px solid var(--border); color:var(--muted); font-family:var(--mono);
-    font-size:11px; letter-spacing:1px; text-transform:uppercase;
-    padding:8px 16px; border-radius:8px; cursor:pointer; transition:color .2s, border-color .2s;
-  }
-  .bulk-toggle:hover { color:var(--text); border-color:rgba(255,255,255,.2); }
-  .bulk-toggle svg { transition:transform .25s; }
-  .bulk-toggle.open svg { transform:rotate(180deg); }
-  .bulk-panel { display:none; margin-top:14px; }
-  .bulk-panel.open { display:block; animation:slide-in .2s ease; }
-  .bulk-textarea {
-    width:100%; height:120px; background:var(--surface); border:1px solid var(--border);
-    border-radius:12px; color:var(--text); font-family:var(--mono); font-size:12px;
-    padding:14px 16px; resize:vertical; outline:none; transition:border-color .2s; line-height:1.7;
-  }
-  .bulk-textarea::placeholder { color:var(--muted); }
-  .bulk-textarea:focus { border-color:var(--accent); }
-  .bulk-hint { font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:8px; line-height:1.6; }
-  .btn-bulk-add {
-    margin-top:12px; height:44px; padding:0 24px; background:transparent;
-    border:1px solid var(--accent); color:var(--accent); font-family:var(--display);
-    font-size:12px; font-weight:700; border-radius:10px; cursor:pointer;
-    transition:background .2s, color .2s; display:flex; align-items:center; gap:8px;
-  }
-  .btn-bulk-add:hover:not(:disabled) { background:var(--accent); color:#fff; }
-  .btn-bulk-add:disabled { opacity:.5; cursor:not-allowed; }
-  .bulk-progress { margin-top:12px; display:none; }
-  .bulk-progress.visible { display:block; }
-  .bulk-prog-bar-wrap { height:4px; background:rgba(255,255,255,.07); border-radius:4px; overflow:hidden; margin-bottom:6px; }
-  .bulk-prog-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:4px; transition:width .3s; width:0%; }
-  .bulk-prog-text { font-family:var(--mono); font-size:10px; color:var(--muted); }
+/* ACCORDION */
+.accord{margin-bottom:7px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--card)}
+.accord-btn{width:100%;display:flex;align-items:center;gap:10px;padding:13px 15px;background:transparent;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;color:var(--text);text-align:left;transition:background .2s}
+.accord-btn:hover{background:rgba(255,255,255,.03)}
+.accord-ico{font-size:1.1rem;flex-shrink:0}
+.accord-arrow{margin-left:auto;color:var(--muted);font-size:.72rem;transition:transform .28s;flex-shrink:0}
+.accord-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1),padding .3s;padding:0 15px}
+.accord.open .accord-body{max-height:600px;padding:0 15px 15px}
+.accord.open .accord-arrow{transform:rotate(180deg)}
+.accord.open{border-color:rgba(34,197,94,.24)}
+.accord-body p{font-size:.82rem;color:var(--muted);line-height:1.66;margin-bottom:9px}
+.accord-body p:last-child{margin-bottom:0}
+.accord-body strong{color:var(--text);font-weight:500}
+.accord-link{display:inline-flex;align-items:center;gap:4px;font-size:.76rem;font-weight:700;color:var(--green);margin-top:6px;transition:gap .2s}
+.accord-link:hover{gap:7px}
+.earn-tag{display:inline-block;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:100px;margin-left:6px;vertical-align:middle}
+.et-high  {background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.22)}
+.et-medium{background:rgba(251,191,36,.1);color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+.et-easy  {background:rgba(56,189,248,.1); color:var(--blue);  border:1px solid rgba(56,189,248,.2)}
 
-  /* ── Divider ── */
-  .divider { display:flex; align-items:center; gap:16px; margin:32px 0 20px; }
-  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
-  .divider span { font-family:var(--mono); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+/* WARNING — SCAM ALERT */
+.scam-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);border-left:4px solid #ef4444;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-family:'Outfit',sans-serif}
+.scam-box-title{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ef4444;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.scam-box p{font-size:.83rem;color:var(--muted);line-height:1.65;margin:0}
+.scam-box strong{color:var(--text)}
 
-  /* ── Stats ── */
-  .stats-bar { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
-  .stat-chip { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-family:var(--mono); font-size:11px; color:var(--muted); }
-  .stat-chip strong { color:var(--text); font-size:13px; }
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:13px}
 
-  /* ── Song list ── */
-  .song-list { display:flex; flex-direction:column; gap:8px; }
-  .song-item {
-    display:flex; align-items:center; gap:14px;
-    background:var(--card); border:1px solid var(--border);
-    border-radius:14px; padding:12px 16px;
-    transition:border-color .2s, transform .2s;
-    animation:item-in .3s ease both;
-  }
-  .song-item:hover { transform:translateX(3px); border-color:rgba(255,107,53,.25); }
-  .song-item.removing { animation:item-out .3s ease forwards; }
-  @keyframes item-in  { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes item-out { to{opacity:0;transform:translateX(12px);max-height:0;padding:0;margin:0;border-width:0} }
+/* listen earn sidebar card */
+.listen-sidebar{background:linear-gradient(135deg,#071510,#060c0a);border:1px solid rgba(34,197,94,.22);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 0 20px rgba(34,197,94,.06)}
+.listen-sidebar::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(34,197,94,.1);filter:blur(45px);top:-30px;right:-20px;pointer-events:none}
+.listen-sidebar img{width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid rgba(34,197,94,.14)}
+.listen-sidebar-body{padding:14px 16px;position:relative;z-index:1}
+.ls-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.28);border-radius:100px;padding:3px 10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--green);margin-bottom:8px}
+.listen-sidebar-body h3{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:5px;color:var(--text)}
+.listen-sidebar-body p{font-size:.76rem;color:var(--muted);line-height:1.55;margin-bottom:11px}
+.ls-btn{display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:9px;border-radius:10px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;transition:all .2s}
+.ls-btn:hover{box-shadow:0 0 16px rgba(34,197,94,.38);transform:translateY(-1px)}
 
-  .song-num { font-family:var(--mono); font-size:11px; color:var(--muted); width:24px; flex-shrink:0; text-align:right; }
-  .song-thumb { width:64px; height:42px; border-radius:8px; object-fit:cover; background:#1a1a24; flex-shrink:0; border:1px solid var(--border); }
-  .song-meta { flex:1; min-width:0; }
-  .song-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
-  .song-id-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .song-vid-id { font-family:var(--mono); font-size:11px; color:var(--accent); background:rgba(255,107,53,.08); border:1px solid rgba(255,107,53,.15); border-radius:5px; padding:2px 7px; }
-  .song-status { font-family:var(--mono); font-size:10px; }
-  .song-status.saved   { color:var(--green); }
-  .song-status.pending { color:var(--yellow); }
+/* income estimator box */
+.estimator-box{background:var(--card);border:1px solid rgba(251,191,36,.2);border-radius:16px;padding:16px}
+.estimator-box h3{font-family:'Syne',sans-serif;font-size:.84rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;color:var(--yellow)}
+.est-select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-family:'Outfit',sans-serif;font-size:.82rem;color:var(--text);outline:none;cursor:pointer;margin-bottom:9px;transition:border-color .2s}
+.est-select:focus{border-color:rgba(251,191,36,.4)}
+.est-select option{background:#050810}
+.est-result{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:11px 13px;text-align:center}
+.est-amount{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--green);line-height:1}
+.est-label{font-size:.7rem;color:var(--muted);margin-top:3px}
+.est-note{font-size:.7rem;color:rgba(226,232,240,.3);margin-top:8px;text-align:center;line-height:1.5}
 
-  .song-actions { display:flex; gap:6px; flex-shrink:0; }
-  .btn-icon { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; transition:background .2s, color .2s, border-color .2s; }
-  .btn-icon:hover       { background:rgba(255,77,109,.1); color:var(--red); border-color:rgba(255,77,109,.3); }
-  .btn-icon.play:hover  { background:rgba(57,217,138,.1); color:var(--green); border-color:rgba(57,217,138,.3); }
+/* quick links */
+.qlinks-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.qlinks-box h3{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:11px}
+.qlink{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;border:1px solid transparent;font-size:.79rem;color:var(--muted);transition:all .2s;margin-bottom:4px}
+.qlink:last-child{margin-bottom:0}
+.qlink:hover{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text);transform:translateX(3px)}
+.qlink-i{font-size:.92rem;flex-shrink:0}.qlink-arr{margin-left:auto;color:rgba(255,255,255,.14);font-size:.63rem}
 
-  /* ── Empty state ── */
-  .empty-state { text-align:center; padding:56px 24px; border:1px dashed var(--border); border-radius:16px; }
-  .empty-icon  { font-size:42px; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-  .empty-title { font-size:16px; font-weight:700; margin-bottom:6px; }
-  .empty-sub   { font-size:13px; color:var(--muted); font-family:var(--mono); }
+/* FOOTER */
+footer{background:#080c18;border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:28px 5% 16px;position:relative;z-index:1}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-brand{display:flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem}
+.footer-brand img{height:20px}
+.flinks{display:flex;gap:13px;flex-wrap:wrap}
+.flinks a{font-size:.75rem;color:var(--muted);transition:color .2s}.flinks a:hover{color:var(--text)}
+.fcopy{max-width:1100px;margin:11px auto 0;padding-top:11px;border-top:1px solid var(--border);font-size:.7rem;color:rgba(226,232,240,.2);text-align:center}
 
-  /* ── Save footer ── */
-  .save-footer {
-    position:fixed; bottom:0; left:0; right:0; z-index:100;
-    background:rgba(10,10,15,.93); backdrop-filter:blur(20px);
-    border-top:1px solid var(--border); padding:16px 24px;
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-  }
-  .save-footer.visible { transform:translateY(0); }
-  .save-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
-  .save-count strong { color:var(--text); }
-  .save-actions { display:flex; gap:10px; }
-  .btn-clear { height:44px; padding:0 20px; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:12px; font-weight:600; border-radius:10px; cursor:pointer; transition:color .2s, border-color .2s; }
-  .btn-clear:hover { color:var(--red); border-color:var(--red); }
-  .btn-save {
-    height:44px; padding:0 28px; background:linear-gradient(135deg,var(--accent),var(--accent2));
-    color:#fff; border:none; font-family:var(--display); font-size:13px; font-weight:700;
-    border-radius:10px; cursor:pointer; transition:transform .15s, box-shadow .2s;
-    display:flex; align-items:center; gap:8px;
-  }
-  .btn-save:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,107,53,.4); }
-  .btn-save:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-  .btn-save .spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
-  .btn-save.loading .spinner { display:block; }
-  .btn-save.loading .btn-save-text { display:none; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-
-  /* ── Toast ── */
-  .toast-rack { position:fixed; top:24px; right:24px; display:flex; flex-direction:column; gap:8px; z-index:9999; }
-  .toast { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 18px; display:flex; align-items:center; gap:10px; font-size:13px; min-width:220px; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,.4); animation:toast-in .3s cubic-bezier(.34,1.56,.64,1); }
-  .toast.success { border-color:rgba(57,217,138,.3); }
-  .toast.error   { border-color:rgba(255,77,109,.3); }
-  .toast.info    { border-color:rgba(255,107,53,.3); }
-  @keyframes toast-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
-
-  ::-webkit-scrollbar { width:6px; }
-  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:3px; }
-
-  @media (max-width:600px) {
-    .input-row { flex-direction:column; }
-    header { flex-direction:column; align-items:flex-start; gap:12px; }
-    .input-area,.bulk-section { padding-left:16px; padding-right:16px; }
-    .confirm-bar { flex-direction:column; align-items:flex-start; }
-  }
+@media(max-width:640px){
+  .navbar,.breadcrumb,.hero,.page-body{padding-left:14px;padding-right:14px}
+  .nav-pills{display:none}
+  .hero h1{font-size:1.6rem}
+  .money-graphic{width:90px;height:90px}.money-graphic .icon{font-size:3rem}
+}
 </style>
 </head>
 <body>
 
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="toast-rack" id="toastRack"></div>
-
-<div class="wrap">
-
-  <header>
-    <div class="logo-block">
-      <span class="logo-eyebrow">SapanaCyberHub</span>
-      <span class="logo-title">Playlist Studio</span>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="logo" href="https://sapanacyberhub.in">
+    <img src="/assets/SapanaCyberHub-Logo.webp" alt="SapanaCyberHub">
+    Sapana<span class="acc">CyberHub</span>
+  </a>
+  <div class="nav-right">
+    <a class="nhome" href="https://sapanacyberhub.in">← Home</a>
+    <div class="lang-toggle" id="lang-toggle" role="switch" aria-label="Toggle language Hindi/English" title="Switch Language / भाषा बदलो">
+      <div class="lt-opt active" id="lt-en">EN</div>
+      <div class="lt-opt" id="lt-hi">हि</div>
     </div>
-    <div class="header-badge" id="authBadge">Connecting…</div>
-  </header>
+    <a class="npill" href="https://sapanacyberhub.in/cyber-safety/">🛡 Safety</a>
+  </div>
+</nav>
 
-  <p class="section-label">Add Song</p>
+<!-- BREADCRUMB -->
+<nav class="breadcrumb z1" aria-label="Breadcrumb">
+  <a href="https://sapanacyberhub.in">Home</a>
+  <span class="sep">›</span>
+  <span class="cur en-inline">💰 Online Earning</span>
+  <span class="cur hi-inline">💰 Online Earning</span>
+</nav>
 
-  <div class="add-zone">
-
-    <!-- ── Instant iframe preview ── -->
-    <div class="player-wrap">
-      <iframe id="ytFrame" src="about:blank" allowfullscreen
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-      </iframe>
-      <div class="player-placeholder" id="placeholder">
-        <div class="ph-icon">🎬</div>
-        <div class="ph-text">Paste a YouTube URL below — video loads instantly</div>
+<!-- HERO -->
+<section class="hero z1">
+  <div class="hero-layout">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="en-inline">India's Verified Earning Hub</span>
+        <span class="hi-inline">भारत का Verified Earning Hub</span>
       </div>
-    </div>
 
-    <!-- ── "Can you see it playing?" bar ── -->
-    <div class="confirm-bar" id="confirmBar">
-      <span class="confirm-question">Can the video be seen and played above?</span>
-      <div class="confirm-actions">
-        <button class="btn-yes" id="btnYes">✓ Yes — Add Song</button>
-        <button class="btn-no"  id="btnNo">✕ No — Skip</button>
+      <h1 class="en"><span class="g">Real Money</span> Online —<br><span class="y">No Scams</span>,<br>Only <span class="b">Verified Methods</span></h1>
+      <h1 class="hi"><span class="g">सच्ची Earning</span> Online —<br><span class="y">कोई Scam नहीं</span>,<br>सिर्फ <span class="b">Verified तरीके</span></h1>
+
+      <p class="hero-desc en">Freelancing, AI tools, earning apps, drop servicing and work from home — <strong>all real methods explained simply</strong> with income ranges, time required and how to start today.</p>
+      <p class="hero-desc hi">Freelancing, AI tools, earning apps, drop servicing और work from home — <strong>सभी असली तरीके सरल भाषा में</strong>, income range, time लगेगा और आज कैसे शुरू करें — सब कुछ यहाँ।</p>
+
+      <div class="live-strip">
+        <div class="live-dot"></div>
+        <span>
+          <strong class="en-inline">Latest update:</strong>
+          <strong class="hi-inline">ताज़ा अपडेट:</strong>
+          <span class="en-inline"> Methods & income data reviewed · January 2026</span>
+          <span class="hi-inline"> Methods & income data reviewed · January 2026</span>
+        </span>
       </div>
-    </div>
 
-    <!-- ── Video meta ── -->
-    <div class="meta-strip" id="metaStrip">
-      <img class="ms-thumb" id="msThumb" src="" alt="">
-      <div class="ms-info">
-        <div class="ms-title" id="msTitle">—</div>
-        <div class="ms-id"   id="msId"></div>
-      </div>
-    </div>
-
-    <!-- ── URL input ── -->
-    <div class="input-area">
-      <div class="input-row">
-        <div class="url-input-wrap">
-          <input id="urlInput" class="url-input" type="text"
-            placeholder="Paste YouTube URL or Video ID…"
-            autocomplete="off" spellcheck="false"/>
-          <span class="url-input-icon">⌕</span>
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-n">₹15K+</div>
+          <div class="hstat-l en-inline">Avg beginner/month</div>
+          <div class="hstat-l hi-inline">Beginner monthly avg</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-n">47 Cr</div>
+          <div class="hstat-l en-inline">Indians work online</div>
+          <div class="hstat-l hi-inline">Indians online work</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-n">0 ₹</div>
+          <div class="hstat-l en-inline">Investment needed</div>
+          <div class="hstat-l hi-inline">Investment जरूरी</div>
         </div>
       </div>
     </div>
 
-    <!-- ── Bulk ── -->
-    <div class="bulk-section">
-      <button class="bulk-toggle" id="bulkToggle">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Bulk Upload
+    <div style="display:flex;justify-content:center;align-items:center">
+      <div class="money-graphic">
+        <div class="money-ring"></div>
+        <div class="icon">💰</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+  <!-- LEFT COLUMN -->
+  <div>
+
+    <!-- LISTEN & EARN FEATURED -->
+    <a class="featured-card" href="https://sapanacyberhub.in/online-earning/listen-enjoy-earn/">
+      <img class="fc-thumb"
+        src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen.png"
+        alt="SapanaCyberHub X Listen & Earn"
+        loading="eager">
+      <div class="fc-body">
+        <div class="fc-badge">🎧 Most Popular · 1 Lakh+ Vibers</div>
+        <h3 class="en">SapanaCyberHub × Listen — Earn Real Cash by Listening to Music</h3>
+        <h3 class="hi">SapanaCyberHub × Listen — Music सुनो और Real Cash Earn करो</h3>
+        <p class="en">Join daily events, top the leaderboard and win real cash rewards. Zero investment. Works on any phone. 1 Lakh+ vibers already earning daily.</p>
+        <p class="hi">Daily Events Join करो, Leaderboard पर Top आओ और Real Cash जीतो। Zero Investment। किसी भी Phone पर। 1 Lakh+ Vibers पहले से Daily Earn कर रहे हैं।</p>
+        <span class="fc-cta">🎵 <span class="en-inline">Start Earning Free →</span><span class="hi-inline">Free में Join करो →</span></span>
+      </div>
+    </a>
+
+    <!-- SCAM WARNING -->
+    <div class="scam-box">
+      <div class="scam-box-title">🚨 <span class="en-inline">Scam Warning — Read Before Starting</span><span class="hi-inline">Scam Warning — शुरू करने से पहले पढ़ो</span></div>
+      <p class="en"><strong>"Easy ₹5,000/day" jobs on Telegram/WhatsApp are 99% scams.</strong> Legit earning takes consistent effort. If someone asks for a deposit to "activate your account" — it's a fraud. All methods on this page are <strong>zero-investment, verified</strong> by our team.</p>
+      <p class="hi"><strong>Telegram/WhatsApp पर "Easy ₹5,000/day" jobs 99% Scam हैं।</strong> सच्ची Earning में consistent effort लगती है। अगर कोई "account activate" करने के लिए Deposit मांगे — वो Fraud है। इस Page के सभी Methods <strong>zero-investment और verified</strong> हैं।</p>
+    </div>
+
+    <!-- TOP METHODS -->
+    <div class="sec-label en">💼 Top Earning Methods — Verified</div>
+    <div class="sec-label hi">💼 Top Earning Methods — Verified</div>
+
+    <a class="method-card" href="/online-earning/freelancing-india/">
+      <div class="method-icon">🖥️</div>
+      <div class="method-body">
+        <span class="cat-badge cb-blue">Freelancing</span>
+        <span class="earn-chip">₹20K–₹2L/month</span>
+        <h3 class="en">Freelancing in India — Complete Beginner's Guide 2025</h3>
+        <h3 class="hi">India में Freelancing — Complete Beginner's Guide 2025</h3>
+        <p class="en">Logo design, content writing, video editing, web development — Fiverr and Upwork step-by-step from zero.</p>
+        <p class="hi">Logo Design, Content Writing, Video Editing, Web Dev — Fiverr और Upwork पर Zero से शुरुआत कैसे करें।</p>
+        <span class="method-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="method-card" href="/online-earning/ai-tools-earning/">
+      <div class="method-icon">🤖</div>
+      <div class="method-body">
+        <span class="cat-badge cb-purple">AI Tools</span>
+        <span class="earn-chip">₹15K–₹80K/month</span>
+        <h3 class="en">Earn Money With AI Tools — ChatGPT, Midjourney & More</h3>
+        <h3 class="hi">AI Tools से पैसे कमाओ — ChatGPT, Midjourney और भी</h3>
+        <p class="en">Create AI content, sell AI images, build AI-powered services — no coding needed, starting income within days.</p>
+        <p class="hi">AI Content बनाओ, AI Images बेचो, AI-powered Services दो — Coding नहीं चाहिए, कुछ दिनों में Income शुरू।</p>
+        <span class="method-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="method-card" href="/online-earning/drop-servicing/">
+      <div class="method-icon">🔁</div>
+      <div class="method-body">
+        <span class="cat-badge cb-yellow">Drop Servicing</span>
+        <span class="earn-chip">₹30K–₹3L/month</span>
+        <h3 class="en">Drop Servicing — Earn Without Doing the Work Yourself</h3>
+        <h3 class="hi">Drop Servicing — खुद काम किए बिना Earn करो</h3>
+        <p class="en">Sell services to clients, outsource to freelancers, keep the profit. India's fastest growing online business model.</p>
+        <p class="hi">Clients को Services Sell करो, Freelancers को Outsource करो, Profit रखो। India का fastest growing online business।</p>
+        <span class="method-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="method-card" href="/online-earning/youtube-earning/">
+      <div class="method-icon">▶️</div>
+      <div class="method-body">
+        <span class="cat-badge cb-orange">YouTube</span>
+        <span class="earn-chip">₹10K–₹5L/month</span>
+        <h3 class="en">YouTube Earning in India — Complete 2025 Monetisation Guide</h3>
+        <h3 class="hi">YouTube से Earning — Complete 2025 Monetisation Guide</h3>
+        <p class="en">Channel niche selection, shorts strategy, AdSense + sponsorship — real income timelines from Indian creators.</p>
+        <p class="hi">Channel Niche, Shorts Strategy, AdSense + Sponsorship — Indian Creators की real income timelines के साथ।</p>
+        <span class="method-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <a class="method-card" href="/online-earning/earning-apps/">
+      <div class="method-icon">📱</div>
+      <div class="method-body">
+        <span class="cat-badge cb-green">Earning Apps</span>
+        <span class="earn-chip">₹500–₹5K/month</span>
+        <h3 class="en">Real Earning Apps in India 2025 — Verified & Safe</h3>
+        <h3 class="hi">Real Earning Apps 2025 — Verified और Safe</h3>
+        <p class="en">Survey apps, cashback apps, micro-task platforms — all verified and currently paying Indian users.</p>
+        <p class="hi">Survey Apps, Cashback Apps, Micro-task Platforms — सभी Verified और अभी Indian Users को Pay कर रहे हैं।</p>
+        <span class="method-link"><span class="en-inline">Read Guide →</span><span class="hi-inline">Guide पढ़ो →</span></span>
+      </div>
+    </a>
+
+    <!-- ACCORDION — More Methods -->
+    <div class="sec-label en" style="margin-top:26px">🔽 More Methods — Click to Expand</div>
+    <div class="sec-label hi" style="margin-top:26px">🔽 और Methods — Click करके पढ़ो</div>
+
+    <div class="accord" id="ac1">
+      <button class="accord-btn" onclick="toggleAccord('ac1')">
+        <span class="accord-ico">✍️</span>
+        <span class="en-inline">Content Writing & Blogging</span>
+        <span class="hi-inline">Content Writing & Blogging</span>
+        <span class="earn-tag et-high">₹8K–₹60K</span>
+        <span class="accord-arrow">▼</span>
       </button>
-      <div class="bulk-panel" id="bulkPanel">
-        <textarea class="bulk-textarea" id="bulkInput"
-          placeholder="One URL or video ID per line:&#10;https://youtube.com/watch?v=dQw4w9WgXcQ&#10;dQw4w9WgXcQ"></textarea>
-        <p class="bulk-hint">Uses oEmbed to quickly filter deleted / embedding-disabled videos.</p>
-        <button class="btn-bulk-add" id="btnBulkAdd">
-          <span id="bulkBtnTxt">Add All Valid</span>
-        </button>
-        <div class="bulk-progress" id="bulkProgress">
-          <div class="bulk-prog-bar-wrap"><div class="bulk-prog-bar" id="bulkProgBar"></div></div>
-          <div class="bulk-prog-text" id="bulkProgText"></div>
-        </div>
+      <div class="accord-body">
+        <p class="en">Write articles for Indian and international blogs. Platforms like iWriter, Textbroker and direct client work pay ₹1–₹5 per word. <strong>Blogging in a profitable niche can earn ₹1L+/month through AdSense and affiliate marketing</strong> — but takes 6–12 months to build traffic.</p>
+        <p class="hi">Indian और International Blogs के लिए Articles लिखो। iWriter, Textbroker और Direct Clients ₹1–₹5 per word pay करते हैं। <strong>Profitable niche में Blogging से AdSense और Affiliate Marketing से ₹1L+/month हो सकता है</strong> — पर traffic build करने में 6–12 महीने लगते हैं।</p>
+        <a class="accord-link" href="/online-earning/content-writing/"><span class="en-inline">Content Writing Guide →</span><span class="hi-inline">Content Writing Guide →</span></a>
       </div>
     </div>
-  </div>
 
-  <div class="divider"><span>Playlist</span></div>
+    <div class="accord" id="ac2">
+      <button class="accord-btn" onclick="toggleAccord('ac2')">
+        <span class="accord-ico">📸</span>
+        <span class="en-inline">Instagram & Social Media Monetisation</span>
+        <span class="hi-inline">Instagram & Social Media से Earning</span>
+        <span class="earn-tag et-medium">₹5K–₹2L</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">Brand collaborations, affiliate links, digital product sales, paid promotions. <strong>You don't need millions of followers</strong> — micro-influencers (10K–50K) in India earn ₹5K–₹50K per month through brand deals in niche categories like food, finance, tech and fitness.</p>
+        <p class="hi">Brand Collaborations, Affiliate Links, Digital Products, Paid Promotions। <strong>Millions of followers की जरूरत नहीं</strong> — India में Micro-influencers (10K–50K) Niche categories जैसे food, finance, tech, fitness में ₹5K–₹50K/month Brand Deals से कमाते हैं।</p>
+        <a class="accord-link" href="/online-earning/instagram-earning/"><span class="en-inline">Social Media Earning Guide →</span><span class="hi-inline">Social Media Earning Guide →</span></a>
+      </div>
+    </div>
 
-  <div class="stats-bar">
-    <div class="stat-chip"><strong id="statTotal">0</strong>&nbsp;songs</div>
-    <div class="stat-chip"><strong id="statSaved">0</strong>&nbsp;saved</div>
-    <div class="stat-chip"><strong id="statPending">0</strong>&nbsp;pending</div>
-  </div>
+    <div class="accord" id="ac3">
+      <button class="accord-btn" onclick="toggleAccord('ac3')">
+        <span class="accord-ico">📦</span>
+        <span class="en-inline">Reselling & E-Commerce (Meesho, Amazon)</span>
+        <span class="hi-inline">Reselling & E-Commerce (Meesho, Amazon)</span>
+        <span class="earn-tag et-easy">₹5K–₹50K</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">List products on Meesho, Glowroad or Amazon without holding inventory (dropshipping model). <strong>Start with ₹0 investment using Meesho's catalog.</strong> Top resellers earn ₹30K–₹50K/month working 3–4 hours daily from home.</p>
+        <p class="hi">Meesho, Glowroad या Amazon पर Products List करो — Inventory रखने की जरूरत नहीं (Dropshipping Model)। <strong>Meesho के Catalog से ₹0 Investment में शुरुआत।</strong> Top Resellers घर से रोज 3–4 घंटे काम करके ₹30K–₹50K/month कमाते हैं।</p>
+        <a class="accord-link" href="/online-earning/reselling/"><span class="en-inline">Reselling Guide →</span><span class="hi-inline">Reselling Guide →</span></a>
+      </div>
+    </div>
 
-  <div class="song-list" id="songList">
-    <div class="empty-state">
-      <div class="empty-icon">🎵</div>
-      <div class="empty-title">No songs yet</div>
-      <div class="empty-sub">Paste a YouTube URL above to get started</div>
+    <div class="accord" id="ac4">
+      <button class="accord-btn" onclick="toggleAccord('ac4')">
+        <span class="accord-ico">🎓</span>
+        <span class="en-inline">Online Teaching & Tutoring</span>
+        <span class="hi-inline">Online Teaching & Tutoring</span>
+        <span class="earn-tag et-high">₹10K–₹1.5L</span>
+        <span class="accord-arrow">▼</span>
+      </button>
+      <div class="accord-body">
+        <p class="en">Teach on Vedantu, Unacademy or Chegg Tutors. If you have strong subject knowledge, <strong>Class 10–12 tutors earn ₹200–₹800 per hour.</strong> Creating and selling courses on Teachable or Udemy can generate passive income that pays for years.</p>
+        <p class="hi">Vedantu, Unacademy या Chegg Tutors पर पढ़ाओ। अगर Subject Knowledge अच्छी है, <strong>Class 10–12 Tutors ₹200–₹800 per hour earn करते हैं।</strong> Teachable या Udemy पर Course बनाकर बेचने से Years तक Passive Income आती है।</p>
+        <a class="accord-link" href="/online-earning/online-teaching/"><span class="en-inline">Online Teaching Guide →</span><span class="hi-inline">Online Teaching Guide →</span></a>
+      </div>
+    </div>
+
+  </div><!-- /left col -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Listen & Earn -->
+    <a class="listen-sidebar" href="https://sapanacyberhub.in/online-earning/listen-enjoy-earn/">
+      <img src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png" alt="SapanaCyberHub X Listen">
+      <div class="listen-sidebar-body">
+        <div class="ls-badge">🎧 Earn While Listening</div>
+        <h3 class="en">SapanaCyberHub × Listen</h3>
+        <h3 class="hi">SapanaCyberHub × Listen</h3>
+        <p class="en">Daily events, real cash rewards, zero investment. 1L+ vibers already earning.</p>
+        <p class="hi">Daily Events, Real Cash, Zero Investment। 1L+ Vibers पहले से Earn कर रहे हैं।</p>
+        <span class="ls-btn">🎵 <span class="en-inline">Join Free Now</span><span class="hi-inline">अभी Join करो</span></span>
+      </div>
+    </a>
+
+    <!-- Income Estimator -->
+    <div class="estimator-box">
+      <h3>💡 <span class="en-inline">Income Estimator</span><span class="hi-inline">Income Estimator</span></h3>
+      <select class="est-select" id="method-select" onchange="updateEstimate()">
+        <option value="" disabled selected class="en-inline">Select a method…</option>
+        <option value="freelancing">Freelancing</option>
+        <option value="ai">AI Tools</option>
+        <option value="youtube">YouTube</option>
+        <option value="dropservicing">Drop Servicing</option>
+        <option value="apps">Earning Apps</option>
+        <option value="blogging">Blogging</option>
+        <option value="reselling">Reselling</option>
+        <option value="teaching">Online Teaching</option>
+        <option value="listen">Listen &amp; Earn 🎧</option>
+      </select>
+      <select class="est-select" id="time-select" onchange="updateEstimate()">
+        <option value="" disabled selected><span class="en-inline">Hours per day…</span></option>
+        <option value="1">1 hour/day</option>
+        <option value="2">2 hours/day</option>
+        <option value="4">4 hours/day</option>
+        <option value="8">8 hours/day (full-time)</option>
+      </select>
+      <div class="est-result" id="est-result">
+        <div class="est-amount" id="est-amount">₹ —</div>
+        <div class="est-label en-inline" id="est-label">Select method and hours</div>
+        <div class="est-label hi-inline" id="est-label-hi">Method और hours select करो</div>
+      </div>
+      <p class="est-note en-inline">Estimates based on verified Indian earner data. Actual results vary with skill &amp; consistency.</p>
+      <p class="est-note hi-inline">Estimates verified Indian earner data पर based हैं। Actual results skill और consistency पर depend करते हैं।</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="qlinks-box">
+      <h3>🔗 <span class="en-inline">Quick Links</span><span class="hi-inline">Quick Links</span></h3>
+      <a class="qlink" href="/online-earning/freelancing-india/"><span class="qlink-i">🖥️</span><span class="en-inline">Freelancing Guide</span><span class="hi-inline">Freelancing Guide</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/online-earning/ai-tools-earning/"><span class="qlink-i">🤖</span><span class="en-inline">AI Tools Earning</span><span class="hi-inline">AI Tools से Earning</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/online-earning/earning-apps/"><span class="qlink-i">📱</span><span class="en-inline">Safe Earning Apps</span><span class="hi-inline">Safe Earning Apps</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="/online-earning/drop-servicing/"><span class="qlink-i">🔁</span><span class="en-inline">Drop Servicing</span><span class="hi-inline">Drop Servicing</span><span class="qlink-arr">›</span></a>
+      <a class="qlink" href="https://sapanacyberhub.in/cyber-safety/"><span class="qlink-i">🛡</span><span class="en-inline">Avoid Online Scams</span><span class="hi-inline">Online Scams से बचो</span><span class="qlink-arr">›</span></a>
+    </div>
+
+  </div><!-- /sidebar -->
+
+</div><!-- /page-body -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a class="footer-brand" href="https://sapanacyberhub.in">
+      <img src="/assets/SapanaCyberHub-Logo.webp" alt="">SapanaCyberHub
+    </a>
+    <div class="flinks">
+      <a href="/about-us.html">About</a>
+      <a href="/privacy&policy.html">Privacy</a>
+      <a href="/term.html">Terms</a>
+      <a href="/official/connect/index.html">Contact</a>
+      <a href="https://sapanacyberhub.in/cyber-safety/">Cyber Safety</a>
     </div>
   </div>
-</div>
+  <p class="fcopy">© 2026 SapanaCyberHub · Verified earning guides for Indian users · Learn · Earn · Stay Secure</p>
+</footer>
 
-<!-- Save Footer -->
-<div class="save-footer" id="saveFooter">
-  <div class="save-count"><strong id="pendingCount">0</strong> unsaved song(s) ready to save</div>
-  <div class="save-actions">
-    <button class="btn-clear" id="btnClearPending">Discard</button>
-    <button class="btn-save" id="btnSave">
-      <div class="spinner"></div>
-      <span class="btn-save-text">Save to Firebase</span>
-    </button>
-  </div>
-</div>
+<script>
+// ── LANGUAGE TOGGLE ─────────────────────────────────────────────────────────
+const root=document.getElementById("html-root"),toggle=document.getElementById("lang-toggle"),optEN=document.getElementById("lt-en"),optHI=document.getElementById("lt-hi");
+let lang=localStorage.getItem("sch-lang")||"en";
+function applyLang(l){lang=l;root.setAttribute("data-lang",l);root.setAttribute("lang",l==="hi"?"hi":"en");optEN.classList.toggle("active",l==="en");optHI.classList.toggle("active",l==="hi");localStorage.setItem("sch-lang",l)}
+applyLang(lang);
+toggle.addEventListener("click",()=>applyLang(lang==="en"?"hi":"en"));
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, getDocs, doc, deleteDoc,
-  query, orderBy, serverTimestamp, writeBatch
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// ── ACCORDION ────────────────────────────────────────────────────────────────
+function toggleAccord(id){const el=document.getElementById(id),was=el.classList.contains("open");document.querySelectorAll(".accord.open").forEach(a=>a.classList.remove("open"));if(!was)el.classList.add("open")}
 
-const app = initializeApp({
-  apiKey:            "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-  authDomain:        "sapanacyberhub-26310.firebaseapp.com",
-  projectId:         "sapanacyberhub-26310",
-  storageBucket:     "sapanacyberhub-26310.firebasestorage.app",
-  messagingSenderId: "448116453690",
-  appId:             "1:448116453690:web:01a91dd284b715bf0a2003"
-});
-const auth = getAuth(app);
-const db   = getFirestore(app);
-const PLAYLIST_COL = () => collection(db, "SapanaCyberHub", "Listen", "SapanaVibe");
-
-// ── State ────────────────────────────────────────────────────────────────
-let songs        = [];
-let currentId    = null;
-let currentTitle = "";
-const REDIRECT_URL = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
-
-
-// ── DOM ──────────────────────────────────────────────────────────────────
-const ytFrame        = document.getElementById("ytFrame");
-const placeholder    = document.getElementById("placeholder");
-const confirmBar     = document.getElementById("confirmBar");
-const metaStrip      = document.getElementById("metaStrip");
-const msThumb        = document.getElementById("msThumb");
-const msTitle        = document.getElementById("msTitle");
-const msId           = document.getElementById("msId");
-const urlInput       = document.getElementById("urlInput");
-const btnYes         = document.getElementById("btnYes");
-const btnNo          = document.getElementById("btnNo");
-const bulkToggle     = document.getElementById("bulkToggle");
-const bulkPanel      = document.getElementById("bulkPanel");
-const bulkInput      = document.getElementById("bulkInput");
-const btnBulkAdd     = document.getElementById("btnBulkAdd");
-const bulkProgress   = document.getElementById("bulkProgress");
-const bulkProgBar    = document.getElementById("bulkProgBar");
-const bulkProgText   = document.getElementById("bulkProgText");
-const songList       = document.getElementById("songList");
-const saveFooter     = document.getElementById("saveFooter");
-const btnSave        = document.getElementById("btnSave");
-const btnClearPending= document.getElementById("btnClearPending");
-const authBadge      = document.getElementById("authBadge");
-const statTotal      = document.getElementById("statTotal");
-const statSaved      = document.getElementById("statSaved");
-const statPending    = document.getElementById("statPending");
-const pendingCount   = document.getElementById("pendingCount");
-
-// ── Auth ─────────────────────────────────────────────────────────────────
-onAuthStateChanged(auth, user => {
-  if (user) {
-    authBadge.textContent = user.displayName || user.email?.split("@")[0] || "Admin";
-    Object.assign(authBadge.style, { background:"rgba(57,217,138,0.08)", borderColor:"rgba(57,217,138,0.25)", color:"#39d98a" });
-    loadFromFirestore();
-  } else {
-    authBadge.textContent = "Not signed in";
-    Object.assign(authBadge.style, { background:"rgba(255,77,109,0.08)", borderColor:"rgba(255,77,109,0.25)", color:"#ff4d6d" });
-    toast("Sign in to save songs to Firebase", "error");
-    window.location.href = REDIRECT_URL;
-  }
-});
-
-async function loadFromFirestore() {
-  try {
-    const snap = await getDocs(query(PLAYLIST_COL(), orderBy("createdAt","desc")));
-    snap.forEach(d => {
-      const data = d.data();
-      if (!songs.some(s => s.youtubeId === data.youtubeId))
-        songs.push({ youtubeId: data.youtubeId, title: data.title || data.youtubeId, status:"saved", docId: d.id });
-    });
-    render();
-    toast(`Loaded ${snap.size} songs`, "success");
-  } catch (err) { toast("Load failed — " + err.message, "error"); }
+// ── INCOME ESTIMATOR ─────────────────────────────────────────────────────────
+const rates = {
+  freelancing:   { 1:8000,  2:18000, 4:40000, 8:100000 },
+  ai:            { 1:6000,  2:15000, 4:35000, 8:80000  },
+  youtube:       { 1:1000,  2:3000,  4:10000, 8:40000  },
+  dropservicing: { 1:10000, 2:25000, 4:60000, 8:150000 },
+  apps:          { 1:800,   2:1800,  4:3500,  8:5000   },
+  blogging:      { 1:500,   2:2000,  4:8000,  8:30000  },
+  reselling:     { 1:3000,  2:8000,  4:20000, 8:50000  },
+  teaching:      { 1:5000,  2:12000, 4:30000, 8:80000  },
+  listen:        { 1:500,   2:1200,  4:2500,  8:5000   },
+};
+function updateEstimate(){
+  const m=document.getElementById("method-select").value;
+  const t=document.getElementById("time-select").value;
+  const amountEl=document.getElementById("est-amount");
+  const labelEl =document.getElementById("est-label");
+  if(!m||!t){amountEl.textContent="₹ —";return}
+  const v=rates[m]?.[t]||0;
+  amountEl.textContent="₹"+v.toLocaleString("en-IN");
+  labelEl.textContent="estimated / month";
 }
-
-// ── URL extractor ─────────────────────────────────────────────────────────
-function extractId(raw) {
-  const s = (raw || "").trim();
-  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
-  try {
-    const u = new URL(s), host = u.hostname.replace("www.","");
-    if (host === "youtube.com") {
-      if (u.searchParams.get("v"))           return u.searchParams.get("v");
-      if (u.pathname.startsWith("/shorts/")) return u.pathname.split("/")[2];
-      if (u.pathname.startsWith("/live/"))   return u.pathname.split("/")[2];
-      if (u.pathname.startsWith("/embed/"))  return u.pathname.split("/")[2];
-    }
-    if (host === "youtu.be") return u.pathname.slice(1).split("?")[0];
-  } catch {}
-  return null;
-}
-
-// ── Load video into visible iframe (instant — no API, just src) ───────────
-function loadPreview(id) {
-  currentId    = id;
-  currentTitle = "";
-
-  // Set src directly — browser loads it immediately, no JS overhead
-  ytFrame.src = `https://www.youtube.com/embed/${id}?autoplay=0&rel=0&modestbranding=1`;
-
-  placeholder.classList.add("gone");
-  confirmBar.classList.add("visible");
-  metaStrip.classList.remove("visible");
-
-  // Fetch title in the background (non-blocking)
-  fetchTitle(id).then(title => {
-    currentTitle = title;
-    msThumb.src  = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
-    msTitle.textContent = title;
-    msId.textContent    = id;
-    metaStrip.classList.add("visible");
-  });
-}
-
-function resetPlayer() {
-  ytFrame.src  = "about:blank";
-  currentId    = null;
-  currentTitle = "";
-  placeholder.classList.remove("gone");
-  confirmBar.classList.remove("visible");
-  metaStrip.classList.remove("visible");
-}
-
-// ── Title fetch ───────────────────────────────────────────────────────────
-async function fetchTitle(id) {
-  try {
-    const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-    if (!r.ok) return id;
-    return ((await r.json()).title || id) + "";
-  } catch { return id + ""; }
-}
-
-// ── Input → instant iframe load ───────────────────────────────────────────
-let _deb;
-urlInput.addEventListener("input", () => {
-  clearTimeout(_deb);
-  const id = extractId(urlInput.value);
-  if (!id) { resetPlayer(); return; }
-  // 300ms debounce so we don't reload on every keystroke
-  _deb = setTimeout(() => {
-    if (songs.some(s => s.youtubeId === id)) {
-      toast("Already in playlist", "info"); return;
-    }
-    loadPreview(id);
-  }, 300);
-});
-
-urlInput.addEventListener("keydown", e => { if (e.key === "Escape") { urlInput.value = ""; resetPlayer(); } });
-
-// ── Yes / No buttons ──────────────────────────────────────────────────────
-btnYes.addEventListener("click", () => {
-  if (!currentId) return;
-  const title = (currentTitle && currentTitle !== currentId) ? currentTitle : currentId;
-  if (songs.some(s => s.youtubeId === currentId)) { toast("Already in playlist","info"); return; }
-
-  songs.unshift({ youtubeId: currentId, title, status: "pending" });
-  urlInput.value = "";
-  resetPlayer();
-  render();
-  toast(`Added: ${title}`, "success");
-});
-
-btnNo.addEventListener("click", () => {
-  toast("Skipped — video can't play in embed", "error");
-  urlInput.value = "";
-  resetPlayer();
-});
-
-// ── Bulk toggle ───────────────────────────────────────────────────────────
-bulkToggle.addEventListener("click", () => {
-  bulkToggle.classList.toggle("open");
-  bulkPanel.classList.toggle("open");
-});
-
-// ── Bulk add (oEmbed filter — fast for batches) ───────────────────────────
-btnBulkAdd.addEventListener("click", async () => {
-  const lines  = bulkInput.value.split("\n").map(l => l.trim()).filter(Boolean);
-  if (!lines.length) { toast("Paste some URLs first","info"); return; }
-
-  const ids    = [...new Set(lines.map(extractId).filter(Boolean))];
-  const newIds = ids.filter(id => !songs.some(s => s.youtubeId === id));
-  if (!newIds.length) { toast("All entries already in playlist or invalid","info"); return; }
-
-  btnBulkAdd.disabled = true;
-  document.getElementById("bulkBtnTxt").textContent = "Checking…";
-  bulkProgress.classList.add("visible");
-  bulkProgBar.style.width = "0%";
-
-  let added = 0, skipped = 0;
-  for (let i = 0; i < newIds.length; i++) {
-    const id = newIds[i];
-    bulkProgText.textContent = `${i+1} / ${newIds.length} — ${id}`;
-    bulkProgBar.style.width  = Math.round(((i+1)/newIds.length)*100) + "%";
-    try {
-      const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-      if (!r.ok) { skipped++; continue; }
-      const title = ((await r.json()).title || id) + "";
-      songs.unshift({ youtubeId: id, title, status: "pending" });
-      added++;
-    } catch { skipped++; }
-  }
-
-  bulkInput.value = "";
-  btnBulkAdd.disabled = false;
-  document.getElementById("bulkBtnTxt").textContent = "Add All Valid";
-  bulkProgress.classList.remove("visible");
-  render();
-  toast(`Added ${added} songs${skipped ? ` — skipped ${skipped}` : ""}`, added ? "success" : "error");
-});
-
-// ── Delete ────────────────────────────────────────────────────────────────
-async function deleteSong(idx) {
-  const song = songs[idx];
-  if (!song) return;
-  const el = songList.querySelectorAll(".song-item")[idx];
-  if (el) el.classList.add("removing");
-
-  if (song.status === "saved" && song.docId) {
-    try { await deleteDoc(doc(db, "SapanaCyberHub","Listen","Playlist", song.docId)); }
-    catch (err) { toast("Delete failed — "+err.message,"error"); if(el) el.classList.remove("removing"); return; }
-  }
-  toast(`Removed: ${song.title}`,"info");
-  setTimeout(() => { songs.splice(idx,1); render(); }, 280);
-}
-
-// ── Save ──────────────────────────────────────────────────────────────────
-btnSave.addEventListener("click", async () => {
-  const pending = songs.filter(s => s.status === "pending");
-  if (!pending.length) return;
-  if (!auth.currentUser) { toast("Please sign in to save","error"); return; }
-
-  btnSave.classList.add("loading"); btnSave.disabled = true;
-  try {
-    const batch = writeBatch(db);
-    pending.forEach(song => {
-      const safeTitle = (song.title && song.title.trim()) ? song.title.trim() : song.youtubeId;
-      const ref       = doc(PLAYLIST_COL());
-      batch.set(ref, { youtubeId:song.youtubeId, title:safeTitle, createdAt:serverTimestamp(), addedBy:auth.currentUser.uid });
-      song.title = safeTitle; song.docId = ref.id; song.status = "saved";
-    });
-    await batch.commit();
-    render();
-    toast(`Saved ${pending.length} song${pending.length>1?"s":""} 🎉`,"success");
-  } catch (err) { toast("Save failed — "+err.message,"error"); }
-  finally { btnSave.classList.remove("loading"); btnSave.disabled = false; }
-});
-
-btnClearPending.addEventListener("click", () => {
-  songs = songs.filter(s => s.status !== "pending");
-  render(); toast("Pending discarded","info");
-});
-
-// ── Render ────────────────────────────────────────────────────────────────
-function render() {
-  const tot = songs.length, sav = songs.filter(s=>s.status==="saved").length, pen = songs.filter(s=>s.status==="pending").length;
-  statTotal.textContent = tot; statSaved.textContent = sav; statPending.textContent = pen;
-  pendingCount.textContent = pen;
-  saveFooter.classList.toggle("visible", pen > 0);
-
-  if (!tot) {
-    songList.innerHTML = `<div class="empty-state"><div class="empty-icon">🎵</div><div class="empty-title">No songs yet</div><div class="empty-sub">Paste a YouTube URL above to get started</div></div>`;
-    return;
-  }
-  songList.innerHTML = "";
-  songs.forEach((song, i) => {
-    const el = document.createElement("div");
-    el.className = "song-item";
-    el.style.animationDelay = `${Math.min(i*25,250)}ms`;
-    el.innerHTML = `
-      <span class="song-num">${i+1}</span>
-      <img class="song-thumb" src="https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg" alt="" loading="lazy">
-      <div class="song-meta">
-        <div class="song-title">${esc(song.title)}</div>
-        <div class="song-id-row">
-          <span class="song-vid-id">${song.youtubeId}</span>
-          <span class="song-status ${song.status}">${song.status==="saved"?"✓ saved":"⏳ pending"}</span>
-        </div>
-      </div>
-      <div class="song-actions">
-        <button class="btn-icon play" data-idx="${i}" title="Open on YouTube">▶</button>
-        <button class="btn-icon"      data-del="${i}" title="Remove">✕</button>
-      </div>`;
-    songList.appendChild(el);
-  });
-  songList.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => deleteSong(+b.dataset.del)));
-  songList.querySelectorAll("[data-idx]").forEach(b => b.addEventListener("click", () => window.open(`https://youtube.com/watch?v=${songs[+b.dataset.idx]?.youtubeId}`,"_blank")));
-}
-
-function esc(s="") { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
-function toast(msg, type="info") {
-  const rack=document.getElementById("toastRack"), icons={success:"✅",error:"❌",info:"ℹ️"};
-  const t=document.createElement("div"); t.className=`toast ${type}`;
-  t.innerHTML=`<span>${icons[type]||"ℹ️"}</span><span>${msg}</span>`;
-  rack.appendChild(t);
-  setTimeout(()=>{ t.style.cssText+=";opacity:0;transition:opacity .3s"; setTimeout(()=>t.remove(),320); },4000);
-}
-
-render();
 </script>
+
 </body>
 </html>

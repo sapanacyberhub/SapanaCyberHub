@@ -11,8 +11,7 @@
   <!-- Favicon -->
   <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp" type="image/webp">
   <link rel="stylesheet" href="listen.css">
-  <script type="module" src="listen.js" defer></script>
-
+  <script type="module" src="./listen.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </head>
 
@@ -22,24 +21,22 @@
   <div class="container">
 
     <!-- 1️⃣ NAVBAR -->
-    <header class="nav">
+     <header class="nav">
       <div class="brand">
         <div class="brand-logo">
           <img
             src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png"
-            alt="sapanacyberhub X Listen" loading="eager">
+            alt="SapanaCyberHub X Listen" loading="eager">
         </div>
         <div class="brand-text">
-          <small class="domain">SapanaCyberHub </small>
-          <strong>X </strong>
-          <small class="sub-dom">Listen
+          <span class="domain">SapanaCyberHub</span>
+          <strong>× Listen</strong>
         </div>
       </div>
-
-      <!-- user name or ther earning -->
+ 
       <div class="user-wallet">
-        <a id="user_earning" href="./wallet/index.html"><strong>₹</span>0</a>
-        <a id="user_name" href="#"></a>
+        <a id="user_earning" href="/online-earning/listen-enjoy-earn/profile/index.html">₹0</a>
+        <a id="user_name" href="#">Log In</a>
       </div>
     </header>
 
@@ -64,7 +61,7 @@
             <div class="hero-visual-inner">
               <img class="floating-girl" id="floatingGirl" src="/assets/logo/listen_avatar.png"
                 alt="Futuristic girl listening to music in neon environment" loading="lazy">
-              
+
               <div class="audio-ring" id="audio-ring">
                 <div class="eq-bars" id="audio-ring">
                   <span></span><span></span><span></span><span></span><span></span>
@@ -84,11 +81,7 @@
 
               <div class="player-frame not-joined">
                 <!-- YT Player -->
-                <iframe id="player" width="560" height="315" src="https://youtu.be/IkEclxxwNdc?si=Da61X01O2MPR5R39"
-                  title="SapanaCyberHub X Listen" frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
+                <div id="marathon-root"></div>
                 <!-- Waitlist Image -->
                 <img class="waitlist" id="waitlist"
                   src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/waitlist.png"
@@ -98,12 +91,7 @@
 
               <small class="vibing-event-id" id="vibing-event-id">Finding Vibe...</small>
               <div class="explore-btn" id="suggest-event"> Explore Vibe🎧</div>
-              <div class="custom-yt-playlist" id="custom-yt-playlist">
-                <input class="c-s" id="c-s" type="text" placeholder="Your Fav YT Vibe Link🎧">
-                <img class="c-s-btn" id="c-s-btn"
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/next-btn.png"
-                  alt="Play Button">
-              </div>
+
             </div>
           </section>
 
@@ -196,13 +184,19 @@
         <!-- ===== FOOTER ===== -->
 
         <footer class="footer-body">
+
+
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+          <div id="particles"></div>
+          
           <div class="footer-top">
             <div class="container-0">
               Official
               <a href="/about-us.html">about us!🤔</a>
-              <a href="/privacy-policy.html">privacy & policy</a>
-              <a href="/term-condition.html"> terms & conditions</a>
-              <a href="/about-us.html">Contact us❤️</a>
+              <a href="/privacy&policy.html">privacy & policy</a>
+              <a href="/term.html"> terms & conditions</a>
+              <a href="/official/connect/index.html">Contact us❤️</a>
             </div>
 
             <div class="container-1">
@@ -232,51 +226,56 @@
             <!-- event details prize rules how it's worked -->
             <div class="dialog-content">
               <div class="dialog-close" id="dialog-close" aria-label="Close dialog">&times;</div>
+
               <h2>Event Details</h2>
-              <h3>Event Title</h3>
-              <p>
+
+              <div class="eventData">
+                <h3>Event Title</h3>
+
                 <span class="event-tittle" id="event-tittle">Join the Neon Night Vibes event to immerse yourself in a
                   futuristic music
                   experience.</span>
-              </p>
-              <h3>Prize Pool</h3>
-              <div class="dynamic">
-                <img class="dynamic-prize-pool "
-                  src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png"
-                  loading="eager" alt="dynamic prize pool">
-                <strong class="dynamic-prize-text" id="event-prize">Dynamic Prize Pool</strong>
-                <p class="dynamic-explain" id="prizePoolExplain"> "The more who join, the bigger the pot! Every new
-                  listener scales the
-                  rewards, creating more winning spots for everyone."</p>
-              </div>
 
-              <h3>How It Works</h3>
-              <ul class="guide">
-                <li>Join the event by tapping the <strong>“Vibe 🎧”</strong> button.</li>
-                <li>
-                  The top <strong> vibers</strong> (dynamically decided) at the end of the event
-                  will win rewards from the prize pool.
-                </li>
-                <li>
-                  Bonus rewards are also distributed to additional top listeners in the form of
-                  <strong>Listen Coins & Luck Credits</strong>.
-                  <img
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                    alt="Listen Coin">
-                </li>
-                <li>
-                  <strong> Secret: Your Daily Activity increase Your Luck Credit that help You in Win Big </strong>
-                </li>
-              </ul>
-
-
-              <div class="btm">
-
-                <div class="join-now" id="join-now">VIBE<img
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
-                    alt=" Listen-coin-og">
+                <h3>Prize Pool</h3>
+                <div class="dynamic">
+                  <img class="dynamic-prize-pool "
+                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png"
+                    loading="eager" alt="dynamic prize pool">
+                  <strong class="dynamic-prize-text" id="event-prize">Dynamic Prize Pool</strong>
+                  <p class="dynamic-explain" id="prizePoolExplain"> "The more who join, the bigger the pot! Every new
+                    listener scales the
+                    rewards, creating more winning spots for everyone."</p>
                 </div>
 
+                <h3>How It Works</h3>
+                <ul class="guide">
+                  <li>Join the event by tapping the <strong>“Vibe 🎧”</strong> button.</li>
+                  <li>
+                    The top <strong> vibers</strong> (dynamically decided) at the end of the event
+                    will win rewards from the prize pool.
+                  </li>
+                  <li>
+                    Bonus rewards are also distributed to additional top listeners in the form of
+                    <strong>Listen Coins & Luck Credits</strong>.
+                    <img
+                      src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                      alt="Listen Coin">
+                  </li>
+                  <li>
+                    <strong> Secret: Your Daily Activity increase Your Luck Credit that help You in Win Big </strong>
+                  </li>
+                </ul>
+
+
+
+                <div class="btm">
+
+                  <div class="join-now" id="join-now">VIBE<img
+                      src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png"
+                      alt=" Listen-coin-og">
+                  </div>
+
+                </div>
               </div>
 
             </div>
@@ -331,83 +330,10 @@
 
         <!-- app-task details overlay -->
         <div class="a-t-d-overlay" id="app-task-overlay">
-          <div class="a-t-d-card">
-            <div class="eventData">
-              <div class="a-t-d-header">
-                <span></span>
-                <h2 class="a-t-d-title" id="a-t-d-title">Cyber tic tac toe</h2>
-                <div class="a-t-d-close" id="a-t-d-close" aria-label="Close dialog">&times;</div>
-              </div>
-              <p class="a-t-d-desc" id="a-t-d-desc">Task Description</p>
-              <ul class="a-t-d-guide">
-                <li><strong>Step 1:</strong> Download and install the app via the provided link.</li>
-                <li><strong>Step 2:</strong> Register your account and achieve a 10-win streak.</li>
-                <li><strong>Step 3:</strong> Make a minimum in-app purchase of ₹20 to unlock premium rewards.</li>
-                <li><strong>Step 4:</strong> Maintain a 3-day Daily Check-in streak to claim your <strong>₹75
-                    bonus</strong>.</li>
-              </ul>
-              <div class="a-t-d-reward">
-                <strong>Reward: </strong><span id="a-t-d-reward">₹x</span>
-              </div>
 
-            </div>
-
-            <div class="leaderBoard">
-
-              <div class="high-rank">
-
-                <div class="rank two">
-                  <img class="rank-two-frame" src="/assets/leaderboard/rank-2.png" alt="winner-rank-two">
-                  <img class="viberDp"
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
-                    alt="">
-                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span> </div>
-
-                </div>
-
-                <div class="rank one">
-                  <img class="rank-one-frame" src="/assets/leaderboard/rank-1.png" alt="winner-rank-two">
-                  <img class="viberDp"
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
-                    alt="">
-                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span></div>
-
-                </div>
-
-                <div class="rank three">
-                  <img class="rank-three-frame" src="/assets/leaderboard/rank-3.png" alt="winner-rank-two">
-                  <img class="viberDp"
-                    src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
-                    alt="">
-                  <div class="n-wa"> <strong class="winAmount">₹xxx</strong><span class="viberName">xxx</span></div>
-
-                </div>
-              </div>
-
-              <div class="midRank">
-                <div class="winnerData">
-                  <div class="winner-details">
-                    <span class="rank">#4</span>
-                    <img class="winnerDp"
-                      src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png"
-                      alt="winnerDp">
-                    <strong class="winnerName">xxx xxx</strong>
-                  </div>
-                  <span class="winAmount">₹xxx</span>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="eq-progress loadingEventStatus" id="loadingEventStatus">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <button class="vibe-btn" id="a-t-d-vibe-btn">Vibe & Earn</button>
-          </div>
 
         </div>
+
 
     </main>
   </div>
