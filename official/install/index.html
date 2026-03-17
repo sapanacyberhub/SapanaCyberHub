@@ -8,7 +8,9 @@
     <title>SapanaCyberHub Install</title>
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/assets/logo.png" type="image/webp">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon_io/android-chrome-192x192.png">
+    <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
     <meta name="theme-color" content="#0f172a">
 
     <style>
@@ -174,11 +176,12 @@
             return window.matchMedia('(display-mode: standalone)').matches;
         }
 
-        /* show screen */
+        /* ------------------ MAIN LOAD ------------------ */
+
         window.addEventListener("load", () => {
 
             if (isAppInstalled()) {
-                installScreen.style.display = "none";
+                handleAppOpen();
                 return;
             }
 
@@ -190,24 +193,25 @@
 
         });
 
-        /* capture install event */
+        /* ------------------ INSTALL EVENT ------------------ */
+
         window.addEventListener("beforeinstallprompt", (e) => {
             e.preventDefault();
 
             deferredPrompt = e;
 
-            /* enable button */
             installBtn.disabled = false;
             installBtn.style.opacity = "1";
 
             console.log("Install ready ✅");
         });
 
-        /* install click */
+        /* ------------------ INSTALL CLICK ------------------ */
+
         installBtn.addEventListener("click", async () => {
 
             if (!deferredPrompt) {
-                showToast("Tap browser menu ⋮ → Add to Home Screen", "info");
+                showToast?.("Tap ⋮ → Add to Home Screen", "info");
                 return;
             }
 
@@ -216,29 +220,48 @@
             const choice = await deferredPrompt.userChoice;
 
             if (choice.outcome === "accepted") {
-
                 localStorage.setItem("justInstalled", "true");
                 installScreen.style.display = "none";
-
             }
 
             deferredPrompt = null;
-
         });
 
-        /* skip */
+        /* ------------------ SKIP ------------------ */
+
         skipBtn.addEventListener("click", () => {
             installScreen.style.display = "none";
             localStorage.setItem("installSkipped", "true");
         });
 
-        /* welcome after install */
-        if (isAppInstalled() && localStorage.getItem("justInstalled")) {
+        /* ------------------ APP OPEN HANDLER ------------------ */
 
-            showWelcome();
-            localStorage.removeItem("justInstalled");
+        function handleAppOpen() {
 
+            // hide install UI
+            installScreen.style.display = "none";
+
+            if (localStorage.getItem("justInstalled")) {
+
+                showWelcome();
+                localStorage.removeItem("justInstalled");
+
+                setTimeout(() => {
+                    redirectToMain();
+                }, 2200);
+
+            } else {
+                redirectToMain();
+            }
         }
+
+        /* ------------------ REDIRECT ------------------ */
+
+        function redirectToMain() {
+            window.location.replace("/online-earning/listen-enjoy-earn/");
+        }
+
+        /* ------------------ WELCOME ------------------ */
 
         function showWelcome() {
 
@@ -255,10 +278,11 @@
 
             document.body.appendChild(div);
 
-            setTimeout(() => div.remove(), 3000);
+            setTimeout(() => div.remove(), 2000);
         }
 
-        /* service worker */
+        /* ------------------ SERVICE WORKER ------------------ */
+
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/sw.js");
         }
