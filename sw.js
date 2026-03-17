@@ -2,7 +2,7 @@
 const CACHE_NAME = "sch-listen-v1";
 const STATIC_ASSETS = [
   "/online-earning/listen-enjoy-earn/",
-  "/assets/SapanaCyberHub-Logo.webp",
+  "/assets/logo.png",
   "https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap",
 ];
 

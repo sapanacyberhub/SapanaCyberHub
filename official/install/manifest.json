@@ -2,28 +2,34 @@
   "name": "SapanaCyberHub × Listen",
   "short_name": "SCH Listen",
   "description": "Listen to music, join events & earn real cash rewards daily — SapanaCyberHub × Listen",
+
   "start_url": "/online-earning/listen-enjoy-earn/",
   "scope": "/online-earning/listen-enjoy-earn/",
+
   "display": "standalone",
   "orientation": "portrait",
+
   "background_color": "#05080f",
   "theme_color": "#22c55e",
+
   "lang": "en-IN",
   "categories": ["entertainment", "music", "finance"],
+
   "icons": [
     {
-      "src": "/assets/logo.png",
+      "src": "https://sapanacyberhub.in/assets/logo.png",
       "sizes": "192x192",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/logo.png",
+      "src": "https://sapanacyberhub.in/assets/logo.png",
       "sizes": "512x512",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
+
   "screenshots": [
     {
       "src": "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
@@ -33,14 +39,22 @@
       "label": "SapanaCyberHub X Listen Dashboard"
     }
   ],
+
   "shortcuts": [
     {
       "name": "Listen & Earn",
       "short_name": "Listen",
       "description": "Go to Listen Events",
       "url": "/online-earning/listen-enjoy-earn/",
-      "icons": [{ "src": "/assets/logo.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "https://sapanacyberhub.in/assets/logo.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ],
+
   "prefer_related_applications": false
 }
