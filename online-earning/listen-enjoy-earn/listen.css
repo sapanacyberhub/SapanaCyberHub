@@ -160,7 +160,7 @@ main { display: flex; flex-direction: column; gap: 28px; }
    HERO
 ══════════════════════════════════════════ */
 .header { text-align: center; padding: 0 12px; }
-.hero { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 20px; }
+.hero { display: flex; align-items: center; justify-content: space-around; gap: 24px; flex-wrap: wrap; margin-top: 20px;  }
  
 .hero-copy h1 {
   font-family: 'Syne', sans-serif; font-weight: 800;
@@ -180,13 +180,13 @@ main { display: flex; flex-direction: column; gap: 28px; }
   border: 1px solid var(--border-hi);
   padding: 10px;
   box-shadow: 0 0 60px rgba(255,60,172,.15), 0 32px 80px rgba(0,0,0,.6);
-  animation: rgbGlow 8s ease-in-out infinite;
+  animation: rgbGlow 15s ease-in-out infinite;
   overflow: hidden;
 }
 @keyframes rgbGlow {
-  0%,100% { box-shadow: 0 0 40px rgba(255,60,172,.2), 0 32px 70px rgba(0,0,0,.6); }
-  33%      { box-shadow: 0 0 40px rgba(0,229,255,.2), 0 32px 70px rgba(0,0,0,.6); }
-  66%      { box-shadow: 0 0 40px rgba(168,85,247,.2), 0 32px 70px rgba(0,0,0,.6); }
+  0%,100% { box-shadow: 0 0 40px rgb(255, 0, 0), 0 32px 70px rgba(0,0,0,.6); }
+  33%      { box-shadow: 0 0 40px rgb(0, 255, 0), 0 32px 70px rgba(0,0,0,.6); }
+  66%      { box-shadow: 0 0 40px rgba(0,0,255), 0 32px 70px rgba(0,0,0,.6); }
 }
 .hero-visual span { display: block; font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
 .hero-visual-inner { border-radius: var(--r-lg); overflow: hidden; position: relative; }
@@ -339,11 +339,11 @@ small.vibing-event-id {
   flex: 0 0 280px;
   /* Fixed height for uniformity */
   border-radius: 18px;
-  background: radial-gradient(circle at top, var(--accent-soft), transparent 60%),
+  background: radial-gradient(circle at top, var(--accent-soft), transparent 1%),
     linear-gradient(145deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.98));
   padding: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgb(251, 0, 255);
+  box-shadow: 0 10px 30px rgb(0, 0, 0);
   scroll-snap-align: center;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
@@ -359,7 +359,9 @@ small.vibing-event-id {
   opacity: 1;
   filter: blur(0);
   z-index: 1;
-  border-color: #00ffdd;
+  backdrop-filter: blur(10px);
+  background-color: #00000059;
+  border-color: #ffcc00;
   animation: pulse 3s infinite;
 }
 
