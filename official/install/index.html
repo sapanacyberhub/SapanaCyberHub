@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -107,56 +108,49 @@
       deferredPrompt = e;
     });
 
+    // ───── MAIN INSTALL BUTTON ─────
     document.getElementById("installBtn").addEventListener("click", async () => {
       if (!deferredPrompt) {
         alert("Install not available 😕");
         return;
       }
 
+      // Show install popup
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-    });
 
-    // ───── MAIN INSTALL HANDLER ─────
-    const handleInstallSuccess = async () => {
-      if (installHandled) return;
-      installHandled = true;
+      // Wait for user choice
+      const choice = await deferredPrompt.userChoice;
 
-      const sponsorId = localStorage.getItem("pendingSponsorId");
+      if (choice.outcome === "accepted") {
+        console.log("🎉 Install accepted");
 
-      if (!sponsorId) {
-        console.warn("❌ No sponsorId found");
-        return;
-      }
+        if (!installHandled) {
+          installHandled = true;
 
-      console.log("✅ sponsorId:", sponsorId);
+          const sponsorId = localStorage.getItem("pendingSponsorId");
 
-      try {
-        await markSponsorWinner({
-          sponsorId: String(sponsorId)
-        });
+          if (!sponsorId) {
+            console.warn("❌ No sponsorId found");
+            return;
+          }
 
-        console.log("🎉 Winner marked");
+          try {
+            await markSponsorWinner({
+              sponsorId: String(sponsorId)
+            });
 
-        // remove after success
-        localStorage.removeItem("pendingSponsorId");
+            console.log("✅ Winner marked");
 
-      } catch (err) {
-        console.error("❌ Failed:", err);
-      }
-    };
+            // cleanup
+            localStorage.removeItem("pendingSponsorId");
 
-    // ───── PRIMARY EVENT ─────
-    window.addEventListener("appinstalled", handleInstallSuccess);
-
-    // ───── BACKUP (CRITICAL FIX) ─────
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-          handleInstallSuccess();
+          } catch (err) {
+            console.error("❌ Failed:", err);
+          }
         }
-      }, 800);
+      }
+
+      deferredPrompt = null;
     });
 
     // ───── SKIP BUTTON ─────
@@ -167,4 +161,6 @@
   </script>
 
 </body>
+
 </html>
+```
