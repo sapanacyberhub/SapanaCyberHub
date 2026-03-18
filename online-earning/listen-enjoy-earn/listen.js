@@ -1335,7 +1335,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
           if (pendingSponsorApkPath?.endsWith(".apk")) {
             await downloadSponsorApk(pendingSponsorApkPath);
           } else if (pendingSponsorApkPath) {
-            window.open(pendingSponsorApkPath, "_blank", "noopener,noreferrer");
+            window.open(pendingSponsorApkPath, "_blank");
           }
 
           // ✅ KEEP JOIN LOGIC (UNCHANGED)

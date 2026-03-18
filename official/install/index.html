@@ -2,158 +2,169 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SapanaCyberHub Install</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SapanaCyberHub Install</title>
 
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0f172a">
 
-    <style>
-        body {
-            margin: 0;
-            background: #0f172a;
-            font-family: sans-serif;
-            color: #fff;
-        }
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      font-family: sans-serif;
+      color: #fff;
+    }
 
-        .install-screen {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .install-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .install-card {
-            background: #020617;
-            padding: 25px;
-            border-radius: 18px;
-            text-align: center;
-            width: 90%;
-            max-width: 340px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
-        }
+    .install-card {
+      background: #020617;
+      padding: 25px;
+      border-radius: 18px;
+      text-align: center;
+      width: 90%;
+      max-width: 340px;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
+    }
 
-        .install-logo {
-            width: 90px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-        }
+    .install-logo {
+      width: 90px;
+      border-radius: 20px;
+      margin-bottom: 15px;
+    }
 
-        #installBtn {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
+    #installBtn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
 
-        #skipBtn {
-            width: 100%;
-            padding: 10px;
-            background: none;
-            border: none;
-            color: #aaa;
-        }
-    </style>
+    #skipBtn {
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: none;
+      color: #aaa;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
 
-    <div class="install-screen">
-        <div class="install-card">
-            <img src="/assets/logo.png" class="install-logo">
-            <h2>SapanaCyberHub X Listen</h2>
-            <p>Install app for better experience 🚀</p>
+  <div class="install-screen">
+    <div class="install-card">
+      <img src="/assets/logo.png" class="install-logo">
+      <h2>SapanaCyberHub X Listen</h2>
+      <p>Install app for better experience 🚀</p>
 
-            <button id="installBtn">Install Now</button>
-            <button id="skipBtn">Continue in Browser</button>
-        </div>
+      <button id="installBtn">Install Now</button>
+      <button id="skipBtn">Continue in Browser</button>
     </div>
+  </div>
 
-    <script type="module">
-        // 🔥 Firebase init (same as before)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 
-        const app = initializeApp({
-            apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-            authDomain: "sapanacyberhub-26310.firebaseapp.com",
-            projectId: "sapanacyberhub-26310",
-            storageBucket: "sapanacyberhub-26310.firebasestorage.app",
-            messagingSenderId: "448116453690",
-            appId: "1:448116453690:web:01a91dd284b715bf0a2003",
-            measurementId: "G-HKGQ8D55N1",
+    // 🔥 Firebase config
+    const app = initializeApp({
+      apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+      authDomain: "sapanacyberhub-26310.firebaseapp.com",
+      projectId: "sapanacyberhub-26310",
+      storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+      messagingSenderId: "448116453690",
+      appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+      measurementId: "G-HKGQ8D55N1",
+    });
+
+    const functions = getFunctions(app, "us-central1");
+    const markSponsorWinner = httpsCallable(functions, "markSponsorWinner");
+
+    // ───── STATE LOCK ─────
+    let installHandled = false;
+
+    // ───── INSTALL PROMPT ─────
+    let deferredPrompt = null;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    document.getElementById("installBtn").addEventListener("click", async () => {
+      if (!deferredPrompt) {
+        alert("Install not available 😕");
+        return;
+      }
+
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    });
+
+    // ───── MAIN INSTALL HANDLER ─────
+    const handleInstallSuccess = async () => {
+      if (installHandled) return;
+      installHandled = true;
+
+      const sponsorId = localStorage.getItem("pendingSponsorId");
+
+      if (!sponsorId) {
+        console.warn("❌ No sponsorId found");
+        return;
+      }
+
+      console.log("✅ sponsorId:", sponsorId);
+
+      try {
+        await markSponsorWinner({
+          sponsorId: String(sponsorId)
         });
 
-        const functions = getFunctions(app, "us-central1");
+        console.log("🎉 Winner marked");
 
-        const markSponsorWinner = httpsCallable(functions, "markSponsorWinner");
+        // remove after success
+        localStorage.removeItem("pendingSponsorId");
 
-        // ───── GET sponsorId FROM localStorage ─────
-        const getSponsorId = () => {
-            return localStorage.getItem("pendingSponsorId");
-        };
+      } catch (err) {
+        console.error("❌ Failed:", err);
+      }
+    };
 
-        // ───── INSTALL PROMPT ─────
-        let deferredPrompt = null;
+    // ───── PRIMARY EVENT ─────
+    window.addEventListener("appinstalled", handleInstallSuccess);
 
-        window.addEventListener("beforeinstallprompt", (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
-        document.getElementById("installBtn").addEventListener("click", async () => {
-            if (!deferredPrompt) {
-                alert("Install not available 😕");
-                return;
-            }
-
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-
-            deferredPrompt = null;
-        });
-
-        // ───── INSTALL SUCCESS ─────
-        const handleInstallSuccess = async () => {
-            const sponsorId = getSponsorId();
-
-            if (!sponsorId) {
-                console.warn("❌ No sponsorId found");
-                return;
-            }
-
-            try {
-                await markSponsorWinner({
-                    sponsorId: String(sponsorId)
-                });
-
-                console.log("🎉 Winner marked");
-
-                // ✅ REMOVE after success (VERY IMPORTANT)
-                localStorage.removeItem("pendingSponsorId");
-
-            } catch (err) {
-                console.error("❌ Failed:", err);
-            }
-        };
-
-        // ✅ PRIMARY EVENT
-        window.addEventListener("appinstalled", handleInstallSuccess);
-
-        // ✅ BACKUP (for standalone launch)
+    // ───── BACKUP (CRITICAL FIX) ─────
+    window.addEventListener("load", () => {
+      setTimeout(() => {
         if (window.matchMedia('(display-mode: standalone)').matches) {
-            handleInstallSuccess();
+          handleInstallSuccess();
         }
+      }, 800);
+    });
 
-    </script>
+    // ───── SKIP BUTTON ─────
+    document.getElementById("skipBtn").onclick = () => {
+      window.location.href = "/";
+    };
+
+  </script>
 
 </body>
-
 </html>
