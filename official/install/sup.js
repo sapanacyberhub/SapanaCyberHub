@@ -1,182 +1,93 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // 🔥 Firebase config
+    const app = initializeApp({
+      apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+      authDomain: "sapanacyberhub-26310.firebaseapp.com",
+      projectId: "sapanacyberhub-26310",
+      storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+      messagingSenderId: "448116453690",
+      appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+      measurementId: "G-HKGQ8D55N1",
+    });
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  FIREBASE INIT
-// ══════════════════════════════════════════════════════════════════════════════
-const app = initializeApp({
-  apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-  authDomain: "sapanacyberhub-26310.firebaseapp.com",
-  projectId: "sapanacyberhub-26310",
-  storageBucket: "sapanacyberhub-26310.firebasestorage.app",
-  messagingSenderId: "448116453690",
-  appId: "1:448116453690:web:01a91dd284b715bf0a2003",
-  measurementId: "G-HKGQ8D55N1",
-});
-const auth = getAuth(app);
-const storage = getStorage(app);
-const functions = getFunctions(app);
-let deferredPrompt = null;
+    const auth = getAuth(app);
+    const functions = getFunctions(app, "us-central1");
+    const markSponsorWinner = httpsCallable(functions, "markSponsorWinner");
 
-const installScreen = document.getElementById("installScreen");
-const installBtn = document.getElementById("installBtn");
-const skipBtn = document.getElementById("skipBtn");
+    let currentUser = null;
+    let installHandled = false;
+    let deferredPrompt = null;
 
-/* detect app mode */
-function isAppInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches;
-}
+    // ───── AUTH STATE ─────
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        console.log("✅ User logged in:", user.uid);
+      } else {
+        currentUser = null;
+        console.warn("❌ User not logged in");
+      }
+    });
 
-/* ------------------ LOAD ------------------ */
+    // ───── INSTALL PROMPT ─────
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
 
-window.addEventListener("load", () => {
+    // ───── INSTALL BUTTON ─────
+    document.getElementById("installBtn").addEventListener("click", async () => {
 
-    if (isAppInstalled()) {
-        handleAppOpen();
+      // ❌ BLOCK if not logged in
+      if (!currentUser) {
+        alert("Please login first 😕");
         return;
-    }
+      }
 
-    if (!localStorage.getItem("installSkipped")) {
-        setTimeout(() => {
-            installScreen.style.display = "flex";
-        }, 500);
-    }
-
-});
-
-/* ------------------ INSTALL PROMPT ------------------ */
-
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-/* ------------------ INSTALL CLICK ------------------ */
-
-installBtn.addEventListener("click", async () => {
-
-    if (deferredPrompt) {
-
-        deferredPrompt.prompt();
-
-        const choice = await deferredPrompt.userChoice;
-
-        if (choice.outcome === "accepted") {
-
-            localStorage.setItem("justInstalled", "true");
-
-            installScreen.style.display = "none";
-        }
-
-        deferredPrompt = null;
-
-    } else {
-        showInstallGuide();
-    }
-
-});
-
-/* ------------------ FALLBACK GUIDE ------------------ */
-
-function showInstallGuide() {
-
-    const div = document.createElement("div");
-
-    div.className = "app-welcome";
-
-    div.innerHTML = `
-    <div class="welcome-box">
-        <h2>📲 Install App</h2>
-        <p>Tap ⋮ → Add to Home Screen</p>
-    </div>
-    `;
-
-    document.body.appendChild(div);
-
-    setTimeout(() => div.remove(), 2500);
-}
-
-/* ------------------ SKIP ------------------ */
-
-skipBtn.addEventListener("click", () => {
-    installScreen.style.display = "none";
-    localStorage.setItem("installSkipped", "true");
-});
-
-/* ------------------ APP OPEN ------------------ */
-
-async function handleAppOpen() {
-
-    installScreen.style.display = "none";
-
-    // 🔥 IMPORTANT: reward only once
-    if (localStorage.getItem("installRewardGiven")) {
-        redirectToMain();
+      if (!deferredPrompt) {
+        alert("Install not available 😕");
         return;
-    }
+      }
 
-    if (localStorage.getItem("justInstalled")) {
+      deferredPrompt.prompt();
 
-        showWelcome();
+      const choice = await deferredPrompt.userChoice;
 
-        try {
-            const res = await rewardAppInstall(); // 🔥 CALL SERVER
+      if (choice.outcome === "accepted") {
+        console.log("🎉 Install accepted");
 
-            if (res?.data?.success) {
-                localStorage.setItem("installRewardGiven", "true");
-            }
+        if (!installHandled) {
+          installHandled = true;
 
-        } catch (err) {
-            console.error("Reward failed:", err);
+          const sponsorId = localStorage.getItem("pendingSponsorId");
+
+          if (!sponsorId) {
+            console.warn("❌ No sponsorId found");
+            return;
+          }
+
+          try {
+            await markSponsorWinner({
+              sponsorId: String(sponsorId)
+            });
+
+            console.log("✅ Winner marked");
+
+            localStorage.removeItem("pendingSponsorId");
+
+          } catch (err) {
+            console.error("❌ Failed:", err);
+          }
         }
+      }
 
-        localStorage.removeItem("justInstalled");
+      deferredPrompt = null;
+    });
 
-        setTimeout(() => {
-            redirectToMain();
-        }, 2000);
-
-    } else {
-        redirectToMain();
-    }
-}
-
-/* ------------------ REDIRECT ------------------ */
-
-function redirectToMain() {
-    window.location.replace("/online-earning/listen-enjoy-earn/");
-}
-
-/* ------------------ WELCOME ------------------ */
-
-function showWelcome() {
-
-    const div = document.createElement("div");
-
-    div.className = "app-welcome";
-
-    div.innerHTML = `
-    <div class="welcome-box">
-        <h2>🎉 Welcome to App Mode</h2>
-        <p>Reward unlocked!</p>
-    </div>
-    `;
-
-    document.body.appendChild(div);
-
-    setTimeout(() => div.remove(), 2000);
-}
-
-/* ------------------ CALL FUNCTION ------------------ */
-
-const rewardAppInstall = async () => {
-    return await window.firebase.functions().httpsCallable("rewardAppInstall")();
-};
-
-/* ------------------ SERVICE WORKER ------------------ */
-
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js");
-}
+    // ───── SKIP BUTTON ─────
+    document.getElementById("skipBtn").onclick = () => {
+      window.location.href = "/";
+    };
