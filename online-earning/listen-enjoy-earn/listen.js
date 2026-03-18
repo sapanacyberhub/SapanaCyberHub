@@ -24,49 +24,49 @@ const marathon = new MusicMarathon({ containerId: "marathon-root", functions });
 // ══════════════════════════════════════════════════════════════════════════════
 //  CALLABLES
 // ══════════════════════════════════════════════════════════════════════════════
-const dailyCheckIn = httpsCallable(functions, "dailyCheckIn");
-const connectUser = httpsCallable(functions, "loadUserData");
-const getEvents = httpsCallable(functions, "getEvents");
-const joinvibeEvents = httpsCallable(functions, "vibeInEvent");
-const vibeInSponsor = httpsCallable(functions, "vibeInSponsor");
-const getSponsorTasks = httpsCallable(functions, "getSponsorAppTasks");
+const dailyCheckIn          = httpsCallable(functions, "dailyCheckIn");
+const connectUser           = httpsCallable(functions, "loadUserData");
+const getEvents             = httpsCallable(functions, "getEvents");
+const joinvibeEvents        = httpsCallable(functions, "vibeInEvent");
+const vibeInSponsor         = httpsCallable(functions, "vibeInSponsor");
+const getSponsorTasks       = httpsCallable(functions, "getSponsorAppTasks");
 const getSponsorTaskLeaderBoard = httpsCallable(functions, "getLeaderBoard");
-const getVibeLeaderBoard = httpsCallable(functions, "getVibeLeaderBoard");
-const claimSponsorReward = httpsCallable(functions, "claimMyReward");
-const claimVibeReward = httpsCallable(functions, "claimMyVibe");
+const getVibeLeaderBoard    = httpsCallable(functions, "getVibeLeaderBoard");
+const claimSponsorReward    = httpsCallable(functions, "claimMyReward");
+const claimVibeReward       = httpsCallable(functions, "claimMyVibe");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DOM REFERENCES
 // ══════════════════════════════════════════════════════════════════════════════
-const eventPPage = document.getElementById("event-page");
-const dialog = document.getElementById("over-hidden");
-const dialogCloseBtn = document.getElementById("dialog-close");
-const a_t_d_overlay = document.getElementById("app-task-overlay");
-const userNameEl = document.getElementById("user_name");
-const userBalance = document.getElementById("user_earning");
-const vibingBtns = document.querySelectorAll(".vibing-btn");
-const vibingOverBtns = document.querySelectorAll(".vibing-over-btn");
-const fireContainer = document.getElementById("fire");
-const checkInBtn = document.getElementById("check-in-btn");
-const frame = document.querySelector(".player-frame");
-const eventIdEl = document.getElementById("vibing-event-id");
-const suggestEvent = document.getElementById("suggest-event");
-const c_s_p = document.getElementById("custom-yt-playlist");
-const checkInOverlay = document.getElementById("d-v-c-s-overlay");
+const eventPPage      = document.getElementById("event-page");
+const dialog          = document.getElementById("over-hidden");
+const dialogCloseBtn  = document.getElementById("dialog-close");
+const a_t_d_overlay   = document.getElementById("app-task-overlay");
+const userNameEl      = document.getElementById("user_name");
+const userBalance     = document.getElementById("user_earning");
+const vibingBtns      = document.querySelectorAll(".vibing-btn");
+const vibingOverBtns  = document.querySelectorAll(".vibing-over-btn");
+const fireContainer   = document.getElementById("fire");
+const checkInBtn      = document.getElementById("check-in-btn");
+const frame           = document.querySelector(".player-frame");
+const eventIdEl       = document.getElementById("vibing-event-id");
+const suggestEvent    = document.getElementById("suggest-event");
+const c_s_p           = document.getElementById("custom-yt-playlist");
+const checkInOverlay  = document.getElementById("d-v-c-s-overlay");
 const rewardContainer = document.getElementById("r-b");
-const hit_grid = document.getElementById("hit-event-grid");
-const listen_grid = document.getElementById("listen-event-grid");
-const premiumLegue = document.getElementById("lakhpati-loop");
-const appTaskList = document.getElementById("task-list");
+const hit_grid        = document.getElementById("hit-event-grid");
+const listen_grid     = document.getElementById("listen-event-grid");
+const premiumLegue    = document.getElementById("lakhpati-loop");
+const appTaskList     = document.getElementById("task-list");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════════════════════
 const EVENT_TYPE_INDEX = { listen: 1, hit: 2, lakhpati: 3, cash: 4 };
-const AD_WAIT_MS = { listen: 10000, hit: 10000, dc: 10000 };
+const AD_WAIT_MS       = { listen: 10000, hit: 10000, dc: 10000 };
 
-const DP_FALLBACK = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
-const COIN_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
+const DP_FALLBACK    = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
+const COIN_IMG       = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
 const PRIZE_POOL_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png";
 
 const linksL = [
@@ -84,32 +84,35 @@ const linksDCI = ["https://omg10.com/4/10619475"];
 // ══════════════════════════════════════════════════════════════════════════════
 //  GLOBAL STATE
 // ══════════════════════════════════════════════════════════════════════════════
-let uiData = null;
-let currentUser = null;
+let uiData               = null;
+let currentUser          = null;
 let currentLottieInstance = null;
-let vibingEventId = null;
+let vibingEventId        = null;
 
-const listenEvents = [];
-const listenEventsJoin = [];
-const hitEvents = [];
-const hitEventsJoin = [];
-const lakhpatiLoops = [];
+const listenEvents      = [];
+const listenEventsJoin  = [];
+const hitEvents         = [];
+const hitEventsJoin     = [];
+const lakhpatiLoops     = [];
 const lakhpatiLoopsJoin = [];
-const cashHaandis = [];
-const cashHaandisJoin = [];
-const sponsorAppTasks = [];
+const cashHaandis       = [];
+const cashHaandisJoin   = [];
+const sponsorAppTasks     = [];
 const sponsorAppTasksJoin = [];
 
-let adOpenTime = 0;
-let adLocked = false;
+let adOpenTime         = 0;
+let adLocked           = false;
 let pendingJoinEventId = null;
-let pendingJoinTypeIndex = null;   // numeric: 1 | 2 | 3 | 4
+let pendingJoinTypeIndex  = null;   // numeric: 1 | 2 | 3 | 4
 let pendingSponsorApkPath = null;
-let pendingSponsorId = null;
-let sponsorAdOpenTime = 0;
-let adIndexL = 0;
-let isJoinedList = false;
-let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
+let pendingSponsorId      = null;
+let sponsorAdOpenTime     = 0;
+let adIndexL              = 0;
+let isJoinedList          = false;
+let joinedType            = null;   // "L" | "H" | "PL" | "SAT" | null
+
+let sponsorProcessing  = false;
+let visibilityHandler  = null;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
@@ -134,7 +137,7 @@ function setupNetworkBanner() {
   banner.textContent = "⚡ You're offline — some features may not work";
   document.body.prepend(banner);
   window.addEventListener("offline", () => { banner.style.display = "block"; });
-  window.addEventListener("online", () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
+  window.addEventListener("online",  () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -171,7 +174,7 @@ async function getUser() {
     const result = await connectUser();
 
     if (result?.data?.success && result.data.userData) {
-      uiData = result.data.userData;
+      uiData        = result.data.userData;
       userAvailable = true;
     } else {
       uiData = null;
@@ -189,7 +192,7 @@ async function getUser() {
   /* 🔥 ALWAYS load events + sponsor tasks */
   await Promise.all([
     getEventList(),
-    getSponsorTasksList()
+    getSponsorTasksList(),
   ]);
 
   return uiData;
@@ -198,8 +201,6 @@ async function getUser() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  CHECK-IN HELPERS
 // ══════════════════════════════════════════════════════════════════════════════
-
-
 function checkusercheckin() {
   if (!uiData) return;
 
@@ -208,7 +209,7 @@ function checkusercheckin() {
   ).toISOString().slice(0, 10);
 
   if (uiData.lastCheckInDay !== today) {
-    showDailyCheckInRewardDialog(false);
+    showDailyCheckInRewardDialog();
   }
 }
 
@@ -218,9 +219,9 @@ function checkusercheckin() {
 async function getEventList() {
   try {
     listenEvents.length = listenEventsJoin.length = 0;
-    hitEvents.length = hitEventsJoin.length = 0;
+    hitEvents.length    = hitEventsJoin.length    = 0;
     lakhpatiLoops.length = lakhpatiLoopsJoin.length = 0;
-    cashHaandis.length = cashHaandisJoin.length = 0;
+    cashHaandis.length  = cashHaandisJoin.length  = 0;
 
     const [r1, rj1, r2, rj2, r3, rj3, r4, rj4] = await Promise.all([
       getEvents({ i: 1, needJoined: false }), getEvents({ i: 1, needJoined: true }),
@@ -229,13 +230,13 @@ async function getEventList() {
       getEvents({ i: 4, needJoined: false }), getEvents({ i: 4, needJoined: true }),
     ]);
 
-    if (r1.data?.events) listenEvents.push(...r1.data.events);
+    if (r1.data?.events)  listenEvents.push(...r1.data.events);
     if (rj1.data?.events) listenEventsJoin.push(...rj1.data.events);
-    if (r2.data?.events) hitEvents.push(...r2.data.events);
+    if (r2.data?.events)  hitEvents.push(...r2.data.events);
     if (rj2.data?.events) hitEventsJoin.push(...rj2.data.events);
-    if (r3.data?.events) lakhpatiLoops.push(...r3.data.events);
+    if (r3.data?.events)  lakhpatiLoops.push(...r3.data.events);
     if (rj3.data?.events) lakhpatiLoopsJoin.push(...rj3.data.events);
-    if (r4.data?.events) cashHaandis.push(...r4.data.events);
+    if (r4.data?.events)  cashHaandis.push(...r4.data.events);
     if (rj4.data?.events) cashHaandisJoin.push(...rj4.data.events);
 
     updatePlayerVisibility();
@@ -251,7 +252,7 @@ async function getSponsorTasksList() {
       getSponsorTasks({ needJoined: false }),
       getSponsorTasks({ needJoined: true }),
     ]);
-    if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
+    if (res.data?.success     && res.data.sponsors)     sponsorAppTasks.push(...res.data.sponsors);
     if (resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
   } catch (err) {
     showToast("Could not load events. Try refreshing.", "error");
@@ -305,7 +306,7 @@ async function downloadSponsorApk(apkPath) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  DIALOG
 // ══════════════════════════════════════════════════════════════════════════════
-const openDialog = () => { if (dialog) dialog.style.display = "flex"; };
+const openDialog  = () => { if (dialog) dialog.style.display = "flex"; };
 const closeDialog = () => { if (dialog) dialog.style.display = "none"; };
 dialogCloseBtn?.addEventListener("click", closeDialog);
 
@@ -317,7 +318,7 @@ function renderSponsorAppTasks(vibeOver = false) {
   appTaskList.innerHTML = "";
 
   const fullList = vibeOver ? sponsorAppTasksJoin : sponsorAppTasks;
-  const tasks = vibeOver
+  const tasks    = vibeOver
     ? fullList
     : fullList.filter((t) => !sponsorAppTasksJoin.some((j) => j.sponsorId === t.sponsorId));
 
@@ -372,7 +373,7 @@ function renderVibingListenEvents(vibeOver = false) {
   listen_grid.innerHTML = "";
 
   const fullList = vibeOver ? listenEventsJoin : listenEvents;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !listenEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -390,11 +391,11 @@ function renderVibingListenEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("article");
-    const fee = Number(event.eventEntryFee || 0);
+    const card   = document.createElement("article");
+    const fee    = Number(event.eventEntryFee || 0);
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const ended = isEnded(event.endTime);
+    const ended  = isEnded(event.endTime);
 
     card.className = "event-card";
     card.innerHTML = `
@@ -442,7 +443,7 @@ function renderVibingHitEvents(vibeOver = false) {
   hit_grid.innerHTML = "";
 
   const fullList = vibeOver ? hitEventsJoin : hitEvents;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !hitEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -460,10 +461,10 @@ function renderVibingHitEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("div");
+    const card   = document.createElement("div");
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const fee = Number(event.eventEntryFee || 0);
+    const fee    = Number(event.eventEntryFee || 0);
 
     card.className = "hit-card";
     card.innerHTML = `
@@ -520,7 +521,7 @@ function renderLakhpatiLoops(vibeOver = false) {
   premiumLegue.innerHTML = "";
 
   const fullList = vibeOver ? lakhpatiLoopsJoin : lakhpatiLoops;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !lakhpatiLoopsJoin.some((j) => j.eventId === e.eventId));
 
@@ -538,10 +539,10 @@ function renderLakhpatiLoops(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("div");
+    const card     = document.createElement("div");
     card.className = "lakhpati-card";
     const prizePool = (event.lakhpatiLoopAmountIndex || 0) * 100_000;
-    const fee = Number(event.eventEntryFee || 0);
+    const fee      = Number(event.eventEntryFee || 0);
 
     card.innerHTML = `
       <div class="lakhpati-content">
@@ -604,10 +605,10 @@ function renderLakhpatiLoops(vibeOver = false) {
 vibingOverBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = true;
-    joinedType = e.currentTarget.dataset.eventType;
-    if (joinedType === "L") renderVibingListenEvents(true);
-    else if (joinedType === "H") renderVibingHitEvents(true);
-    else if (joinedType === "PL") renderLakhpatiLoops(true);
+    joinedType   = e.currentTarget.dataset.eventType;
+    if      (joinedType === "L")   renderVibingListenEvents(true);
+    else if (joinedType === "H")   renderVibingHitEvents(true);
+    else if (joinedType === "PL")  renderLakhpatiLoops(true);
     else if (joinedType === "SAT") renderSponsorAppTasks(true);
   });
 });
@@ -615,11 +616,11 @@ vibingOverBtns.forEach((btn) => {
 vibingBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = false;
-    joinedType = null;
+    joinedType   = null;
     const t = e.currentTarget.dataset.eventType;
-    if (t === "L") renderVibingListenEvents(false);
-    else if (t === "H") renderVibingHitEvents(false);
-    else if (t === "PL") renderLakhpatiLoops(false);
+    if      (t === "L")   renderVibingListenEvents(false);
+    else if (t === "H")   renderVibingHitEvents(false);
+    else if (t === "PL")  renderLakhpatiLoops(false);
     else if (t === "SAT") renderSponsorAppTasks(false);
   });
 });
@@ -662,7 +663,7 @@ listen_grid?.addEventListener("click", (e) => {
   e.stopPropagation();
   if (isJoinedList && joinedType === "L") return;
 
-  const eventId = joinBtn.dataset.eventid;
+  const eventId   = joinBtn.dataset.eventid;
   const eventData = listenEvents.find((ev) => ev.eventId === eventId);
   if (!eventData) return;
 
@@ -706,7 +707,7 @@ hit_grid?.addEventListener("click", (e) => {
   const evId = hitBtn.dataset.eventid;
 
   if (isJoinedList && joinedType === "H") {
-    const eventData = hitEventsJoin.find(ev => ev.eventId === evId);
+    const eventData = hitEventsJoin.find((ev) => ev.eventId === evId);
     if (!eventData) return;
 
     if (isEnded(eventData.endTime)) {
@@ -717,7 +718,7 @@ hit_grid?.addEventListener("click", (e) => {
     return;
   }
 
-  const eventData = hitEvents.find(ev => ev.eventId === evId);
+  const eventData = hitEvents.find((ev) => ev.eventId === evId);
   if (!eventData) return;
 
   if (isEnded(eventData.endTime)) {
@@ -726,27 +727,20 @@ hit_grid?.addEventListener("click", (e) => {
   }
 
   if (eventData.eventEntryFee) {
-
     const fee = eventData.eventEntryFee;
-
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
-
       const lcAmount = parseInt(fee.replace(/\D/g, "")) || 0;
-
       if (!currentUser || (uiData?.listenCoins || 0) < lcAmount) {
         showToast("Not enough Listen Coins.", "error");
         return;
       }
-
     } else if ((uiData?.cash || 0) < Number(fee)) {
-
       showToast("Insufficient balance. You can go with free events.", "error");
       return;
     }
   }
 
   /* lock shake animation */
-
   const card = hitBtn.closest(".hit-card");
   const lock = card?.querySelector(".lock");
 
@@ -755,17 +749,12 @@ hit_grid?.addEventListener("click", (e) => {
     setTimeout(() => {
       lock.classList.remove("shaking");
       pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
-
       showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
     }, 400);
   } else {
     pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
-
     showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
-
   }
-
-
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -774,8 +763,8 @@ hit_grid?.addEventListener("click", (e) => {
 premiumLegue?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderLakhpatiLoops(false); return; }
 
-  const joinBtn = e.target.closest(".j-m-l");
-  const feeCont = e.target.closest(".E-f-l");
+  const joinBtn  = e.target.closest(".j-m-l");
+  const feeCont  = e.target.closest(".E-f-l");
   if (!joinBtn && !feeCont) return;
   e.stopPropagation();
 
@@ -807,45 +796,52 @@ premiumLegue?.addEventListener("click", (e) => {
   if (Number(uiData.streakDays) > 3) {
     pendingJoinTypeIndex = EVENT_TYPE_INDEX.lakhpati;
     showEventDetails(eventData, true, EVENT_TYPE_INDEX.lakhpati);
-  }
-  else {
+  } else {
     showToast("🔥 Build a 3-day streak to unlock the Lakhpati Loop challenge!", "info");
-    return;
   }
-
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD TRIGGER
+//  FIX: adOpenTime is now recorded here so the global visibilitychange handler
+//       can correctly measure how long the user stayed on the ad page.
 // ══════════════════════════════════════════════════════════════════════════════
 function trigger(eventId, eventType) {
   if (adLocked) return;
   adLocked = true;
   const links =
     eventType === "listen" ? linksL :
-      eventType === "hit" ? linksH :
-        eventType === "dc" ? linksDCI : [];
+    eventType === "hit"    ? linksH :
+    eventType === "dc"     ? linksDCI : [];
   if (!links.length) {
     showToast("No ad links available 😕", "error");
     adLocked = false;
     return;
   }
   window.open(links[adIndexL++ % links.length], "_blank");
+  adOpenTime = Date.now(); // ✅ FIX: was never set — caused stayedMs to always be ~0
   setTimeout(() => { adLocked = false; }, 2000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  AD RETURN — VISIBILITY CHANGE
+//  AD RETURN — VISIBILITY CHANGE (global — for listen/hit join flow)
+//  FIX: bail immediately when the sponsor visibilityHandler owns the return,
+//       preventing the two handlers from racing each other.
 // ══════════════════════════════════════════════════════════════════════════════
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden || !pendingJoinEventId || !adOpenTime) return;
+  if (document.hidden) return;
+
+  // ✅ FIX: if sponsor flow has its own handler active, do not interfere
+  if (visibilityHandler) return;
+
+  if (!pendingJoinEventId || !adOpenTime) return;
 
   const stayedMs = Date.now() - adOpenTime;
-  const typeKey = pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" : "listen";
+  const typeKey  = pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" : "listen";
   const required = AD_WAIT_MS[typeKey] || 10000;
 
   if (stayedMs >= required) {
-    const pool = typeKey === "hit" ? hitEvents : listenEvents;
+    const pool      = typeKey === "hit" ? hitEvents : listenEvents;
     const eventData = pool.find((ev) => ev.eventId === pendingJoinEventId);
     if (eventData) {
       showEventDetails(eventData, false, pendingJoinTypeIndex);
@@ -857,32 +853,25 @@ document.addEventListener("visibilitychange", () => {
   }
 
   pendingJoinEventId = null;
-  adOpenTime = 0;
+  adOpenTime         = 0;
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  SHOW EVENT DETAILS
-//
-//  eventTypeIndex  — number (1 listen | 2 hit | 3 lakhpati | 4 cash)
-//
-//  Decision:
-//    isJoinedList && ended  → fetch leaderboard → renderLeaderboard (with dynamic claim)
-//    everything else        → render join UI    → dynamic VIBE btn
 // ══════════════════════════════════════════════════════════════════════════════
 async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   const dialogC = document.querySelector(".eventData");
-
   if (!dialogC) return;
 
   openDialog();
 
   const vibe = document.querySelector(".join-now");
-  if (vibe) { vibe.textContent = "Loading Your Vibe..." };
+  if (vibe) vibe.textContent = "Loading Your Vibe...";
 
   // ── LEADERBOARD PATH ──────────────────────────────────────────────────────
   if (isJoinedList && isEnded(ED?.endTime)) {
     try {
-      const res = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
+      const res  = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
       const data = res.data;
 
       if (data.success && data.winners?.length) {
@@ -891,15 +880,15 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
         dialogC.innerHTML = `
           <div style="padding:32px;text-align:center">
             <div style="font-size:48px">⏳</div>
-            <p style="color:rgba(255,255,255,.45);font-size:13px; text-align: center;">
+            <p style="color:rgba(255,255,255,.45);font-size:13px;text-align:center;">
               Results will be published shortly.<br>Check back soon!
             </p>
           </div>
           <div class="btm">
-       <div class="join-now" id="join-now">Event is not Finish yet!</div>
-       </div>`;
+            <div class="join-now" id="join-now">Event is not Finish yet!</div>
+          </div>`;
         const vibeBtn = document.querySelector(".join-now");
-        vibeBtn.addEventListener("click", async () => {
+        vibeBtn.addEventListener("click", () => {
           closeDialog();
           showToast("Leaderboard in progress. Your rewards are coming soon! 🏆", "info");
         });
@@ -916,15 +905,13 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   }
 
   // ── JOIN UI PATH ──────────────────────────────────────────────────────────
-  const poolIndex = ED.lakhpatiLoopAmountIndex ?? 0;
-  const rawPrize = ED.eventPrizePool ?? (poolIndex * 100_000);
-  const title = !ED.eventTitle
+  const poolIndex  = ED.lakhpatiLoopAmountIndex ?? 0;
+  const rawPrize   = ED.eventPrizePool ?? (poolIndex * 100_000);
+  const title      = !ED.eventTitle
     ? "Best of Luck, Viber!"
     : ED.eventTitle.length > 30 ? `${ED.eventTitle.slice(0, 27)}…` : ED.eventTitle;
 
-  const prizeText = isLakhpati
-    ? `₹ ${rawPrize.toLocaleString("en-IN")}`
-    : "Dynamic Prize Pool";
+  const prizeText   = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
   const explainText = isLakhpati
     ? `Lakhpati Prize Pool Increase!</b><br>Today: ₹1 Lakh ⮕ Next 5 Days: ₹5 Lakh ⮕ Weekly Goal: <b>₹18 Lakh!`
     : `The more who join, the bigger the pot! Every new listener scales the rewards, creating more winning spots for everyone.`;
@@ -946,11 +933,9 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
       <li><strong>Secret: Your Daily Activity increases your Luck Credit!</strong></li>
     </ul>
     <div class="btm">
-       <div class="join-now" id="join-now">Join Now!</div>
-
+      <div class="join-now" id="join-now">Join Now!</div>
     </div>`;
 
-  // dynamic VIBE button — passes numeric index directly to handleJoinEvent
   const vibeBtn = document.querySelector(".join-now");
   vibeBtn.addEventListener("click", async () => {
     closeDialog();
@@ -960,14 +945,13 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER LEADERBOARD
-//  Dynamic claim button created here — no preset HTML button needed
 // ══════════════════════════════════════════════════════════════════════════════
 function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0, eventType) {
   const safe = (u) => ({
-    rank: u?.rank || 0,
-    viberDp: u?.viberDp || DP_FALLBACK,
-    viberName: u?.viberName || "Unknown",
-    winAmount: u?.winAmount || 0,
+    rank:       u?.rank      || 0,
+    viberDp:    u?.viberDp   || DP_FALLBACK,
+    viberName:  u?.viberName || "Unknown",
+    winAmount:  u?.winAmount || 0,
   });
 
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
@@ -1013,23 +997,21 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
   const lCard = dialogC.querySelector(".l-card");
 
   if (ED.isClaim) {
-    // already claimed — just show a thank-you line
     const thanks = document.createElement("p");
     thanks.style.cssText = "text-align:center;color:#22c55e;font-weight:600;padding:12px 0 4px";
-    thanks.textContent = "❤️ Reward already claimed — Thank you!";
+    thanks.textContent   = "❤️ Reward already claimed — Thank you!";
     lCard.appendChild(thanks);
 
   } else if (myRank > 0 && myWinAmount > 0) {
-    // user won — show claim button
-    const claimBtn = document.createElement("button");
-    claimBtn.className = "vibe-btn";
+    const claimBtn       = document.createElement("button");
+    claimBtn.className   = "vibe-btn";
     claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
 
     claimBtn.addEventListener("click", async () => {
-      claimBtn.disabled = true;
+      claimBtn.disabled    = true;
       claimBtn.textContent = "Claiming…";
       try {
-        const res = await claimVibeReward({ eventId: ED.eventId, eventType });
+        const res  = await claimVibeReward({ eventId: ED.eventId, eventType });
         const data = res?.data;
         if (!data?.success) throw new Error(data?.message || "Claim failed");
         claimBtn.textContent = "❤️ Claimed!";
@@ -1039,24 +1021,22 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
       } catch (err) {
         console.error("Claim error:", err);
         showToast(err.message || "Claim failed 😕", "error");
-        claimBtn.disabled = false;
+        claimBtn.disabled    = false;
         claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
       }
     });
 
     lCard.appendChild(claimBtn);
   }
-  // user didn't win → no button, just the board
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  HANDLE JOIN EVENT
-//  eventTypeIndex — numeric (1 | 2 | 3 | 4) — passed directly from caller
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
-  const isFree = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
+  const isFree   = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
   const feeLabel = isFree ? "Free entry ✓" : `Deducting ₹${ED.eventEntryFee}`;
-  const steps = [
+  const steps    = [
     "Verifying your account",
     feeLabel,
     ...(eventTypeIndex !== EVENT_TYPE_INDEX.listen ? ["Assigning lucky tickets 🎲"] : []),
@@ -1081,25 +1061,25 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
 
     await getUser();
 
-    if (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen) { renderVibingListenEvents(false); updatePlayerVisibility(); }
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit) renderVibingHitEvents(false);
+    if      (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen)   { renderVibingListenEvents(false); updatePlayerVisibility(); }
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit)      renderVibingHitEvents(false);
 
-    pendingJoinEventId = null;
+    pendingJoinEventId   = null;
     pendingJoinTypeIndex = null;
 
   } catch (err) {
     console.error("Join failed:", err);
     const map = {
-      "already-exists": "You've already joined this event!",
-      "failed-precondition": err.message?.includes("LC") ? "Not enough Listen Coins."
-        : err.message?.includes("cash") ? "Insufficient balance. Please top up."
-          : "This event has ended.",
-      "not-found": "Event not found. It may have just ended.",
-      "unauthenticated": "Please log in first.",
+      "already-exists":   "You've already joined this event!",
+      "failed-precondition": err.message?.includes("LC")   ? "Not enough Listen Coins."
+                           : err.message?.includes("cash") ? "Insufficient balance. Please top up."
+                           : "This event has ended.",
+      "not-found":        "Event not found. It may have just ended.",
+      "unauthenticated":  "Please log in first.",
       "resource-exhausted": "Server busy. Please try again in a moment.",
     };
-    const code = err?.code?.replace("functions/", "") || "";
+    const code    = err?.code?.replace("functions/", "") || "";
     const message = map[code] || err.message || "Something went wrong.";
     progress.finish(false, message);
     showToast(message, "error");
@@ -1108,6 +1088,8 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  SPONSOR TASK LIST CLICK
+//  FIX: added return after renderLeaderboardCard so it doesn't fall through
+//       to renderTaskDetailCard and overwrite the leaderboard.
 // ══════════════════════════════════════════════════════════════════════════════
 appTaskList?.addEventListener("click", async (e) => {
   if (e.target.closest(".start-joining-btn")) { renderSponsorAppTasks(false); isJoinedList = false; return; }
@@ -1132,18 +1114,18 @@ appTaskList?.addEventListener("click", async (e) => {
 
   if (isJoinedList && joinedType === "SAT") {
     try {
-      const res = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
+      const res        = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
       const leaderboard = res?.data?.leaderboard || [];
-      leaderboard.length
-        ? renderLeaderboardCard(resolvedTask, leaderboard)
-        : renderTaskDetailCard(resolvedTask);
+      if (leaderboard.length) {
+        renderLeaderboardCard(resolvedTask, leaderboard);
+        return; // ✅ FIX: was missing — fell through and overwrote the leaderboard
+      }
     } catch {
-      renderTaskDetailCard(resolvedTask);
+      // fall through to renderTaskDetailCard on error
     }
   }
 
   renderTaskDetailCard(resolvedTask);
-
 });
 
 function renderTaskDetailCard(taskData) {
@@ -1168,10 +1150,10 @@ function renderTaskDetailCard(taskData) {
 
 function renderLeaderboardCard(taskData, leaderboard) {
   const safe = (u) => ({
-    viberDp: u?.viberDp || DP_FALLBACK,
+    viberDp:   u?.viberDp   || DP_FALLBACK,
     viberName: u?.viberName || "Unknown",
     winAmount: u?.winAmount || 0,
-    rank: u?.rank || 0,
+    rank:      u?.rank      || 0,
   });
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
   const rest = leaderboard.slice(3);
@@ -1181,8 +1163,8 @@ function renderLeaderboardCard(taskData, leaderboard) {
       <div class="leaderBoard">
         <div class="high-rank">
           ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
-          ${first ? `<div class="rank one"><img class="rank-one-frame"  src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
-          ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
+          ${first  ? `<div class="rank one"><img class="rank-one-frame"  src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>`  : ""}
+          ${third  ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>`  : ""}
         </div>
         <div class="midRank">
           ${rest.map((u) => `
@@ -1204,11 +1186,14 @@ function renderLeaderboardCard(taskData, leaderboard) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  APP TASK OVERLAY ACTIONS
+//  FIX: pendingJoinEventId & adOpenTime reset at sponsor vibe start so the
+//       global visibilitychange handler won't fire alongside the sponsor one.
+//  FIX: sponsorProcessing reset synchronously after cleanup (no 1500ms race).
 // ══════════════════════════════════════════════════════════════════════════════
 a_t_d_overlay?.addEventListener("click", async (e) => {
   const closeButton = e.target.closest(".a-t-d-close");
-  const claimBtn = e.target.closest(".claim-btn");
-  const vibeBtn = e.target.closest(".vibe-btn");
+  const claimBtn    = e.target.closest(".claim-btn");
+  const vibeBtn     = e.target.closest(".vibe-btn");
 
   if (closeButton) {
     a_t_d_overlay.classList.remove("active");
@@ -1219,7 +1204,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   if (claimBtn) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
-      const res = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
+      const res  = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
       const data = res?.data;
 
       if (!data?.success) {
@@ -1228,15 +1213,15 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       }
 
       const icons = {
-        cash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
-        listenCoin: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
-        luckCredit: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
+        cash:        "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+        listenCoin:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
+        luckCredit:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
       };
 
       const labels = {
-        cash: "Cash Reward",
+        cash:       "Cash Reward",
         listenCoin: "Listen Coins",
-        luckCredit: "Luck Credit"
+        luckCredit: "Luck Credit",
       };
 
       spawnConfetti();
@@ -1269,8 +1254,8 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   if (!sponsorId) return;
 
   const taskData =
-    sponsorAppTasks.find(t => String(t.sponsorId) === String(sponsorId)) ||
-    sponsorAppTasksJoin.find(t => String(t.sponsorId) === String(sponsorId));
+    sponsorAppTasks.find((t) => String(t.sponsorId) === String(sponsorId)) ||
+    sponsorAppTasksJoin.find((t) => String(t.sponsorId) === String(sponsorId));
 
   if (!taskData) {
     showToast("Task not found 😕", "error");
@@ -1283,25 +1268,29 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       return;
     }
 
+    // ✅ FIX: clear any lingering listen/hit join state so the global
+    //         visibilitychange handler does not fire alongside the sponsor one
+    pendingJoinEventId = null;
+    adOpenTime         = 0;
+
     showAdCountdownToast(10);
 
     pendingSponsorApkPath = taskData.sponsorLink;
-    pendingSponsorId = sponsorId;
-    sponsorAdOpenTime = Date.now();
+    pendingSponsorId      = sponsorId;
+    sponsorAdOpenTime     = Date.now();
 
     trigger(sponsorId, "dc");
 
-    // 🔥 REMOVE OLD LISTENER (FIX)
+    // Remove any old sponsor handler before attaching a new one
     if (visibilityHandler) {
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
     }
 
-    // 🔥 NEW HANDLER
     visibilityHandler = async () => {
       if (document.hidden) return;
 
-      // 🔒 LOCK (FIX)
+      // Lock against double-fire
       if (sponsorProcessing) return;
       sponsorProcessing = true;
 
@@ -1310,12 +1299,10 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       try {
         if (stayed >= AD_WAIT_MS.dc) {
 
-          // ✅ SAVE sponsorId (NEW - REQUIRED FOR INSTALL FLOW)
           if (pendingSponsorId) {
             localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
           }
 
-          // 🔥 ORIGINAL LOGIC (UNCHANGED)
           if (pendingSponsorApkPath?.endsWith(".apk")) {
             await downloadSponsorApk(pendingSponsorApkPath);
           } else if (pendingSponsorApkPath) {
@@ -1323,12 +1310,8 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
           }
 
           if (pendingSponsorId) {
-            const res = await vibeInSponsor({
-              sponsorId: pendingSponsorId
-            });
-
+            const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
             await getUser();
-
             showToast(
               res?.data?.success ? "Reward Activated 🎉" : "Reward pending ⏳",
               res?.data?.success ? "success" : "info"
@@ -1344,23 +1327,21 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
         showToast("Reward failed 😕", "error");
       }
 
-      // 🧹 CLEANUP
+      // Cleanup
       pendingSponsorApkPath = null;
-      pendingSponsorId = null;
-      sponsorAdOpenTime = 0;
+      pendingSponsorId      = null;
+      sponsorAdOpenTime     = 0;
 
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
 
-      setTimeout(() => {
-        sponsorProcessing = false;
-      }, 1500);
+      // ✅ FIX: reset synchronously — 1500ms timeout allowed double-fire on fast tab switches
+      sponsorProcessing = false;
     };
 
     document.addEventListener("visibilitychange", visibilityHandler);
 
     a_t_d_overlay.classList.remove("active");
-
 
   } else {
     // User already joined — redirect to sponsor app/website to complete tasks
@@ -1373,7 +1354,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     a_t_d_overlay.classList.remove("active");
 
-    // ── Inject styles once ──
+    // Inject styles once
     if (!document.getElementById("dtc-redirect-style")) {
       const s = document.createElement("style");
       s.id = "dtc-redirect-style";
@@ -1403,12 +1384,11 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       document.head.appendChild(s);
     }
 
-    // ── Remove any existing toast ──
     document.getElementById("dtc-redirect-toast")?.remove();
 
     const COUNTDOWN_MS = 4000;
-    const isApk = link.toLowerCase().includes(".apk");
-    const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
+    const isApk  = link.toLowerCase().includes(".apk");
+    const isApp  = isApk || link.includes("play.google") || link.includes("apps.apple");
     const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
     const descTxt = isApp
       ? "Open the app, complete the task, then come back here."
@@ -1434,13 +1414,11 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.body.appendChild(toast);
     requestAnimationFrame(() => {
       toast.classList.add("dtc-show");
-      // start bar countdown
       const bar = document.getElementById("dtc-rt-bar");
       bar.style.transitionDuration = COUNTDOWN_MS + "ms";
       requestAnimationFrame(() => { bar.style.width = "0%"; });
     });
 
-    // Open link helper
     const openLink = () => {
       if (isApk) {
         pendingSponsorApkPath = taskData.sponsorLink;
@@ -1450,16 +1428,13 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       }
     };
 
-    // Auto-open after countdown
     const autoTimer = setTimeout(openLink, COUNTDOWN_MS);
 
-    // Manual tap
     document.getElementById("dtc-rt-btn").addEventListener("click", () => {
       clearTimeout(autoTimer);
       openLink();
     });
 
-    // Dismiss when user returns to tab
     const onReturn = () => {
       if (document.hidden) return;
       toast.classList.remove("dtc-show");
@@ -1468,7 +1443,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     };
     document.addEventListener("visibilitychange", onReturn);
 
-    // Safety cleanup
     setTimeout(() => toast.remove(), COUNTDOWN_MS + 10000);
   }
 });
@@ -1527,8 +1501,8 @@ function showProgressToast(steps = []) {
   document.body.appendChild(toast);
 
   const spinnerEl = toast.querySelector("#pt-spinner");
-  const titleEl = toast.querySelector("#pt-title");
-  const barEl = toast.querySelector("#pt-bar");
+  const titleEl   = toast.querySelector("#pt-title");
+  const barEl     = toast.querySelector("#pt-bar");
 
   const update = (idx) => {
     toast.querySelectorAll(".pt-step").forEach((el, i) => {
@@ -1541,15 +1515,15 @@ function showProgressToast(steps = []) {
 
   const finish = (ok, message) => {
     if (ok) toast.querySelectorAll(".pt-step").forEach((el) => { el.classList.remove("active"); el.classList.add("done"); });
-    barEl.style.width = ok ? "100%" : barEl.style.width;
+    barEl.style.width      = ok ? "100%" : barEl.style.width;
     barEl.style.background = ok
       ? "linear-gradient(90deg,#22c55e,#16a34a)"
       : "linear-gradient(90deg,#ef4444,#dc2626)";
-    spinnerEl.className = `pt-spinner ${ok ? "done" : "error"}`;
+    spinnerEl.className  = `pt-spinner ${ok ? "done" : "error"}`;
     spinnerEl.textContent = ok ? "✅" : "❌";
-    titleEl.textContent = ok ? "Done!" : "Failed";
+    titleEl.textContent  = ok ? "Done!" : "Failed";
     const r = document.createElement("div");
-    r.className = `pt-result ${ok ? "success" : "error"}`;
+    r.className   = `pt-result ${ok ? "success" : "error"}`;
     r.textContent = message;
     toast.appendChild(r);
     setTimeout(() => { toast.classList.add("pt-exit"); setTimeout(() => toast.remove(), 350); }, ok ? 3000 : 4000);
@@ -1608,7 +1582,7 @@ function enableScrollHighlight(gridEl, cards, events) {
   const update = () => {
     const center = gridEl.getBoundingClientRect().left + gridEl.getBoundingClientRect().width / 2;
     let closest = null;
-    let minDist = Infinity;
+    let minDist  = Infinity;
     cards.forEach((c) => {
       const r = c.getBoundingClientRect();
       const d = Math.abs(r.left + r.width / 2 - center);
@@ -1618,8 +1592,8 @@ function enableScrollHighlight(gridEl, cards, events) {
     if (closest && !closest.classList.contains("active")) {
       closest.classList.add("active");
       const prizeSpan = closest.querySelector(".dynamic-prize");
-      const eId = closest.querySelector(".hit-btn")?.dataset.eventid
-        || closest.querySelector(".join")?.dataset.eventid;
+      const eId       = closest.querySelector(".hit-btn")?.dataset.eventid
+                      || closest.querySelector(".join")?.dataset.eventid;
       const ed = events.find((e) => e.eventId === eId);
       if (prizeSpan && ed && closest.dataset.animated !== "true") {
         animatePrizeValue(prizeSpan, 0, calculatePrizePool(Number(ed.totalViber || 0)), 2000);
@@ -1642,7 +1616,7 @@ function init() {
 
 function animatePrizeValue(element, start, end, duration) {
   let ts0 = null;
-  const fv = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
+  const fv   = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
   const ease = (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
   const step = (ts) => {
     if (!ts0) ts0 = ts;
@@ -1676,9 +1650,9 @@ function playLottie(path, loop = true) {
   }
   currentLottieInstance = lottie.loadAnimation({
     container: fireContainer,
-    renderer: "svg",
+    renderer:  "svg",
     loop,
-    autoplay: true,
+    autoplay:  true,
     path,
   });
   return currentLottieInstance;
@@ -1686,13 +1660,15 @@ function playLottie(path, loop = true) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CHECK-IN BUTTON
+//  FIX: pass uiData to getStreakDays — was called without argument so it
+//       always returned 0 (uiData was undefined inside the function).
 // ══════════════════════════════════════════════════════════════════════════════
 checkInBtn?.addEventListener("click", () => {
   fireContainer.classList.add("active");
   checkInBtn.classList.add("active-check");
   playLottie("/assets/anim/fire.json");
 
-  let streakDays = getStreakDays();
+  let streakDays = getStreakDays(uiData); // ✅ FIX: was getStreakDays() — no arg
   updateStreakUI(streakDays + 1, streakDays || 0);
   checkInBtn.style.pointerEvents = "none";
 });
@@ -1700,29 +1676,27 @@ checkInBtn?.addEventListener("click", () => {
 function getStreakDays(uiData) {
   if (!uiData?.lastCheckInDay) return 0;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const lastDay = uiData.lastCheckInDay;
+  const today     = new Date().toISOString().slice(0, 10);
+  const lastDay   = uiData.lastCheckInDay;
 
-  if (lastDay === today) {
-    return uiData.streakDays || 0;
-  }
+  if (lastDay === today) return uiData.streakDays || 0;
 
-  const yesterday = new Date(Date.now() - 86400000)
-    .toISOString()
-    .slice(0, 10);
-
-  if (lastDay === yesterday) {
-    return uiData.streakDays || 0;
-  }
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (lastDay === yesterday) return uiData.streakDays || 0;
 
   return 0;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DAILY CHECK-IN DIALOG
+//  FIX: removed the unused `false` argument that was passed in the original
+//       call — showDailyCheckInRewardDialog() takes no parameters.
+// ══════════════════════════════════════════════════════════════════════════════
 function showDailyCheckInRewardDialog() {
   if (!uiData) return;
 
   const today = new Date().toISOString().slice(0, 10);
-
-  if (uiData.lastCheckInDay === today) return; // already checked
+  if (uiData.lastCheckInDay === today) return; // already checked in
 
   let streakDays = getStreakDays(uiData);
 
@@ -1743,21 +1717,18 @@ async function updateStreakUI(newVal, startVal) {
   try {
     trigger("", "dc");
 
-    const result = await dailyCheckIn();
+    const result   = await dailyCheckIn();
     if (!result?.data) throw new Error("No data");
 
     const finalVal = result.data.newStreak;
-
-    let ts0 = null;
+    let ts0        = null;
     const duration = 800;
 
     const step = (ts) => {
       if (!ts0) ts0 = ts;
       const p = Math.min((ts - ts0) / duration, 1);
 
-      countEl.textContent = Math.floor(
-        p * (finalVal - startVal) + startVal
-      );
+      countEl.textContent = Math.floor(p * (finalVal - startVal) + startVal);
 
       if (p < 1) {
         requestAnimationFrame(step);
@@ -1777,10 +1748,7 @@ async function updateStreakUI(newVal, startVal) {
 
         setTimeout(() => {
           countEl.classList.remove("trigger-bounce");
-          showRewardBox(
-            result.data.isLCReward,
-            result.data.rewardAmount
-          );
+          showRewardBox(result.data.isLCReward, result.data.rewardAmount);
           getUser();
         }, 1200);
       }
@@ -1798,7 +1766,7 @@ async function updateStreakUI(newVal, startVal) {
 function showRewardBox(isLC = true, amount = 0) {
   if (!rewardContainer) return;
   const rewardText = document.getElementById("a");
-  const iconBox = document.getElementById("r-i");
+  const iconBox    = document.getElementById("r-i");
   if (!rewardText || !iconBox) return;
 
   rewardText.textContent = isLC ? `${amount} LC` : `₹${amount}`;
@@ -1827,7 +1795,7 @@ function spawnConfetti(count = 80) {
     document.head.appendChild(s);
   }
   for (let i = 0; i < count; i++) {
-    const d = document.createElement("div");
+    const d    = document.createElement("div");
     const size = Math.random() * 8 + 4;
     d.style.cssText = `
       position:fixed;pointer-events:none;z-index:99999;
@@ -1867,7 +1835,7 @@ function updatePlayerVisibility() {
 function setupPullToRefresh() {
   let startY = 0, pulling = false;
   document.addEventListener("touchstart", (e) => { startY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener("touchmove", (e) => {
+  document.addEventListener("touchmove",  (e) => {
     if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true;
   }, { passive: true });
   document.addEventListener("touchend", async () => {
@@ -1884,6 +1852,9 @@ function setupPullToRefresh() {
   });
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  PARTICLES
+// ══════════════════════════════════════════════════════════════════════════════
 const pc = document.getElementById("particles");
 for (let i = 0; i < 45; i++) {
   const p = document.createElement("div");

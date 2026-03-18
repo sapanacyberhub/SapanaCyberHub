@@ -52,6 +52,12 @@
       font-weight: 600;
       margin-bottom: 10px;
       cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    #installBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     #skipBtn {
@@ -61,26 +67,26 @@
       border: none;
       color: #aaa;
       cursor: pointer;
+      font-size: 14px;
     }
   </style>
-
-  <script type="module" src="./sup.js" defer></script>
 </head>
 
 <body>
 
   <div class="install-screen">
     <div class="install-card">
-      <img src="/assets/logo.png" class="install-logo">
+      <img src="/assets/logo.png" class="install-logo" alt="SapanaCyberHub Logo">
       <h2>SapanaCyberHub X Listen</h2>
       <p>Install app for better experience 🚀</p>
 
-      <button id="installBtn">Install Now</button>
+      <button id="installBtn" disabled>Preparing...</button>
       <button id="skipBtn">Continue in Browser</button>
     </div>
   </div>
 
-  
+  <!-- ✅ FIX: script tag is separate from HTML — JS was accidentally merged into the HTML body -->
+  <script type="module" src="./sup.js"></script>
 
 </body>
 

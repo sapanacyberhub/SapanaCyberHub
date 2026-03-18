@@ -2,7 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 🔥 Firebase config
+// ══════════════════════════════════════════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════════════════════════════════════════
 const app = initializeApp({
   apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
   authDomain: "sapanacyberhub-26310.firebaseapp.com",
@@ -13,95 +15,139 @@ const app = initializeApp({
   measurementId: "G-HKGQ8D55N1",
 });
 
-const auth = getAuth(app);
+const auth      = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const markSponsorWinner = httpsCallable(functions, "markSponsorWinner");
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  DOM
+// ══════════════════════════════════════════════════════════════════════════════
 const installBtn = document.getElementById("installBtn");
+const skipBtn    = document.getElementById("skipBtn");
 
-let currentUser = null;
+// ══════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let currentUser    = null;
 let installHandled = false;
 let deferredPrompt = null;
 
-// 🔒 INITIAL BUTTON STATE (FAST UX)
-installBtn.disabled = true;
-installBtn.innerText = "Preparing...";
-
-// ───── AUTH STATE ─────
+// ══════════════════════════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════════════════════════
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
 });
 
-// ───── INSTALL PROMPT READY ─────
+// ══════════════════════════════════════════════════════════════════════════════
+//  BEFOREINSTALLPROMPT
+//  The button starts disabled in HTML. Only enable it once the browser signals
+//  the PWA is installable — avoids a broken "Install" button on unsupported
+//  browsers or when the app is already installed.
+// ══════════════════════════════════════════════════════════════════════════════
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  // ⚡ INSTANT ENABLE
-  installBtn.disabled = false;
-  installBtn.innerText = "Install Now 🚀";
+  installBtn.disabled    = false;
+  installBtn.innerText   = "Install Now 🚀";
 });
 
-// ───── INSTALL BUTTON ─────
+// ══════════════════════════════════════════════════════════════════════════════
+//  APP ALREADY INSTALLED
+//  If the app is launched from the home screen, skip the install page entirely.
+// ══════════════════════════════════════════════════════════════════════════════
+window.addEventListener("appinstalled", () => {
+  // User installed via browser UI or prompt accepted — go home
+  deferredPrompt = null;
+  window.location.href = "/";
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  FIX: if already running as standalone PWA, redirect immediately —
+//       no point showing the install screen if the app is already installed.
+// ══════════════════════════════════════════════════════════════════════════════
+if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
+  window.location.href = "/";
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  INSTALL BUTTON
+// ══════════════════════════════════════════════════════════════════════════════
 installBtn.addEventListener("click", async () => {
 
+  // ── Auth guard ────────────────────────────────────────────────────────────
   if (!currentUser) {
     installBtn.innerText = "Login Required 😕";
-    setTimeout(() => {
-      installBtn.innerText = "Install Now 🚀";
-    }, 1500);
+    setTimeout(() => { installBtn.innerText = "Install Now 🚀"; }, 1500);
     return;
   }
 
+  // ── Prompt guard ─────────────────────────────────────────────────────────
+  // FIX: deferredPrompt becomes null after the first .prompt() call.
+  // Guard against a second click re-running the flow with a stale prompt.
   if (!deferredPrompt) {
-    installBtn.innerText = "Not Supported ❌";
+    installBtn.innerText = "Already Installing...";
     return;
   }
 
-  // ⚡ LOADING STATE
-  installBtn.disabled = true;
+  installBtn.disabled  = true;
   installBtn.innerText = "Installing... ⏳";
 
-  deferredPrompt.prompt();
+  // Capture and immediately clear the prompt so it can't be reused
+  const prompt = deferredPrompt;
+  deferredPrompt = null;
 
-  const choice = await deferredPrompt.userChoice;
+  try {
+    prompt.prompt();
+    const choice = await prompt.userChoice;
 
-  if (choice.outcome === "accepted") {
+    if (choice.outcome === "accepted") {
 
-    if (!installHandled) {
-      installHandled = true;
+      // FIX: installHandled guard is correct — keep it. Prevents double-calling
+      // markSponsorWinner if appinstalled event and this branch both fire.
+      if (!installHandled) {
+        installHandled = true;
 
-      const sponsorId = localStorage.getItem("pendingSponsorId");
+        const sponsorId = localStorage.getItem("pendingSponsorId");
 
-      if (!sponsorId) {
-        console.warn("❌ No sponsorId");
-        return;
+        if (sponsorId) {
+          try {
+            await markSponsorWinner({ sponsorId: String(sponsorId) });
+            localStorage.removeItem("pendingSponsorId");
+            installBtn.innerText = "Installed 🎉";
+          } catch (err) {
+            console.error("markSponsorWinner failed:", err);
+            installBtn.innerText = "Reward Failed 😕";
+            // Don't block the user — still go home after a moment
+          }
+        } else {
+          // No sponsor flow — just show success
+          installBtn.innerText = "Installed 🎉";
+        }
+
+        // Redirect home after install regardless of sponsor result
+        setTimeout(() => { window.location.href = "/"; }, 1500);
       }
 
-      try {
-        await markSponsorWinner({
-          sponsorId: String(sponsorId)
-        });
-
-        installBtn.innerText = "Success 🎉";
-        localStorage.removeItem("pendingSponsorId");
-
-      } catch (err) {
-        console.error(err);
-        installBtn.innerText = "Failed 😕";
-      }
+    } else {
+      // User dismissed the prompt
+      deferredPrompt       = null; // already null, but be explicit
+      installBtn.disabled  = false;
+      installBtn.innerText = "Install Now 🚀";
     }
 
-  } else {
-    // user cancelled
-    installBtn.disabled = false;
-    installBtn.innerText = "Install Now 🚀";
+  } catch (err) {
+    // prompt() can throw if called at the wrong time
+    console.error("Install prompt error:", err);
+    installBtn.disabled  = false;
+    installBtn.innerText = "Try Again";
   }
-
-  deferredPrompt = null;
 });
 
-// ───── SKIP BUTTON ─────
-document.getElementById("skipBtn").onclick = () => {
+// ══════════════════════════════════════════════════════════════════════════════
+//  SKIP BUTTON
+// ══════════════════════════════════════════════════════════════════════════════
+skipBtn.addEventListener("click", () => {
   window.location.href = "/";
-};
+});
