@@ -110,9 +110,6 @@ let sponsorAdOpenTime = 0;
 let adIndexL = 0;
 let isJoinedList = false;
 let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
-// // ───── GLOBAL GUARDS ─────
-let sponsorProcessing = false;
-let visibilityHandler = null;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
@@ -1208,33 +1205,21 @@ function renderLeaderboardCard(taskData, leaderboard) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  APP TASK OVERLAY ACTIONS
 // ══════════════════════════════════════════════════════════════════════════════
-
-
 a_t_d_overlay?.addEventListener("click", async (e) => {
-  const closeBtn = e.target.closest(".a-t-d-close");
+  const closeButton = e.target.closest(".a-t-d-close");
   const claimBtn = e.target.closest(".claim-btn");
   const vibeBtn = e.target.closest(".vibe-btn");
 
-  // ───── CLOSE ─────
-  if (closeBtn) {
+  if (closeButton) {
     a_t_d_overlay.classList.remove("active");
     return;
   }
 
   // ───── CLAIM ─────
   if (claimBtn) {
-    const sponsorId = claimBtn.dataset.sponsor;
-    if (!sponsorId) return;
-
-    a_t_d_overlay.innerHTML = `
-      <div class="a-t-d-card">
-        <div class="eq-progress loadingEventStatus">
-          ${"<span></span>".repeat(10)}
-        </div>
-      </div>`;
-
+    a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
-      const res = await claimSponsorReward({ sponsorId });
+      const res = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
       const data = res?.data;
 
       if (!data?.success) {
@@ -1251,7 +1236,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       const labels = {
         cash: "Cash Reward",
         listenCoin: "Listen Coins",
-        luckCredit: "Luck Credit",
+        luckCredit: "Luck Credit"
       };
 
       spawnConfetti();
@@ -1292,32 +1277,31 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     return;
   }
 
-  const link = taskData.sponsorLink;
-  if (!link) {
-    showToast("Link not found 😕", "error");
-    return;
-  }
-
-  // ───── NOT JOINED ─────
   if (!isJoinedList) {
+    if (!taskData.sponsorLink) {
+      showToast("Download link not found 😕", "error");
+      return;
+    }
+
     showAdCountdownToast(10);
 
-    pendingSponsorApkPath = link;
+    pendingSponsorApkPath = taskData.sponsorLink;
     pendingSponsorId = sponsorId;
     sponsorAdOpenTime = Date.now();
 
     trigger(sponsorId, "dc");
 
-    // 🔥 REMOVE OLD LISTENER
+    // 🔥 REMOVE OLD LISTENER (FIX)
     if (visibilityHandler) {
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
     }
 
-    // 🔥 CREATE NEW HANDLER
+    // 🔥 NEW HANDLER
     visibilityHandler = async () => {
       if (document.hidden) return;
 
+      // 🔒 LOCK (FIX)
       if (sponsorProcessing) return;
       sponsorProcessing = true;
 
@@ -1326,22 +1310,21 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       try {
         if (stayed >= AD_WAIT_MS.dc) {
 
-          // ✅ SAVE sponsorId FIRST (NEW — no break)
+          // ✅ SAVE sponsorId (NEW - REQUIRED FOR INSTALL FLOW)
           if (pendingSponsorId) {
             localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
           }
 
-          // 🔥 KEEP YOUR ORIGINAL LOGIC (UNCHANGED)
+          // 🔥 ORIGINAL LOGIC (UNCHANGED)
           if (pendingSponsorApkPath?.endsWith(".apk")) {
             await downloadSponsorApk(pendingSponsorApkPath);
           } else if (pendingSponsorApkPath) {
-            window.open(pendingSponsorApkPath, "_blank",  "noopener,noreferrer");
+            window.open(pendingSponsorApkPath, "_blank");
           }
 
-          // ✅ KEEP JOIN LOGIC (UNCHANGED)
           if (pendingSponsorId) {
             const res = await vibeInSponsor({
-              sponsorId: String(pendingSponsorId)
+              sponsorId: pendingSponsorId
             });
 
             await getUser();
@@ -1353,7 +1336,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
           }
 
         } else {
-          showToast("Stay at least 10 seconds on sponsor page.", "error");
+          showToast("Stay at least 10 seconds on the sponsor page.", "error");
         }
 
       } catch (err) {
@@ -1361,7 +1344,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
         showToast("Reward failed 😕", "error");
       }
 
-      // 🧹 CLEANUP (UNCHANGED)
+      // 🧹 CLEANUP
       pendingSponsorApkPath = null;
       pendingSponsorId = null;
       sponsorAdOpenTime = 0;
@@ -1377,23 +1360,117 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.addEventListener("visibilitychange", visibilityHandler);
 
     a_t_d_overlay.classList.remove("active");
-    return;
-  }
 
-  // ───── ALREADY JOINED ─────
-  a_t_d_overlay.classList.remove("active");
 
-  const isApk = link.toLowerCase().includes(".apk");
+  } else {
+    // User already joined — redirect to sponsor app/website to complete tasks
+    const link = taskData.sponsorLink;
 
-  const openLink = () => {
-    if (isApk) {
-      downloadSponsorApk(link);
-    } else {
-      window.open(link, "_blank", "noopener,noreferrer");
+    if (!link) {
+      showToast("No link found for this task 😕", "error");
+      return;
     }
-  };
 
-  setTimeout(openLink, 4000);
+    a_t_d_overlay.classList.remove("active");
+
+    // ── Inject styles once ──
+    if (!document.getElementById("dtc-redirect-style")) {
+      const s = document.createElement("style");
+      s.id = "dtc-redirect-style";
+      s.textContent = `
+        #dtc-redirect-toast{
+          position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(30px);
+          z-index:99999;opacity:0;
+          background:#0d1117;border:1px solid rgba(34,197,94,.28);border-radius:16px;
+          padding:14px 18px;min-width:280px;max-width:90vw;
+          box-shadow:0 8px 32px rgba(0,0,0,.55);
+          transition:all .35s cubic-bezier(.22,1,.36,1);
+        }
+        #dtc-redirect-toast.dtc-show{opacity:1;transform:translateX(-50%) translateY(0)}
+        .dtc-rt-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+        .dtc-rt-icon{width:36px;height:36px;border-radius:9px;object-fit:cover;
+          border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);flex-shrink:0}
+        .dtc-rt-info h4{font-size:.84rem;font-weight:700;color:#e2e8f0;margin-bottom:2px}
+        .dtc-rt-info p{font-size:.72rem;color:rgba(226,232,240,.45);line-height:1.4}
+        .dtc-rt-bar-wrap{height:3px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-bottom:10px}
+        .dtc-rt-bar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#4ade80);
+          border-radius:100px;transition:width linear}
+        .dtc-rt-btn{width:100%;padding:10px;border:none;border-radius:10px;
+          background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;
+          font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;
+          display:flex;align-items:center;justify-content:center;gap:6px}
+        .dtc-rt-btn:active{transform:scale(.97)}`;
+      document.head.appendChild(s);
+    }
+
+    // ── Remove any existing toast ──
+    document.getElementById("dtc-redirect-toast")?.remove();
+
+    const COUNTDOWN_MS = 4000;
+    const isApk = link.toLowerCase().includes(".apk");
+    const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
+    const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
+    const descTxt = isApp
+      ? "Open the app, complete the task, then come back here."
+      : "Visit the page, complete the task, then return here.";
+
+    const toast = document.createElement("div");
+    toast.id = "dtc-redirect-toast";
+    toast.innerHTML = `
+      <div class="dtc-rt-top">
+        <img class="dtc-rt-icon"
+          src="${taskData.sponsorAppLogoUrl || ""}"
+          onerror="this.style.display='none'" alt="">
+        <div class="dtc-rt-info">
+          <h4>${taskData.sponsorAppName || "Task"}</h4>
+          <p>${descTxt}</p>
+        </div>
+      </div>
+      <div class="dtc-rt-bar-wrap">
+        <div class="dtc-rt-bar" id="dtc-rt-bar"></div>
+      </div>
+      <button class="dtc-rt-btn" id="dtc-rt-btn">${btnTxt}</button>`;
+
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.classList.add("dtc-show");
+      // start bar countdown
+      const bar = document.getElementById("dtc-rt-bar");
+      bar.style.transitionDuration = COUNTDOWN_MS + "ms";
+      requestAnimationFrame(() => { bar.style.width = "0%"; });
+    });
+
+    // Open link helper
+    const openLink = () => {
+      if (isApk) {
+        pendingSponsorApkPath = taskData.sponsorLink;
+        downloadSponsorApk(pendingSponsorApkPath);
+      } else {
+        window.open(link, "_blank", "noopener,noreferrer");
+      }
+    };
+
+    // Auto-open after countdown
+    const autoTimer = setTimeout(openLink, COUNTDOWN_MS);
+
+    // Manual tap
+    document.getElementById("dtc-rt-btn").addEventListener("click", () => {
+      clearTimeout(autoTimer);
+      openLink();
+    });
+
+    // Dismiss when user returns to tab
+    const onReturn = () => {
+      if (document.hidden) return;
+      toast.classList.remove("dtc-show");
+      setTimeout(() => toast.remove(), 380);
+      document.removeEventListener("visibilitychange", onReturn);
+    };
+    document.addEventListener("visibilitychange", onReturn);
+
+    // Safety cleanup
+    setTimeout(() => toast.remove(), COUNTDOWN_MS + 10000);
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
