@@ -1213,9 +1213,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       }
 
       const icons = {
-        cash:        "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
-        listenCoin:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
-        luckCredit:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
+        cash:       "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+        listenCoin: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
+        luckCredit: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
       };
 
       const labels = {
@@ -1262,14 +1262,16 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     return;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NOT JOINED — show ad → open sponsor link → mark reward
+  // ══════════════════════════════════════════════════════════════════════════
   if (!isJoinedList) {
     if (!taskData.sponsorLink) {
       showToast("Download link not found 😕", "error");
       return;
     }
 
-    // ✅ FIX: clear any lingering listen/hit join state so the global
-    //         visibilitychange handler does not fire alongside the sponsor one
+    // Clear any lingering listen/hit join state
     pendingJoinEventId = null;
     adOpenTime         = 0;
 
@@ -1278,6 +1280,15 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     pendingSponsorApkPath = taskData.sponsorLink;
     pendingSponsorId      = sponsorId;
     sponsorAdOpenTime     = Date.now();
+
+    // ✅ Open blank window SYNCHRONOUSLY before trigger() so the browser
+    //    still treats this as a direct user gesture — prevents background tab.
+    //    Only for non-APK links (APK uses downloadSponsorApk instead).
+    const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
+    let sponsorWindow = null;
+    if (!isApkLink) {
+      sponsorWindow = window.open("", "_blank");
+    }
 
     trigger(sponsorId, "dc");
 
@@ -1290,7 +1301,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     visibilityHandler = async () => {
       if (document.hidden) return;
 
-      // Lock against double-fire
       if (sponsorProcessing) return;
       sponsorProcessing = true;
 
@@ -1303,10 +1313,16 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
             localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
           }
 
-          if (pendingSponsorApkPath?.endsWith(".apk")) {
+          if (isApkLink) {
+            // APK — download via Firebase Storage URL
             await downloadSponsorApk(pendingSponsorApkPath);
-          } else if (pendingSponsorApkPath) {
-            window.open(pendingSponsorApkPath, "_blank");
+          } else if (sponsorWindow && !sponsorWindow.closed) {
+            // ✅ Navigate the already-open foreground window to the real URL
+            //    (window was opened sync above, so it's focused & not blocked)
+            sponsorWindow.location.href = pendingSponsorApkPath;
+          } else {
+            // Fallback — window was closed or blocked, try location redirect
+            window.location.href = pendingSponsorApkPath;
           }
 
           if (pendingSponsorId) {
@@ -1319,11 +1335,20 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
           }
 
         } else {
-          showToast("Stay at least 10 seconds on the sponsor page.", "error");
+          // ✅ User came back too early — close the blank window we opened
+          if (sponsorWindow && !sponsorWindow.closed) {
+            sponsorWindow.close();
+          }
+          const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
+          showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
         }
 
       } catch (err) {
         console.error(err);
+        // Close blank window on error too
+        if (sponsorWindow && !sponsorWindow.closed) {
+          sponsorWindow.close();
+        }
         showToast("Reward failed 😕", "error");
       }
 
@@ -1331,20 +1356,20 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       pendingSponsorApkPath = null;
       pendingSponsorId      = null;
       sponsorAdOpenTime     = 0;
+      sponsorWindow         = null;
 
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
-
-      // ✅ FIX: reset synchronously — 1500ms timeout allowed double-fire on fast tab switches
       sponsorProcessing = false;
     };
 
     document.addEventListener("visibilitychange", visibilityHandler);
-
     a_t_d_overlay.classList.remove("active");
 
+  // ══════════════════════════════════════════════════════════════════════════
+  //  JOINED — redirect user to sponsor app/site to complete tasks
+  // ══════════════════════════════════════════════════════════════════════════
   } else {
-    // User already joined — redirect to sponsor app/website to complete tasks
     const link = taskData.sponsorLink;
 
     if (!link) {
@@ -1387,9 +1412,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.getElementById("dtc-redirect-toast")?.remove();
 
     const COUNTDOWN_MS = 4000;
-    const isApk  = link.toLowerCase().includes(".apk");
+    const isApk  = link.toLowerCase().endsWith(".apk");
     const isApp  = isApk || link.includes("play.google") || link.includes("apps.apple");
-    const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
+    const btnTxt  = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
     const descTxt = isApp
       ? "Open the app, complete the task, then come back here."
       : "Visit the page, complete the task, then return here.";
@@ -1412,6 +1437,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       <button class="dtc-rt-btn" id="dtc-rt-btn">${btnTxt}</button>`;
 
     document.body.appendChild(toast);
+
     requestAnimationFrame(() => {
       toast.classList.add("dtc-show");
       const bar = document.getElementById("dtc-rt-bar");
@@ -1421,10 +1447,11 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     const openLink = () => {
       if (isApk) {
-        pendingSponsorApkPath = taskData.sponsorLink;
+        pendingSponsorApkPath = link;
         downloadSponsorApk(pendingSponsorApkPath);
       } else {
-        window.open(link, "_blank", "noopener,noreferrer");
+        // ✅ Same tab redirect — no background tab issue
+        window.location.href = link;
       }
     };
 

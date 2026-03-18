@@ -127,7 +127,7 @@ installBtn.addEventListener("click", async () => {
         }
 
         // Redirect home after install regardless of sponsor result
-        setTimeout(() => { window.location.href = "/"; }, 1500);
+        setTimeout(() => { window.location.href = "/online-earning/listen-enjoy-earn/"; }, 15000);
       }
 
     } else {
