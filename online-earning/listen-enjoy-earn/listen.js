@@ -24,49 +24,49 @@ const marathon = new MusicMarathon({ containerId: "marathon-root", functions });
 // ══════════════════════════════════════════════════════════════════════════════
 //  CALLABLES
 // ══════════════════════════════════════════════════════════════════════════════
-const dailyCheckIn          = httpsCallable(functions, "dailyCheckIn");
-const connectUser           = httpsCallable(functions, "loadUserData");
-const getEvents             = httpsCallable(functions, "getEvents");
-const joinvibeEvents        = httpsCallable(functions, "vibeInEvent");
-const vibeInSponsor         = httpsCallable(functions, "vibeInSponsor");
-const getSponsorTasks       = httpsCallable(functions, "getSponsorAppTasks");
+const dailyCheckIn = httpsCallable(functions, "dailyCheckIn");
+const connectUser = httpsCallable(functions, "loadUserData");
+const getEvents = httpsCallable(functions, "getEvents");
+const joinvibeEvents = httpsCallable(functions, "vibeInEvent");
+const vibeInSponsor = httpsCallable(functions, "vibeInSponsor");
+const getSponsorTasks = httpsCallable(functions, "getSponsorAppTasks");
 const getSponsorTaskLeaderBoard = httpsCallable(functions, "getLeaderBoard");
-const getVibeLeaderBoard    = httpsCallable(functions, "getVibeLeaderBoard");
-const claimSponsorReward    = httpsCallable(functions, "claimMyReward");
-const claimVibeReward       = httpsCallable(functions, "claimMyVibe");
+const getVibeLeaderBoard = httpsCallable(functions, "getVibeLeaderBoard");
+const claimSponsorReward = httpsCallable(functions, "claimMyReward");
+const claimVibeReward = httpsCallable(functions, "claimMyVibe");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DOM REFERENCES
 // ══════════════════════════════════════════════════════════════════════════════
-const eventPPage      = document.getElementById("event-page");
-const dialog          = document.getElementById("over-hidden");
-const dialogCloseBtn  = document.getElementById("dialog-close");
-const a_t_d_overlay   = document.getElementById("app-task-overlay");
-const userNameEl      = document.getElementById("user_name");
-const userBalance     = document.getElementById("user_earning");
-const vibingBtns      = document.querySelectorAll(".vibing-btn");
-const vibingOverBtns  = document.querySelectorAll(".vibing-over-btn");
-const fireContainer   = document.getElementById("fire");
-const checkInBtn      = document.getElementById("check-in-btn");
-const frame           = document.querySelector(".player-frame");
-const eventIdEl       = document.getElementById("vibing-event-id");
-const suggestEvent    = document.getElementById("suggest-event");
-const c_s_p           = document.getElementById("custom-yt-playlist");
-const checkInOverlay  = document.getElementById("d-v-c-s-overlay");
+const eventPPage = document.getElementById("event-page");
+const dialog = document.getElementById("over-hidden");
+const dialogCloseBtn = document.getElementById("dialog-close");
+const a_t_d_overlay = document.getElementById("app-task-overlay");
+const userNameEl = document.getElementById("user_name");
+const userBalance = document.getElementById("user_earning");
+const vibingBtns = document.querySelectorAll(".vibing-btn");
+const vibingOverBtns = document.querySelectorAll(".vibing-over-btn");
+const fireContainer = document.getElementById("fire");
+const checkInBtn = document.getElementById("check-in-btn");
+const frame = document.querySelector(".player-frame");
+const eventIdEl = document.getElementById("vibing-event-id");
+const suggestEvent = document.getElementById("suggest-event");
+const c_s_p = document.getElementById("custom-yt-playlist");
+const checkInOverlay = document.getElementById("d-v-c-s-overlay");
 const rewardContainer = document.getElementById("r-b");
-const hit_grid        = document.getElementById("hit-event-grid");
-const listen_grid     = document.getElementById("listen-event-grid");
-const premiumLegue    = document.getElementById("lakhpati-loop");
-const appTaskList     = document.getElementById("task-list");
+const hit_grid = document.getElementById("hit-event-grid");
+const listen_grid = document.getElementById("listen-event-grid");
+const premiumLegue = document.getElementById("lakhpati-loop");
+const appTaskList = document.getElementById("task-list");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════════════════════
 const EVENT_TYPE_INDEX = { listen: 1, hit: 2, lakhpati: 3, cash: 4 };
-const AD_WAIT_MS       = { listen: 10000, hit: 10000, dc: 10000 };
+const AD_WAIT_MS = { listen: 10000, hit: 10000, dc: 10000 };
 
-const DP_FALLBACK    = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
-const COIN_IMG       = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
+const DP_FALLBACK = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
+const COIN_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
 const PRIZE_POOL_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png";
 
 const linksL = [
@@ -84,35 +84,35 @@ const linksDCI = ["https://omg10.com/4/10619475"];
 // ══════════════════════════════════════════════════════════════════════════════
 //  GLOBAL STATE
 // ══════════════════════════════════════════════════════════════════════════════
-let uiData               = null;
-let currentUser          = null;
+let uiData = null;
+let currentUser = null;
 let currentLottieInstance = null;
-let vibingEventId        = null;
+let vibingEventId = null;
 
-const listenEvents      = [];
-const listenEventsJoin  = [];
-const hitEvents         = [];
-const hitEventsJoin     = [];
-const lakhpatiLoops     = [];
+const listenEvents = [];
+const listenEventsJoin = [];
+const hitEvents = [];
+const hitEventsJoin = [];
+const lakhpatiLoops = [];
 const lakhpatiLoopsJoin = [];
-const cashHaandis       = [];
-const cashHaandisJoin   = [];
-const sponsorAppTasks     = [];
+const cashHaandis = [];
+const cashHaandisJoin = [];
+const sponsorAppTasks = [];
 const sponsorAppTasksJoin = [];
 
-let adOpenTime         = 0;
-let adLocked           = false;
+let adOpenTime = 0;
+let adLocked = false;
 let pendingJoinEventId = null;
-let pendingJoinTypeIndex  = null;   // numeric: 1 | 2 | 3 | 4
+let pendingJoinTypeIndex = null;   // numeric: 1 | 2 | 3 | 4
 let pendingSponsorApkPath = null;
-let pendingSponsorId      = null;
-let sponsorAdOpenTime     = 0;
-let adIndexL              = 0;
-let isJoinedList          = false;
-let joinedType            = null;   // "L" | "H" | "PL" | "SAT" | null
+let pendingSponsorId = null;
+let sponsorAdOpenTime = 0;
+let adIndexL = 0;
+let isJoinedList = false;
+let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
 
-let sponsorProcessing  = false;
-let visibilityHandler  = null;
+let sponsorProcessing = false;
+let visibilityHandler = null;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
@@ -137,7 +137,7 @@ function setupNetworkBanner() {
   banner.textContent = "⚡ You're offline — some features may not work";
   document.body.prepend(banner);
   window.addEventListener("offline", () => { banner.style.display = "block"; });
-  window.addEventListener("online",  () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
+  window.addEventListener("online", () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -174,7 +174,7 @@ async function getUser() {
     const result = await connectUser();
 
     if (result?.data?.success && result.data.userData) {
-      uiData        = result.data.userData;
+      uiData = result.data.userData;
       userAvailable = true;
     } else {
       uiData = null;
@@ -219,9 +219,9 @@ function checkusercheckin() {
 async function getEventList() {
   try {
     listenEvents.length = listenEventsJoin.length = 0;
-    hitEvents.length    = hitEventsJoin.length    = 0;
+    hitEvents.length = hitEventsJoin.length = 0;
     lakhpatiLoops.length = lakhpatiLoopsJoin.length = 0;
-    cashHaandis.length  = cashHaandisJoin.length  = 0;
+    cashHaandis.length = cashHaandisJoin.length = 0;
 
     const [r1, rj1, r2, rj2, r3, rj3, r4, rj4] = await Promise.all([
       getEvents({ i: 1, needJoined: false }), getEvents({ i: 1, needJoined: true }),
@@ -230,13 +230,13 @@ async function getEventList() {
       getEvents({ i: 4, needJoined: false }), getEvents({ i: 4, needJoined: true }),
     ]);
 
-    if (r1.data?.events)  listenEvents.push(...r1.data.events);
+    if (r1.data?.events) listenEvents.push(...r1.data.events);
     if (rj1.data?.events) listenEventsJoin.push(...rj1.data.events);
-    if (r2.data?.events)  hitEvents.push(...r2.data.events);
+    if (r2.data?.events) hitEvents.push(...r2.data.events);
     if (rj2.data?.events) hitEventsJoin.push(...rj2.data.events);
-    if (r3.data?.events)  lakhpatiLoops.push(...r3.data.events);
+    if (r3.data?.events) lakhpatiLoops.push(...r3.data.events);
     if (rj3.data?.events) lakhpatiLoopsJoin.push(...rj3.data.events);
-    if (r4.data?.events)  cashHaandis.push(...r4.data.events);
+    if (r4.data?.events) cashHaandis.push(...r4.data.events);
     if (rj4.data?.events) cashHaandisJoin.push(...rj4.data.events);
 
     updatePlayerVisibility();
@@ -252,7 +252,7 @@ async function getSponsorTasksList() {
       getSponsorTasks({ needJoined: false }),
       getSponsorTasks({ needJoined: true }),
     ]);
-    if (res.data?.success     && res.data.sponsors)     sponsorAppTasks.push(...res.data.sponsors);
+    if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
     if (resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
   } catch (err) {
     showToast("Could not load events. Try refreshing.", "error");
@@ -306,7 +306,7 @@ async function downloadSponsorApk(apkPath) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  DIALOG
 // ══════════════════════════════════════════════════════════════════════════════
-const openDialog  = () => { if (dialog) dialog.style.display = "flex"; };
+const openDialog = () => { if (dialog) dialog.style.display = "flex"; };
 const closeDialog = () => { if (dialog) dialog.style.display = "none"; };
 dialogCloseBtn?.addEventListener("click", closeDialog);
 
@@ -318,7 +318,7 @@ function renderSponsorAppTasks(vibeOver = false) {
   appTaskList.innerHTML = "";
 
   const fullList = vibeOver ? sponsorAppTasksJoin : sponsorAppTasks;
-  const tasks    = vibeOver
+  const tasks = vibeOver
     ? fullList
     : fullList.filter((t) => !sponsorAppTasksJoin.some((j) => j.sponsorId === t.sponsorId));
 
@@ -373,7 +373,7 @@ function renderVibingListenEvents(vibeOver = false) {
   listen_grid.innerHTML = "";
 
   const fullList = vibeOver ? listenEventsJoin : listenEvents;
-  const events   = vibeOver
+  const events = vibeOver
     ? fullList
     : fullList.filter((e) => !listenEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -391,11 +391,11 @@ function renderVibingListenEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card   = document.createElement("article");
-    const fee    = Number(event.eventEntryFee || 0);
+    const card = document.createElement("article");
+    const fee = Number(event.eventEntryFee || 0);
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const ended  = isEnded(event.endTime);
+    const ended = isEnded(event.endTime);
 
     card.className = "event-card";
     card.innerHTML = `
@@ -443,7 +443,7 @@ function renderVibingHitEvents(vibeOver = false) {
   hit_grid.innerHTML = "";
 
   const fullList = vibeOver ? hitEventsJoin : hitEvents;
-  const events   = vibeOver
+  const events = vibeOver
     ? fullList
     : fullList.filter((e) => !hitEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -461,10 +461,10 @@ function renderVibingHitEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card   = document.createElement("div");
+    const card = document.createElement("div");
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const fee    = Number(event.eventEntryFee || 0);
+    const fee = Number(event.eventEntryFee || 0);
 
     card.className = "hit-card";
     card.innerHTML = `
@@ -521,7 +521,7 @@ function renderLakhpatiLoops(vibeOver = false) {
   premiumLegue.innerHTML = "";
 
   const fullList = vibeOver ? lakhpatiLoopsJoin : lakhpatiLoops;
-  const events   = vibeOver
+  const events = vibeOver
     ? fullList
     : fullList.filter((e) => !lakhpatiLoopsJoin.some((j) => j.eventId === e.eventId));
 
@@ -539,10 +539,10 @@ function renderLakhpatiLoops(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card     = document.createElement("div");
+    const card = document.createElement("div");
     card.className = "lakhpati-card";
     const prizePool = (event.lakhpatiLoopAmountIndex || 0) * 100_000;
-    const fee      = Number(event.eventEntryFee || 0);
+    const fee = Number(event.eventEntryFee || 0);
 
     card.innerHTML = `
       <div class="lakhpati-content">
@@ -605,10 +605,10 @@ function renderLakhpatiLoops(vibeOver = false) {
 vibingOverBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = true;
-    joinedType   = e.currentTarget.dataset.eventType;
-    if      (joinedType === "L")   renderVibingListenEvents(true);
-    else if (joinedType === "H")   renderVibingHitEvents(true);
-    else if (joinedType === "PL")  renderLakhpatiLoops(true);
+    joinedType = e.currentTarget.dataset.eventType;
+    if (joinedType === "L") renderVibingListenEvents(true);
+    else if (joinedType === "H") renderVibingHitEvents(true);
+    else if (joinedType === "PL") renderLakhpatiLoops(true);
     else if (joinedType === "SAT") renderSponsorAppTasks(true);
   });
 });
@@ -616,11 +616,11 @@ vibingOverBtns.forEach((btn) => {
 vibingBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = false;
-    joinedType   = null;
+    joinedType = null;
     const t = e.currentTarget.dataset.eventType;
-    if      (t === "L")   renderVibingListenEvents(false);
-    else if (t === "H")   renderVibingHitEvents(false);
-    else if (t === "PL")  renderLakhpatiLoops(false);
+    if (t === "L") renderVibingListenEvents(false);
+    else if (t === "H") renderVibingHitEvents(false);
+    else if (t === "PL") renderLakhpatiLoops(false);
     else if (t === "SAT") renderSponsorAppTasks(false);
   });
 });
@@ -663,7 +663,7 @@ listen_grid?.addEventListener("click", (e) => {
   e.stopPropagation();
   if (isJoinedList && joinedType === "L") return;
 
-  const eventId   = joinBtn.dataset.eventid;
+  const eventId = joinBtn.dataset.eventid;
   const eventData = listenEvents.find((ev) => ev.eventId === eventId);
   if (!eventData) return;
 
@@ -763,8 +763,8 @@ hit_grid?.addEventListener("click", (e) => {
 premiumLegue?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderLakhpatiLoops(false); return; }
 
-  const joinBtn  = e.target.closest(".j-m-l");
-  const feeCont  = e.target.closest(".E-f-l");
+  const joinBtn = e.target.closest(".j-m-l");
+  const feeCont = e.target.closest(".E-f-l");
   if (!joinBtn && !feeCont) return;
   e.stopPropagation();
 
@@ -811,8 +811,8 @@ function trigger(eventId, eventType) {
   adLocked = true;
   const links =
     eventType === "listen" ? linksL :
-    eventType === "hit"    ? linksH :
-    eventType === "dc"     ? linksDCI : [];
+      eventType === "hit" ? linksH :
+        eventType === "dc" ? linksDCI : [];
   if (!links.length) {
     showToast("No ad links available 😕", "error");
     adLocked = false;
@@ -837,11 +837,11 @@ document.addEventListener("visibilitychange", () => {
   if (!pendingJoinEventId || !adOpenTime) return;
 
   const stayedMs = Date.now() - adOpenTime;
-  const typeKey  = pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" : "listen";
+  const typeKey = pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" : "listen";
   const required = AD_WAIT_MS[typeKey] || 10000;
 
   if (stayedMs >= required) {
-    const pool      = typeKey === "hit" ? hitEvents : listenEvents;
+    const pool = typeKey === "hit" ? hitEvents : listenEvents;
     const eventData = pool.find((ev) => ev.eventId === pendingJoinEventId);
     if (eventData) {
       showEventDetails(eventData, false, pendingJoinTypeIndex);
@@ -853,7 +853,7 @@ document.addEventListener("visibilitychange", () => {
   }
 
   pendingJoinEventId = null;
-  adOpenTime         = 0;
+  adOpenTime = 0;
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -871,7 +871,7 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   // ── LEADERBOARD PATH ──────────────────────────────────────────────────────
   if (isJoinedList && isEnded(ED?.endTime)) {
     try {
-      const res  = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
+      const res = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
       const data = res.data;
 
       if (data.success && data.winners?.length) {
@@ -905,13 +905,13 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   }
 
   // ── JOIN UI PATH ──────────────────────────────────────────────────────────
-  const poolIndex  = ED.lakhpatiLoopAmountIndex ?? 0;
-  const rawPrize   = ED.eventPrizePool ?? (poolIndex * 100_000);
-  const title      = !ED.eventTitle
+  const poolIndex = ED.lakhpatiLoopAmountIndex ?? 0;
+  const rawPrize = ED.eventPrizePool ?? (poolIndex * 100_000);
+  const title = !ED.eventTitle
     ? "Best of Luck, Viber!"
     : ED.eventTitle.length > 30 ? `${ED.eventTitle.slice(0, 27)}…` : ED.eventTitle;
 
-  const prizeText   = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
+  const prizeText = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
   const explainText = isLakhpati
     ? `Lakhpati Prize Pool Increase!</b><br>Today: ₹1 Lakh ⮕ Next 5 Days: ₹5 Lakh ⮕ Weekly Goal: <b>₹18 Lakh!`
     : `The more who join, the bigger the pot! Every new listener scales the rewards, creating more winning spots for everyone.`;
@@ -948,10 +948,10 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
 // ══════════════════════════════════════════════════════════════════════════════
 function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0, eventType) {
   const safe = (u) => ({
-    rank:       u?.rank      || 0,
-    viberDp:    u?.viberDp   || DP_FALLBACK,
-    viberName:  u?.viberName || "Unknown",
-    winAmount:  u?.winAmount || 0,
+    rank: u?.rank || 0,
+    viberDp: u?.viberDp || DP_FALLBACK,
+    viberName: u?.viberName || "Unknown",
+    winAmount: u?.winAmount || 0,
   });
 
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
@@ -999,19 +999,19 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
   if (ED.isClaim) {
     const thanks = document.createElement("p");
     thanks.style.cssText = "text-align:center;color:#22c55e;font-weight:600;padding:12px 0 4px";
-    thanks.textContent   = "❤️ Reward already claimed — Thank you!";
+    thanks.textContent = "❤️ Reward already claimed — Thank you!";
     lCard.appendChild(thanks);
 
   } else if (myRank > 0 && myWinAmount > 0) {
-    const claimBtn       = document.createElement("button");
-    claimBtn.className   = "vibe-btn";
+    const claimBtn = document.createElement("button");
+    claimBtn.className = "vibe-btn";
     claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
 
     claimBtn.addEventListener("click", async () => {
-      claimBtn.disabled    = true;
+      claimBtn.disabled = true;
       claimBtn.textContent = "Claiming…";
       try {
-        const res  = await claimVibeReward({ eventId: ED.eventId, eventType });
+        const res = await claimVibeReward({ eventId: ED.eventId, eventType });
         const data = res?.data;
         if (!data?.success) throw new Error(data?.message || "Claim failed");
         claimBtn.textContent = "❤️ Claimed!";
@@ -1021,7 +1021,7 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
       } catch (err) {
         console.error("Claim error:", err);
         showToast(err.message || "Claim failed 😕", "error");
-        claimBtn.disabled    = false;
+        claimBtn.disabled = false;
         claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
       }
     });
@@ -1034,9 +1034,9 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
 //  HANDLE JOIN EVENT
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
-  const isFree   = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
+  const isFree = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
   const feeLabel = isFree ? "Free entry ✓" : `Deducting ₹${ED.eventEntryFee}`;
-  const steps    = [
+  const steps = [
     "Verifying your account",
     feeLabel,
     ...(eventTypeIndex !== EVENT_TYPE_INDEX.listen ? ["Assigning lucky tickets 🎲"] : []),
@@ -1061,25 +1061,25 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
 
     await getUser();
 
-    if      (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen)   { renderVibingListenEvents(false); updatePlayerVisibility(); }
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit)      renderVibingHitEvents(false);
+    if (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen) { renderVibingListenEvents(false); updatePlayerVisibility(); }
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit) renderVibingHitEvents(false);
 
-    pendingJoinEventId   = null;
+    pendingJoinEventId = null;
     pendingJoinTypeIndex = null;
 
   } catch (err) {
     console.error("Join failed:", err);
     const map = {
-      "already-exists":   "You've already joined this event!",
-      "failed-precondition": err.message?.includes("LC")   ? "Not enough Listen Coins."
-                           : err.message?.includes("cash") ? "Insufficient balance. Please top up."
-                           : "This event has ended.",
-      "not-found":        "Event not found. It may have just ended.",
-      "unauthenticated":  "Please log in first.",
+      "already-exists": "You've already joined this event!",
+      "failed-precondition": err.message?.includes("LC") ? "Not enough Listen Coins."
+        : err.message?.includes("cash") ? "Insufficient balance. Please top up."
+          : "This event has ended.",
+      "not-found": "Event not found. It may have just ended.",
+      "unauthenticated": "Please log in first.",
       "resource-exhausted": "Server busy. Please try again in a moment.",
     };
-    const code    = err?.code?.replace("functions/", "") || "";
+    const code = err?.code?.replace("functions/", "") || "";
     const message = map[code] || err.message || "Something went wrong.";
     progress.finish(false, message);
     showToast(message, "error");
@@ -1114,7 +1114,7 @@ appTaskList?.addEventListener("click", async (e) => {
 
   if (isJoinedList && joinedType === "SAT") {
     try {
-      const res        = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
+      const res = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
       const leaderboard = res?.data?.leaderboard || [];
       if (leaderboard.length) {
         renderLeaderboardCard(resolvedTask, leaderboard);
@@ -1150,10 +1150,10 @@ function renderTaskDetailCard(taskData) {
 
 function renderLeaderboardCard(taskData, leaderboard) {
   const safe = (u) => ({
-    viberDp:   u?.viberDp   || DP_FALLBACK,
+    viberDp: u?.viberDp || DP_FALLBACK,
     viberName: u?.viberName || "Unknown",
     winAmount: u?.winAmount || 0,
-    rank:      u?.rank      || 0,
+    rank: u?.rank || 0,
   });
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
   const rest = leaderboard.slice(3);
@@ -1163,8 +1163,8 @@ function renderLeaderboardCard(taskData, leaderboard) {
       <div class="leaderBoard">
         <div class="high-rank">
           ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
-          ${first  ? `<div class="rank one"><img class="rank-one-frame"  src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>`  : ""}
-          ${third  ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>`  : ""}
+          ${first ? `<div class="rank one"><img class="rank-one-frame"  src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
+          ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
         </div>
         <div class="midRank">
           ${rest.map((u) => `
@@ -1186,9 +1186,6 @@ function renderLeaderboardCard(taskData, leaderboard) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  APP TASK OVERLAY ACTIONS
-//  FIX: pendingJoinEventId & adOpenTime reset at sponsor vibe start so the
-//       global visibilitychange handler won't fire alongside the sponsor one.
-//  FIX: sponsorProcessing reset synchronously after cleanup (no 1500ms race).
 // ══════════════════════════════════════════════════════════════════════════════
 a_t_d_overlay?.addEventListener("click", async (e) => {
   const closeButton = e.target.closest(".a-t-d-close");
@@ -1263,7 +1260,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  NOT JOINED — show ad → open sponsor link → mark reward
+  //  NOT JOINED — show ad → user returns → vibeInSponsor → open sponsor link
   // ══════════════════════════════════════════════════════════════════════════
   if (!isJoinedList) {
     if (!taskData.sponsorLink) {
@@ -1281,15 +1278,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     pendingSponsorId      = sponsorId;
     sponsorAdOpenTime     = Date.now();
 
-    // ✅ Open blank window SYNCHRONOUSLY before trigger() so the browser
-    //    still treats this as a direct user gesture — prevents background tab.
-    //    Only for non-APK links (APK uses downloadSponsorApk instead).
     const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
-    let sponsorWindow = null;
-    if (!isApkLink) {
-      sponsorWindow = window.open("", "_blank");
-    }
 
+    // Open the ad
     trigger(sponsorId, "dc");
 
     // Remove any old sponsor handler before attaching a new one
@@ -1298,78 +1289,61 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       visibilityHandler = null;
     }
 
-   visibilityHandler = async () => {
-  if (document.hidden) return;
+    visibilityHandler = async () => {
+      if (document.hidden) return;
 
-  if (sponsorProcessing) return;
-  sponsorProcessing = true;
+      if (sponsorProcessing) return;
+      sponsorProcessing = true;
 
-  const stayed = Date.now() - sponsorAdOpenTime;
+      const stayed = Date.now() - sponsorAdOpenTime;
 
-  try {
-    if (stayed >= AD_WAIT_MS.dc) {
+      try {
+        if (stayed >= AD_WAIT_MS.dc) {
 
-      if (pendingSponsorId) {
-        localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
-      }
+          if (pendingSponsorId) {
+            localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
+          }
 
-      // ✅ First complete vibeInSponsor — THEN open the sponsor link
-      if (pendingSponsorId) {
-        showToast("Verifying reward... ⏳", "info");
+          showToast("Verifying reward... ⏳", "info");
 
-        const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
-        await getUser();
+          const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
+          await getUser();
 
-        if (res?.data?.success) {
-          showToast("Reward Activated 🎉 Opening now...", "success");
+          if (res?.data?.success) {
+            showToast("Reward Activated 🎉 Opening now...", "success");
 
-          // ✅ NOW open/redirect — only after server confirmed
-          if (isApkLink) {
-            await downloadSponsorApk(pendingSponsorApkPath);
-          } else if (sponsorWindow && !sponsorWindow.closed) {
-            // Navigate the pre-opened blank window to real URL
-            sponsorWindow.location.href = pendingSponsorApkPath;
+            // ✅ vibeInSponsor done — NOW open sponsor link
+            // No blank window trick — just window.open after await.
+            // visibilitychange return = user interaction = browser allows it.
+            if (isApkLink) {
+              await downloadSponsorApk(pendingSponsorApkPath);
+            } else {
+              window.open(pendingSponsorApkPath, "_blank");
+            }
+
           } else {
-            // Fallback
-            window.location.href = pendingSponsorApkPath;
+            showToast(res?.data?.message || "Reward pending ⏳", "info");
           }
 
         } else {
-          // Server said no — close blank window, don't redirect
-          if (sponsorWindow && !sponsorWindow.closed) {
-            sponsorWindow.close();
-          }
-          showToast(res?.data?.message || "Reward pending ⏳", "info");
+          const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
+          showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
         }
+
+      } catch (err) {
+        console.error(err);
+        showToast("Reward failed 😕", "error");
       }
 
-    } else {
-      // Came back too early — close blank window
-      if (sponsorWindow && !sponsorWindow.closed) {
-        sponsorWindow.close();
-      }
-      const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
-      showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
-    }
+      // Cleanup
+      pendingSponsorApkPath = null;
+      pendingSponsorId      = null;
+      sponsorAdOpenTime     = 0;
 
-  } catch (err) {
-    console.error(err);
-    if (sponsorWindow && !sponsorWindow.closed) {
-      sponsorWindow.close();
-    }
-    showToast("Reward failed 😕", "error");
-  }
-
-  // Cleanup
-  pendingSponsorApkPath = null;
-  pendingSponsorId      = null;
-  sponsorAdOpenTime     = 0;
-  sponsorWindow         = null;
-
-  document.removeEventListener("visibilitychange", visibilityHandler);
-  visibilityHandler = null;
-  sponsorProcessing = false;
-};
+      document.removeEventListener("visibilitychange", visibilityHandler);
+      visibilityHandler = null;
+      sponsorProcessing = false;
+    };
 
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
@@ -1458,8 +1432,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
         pendingSponsorApkPath = link;
         downloadSponsorApk(pendingSponsorApkPath);
       } else {
-        // ✅ Same tab redirect — no background tab issue
-        window.location.href = link;
+        window.open(link, "_blank");
       }
     };
 
@@ -1536,8 +1509,8 @@ function showProgressToast(steps = []) {
   document.body.appendChild(toast);
 
   const spinnerEl = toast.querySelector("#pt-spinner");
-  const titleEl   = toast.querySelector("#pt-title");
-  const barEl     = toast.querySelector("#pt-bar");
+  const titleEl = toast.querySelector("#pt-title");
+  const barEl = toast.querySelector("#pt-bar");
 
   const update = (idx) => {
     toast.querySelectorAll(".pt-step").forEach((el, i) => {
@@ -1550,15 +1523,15 @@ function showProgressToast(steps = []) {
 
   const finish = (ok, message) => {
     if (ok) toast.querySelectorAll(".pt-step").forEach((el) => { el.classList.remove("active"); el.classList.add("done"); });
-    barEl.style.width      = ok ? "100%" : barEl.style.width;
+    barEl.style.width = ok ? "100%" : barEl.style.width;
     barEl.style.background = ok
       ? "linear-gradient(90deg,#22c55e,#16a34a)"
       : "linear-gradient(90deg,#ef4444,#dc2626)";
-    spinnerEl.className  = `pt-spinner ${ok ? "done" : "error"}`;
+    spinnerEl.className = `pt-spinner ${ok ? "done" : "error"}`;
     spinnerEl.textContent = ok ? "✅" : "❌";
-    titleEl.textContent  = ok ? "Done!" : "Failed";
+    titleEl.textContent = ok ? "Done!" : "Failed";
     const r = document.createElement("div");
-    r.className   = `pt-result ${ok ? "success" : "error"}`;
+    r.className = `pt-result ${ok ? "success" : "error"}`;
     r.textContent = message;
     toast.appendChild(r);
     setTimeout(() => { toast.classList.add("pt-exit"); setTimeout(() => toast.remove(), 350); }, ok ? 3000 : 4000);
@@ -1617,7 +1590,7 @@ function enableScrollHighlight(gridEl, cards, events) {
   const update = () => {
     const center = gridEl.getBoundingClientRect().left + gridEl.getBoundingClientRect().width / 2;
     let closest = null;
-    let minDist  = Infinity;
+    let minDist = Infinity;
     cards.forEach((c) => {
       const r = c.getBoundingClientRect();
       const d = Math.abs(r.left + r.width / 2 - center);
@@ -1627,8 +1600,8 @@ function enableScrollHighlight(gridEl, cards, events) {
     if (closest && !closest.classList.contains("active")) {
       closest.classList.add("active");
       const prizeSpan = closest.querySelector(".dynamic-prize");
-      const eId       = closest.querySelector(".hit-btn")?.dataset.eventid
-                      || closest.querySelector(".join")?.dataset.eventid;
+      const eId = closest.querySelector(".hit-btn")?.dataset.eventid
+        || closest.querySelector(".join")?.dataset.eventid;
       const ed = events.find((e) => e.eventId === eId);
       if (prizeSpan && ed && closest.dataset.animated !== "true") {
         animatePrizeValue(prizeSpan, 0, calculatePrizePool(Number(ed.totalViber || 0)), 2000);
@@ -1651,7 +1624,7 @@ function init() {
 
 function animatePrizeValue(element, start, end, duration) {
   let ts0 = null;
-  const fv   = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
+  const fv = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
   const ease = (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
   const step = (ts) => {
     if (!ts0) ts0 = ts;
@@ -1685,9 +1658,9 @@ function playLottie(path, loop = true) {
   }
   currentLottieInstance = lottie.loadAnimation({
     container: fireContainer,
-    renderer:  "svg",
+    renderer: "svg",
     loop,
-    autoplay:  true,
+    autoplay: true,
     path,
   });
   return currentLottieInstance;
@@ -1711,8 +1684,8 @@ checkInBtn?.addEventListener("click", () => {
 function getStreakDays(uiData) {
   if (!uiData?.lastCheckInDay) return 0;
 
-  const today     = new Date().toISOString().slice(0, 10);
-  const lastDay   = uiData.lastCheckInDay;
+  const today = new Date().toISOString().slice(0, 10);
+  const lastDay = uiData.lastCheckInDay;
 
   if (lastDay === today) return uiData.streakDays || 0;
 
@@ -1752,11 +1725,11 @@ async function updateStreakUI(newVal, startVal) {
   try {
     trigger("", "dc");
 
-    const result   = await dailyCheckIn();
+    const result = await dailyCheckIn();
     if (!result?.data) throw new Error("No data");
 
     const finalVal = result.data.newStreak;
-    let ts0        = null;
+    let ts0 = null;
     const duration = 800;
 
     const step = (ts) => {
@@ -1801,7 +1774,7 @@ async function updateStreakUI(newVal, startVal) {
 function showRewardBox(isLC = true, amount = 0) {
   if (!rewardContainer) return;
   const rewardText = document.getElementById("a");
-  const iconBox    = document.getElementById("r-i");
+  const iconBox = document.getElementById("r-i");
   if (!rewardText || !iconBox) return;
 
   rewardText.textContent = isLC ? `${amount} LC` : `₹${amount}`;
@@ -1830,7 +1803,7 @@ function spawnConfetti(count = 80) {
     document.head.appendChild(s);
   }
   for (let i = 0; i < count; i++) {
-    const d    = document.createElement("div");
+    const d = document.createElement("div");
     const size = Math.random() * 8 + 4;
     d.style.cssText = `
       position:fixed;pointer-events:none;z-index:99999;
@@ -1870,7 +1843,7 @@ function updatePlayerVisibility() {
 function setupPullToRefresh() {
   let startY = 0, pulling = false;
   document.addEventListener("touchstart", (e) => { startY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener("touchmove",  (e) => {
+  document.addEventListener("touchmove", (e) => {
     if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true;
   }, { passive: true });
   document.addEventListener("touchend", async () => {
