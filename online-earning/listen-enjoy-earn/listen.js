@@ -1298,70 +1298,78 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       visibilityHandler = null;
     }
 
-    visibilityHandler = async () => {
-      if (document.hidden) return;
+   visibilityHandler = async () => {
+  if (document.hidden) return;
 
-      if (sponsorProcessing) return;
-      sponsorProcessing = true;
+  if (sponsorProcessing) return;
+  sponsorProcessing = true;
 
-      const stayed = Date.now() - sponsorAdOpenTime;
+  const stayed = Date.now() - sponsorAdOpenTime;
 
-      try {
-        if (stayed >= AD_WAIT_MS.dc) {
+  try {
+    if (stayed >= AD_WAIT_MS.dc) {
 
-          if (pendingSponsorId) {
-            localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
-          }
+      if (pendingSponsorId) {
+        localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
+      }
 
+      // ✅ First complete vibeInSponsor — THEN open the sponsor link
+      if (pendingSponsorId) {
+        showToast("Verifying reward... ⏳", "info");
+
+        const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
+        await getUser();
+
+        if (res?.data?.success) {
+          showToast("Reward Activated 🎉 Opening now...", "success");
+
+          // ✅ NOW open/redirect — only after server confirmed
           if (isApkLink) {
-            // APK — download via Firebase Storage URL
             await downloadSponsorApk(pendingSponsorApkPath);
           } else if (sponsorWindow && !sponsorWindow.closed) {
-            // ✅ Navigate the already-open foreground window to the real URL
-            //    (window was opened sync above, so it's focused & not blocked)
+            // Navigate the pre-opened blank window to real URL
             sponsorWindow.location.href = pendingSponsorApkPath;
           } else {
-            // Fallback — window was closed or blocked, try location redirect
+            // Fallback
             window.location.href = pendingSponsorApkPath;
           }
 
-          if (pendingSponsorId) {
-            const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
-            await getUser();
-            showToast(
-              res?.data?.success ? "Reward Activated 🎉" : "Reward pending ⏳",
-              res?.data?.success ? "success" : "info"
-            );
-          }
-
         } else {
-          // ✅ User came back too early — close the blank window we opened
+          // Server said no — close blank window, don't redirect
           if (sponsorWindow && !sponsorWindow.closed) {
             sponsorWindow.close();
           }
-          const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
-          showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
+          showToast(res?.data?.message || "Reward pending ⏳", "info");
         }
-
-      } catch (err) {
-        console.error(err);
-        // Close blank window on error too
-        if (sponsorWindow && !sponsorWindow.closed) {
-          sponsorWindow.close();
-        }
-        showToast("Reward failed 😕", "error");
       }
 
-      // Cleanup
-      pendingSponsorApkPath = null;
-      pendingSponsorId      = null;
-      sponsorAdOpenTime     = 0;
-      sponsorWindow         = null;
+    } else {
+      // Came back too early — close blank window
+      if (sponsorWindow && !sponsorWindow.closed) {
+        sponsorWindow.close();
+      }
+      const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
+      showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
+    }
 
-      document.removeEventListener("visibilitychange", visibilityHandler);
-      visibilityHandler = null;
-      sponsorProcessing = false;
-    };
+  } catch (err) {
+    console.error(err);
+    if (sponsorWindow && !sponsorWindow.closed) {
+      sponsorWindow.close();
+    }
+    showToast("Reward failed 😕", "error");
+  }
+
+  // Cleanup
+  pendingSponsorApkPath = null;
+  pendingSponsorId      = null;
+  sponsorAdOpenTime     = 0;
+  sponsorWindow         = null;
+
+  document.removeEventListener("visibilitychange", visibilityHandler);
+  visibilityHandler = null;
+  sponsorProcessing = false;
+};
 
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
