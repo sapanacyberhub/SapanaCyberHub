@@ -345,7 +345,7 @@ function renderSponsorAppTasks(vibeOver = false) {
          </div>`
       : "";
     const label = vibeOver
-      ? (task.isComplete ? "✅ Completed" : `${task.stepsCompleted || 0}/${task.allSteps || 0}`)
+      ? (task.isComplete ? "Completed" : `${task.stepsCompleted || 0}/${task.allSteps || 0}`)
       : "Vibe";
 
     card.innerHTML = `

@@ -153,13 +153,13 @@ a   { text-decoration: none; }
 /* ══════════════════════════════════════════
    MAIN LAYOUT
 ══════════════════════════════════════════ */
-.container { max-width: 100%; }
-main { display: flex; flex-direction: column; gap: 28px; }
+.container { max-width: 100%; box-sizing: border-box; margin: 0; padding: 0;}
+main { display: flex; flex-direction: column; gap: 28px; padding: 0; margin: 0;}
  
 /* ══════════════════════════════════════════
    HERO
 ══════════════════════════════════════════ */
-.header { text-align: center; padding: 0 12px; }
+.header { text-align: center; padding: 0;}
 .hero { display: flex; align-items: center; justify-content: space-around; gap: 24px; flex-wrap: wrap; margin-top: 20px;  }
  
 .hero-copy h1 {
@@ -2016,7 +2016,6 @@ small.vibing-event-id {
   background-clip: text;
   color: transparent;
   border-radius: 25px;
-  padding: 10px;
 }
 
 /* using before make a-t-t background blur */
@@ -2035,7 +2034,6 @@ small.vibing-event-id {
 .t-l {
   display: flex;
   flex-direction: column;
-  padding: 10px;
   max-width: 100%;
   gap: 10px;
   overflow-y: scroll;
@@ -2049,6 +2047,7 @@ small.vibing-event-id {
 .t-b {
   display: flex;
   padding: 10px;
+  overflow: hidden;
   justify-content: space-between;
   border: 2px solid rgb(183, 0, 255);
   border-radius: 25px;
@@ -2066,6 +2065,8 @@ small.vibing-event-id {
   border-left: 2px solid white;
   text-decoration: none;
   font-family: 'Arial Black', sans-serif;
+  font-size: clamp(.5rem, 2vw, 1rem);
+  text-overflow: ellipsis;
   display: flex;
   text-wrap: nowrap;
   text-overflow: ellipsis;
@@ -2076,8 +2077,8 @@ small.vibing-event-id {
 }
 
 .app-icon {
-  width: 50px;
-  height: 50px;
+  width: 25px;
+  height: 25px;
   border-radius: 999px;
   object-fit: cover;
 }
@@ -2085,6 +2086,7 @@ small.vibing-event-id {
 .t-d {
   display: flex;
   justify-content: center;
+  font-size: clamp(.5rem, 2vw, 1rem);
   align-items: center;
   gap: 10px;
   border: 2px solid white;
