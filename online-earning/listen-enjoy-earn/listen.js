@@ -122,7 +122,6 @@ showSkeletons(hit_grid);
 showSkeletons(premiumLegue);
 showSkeletons(appTaskList);
 setupNetworkBanner();
-setupPullToRefresh();
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NETWORK BANNER
