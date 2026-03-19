@@ -395,6 +395,7 @@ function renderVibingListenEvents(vibeOver = false) {
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
     const ended = isEnded(event.endTime);
+    
 
     card.className = "event-card";
     card.innerHTML = `
@@ -414,7 +415,7 @@ function renderVibingListenEvents(vibeOver = false) {
       <div class="event-title">${event.eventTitle || "Untitled Event"}</div>
       <div class="event-meta">
         <span class="event-duration">--:--:--</span>
-        <span>Vibers: ${vibers}</span>
+        <span>${vibeOver?`${formatListenTime(event.curatedMs)}`:`Vibers: ${vibers} `}</span>
       </div>
       <div class="event-progress"><span style="width:100%"></span></div>
       <div class="event-actions">
@@ -433,7 +434,22 @@ function renderVibingListenEvents(vibeOver = false) {
 
   enableScrollHighlight(listen_grid, listen_grid.querySelectorAll(".event-card"), listenEvents);
 }
+function formatListenTime(ms) {
+    // 1. Calculate total seconds
+    let totalSeconds = Math.floor(ms / 1000);
 
+    // 2. Extract hours, minutes, and remaining seconds
+    let hours = Math.floor(totalSeconds / 3600);
+    let minutes = Math.floor((totalSeconds % 3600) / 60);
+    let seconds = totalSeconds % 60;
+
+    // 3. Format with leading zeros (e.g., "01" instead of "1")
+    let hDisplay = hours.toString().padStart(2, '0');
+    let mDisplay = minutes.toString().padStart(2, '0');
+    let sDisplay = seconds.toString().padStart(2, '0');
+
+    return `Listen : ${hDisplay}:${mDisplay}:${sDisplay}`;
+}
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — HIT EVENTS
 // ══════════════════════════════════════════════════════════════════════════════
