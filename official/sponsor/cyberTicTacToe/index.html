@@ -577,17 +577,20 @@ function beginOnline(roomId,role,oppName){
   if(oListener) try{ off(gRef,oListener); }catch(_){}
 
   oListener=onValue(gRef,snap=>{
-    if(!snap.exists()){ oppLeft(); return; }
-    const d=snap.val();
-    B=objToBoard(d);
-    curP=d.curP||"X";
-    renderBoard(); updateStatus();
-    if(d.lastWinner&&d.lastWinner!==""){
-      cleanOnline();
-      handleResult(d.lastWinner===role?"win":"lose",[]);
-    }else if(d.status==="tie"){
-      cleanOnline(); handleResult("tie",[]);
-    }
+  if(!snap.exists()){ oppLeft(); return; }
+  const d=snap.val();
+  B=objToBoard(d);
+  curP=d.curP||"X"; // ✅ this is now always the player whose turn it is
+  renderBoard();
+  updateStatus(); // correctly shows YOUR TURN / OPPONENT'S TURN
+
+  if(d.lastWinner&&d.lastWinner!==""){
+    cleanOnline();
+    handleResult(d.lastWinner===oRole?"win":"lose",[]);
+  }else if(d.status==="tie"){
+    cleanOnline(); handleResult("tie",[]);
+  }
+
   });
 }
 
@@ -602,14 +605,24 @@ function cleanOnline(){
 async function pushMove(idx){
   if(!window._fb||!oRoom)return;
   const {db,ref,set}=window._fb;
-  const nb={...B}; nb[idx]=oRole;
-  const next=oRole==="X"?"O":"X";
+
+  // Build new board as flat fields
+  const data={};
+  for(let i=0;i<25;i++) data["b"+i]=B[i]??null;
+  data["b"+idx]=oRole; // apply this move
+
+  const next=oRole==="X"?"O":"X"; // ✅ next player is the OPPONENT
+  const nb={};
+  for(let i=0;i<25;i++) nb[i]=data["b"+i];
+
   const w=checkWin(nb,oRole);
   const tie=!w&&Object.values(nb).every(v=>v);
 
-  /* Build flat object — no arrays */
-  const data={curP:next,status:w?"finished":tie?"tie":"active",lastWinner:w?oRole:"",updatedAt:Date.now()};
-  for(let i=0;i<25;i++) data["b"+i]=nb[i]??null;
+  data.curP=next; // ✅ switch turn to opponent
+  data.status=w?"finished":tie?"tie":"active";
+  data.lastWinner=w?oRole:"";
+  data.updatedAt=Date.now();
+
   await set(ref(db,`ttt_games/${oRoom}`),data).catch(e=>console.warn("push:",e));
 }
 
@@ -678,15 +691,13 @@ function updateTurn(){
 /* ═══ MOVE ═══ */
 function handleMove(i){
   if(!gActive||B[i])return;
-  if(isOnline){
-    if(curP!==oRole)return;
-    B[i]=oRole;
-    const c=$("board").children[i];
-    c.classList.add(oRole==="X"?"xc":"oc","taken","pop");
-    c.textContent=oRole==="X"?getX():getO();
-    pushMove(i);
-    return; /* result from listener */
-  }
+  // ✅ AFTER — only push, listener handles everything
+if(isOnline){
+  if(curP!==oRole){ toast("Not your turn!","e"); return; }
+  if(B[i]){ return; } // cell taken guard
+  pushMove(i); // listener will re-render board + update curP
+  return;
+}
   if(gMode==="ai"&&curP==="O")return;
   B[i]=curP;
   const c=$("board").children[i];
