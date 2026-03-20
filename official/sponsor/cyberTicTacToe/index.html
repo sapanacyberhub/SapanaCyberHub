@@ -520,7 +520,7 @@ header{display:flex;align-items:center;justify-content:space-between;
   <div class="panel" id="panel-leaderboard">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
       <div class="sb"><div class="val" id="mts">—</div><div class="lbl">SCORE</div></div>
-      <div class="sb"><div class="val" id="mw" style="color:var(--neon2);">—</div><div class="lbl">WINS</div></div>
+      <div class="sb"><div class="val" id="mw" style="color:var(--neon2);">—</div><div class="lbl">STEPS</div></div>
       <div class="stk"><div class="val" id="msk">—</div><div class="lbl">STREAK</div></div>
     </div>
     <div style="display:flex;justify-content:center;margin-bottom:1rem;">
@@ -532,7 +532,7 @@ header{display:flex;align-items:center;justify-content:space-between;
         <div style="font-family:var(--fh);font-size:.6rem;color:var(--neon);">🏆 TOP 100 VIBERS</div>
         <div class="ob"><div class="od"></div>LIVE</div>
       </div>
-      <div class="lbh"><div>#</div><div>PLAYER</div><div style="text-align:right;">SCORE</div><div style="text-align:right;">WINS</div></div>
+      <div class="lbh"><div>#</div><div>PLAYER</div><div style="text-align:right;">SCORE</div><div style="text-align:right;">STEPS</div></div>
       <div id="lbl"><div class="ldr"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
     </div>
     <div style="margin-top:1.5rem;">
@@ -585,8 +585,9 @@ const app=initializeApp({
 const auth=getAuth(app),fns=getFunctions(app,"us-central1"),db=getDatabase(app);
 window._fb={
   auth,db,ref,set,get,onValue,off,remove,push,
-  updateScoreFn:httpsCallable(fns,"updateTotalScore"),
-  getLeaderboardFn:httpsCallable(fns,"getLeaderboard")
+  // ✅ updated to new Cloud Function names
+  updateScoreFn:   httpsCallable(fns,"updateScore"),
+  getLeaderboardFn:httpsCallable(fns,"getCyberTTTLeaderboard"),
 };
 onAuthStateChanged(auth,user=>{
   if(user){
@@ -1177,41 +1178,97 @@ function noHeartsModal(){
 }
 
 async function updateScore(pts){
-  if(!window._fb)return;
-  try{await window._fb.updateScoreFn({score:pts,wins:1,streak,bestStreak:bStreak,displayName:window._un||"GUEST"});}
-  catch(e){console.warn(e);}
+  if(!window._fb||!window._cu)return;
+  try{
+    await window._fb.updateScoreFn({
+      score:      pts,
+      wins:       1,
+      streak:     streak,
+      bestStreak: bStreak,
+      displayName:window._un||"GUEST",
+    });
+  }catch(e){ console.warn("updateScore:",e); }
 }
 
-/* LEADERBOARD */
+/* ═══════════════════════════════════
+   LEADERBOARD — paginated up to 1000
+═══════════════════════════════════ */
 async function loadLB(){
   const el=$("lbl");
   el.innerHTML=`<div class="ldr"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>`;
-  if(!window._fb){el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.7rem;">Sign in to see rankings</div>`;return;}
+
+  if(!window._fb){
+    el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.7rem;">Sign in to see rankings</div>`;
+    return;
+  }
+
   try{
-    const res=await window._fb.getLeaderboardFn({limit:100});
-    const list=res.data?.leaderboard||res.data?.leaders||res.data||[];
-    if(!list.length){el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);">No rankings yet!</div>`;return;}
+    // ── Paginate: fetch pages of 100 until hasMore=false or 1000 total ──
+    let all=[], cursor=null, safetyLimit=10;
+
+    do{
+      const res=await window._fb.getLeaderboardFn({limit:100, startAfter:cursor});
+      const d=res.data;
+      const page=d?.leaderboard||[];
+      all=[...all,...page];
+      cursor=d?.nextStartAfter??null;
+      safetyLimit--;
+      if(!d?.hasMore||all.length>=1000) break;
+    }while(cursor!==null && safetyLimit>0);
+
+    if(!all.length){
+      el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);">No rankings yet — be first!</div>`;
+      return;
+    }
+
     const uid=window._cu?.uid;
-    el.innerHTML=list.map((p,i)=>{
-      const isMe=p.uid===uid;
+
+    // ── Render rows ──
+    el.innerHTML=all.map((p,i)=>{
+      const isMe=(p.uid===uid);
       const med=i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`;
+      const pct=p.allSteps>0?Math.round((p.stepsCompleted/p.allSteps)*100):0;
+      const bar=p.allSteps>0
+        ?`<div style="height:3px;background:rgba(0,255,200,.1);border-radius:2px;margin-top:3px;">
+            <div style="height:100%;width:${pct}%;background:var(--neon);border-radius:2px;"></div>
+          </div>`:"";
       return `<div class="lbr ${i<3?"t"+(i+1):""} ${isMe?"me":""}">
         <div class="rnk ${i<3?"r"+(i+1):""}">${med}</div>
-        <div class="pn">${p.displayName||"ANON"}<small>${isMe?"← YOU":""}</small></div>
-        <div class="lbs">${(p.totalScore||p.score||0).toLocaleString()}</div>
-        <div class="lbw">${p.wins||0}</div>
+        <div class="pn">
+          ${p.displayName||"ANON"}
+          <small>${isMe?"← YOU":""} ${p.isComplete?"✅":""}</small>
+          ${bar}
+        </div>
+        <div class="lbs">${(p.totalScore||0).toLocaleString()}</div>
+        <div class="lbw">${p.stepsCompleted||0}/${p.allSteps||0}</div>
       </div>`;
     }).join("");
-  }catch(e){el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);">Could not load</div>`;}
+
+    // ── Show total count ──
+    const countEl=document.createElement("div");
+    countEl.style.cssText="text-align:center;font-family:var(--fh);font-size:.45rem;color:var(--muted);padding:.6rem;";
+    countEl.textContent=`${all.length} players ranked`;
+    el.appendChild(countEl);
+
+  }catch(e){
+    console.error("loadLB:",e);
+    el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);">Could not load rankings</div>`;
+  }
 }
 
 async function loadMyStats(){
   if(!window._fb||!window._cu)return;
   try{
+    // Fetch first page only for my stats — fast
     const res=await window._fb.getLeaderboardFn({limit:100});
-    const list=res.data?.leaderboard||res.data?.leaders||res.data||[];
-    const me=list.find(p=>p.uid===window._cu.uid);
-    if(me){SE("mts",(me.totalScore||me.score||0).toLocaleString());SE("mw",me.wins||0);SE("msk","🔥 "+(me.bestStreak||0));}
+    const list=res.data?.leaderboard||[];
+    const uid=window._cu.uid;
+    const me=list.find(p=>p.uid===uid);
+    if(me){
+      SE("mts",(me.totalScore||0).toLocaleString());
+      SE("mw",`${me.stepsCompleted||0}/${me.allSteps||0}`);
+      SE("msk",me.isComplete?"✅ DONE":"🔥 "+streak);
+    }
   }catch(_){}
 }
 window._lms=loadMyStats;

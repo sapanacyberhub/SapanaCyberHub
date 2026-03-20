@@ -2077,9 +2077,10 @@ small.vibing-event-id {
 }
 
 .app-icon {
-  width: 25px;
-  height: 25px;
+  width: 50px;
   border-radius: 999px;
+  filter: contrast(2) brightness(1.2);
+
   object-fit: cover;
 }
 
