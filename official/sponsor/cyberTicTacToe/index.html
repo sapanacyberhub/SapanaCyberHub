@@ -249,10 +249,27 @@ header{display:flex;align-items:center;justify-content:space-between;
 .cell.taken{cursor:default;}
 .cell.xc{color:var(--xc);text-shadow:var(--xg);border-color:rgba(0,255,200,.3);}
 .cell.oc{color:var(--oc);text-shadow:var(--og);border-color:rgba(255,0,170,.3);}
-.cell.wc{animation:cW .5s ease forwards;
+.cell.wc{
   border-color:var(--gold)!important;
-  box-shadow:0 0 20px rgba(255,215,0,.6)!important;}
-@keyframes cW{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
+  box-shadow:0 0 22px rgba(255,215,0,.7)!important;
+  animation:cW .45s ease forwards, cWPulse 0.8s ease-in-out 0.45s infinite;
+  position:relative;z-index:2;
+}
+@keyframes cW{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.22);}
+  70%{transform:scale(0.95);}
+  100%{transform:scale(1.08);}
+}
+@keyframes cWPulse{
+  0%,100%{box-shadow:0 0 18px rgba(255,215,0,.6);}
+  50%{box-shadow:0 0 38px rgba(255,215,0,1),0 0 60px rgba(255,215,0,.4);}
+}
+/* Stagger each win cell appearance */
+.cell.wc:nth-child(1){animation-delay:0s,   .45s;}
+.cell.wc:nth-child(2){animation-delay:.08s,  .53s;}
+.cell.wc:nth-child(3){animation-delay:.16s,  .61s;}
+.cell.wc:nth-child(4){animation-delay:.24s,  .69s;}
 .cell.pop{animation:cP .18s ease;}
 @keyframes cP{0%{transform:scale(0);}60%{transform:scale(1.18);}100%{transform:scale(1);}}
 
@@ -1080,31 +1097,75 @@ function checkWin(b,pl){
 /* RESULT */
 function handleResult(type,wc){
   gActive=false;
-  if(wc?.length){const cs=$("board").children;wc.forEach(i=>cs[i]?.classList.add("wc"));}
+
+  // ── Step 1: Highlight winning cells immediately ──────────────────
+  if(wc?.length){
+    const cs=$("board").children;
+    // Stagger each cell highlight for dramatic effect
+    wc.forEach((i,idx)=>{
+      setTimeout(()=>{
+        cs[i]?.classList.add("wc");
+        SFX.place(); // tick sound per cell
+      }, idx * 90);
+    });
+  }
+
+  // ── Step 2: After highlight animation completes, show result ──────
+  // Win/lose have winning cells → wait for full highlight (4 cells × 90ms + 800ms pulse)
+  // Tie has no cells → shorter delay
+  const HIGHLIGHT_DELAY = wc?.length ? 900 : 300;
+  const AD_DELAY        = wc?.length ? 1800 : 800; // ad fires AFTER result modal shown
+
   if(type==="win"){
     sX++;streak++;if(streak>bStreak)bStreak=streak;
     SE("sx",sX);SE("sd","🔥 "+streak);
-    const earned=50+streak*10;addCoins(earned);confetti();
-    SFX.win();
-    updateScore(earned);showRewardedPopup(()=>{}); // rewarded popup on win
-    showResult("🏆","VICTORY!",`+${earned} coins · Streak: ${streak} 🔥`,"rw",true,[
-      {l:"↺ "+(isOnline?"MENU":"PLAY AGAIN"),a:isOnline?"menu":"next"},
-      {l:"🏆 RANKS",a:"ranks"}
-    ]);
+    const earned=50+streak*10;
+
+    setTimeout(()=>{
+      // Confetti + sound after cells finish pulsing
+      confetti(); SFX.win(); addCoins(earned);
+      updateScore(earned);
+
+      // Show result modal
+      showResult("🏆","VICTORY!",`+${earned} coins · Streak: ${streak} 🔥`,"rw",true,[
+        {l:"↺ "+(isOnline?"MENU":"PLAY AGAIN"),a:isOnline?"menu":"next"},
+        {l:"🏆 RANKS",a:"ranks"}
+      ]);
+
+      // ✅ Ad fires AFTER modal is visible — user sees result first
+      setTimeout(()=>showRewardedPopup(()=>{}), AD_DELAY);
+
+    }, HIGHLIGHT_DELAY);
+
   }else if(type==="lose"){
     sO++;streak=0;SE("so",sO);SE("sd","🔥 0");
-    loseHeart(1);SFX.lose();showRewardedPopup(()=>{}); // rewarded popup on lose
-    showResult("💀","DEFEATED","You lost 1 heart. Watch ad to restore!","rl",true,[
-      {l:"↺ "+(isOnline?"MENU":"TRY AGAIN"),a:isOnline?"menu":"next"},
-      {l:"📺 RESTORE ❤️",a:"hearts"}
-    ]);
+
+    setTimeout(()=>{
+      loseHeart(1); SFX.lose();
+
+      showResult("💀","DEFEATED","You lost 1 heart. Watch ad to restore!","rl",true,[
+        {l:"↺ "+(isOnline?"MENU":"TRY AGAIN"),a:isOnline?"menu":"next"},
+        {l:"📺 RESTORE ❤️",a:"hearts"}
+      ]);
+
+      // ✅ Ad fires after modal shown — user reads result first
+      setTimeout(()=>showRewardedPopup(()=>{}), AD_DELAY);
+
+    }, HIGHLIGHT_DELAY);
+
   }else{
-    sTie++;loseHeart(0.5);streak=Math.max(0,streak-1);
-    SE("st2",sTie);SE("sd","🔥 "+streak);SFX.tie();
-    showResult("⚖️","TIE GAME","Watch ad to convert into a WIN!","rt",true,[
-      {l:"📺 CONVERT WIN",a:"convert"},
-      {l:"↺ "+(isOnline?"MENU":"NEXT"),a:isOnline?"menu":"next"}
-    ]);
+    // Tie — no winning cells to highlight
+    setTimeout(()=>{
+      sTie++;loseHeart(0.5);streak=Math.max(0,streak-1);
+      SE("st2",sTie);SE("sd","🔥 "+streak); SFX.tie();
+
+      showResult("⚖️","TIE GAME","Watch ad to convert into a WIN!","rt",true,[
+        {l:"📺 CONVERT WIN",a:"convert"},
+        {l:"↺ "+(isOnline?"MENU":"NEXT"),a:isOnline?"menu":"next"}
+      ]);
+      // No popup on tie — user is already offered the convert ad inside modal
+
+    }, HIGHLIGHT_DELAY);
   }
 }
 
