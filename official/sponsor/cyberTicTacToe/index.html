@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>CYBER TTT | SapanaCyberHub</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Telegram Mini App SDK — MUST be first -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>(function(s){s.dataset.zone='10246448',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement,document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script>(function(s){s.dataset.zone='10246416',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement,document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script>(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})([document.documentElement,document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
@@ -566,14 +568,14 @@ header{display:flex;align-items:center;justify-content:space-between;
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInAnonymously }
+import { getAuth, onAuthStateChanged, signInWithCustomToken }
                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFunctions, httpsCallable }
                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 import { getDatabase, ref, set, get, onValue, off, remove, push }
                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const app=initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
   authDomain:"sapanacyberhub-26310.firebaseapp.com",
   projectId:"sapanacyberhub-26310",
@@ -582,26 +584,147 @@ const app=initializeApp({
   appId:"1:448116453690:web:01a91dd284b715bf0a2003",
   databaseURL:"https://sapanacyberhub-26310-default-rtdb.firebaseio.com"
 });
-const auth=getAuth(app),fns=getFunctions(app,"us-central1"),db=getDatabase(app);
-window._fb={
-  auth,db,ref,set,get,onValue,off,remove,push,
-  // ✅ updated to new Cloud Function names
-  updateScoreFn:   httpsCallable(fns,"updateScore"),
-  getLeaderboardFn:httpsCallable(fns,"getCyberTTTLeaderboard"),
+
+const auth = getAuth(app);
+const fns  = getFunctions(app,"us-central1");
+const db   = getDatabase(app);
+
+window._fb = {
+  auth, db, ref, set, get, onValue, off, remove, push,
+  updateScoreFn:    httpsCallable(fns,"updateScore"),
+  getLeaderboardFn: httpsCallable(fns,"getCyberTTTLeaderboard"),
+  tgAuthFn:         httpsCallable(fns,"telegramAuth"),
 };
-onAuthStateChanged(auth,user=>{
+
+/* ══════════════════════════════════════════════
+   TELEGRAM DETECTION
+   Is the game running inside Telegram Mini App?
+══════════════════════════════════════════════ */
+const tg       = window.Telegram?.WebApp;
+const IS_TG_RAW= !!(tg?.initData && tg.initData.length > 0);
+window._isTG   = IS_TG_RAW;
+
+if(IS_TG_RAW){
+  tg.ready();          // tell Telegram UI is ready
+  tg.expand();         // full screen
+  tg.enableClosingConfirmation(); // warn before close mid-game
+}
+
+/* ══════════════════════════════════════════════
+   LOGIN REDIRECT URL (website only)
+══════════════════════════════════════════════ */
+const LOGIN_URL = "/online-earning/listen-enjoy-earn/create-vibers/index.html";
+
+/* ══════════════════════════════════════════════
+   AUTH HANDLER
+   3 cases:
+   1. Logged-in user (Firebase auth) → play normally
+   2. Inside Telegram → verify initData → custom token
+   3. Website, not logged in → show redirect overlay
+══════════════════════════════════════════════ */
+onAuthStateChanged(auth, async user => {
+
+  /* ── Case 1: Authenticated user ── */
   if(user){
-    window._cu=user;
-    const n=user.isAnonymous?"VIBE_"+user.uid.slice(0,5).toUpperCase()
-      :(user.displayName||user.email?.split("@")[0]||"VIBE").toUpperCase();
-    window._un=n; document.getElementById("ud").textContent=n;
-  }else{
-    signInAnonymously(auth).catch(()=>{});
-    window._cu=null;window._un="GUEST";
-    document.getElementById("ud").textContent="GUEST";
+    window._cu = user;
+    const n = user.isAnonymous
+      ? "GUEST"
+      : (user.displayName||user.email?.split("@")[0]||"VIBE").toUpperCase();
+    window._un = n;
+    document.getElementById("ud").textContent = n;
+    hideAuthOverlay();
+    if(window._lms) window._lms();
+    return;
   }
-  if(window._lms)window._lms();
+
+  /* ── Case 2: Inside Telegram — verify & sign in ── */
+  if(IS_TG_RAW){
+    showLoadingOverlay("VERIFYING TELEGRAM...");
+    try{
+      const res = await window._fb.tgAuthFn({ initData: tg.initData });
+      if(res.data?.token){
+        await signInWithCustomToken(auth, res.data.token);
+        // onAuthStateChanged fires again → Case 1 handles it
+        return;
+      }
+      throw new Error("No token returned");
+    }catch(e){
+      console.warn("TG auth failed:", e);
+      showTGAuthError();
+    }
+    return;
+  }
+
+  /* ── Case 3: Website, not logged in → show login redirect overlay ── */
+  showLoginOverlay();
 });
+
+/* ── Overlays ── */
+function showLoadingOverlay(msg){
+  let el = document.getElementById("_authOverlay");
+  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
+  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
+    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
+    +"font-family:'Orbitron',monospace;color:#00ffc8;text-align:center;padding:2rem;gap:1.2rem;";
+  el.innerHTML = `
+    <div style="width:48px;height:48px;border:3px solid rgba(0,255,200,.15);border-top-color:#00ffc8;border-radius:50%;animation:spin 1s linear infinite;"></div>
+    <div style="font-size:.65rem;letter-spacing:.15em;opacity:.7;">${msg}</div>
+    <style>@keyframes spin{to{transform:rotate(360deg);}}</style>`;
+}
+
+function hideAuthOverlay(){
+  const el = document.getElementById("_authOverlay");
+  if(el) el.remove();
+}
+
+function showLoginOverlay(){
+  let el = document.getElementById("_authOverlay");
+  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
+  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
+    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
+    +"font-family:'Orbitron',monospace;color:#00ffc8;text-align:center;padding:2rem;gap:1.2rem;";
+  el.innerHTML = `
+    <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
+    <div style="font-size:3.5rem;">🎮</div>
+    <div style="font-size:1rem;font-weight:900;letter-spacing:.15em;text-shadow:0 0 15px #00ffc8;">CYBER TTT</div>
+    <div style="font-size:.6rem;color:rgba(200,255,240,.5);letter-spacing:.1em;line-height:1.7;">
+      LOGIN REQUIRED TO PLAY<br>
+      <span style="color:rgba(200,255,240,.3);font-size:.52rem;">Earn coins · Climb ranks · Play online</span>
+    </div>
+    <a href="${LOGIN_URL}?redirect=${encodeURIComponent(window.location.href)}"
+      style="padding:14px 32px;border-radius:10px;
+        background:linear-gradient(135deg,rgba(0,255,200,.15),rgba(0,255,200,.05));
+        border:1px solid #00ffc8;color:#00ffc8;
+        font-family:'Orbitron',monospace;font-size:.65rem;
+        letter-spacing:.1em;cursor:pointer;text-decoration:none;
+        box-shadow:0 0 20px rgba(0,255,200,.2);">
+      🔐 LOGIN TO PLAY
+    </a>
+    <div style="font-size:.5rem;color:rgba(200,255,240,.25);margin-top:.5rem;">
+      Don't have an account? The login page lets you sign up too.
+    </div>`;
+}
+
+function showTGAuthError(){
+  let el = document.getElementById("_authOverlay");
+  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
+  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
+    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
+    +"font-family:'Orbitron',monospace;color:#ff3366;text-align:center;padding:2rem;gap:1rem;";
+  el.innerHTML = `
+    <div style="font-size:3rem;">⚠️</div>
+    <div style="font-size:.8rem;letter-spacing:.1em;">AUTH FAILED</div>
+    <div style="font-size:.6rem;color:rgba(255,51,102,.6);line-height:1.7;">
+      Could not verify your Telegram identity.<br>Please close and reopen the app.
+    </div>
+    <button onclick="location.reload()"
+      style="padding:12px 28px;border-radius:8px;border:1px solid #ff3366;
+        background:rgba(255,51,102,.1);color:#ff3366;
+        font-family:'Orbitron',monospace;font-size:.6rem;
+        cursor:pointer;letter-spacing:.1em;">
+      ↺ RETRY
+    </button>`;
+}
 </script>
 
 <script>
@@ -697,10 +820,13 @@ let adI=0;
 
 let oRoom=null,oRole=null,oListener=null,mListener=null,isOnline=false;
 
-/* onclick popunder — never during play */
+/* ── Platform detection (set by Firebase module) ── */
+const IS_TG = !!window._isTG;
+
+/* onclick popunder — website only, never during play */
 let oclLoaded=false;
 function maybeOcl(){
-  if(oclLoaded||gActive||isOnline)return;
+  if(oclLoaded||gActive||isOnline||IS_TG)return;
   oclLoaded=true;
   const s=document.createElement("script");
   s.dataset.zone="10228494"; s.src="https://al5sm.com/tag.min.js";
@@ -710,31 +836,41 @@ window.addEventListener("load",()=>setTimeout(maybeOcl,3000));
 
 /* ═══════════════════════════════════
    IN-APP INTERSTITIAL
-   Auto-fires: 2 ads per 6 min, 30s interval, 5s delay
-   Runs passively — not during active gameplay
+   Website only — Telegram uses rewarded interstitial instead
 ═══════════════════════════════════ */
 function startInAppInterstitial(){
-  // ✅ NEVER auto-fire interstitial while a game is running
-  if(gActive||isOnline) return;
+  if(gActive||isOnline||IS_TG) return; /* ✅ skip in Telegram */
   if(!window[RW_ZONE]) return;
   window[RW_ZONE]({
     type:'inApp',
-    inAppSettings:{
-      frequency:2,
-      capping:0.1,
-      interval:30,
-      timeout:5,
-      everyPage:false
-    }
+    inAppSettings:{frequency:2,capping:0.1,interval:30,timeout:5,everyPage:false}
   });
 }
-// Start after 6s so page fully loads first
 window.addEventListener("load",()=>setTimeout(startInAppInterstitial,6000));
+setInterval(()=>{ if(!gActive&&!isOnline&&!IS_TG) startInAppInterstitial(); },30000);
 
-// Re-check every 30s — fire interstitial only when user is on menu/leaderboard/shop
-setInterval(()=>{
-  if(!gActive&&!isOnline) startInAppInterstitial();
-},30000);
+/* ═══════════════════════════════════
+   TELEGRAM UI SETUP
+═══════════════════════════════════ */
+window.addEventListener("load",()=>{
+  if(!IS_TG) return;
+  const tg = window.Telegram.WebApp;
+
+  /* Back button — quit game or close app */
+  tg.BackButton.show();
+  tg.BackButton.onClick(()=>{
+    if(gActive){ quitGame(); }
+    else { tg.close(); }
+  });
+
+  /* Main button — show Play when on menu */
+  tg.MainButton.setText("🎮 PLAY NOW");
+  tg.MainButton.setParams({color:"#00ffc8",text_color:"#030308"});
+  tg.MainButton.show();
+  tg.MainButton.onClick(()=>{
+    if(!gActive){ startGame("ai"); }
+  });
+});
 
 /* ═══════════════════════════════════
    UTILS
@@ -981,6 +1117,7 @@ function quitGame(){
   $("matchScreen").style.display="none";
   $("modeSelect").style.display="block";
   $("nrb").style.display="inline-flex";
+  if(IS_TG) window.Telegram?.WebApp?.MainButton?.show();
 }
 
 function resetRound(){
@@ -1304,39 +1441,45 @@ function shopCard(id){
    ADS — Monetag SDK (Rewarded + Popup + Direct)
 ═══════════════════════════════════ */
 
-// Direct link fallback (fires between rounds — safe, never during play)
+/* Direct link — website only, never in Telegram, never during play */
 function triggerDirect(){
-  if(gActive||isOnline)return;
+  if(gActive||isOnline||IS_TG)return;
   window.open(DIRECT[adI%DIRECT.length],"_blank");adI++;
 }
 
 /* ── Rewarded Interstitial (highest CPM — user must watch to earn) ──
    Uses show_10753502() — resolves on complete, rejects on error      */
 function showRewarded(onComplete,onFail){
-  // ✅ NEVER show rewarded ad while game is actively running
-  if(gActive||isOnline){
-    toast("Finish your turn first!","i");
-    return;
-  }
+  if(gActive||isOnline){ toast("Finish your turn first!","i"); return; }
+
   if(!window[RW_ZONE]){
-    // SDK not loaded yet — fallback to direct link + give reward anyway
+    /* SDK not ready — fallback */
     triggerDirect();
     setTimeout(()=>onComplete&&onComplete(),1500);
     return;
   }
+
   toast("Loading ad... 📺","i");
-  window[RW_ZONE]()
-    .then(()=>{
-      onComplete&&onComplete();
-    })
-    .catch(()=>{
-      window[RW_ZONE]('pop')
-        .then(()=>{ onComplete&&onComplete(); })
-        .catch(()=>{
-          triggerDirect();
-          onFail? onFail() : onComplete&&onComplete();
-        });
-    });
+
+  if(IS_TG){
+    /* ✅ Telegram — rewarded interstitial (zone 10753502 counts here) */
+    window[RW_ZONE]()
+      .then(()=>{ onComplete&&onComplete(); })
+      .catch(()=>{
+        /* Fallback: rewarded popup */
+        window[RW_ZONE]('pop')
+          .then(()=>{ onComplete&&onComplete(); })
+          .catch(()=>{ onComplete&&onComplete(); }); /* reward anyway */
+      });
+  } else {
+    /* ✅ Website — rewarded popup (counts on website) */
+    window[RW_ZONE]('pop')
+      .then(()=>{ onComplete&&onComplete(); })
+      .catch(()=>{
+        triggerDirect();
+        onFail ? onFail() : onComplete&&onComplete();
+      });
+  }
 }
 
 /* ── +50 Coins ── */
