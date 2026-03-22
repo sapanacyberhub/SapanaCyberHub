@@ -568,7 +568,8 @@ header{display:flex;align-items:center;justify-content:space-between;
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithCustomToken }
+import { getAuth, onAuthStateChanged, signInWithCustomToken,
+  signInWithEmailAndPassword, sendPasswordResetEmail }
                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFunctions, httpsCallable }
                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
@@ -594,6 +595,9 @@ window._fb = {
   updateScoreFn:    httpsCallable(fns,"updateScore"),
   getLeaderboardFn: httpsCallable(fns,"getCyberTTTLeaderboard"),
   tgAuthFn:         httpsCallable(fns,"telegramAuth"),
+  // email auth helpers exposed for the sign-in dialog
+  signInEmail: (email,pass)=>signInWithEmailAndPassword(auth,email,pass),
+  resetPass:   (email)=>sendPasswordResetEmail(auth,email),
 };
 
 /* ══════════════════════════════════════════════
@@ -617,114 +621,172 @@ const LOGIN_URL = "/online-earning/listen-enjoy-earn/create-vibers/index.html";
 
 /* ══════════════════════════════════════════════
    AUTH HANDLER
-   3 cases:
-   1. Logged-in user (Firebase auth) → play normally
-   2. Inside Telegram → verify initData → custom token
-   3. Website, not logged in → show redirect overlay
+   Logic:
+   1. Firebase session already exists → play (works for both website & Telegram)
+   2. No session detected → show sign-in dialog inline (email + password)
+   3. After successful sign-in → dialog closes → game loads
 ══════════════════════════════════════════════ */
-onAuthStateChanged(auth, async user => {
-
-  /* ── Case 1: Authenticated user ── */
+onAuthStateChanged(auth, user => {
   if(user){
+    /* ✅ Session exists — logged in from sapanacyberhub.in or just signed in */
     window._cu = user;
     const n = user.isAnonymous
       ? "GUEST"
       : (user.displayName||user.email?.split("@")[0]||"VIBE").toUpperCase();
     window._un = n;
     document.getElementById("ud").textContent = n;
-    hideAuthOverlay();
+    closeSignInDialog(); // close dialog if open
     if(window._lms) window._lms();
-    return;
+  } else {
+    /* ❌ No session — show sign-in dialog */
+    showSignInDialog();
   }
-
-  /* ── Case 2: Inside Telegram — verify & sign in ── */
-  if(IS_TG_RAW){
-    showLoadingOverlay("VERIFYING TELEGRAM...");
-    try{
-      const res = await window._fb.tgAuthFn({ initData: tg.initData });
-      if(res.data?.token){
-        await signInWithCustomToken(auth, res.data.token);
-        // onAuthStateChanged fires again → Case 1 handles it
-        return;
-      }
-      throw new Error("No token returned");
-    }catch(e){
-      console.warn("TG auth failed:", e);
-      showTGAuthError();
-    }
-    return;
-  }
-
-  /* ── Case 3: Website, not logged in → show login redirect overlay ── */
-  showLoginOverlay();
 });
 
-/* ── Overlays ── */
-function showLoadingOverlay(msg){
-  let el = document.getElementById("_authOverlay");
-  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
-  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
-    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
-    +"font-family:'Orbitron',monospace;color:#00ffc8;text-align:center;padding:2rem;gap:1.2rem;";
-  el.innerHTML = `
-    <div style="width:48px;height:48px;border:3px solid rgba(0,255,200,.15);border-top-color:#00ffc8;border-radius:50%;animation:spin 1s linear infinite;"></div>
-    <div style="font-size:.65rem;letter-spacing:.15em;opacity:.7;">${msg}</div>
-    <style>@keyframes spin{to{transform:rotate(360deg);}}</style>`;
-}
+/* ══════════════════════════════════════════════
+   SIGN-IN DIALOG
+   Inline email + password form — no redirect
+   Works inside Telegram Mini App & website
+══════════════════════════════════════════════ */
+function showSignInDialog(){
+  if(document.getElementById("_signInDialog")) return; // already shown
 
-function hideAuthOverlay(){
-  const el = document.getElementById("_authOverlay");
-  if(el) el.remove();
-}
+  const overlay = document.createElement("div");
+  overlay.id = "_signInDialog";
+  overlay.style.cssText = [
+    "position:fixed;inset:0;z-index:99999;",
+    "background:rgba(3,3,8,.95);backdrop-filter:blur(12px);",
+    "display:flex;align-items:center;justify-content:center;",
+    "padding:1rem;"
+  ].join("");
 
-function showLoginOverlay(){
-  let el = document.getElementById("_authOverlay");
-  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
-  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
-    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
-    +"font-family:'Orbitron',monospace;color:#00ffc8;text-align:center;padding:2rem;gap:1.2rem;";
-  el.innerHTML = `
-    <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
-    <div style="font-size:3.5rem;">🎮</div>
-    <div style="font-size:1rem;font-weight:900;letter-spacing:.15em;text-shadow:0 0 15px #00ffc8;">CYBER TTT</div>
-    <div style="font-size:.6rem;color:rgba(200,255,240,.5);letter-spacing:.1em;line-height:1.7;">
-      LOGIN REQUIRED TO PLAY<br>
-      <span style="color:rgba(200,255,240,.3);font-size:.52rem;">Earn coins · Climb ranks · Play online</span>
-    </div>
-    <a href="${LOGIN_URL}?redirect=${encodeURIComponent(window.location.href)}"
-      style="padding:14px 32px;border-radius:10px;
-        background:linear-gradient(135deg,rgba(0,255,200,.15),rgba(0,255,200,.05));
-        border:1px solid #00ffc8;color:#00ffc8;
-        font-family:'Orbitron',monospace;font-size:.65rem;
-        letter-spacing:.1em;cursor:pointer;text-decoration:none;
-        box-shadow:0 0 20px rgba(0,255,200,.2);">
-      🔐 LOGIN TO PLAY
-    </a>
-    <div style="font-size:.5rem;color:rgba(200,255,240,.25);margin-top:.5rem;">
-      Don't have an account? The login page lets you sign up too.
+  overlay.innerHTML = `
+    <style>
+      #_sif *{box-sizing:border-box;font-family:'Orbitron',monospace;}
+      #_sif{background:#0d0d1a;border:1px solid rgba(0,255,200,.2);border-radius:20px;
+        padding:2rem 1.8rem;max-width:340px;width:100%;text-align:center;
+        box-shadow:0 0 40px rgba(0,255,200,.1);}
+      #_sif .logo{font-size:2.5rem;margin-bottom:.5rem;}
+      #_sif h2{font-size:.85rem;font-weight:900;letter-spacing:.15em;
+        color:#00ffc8;text-shadow:0 0 15px #00ffc8;margin-bottom:.3rem;}
+      #_sif .sub{font-size:.55rem;color:rgba(200,255,240,.4);
+        letter-spacing:.08em;margin-bottom:1.5rem;line-height:1.6;}
+      #_sif input{width:100%;padding:12px 14px;border-radius:9px;
+        background:rgba(0,255,200,.05);border:1px solid rgba(0,255,200,.2);
+        color:#c8fff0;font-size:.7rem;letter-spacing:.05em;
+        outline:none;margin-bottom:.8rem;transition:border-color .2s;}
+      #_sif input:focus{border-color:#00ffc8;}
+      #_sif input::placeholder{color:rgba(200,255,240,.3);}
+      #_sif .btn-login{width:100%;padding:13px;border-radius:9px;border:none;
+        background:linear-gradient(135deg,rgba(0,255,200,.2),rgba(0,255,200,.08));
+        border:1px solid #00ffc8;color:#00ffc8;font-size:.65rem;
+        letter-spacing:.12em;cursor:pointer;transition:all .3s;margin-bottom:.6rem;}
+      #_sif .btn-login:hover{background:rgba(0,255,200,.15);
+        box-shadow:0 0 20px rgba(0,255,200,.2);}
+      #_sif .btn-login:disabled{opacity:.5;cursor:not-allowed;}
+      #_sif .err{font-size:.58rem;color:#ff3366;min-height:1.2rem;
+        margin-bottom:.5rem;letter-spacing:.05em;}
+      #_sif .forgot{font-size:.52rem;color:rgba(200,255,240,.35);
+        cursor:pointer;letter-spacing:.05em;text-decoration:underline;
+        background:none;border:none;color:rgba(0,255,200,.5);}
+      #_sif .forgot:hover{color:#00ffc8;}
+      #_sif .divider{font-size:.48rem;color:rgba(200,255,240,.2);
+        margin:.8rem 0;letter-spacing:.1em;}
+      #_sif .reset-msg{font-size:.55rem;color:#00ffc8;display:none;
+        margin-bottom:.5rem;line-height:1.5;}
+    </style>
+
+    <div id="_sif">
+      <div class="logo">🎮</div>
+      <h2>CYBER TTT</h2>
+      <div class="sub">
+        Sign in with your SapanaCyberHub account<br>
+        <span style="color:rgba(200,255,240,.25);font-size:.48rem;">
+          Your session is shared across the platform
+        </span>
+      </div>
+
+      <div class="reset-msg" id="_resetMsg">
+        ✅ Reset email sent! Check your inbox.
+      </div>
+
+      <input type="email"    id="_siEmail" placeholder="Email address" autocomplete="email"/>
+      <input type="password" id="_siPass"  placeholder="Password"      autocomplete="current-password"/>
+      <div class="err" id="_siErr"></div>
+      <button class="btn-login" id="_siBtn" onclick="doSignIn()">
+        🔐 SIGN IN &amp; PLAY
+      </button>
+      <button class="forgot" onclick="doReset()">Forgot password?</button>
     </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Auto-focus email field
+  setTimeout(()=> document.getElementById("_siEmail")?.focus(), 100);
+
+  // Enter key submits
+  overlay.addEventListener("keydown", e => {
+    if(e.key === "Enter") doSignIn();
+  });
 }
 
-function showTGAuthError(){
-  let el = document.getElementById("_authOverlay");
-  if(!el){ el = document.createElement("div"); el.id="_authOverlay"; document.body.appendChild(el); }
-  el.style.cssText = "position:fixed;inset:0;background:#030308;z-index:99999;"
-    +"display:flex;flex-direction:column;align-items:center;justify-content:center;"
-    +"font-family:'Orbitron',monospace;color:#ff3366;text-align:center;padding:2rem;gap:1rem;";
-  el.innerHTML = `
-    <div style="font-size:3rem;">⚠️</div>
-    <div style="font-size:.8rem;letter-spacing:.1em;">AUTH FAILED</div>
-    <div style="font-size:.6rem;color:rgba(255,51,102,.6);line-height:1.7;">
-      Could not verify your Telegram identity.<br>Please close and reopen the app.
-    </div>
-    <button onclick="location.reload()"
-      style="padding:12px 28px;border-radius:8px;border:1px solid #ff3366;
-        background:rgba(255,51,102,.1);color:#ff3366;
-        font-family:'Orbitron',monospace;font-size:.6rem;
-        cursor:pointer;letter-spacing:.1em;">
-      ↺ RETRY
-    </button>`;
+function closeSignInDialog(){
+  const el = document.getElementById("_signInDialog");
+  if(el){
+    el.style.opacity = "0";
+    el.style.transition = "opacity .3s";
+    setTimeout(()=>el.remove(), 300);
+  }
 }
+
+window.doSignIn = async function(){
+  const email = document.getElementById("_siEmail")?.value?.trim();
+  const pass  = document.getElementById("_siPass")?.value;
+  const errEl = document.getElementById("_siErr");
+  const btn   = document.getElementById("_siBtn");
+
+  if(!email || !pass){
+    errEl.textContent = "Enter your email and password";
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = "SIGNING IN...";
+  errEl.textContent = "";
+
+  try{
+    await window._fb.signInEmail(email, pass);
+    // onAuthStateChanged fires → session set → closeSignInDialog called automatically
+  }catch(e){
+    btn.disabled    = false;
+    btn.textContent = "🔐 SIGN IN & PLAY";
+    const msg = e.code === "auth/invalid-credential"   ? "Wrong email or password."
+              : e.code === "auth/user-not-found"        ? "No account found with this email."
+              : e.code === "auth/wrong-password"        ? "Wrong password."
+              : e.code === "auth/invalid-email"         ? "Invalid email address."
+              : e.code === "auth/too-many-requests"     ? "Too many attempts. Try later."
+              : "Sign in failed. Please try again.";
+    errEl.textContent = msg;
+  }
+};
+
+window.doReset = async function(){
+  const email = document.getElementById("_siEmail")?.value?.trim();
+  const errEl = document.getElementById("_siErr");
+  const rmsg  = document.getElementById("_resetMsg");
+
+  if(!email){
+    errEl.textContent = "Enter your email first.";
+    return;
+  }
+  try{
+    await window._fb.resetPass(email);
+    errEl.textContent = "";
+    rmsg.style.display = "block";
+  }catch(e){
+    errEl.textContent = "Could not send reset email.";
+  }
+};
 </script>
 
 <script>
