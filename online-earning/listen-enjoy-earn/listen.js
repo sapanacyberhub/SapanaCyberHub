@@ -25,6 +25,7 @@ const marathon = new MusicMarathon({ containerId: "marathon-root", functions });
 //  CALLABLES
 // ══════════════════════════════════════════════════════════════════════════════
 const dailyCheckIn = httpsCallable(functions, "dailyCheckIn");
+const markDailyActive = httpsCallable(functions, "markDailyActive");
 const connectUser = httpsCallable(functions, "loadUserData");
 const getEvents = httpsCallable(functions, "getEvents");
 const joinvibeEvents = httpsCallable(functions, "vibeInEvent");
@@ -114,6 +115,11 @@ let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
 let sponsorProcessing = false;
 let visibilityHandler = null;
 
+
+// ── 2. ADD this flag near the top of GLOBAL STATE ────────────────────────────
+
+let dailyActiveMarked = false;   // session guard — fire once per page load
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
 // ══════════════════════════════════════════════════════════════════════════════
@@ -142,13 +148,37 @@ function setupNetworkBanner() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  AUTH
 // ══════════════════════════════════════════════════════════════════════════════
+async function trackDailyActive() {
+  // Skip if already called this session or no user is logged in.
+  if (dailyActiveMarked || !currentUser) return;
+
+  dailyActiveMarked = true;   // optimistic — prevents duplicate calls
+
+  try {
+    const result = await markDailyActive();
+    if (result?.data?.success && !result.data.alreadyMarked) {
+      console.log("[DAU] Marked active for", result.data.date);
+    }
+  } catch (err) {
+    // Non-critical — silently fail; do NOT show a toast to the user.
+    dailyActiveMarked = false;   // allow retry on next interaction if it failed
+    console.warn("[DAU] Could not mark daily active:", err.message);
+  }
+}
+
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     if (userNameEl) userNameEl.textContent = user.displayName || user.email?.split("@")[0];
+
+    // ✅ Track daily active immediately after auth is confirmed.
+    trackDailyActive();   // fire-and-forget — don't await, won't block the UI
+
     await getUser();
   } else {
     currentUser = null;
+    dailyActiveMarked = false;   // reset so it fires again if user logs back in
     if (userNameEl) userNameEl.textContent = "Log In";
   }
   renderVibingListenEvents(false);
@@ -395,7 +425,7 @@ function renderVibingListenEvents(vibeOver = false) {
     const vibers = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
     const ended = isEnded(event.endTime);
-    
+
 
     card.className = "event-card";
     card.innerHTML = `
@@ -415,7 +445,7 @@ function renderVibingListenEvents(vibeOver = false) {
       <div class="event-title">${event.eventTitle || "Untitled Event"}</div>
       <div class="event-meta">
         <span class="event-duration">--:--:--</span>
-        <span>${vibeOver?`${formatListenTime(event.curatedMs)}`:`Vibers: ${vibers} `}</span>
+        <span>${vibeOver ? `${formatListenTime(event.curatedMs)}` : `Vibers: ${vibers} `}</span>
       </div>
       <div class="event-progress"><span style="width:100%"></span></div>
       <div class="event-actions">
@@ -435,20 +465,20 @@ function renderVibingListenEvents(vibeOver = false) {
   enableScrollHighlight(listen_grid, listen_grid.querySelectorAll(".event-card"), listenEvents);
 }
 function formatListenTime(ms) {
-    // 1. Calculate total seconds
-    let totalSeconds = Math.floor(ms / 1000);
+  // 1. Calculate total seconds
+  let totalSeconds = Math.floor(ms / 1000);
 
-    // 2. Extract hours, minutes, and remaining seconds
-    let hours = Math.floor(totalSeconds / 3600);
-    let minutes = Math.floor((totalSeconds % 3600) / 60);
-    let seconds = totalSeconds % 60;
+  // 2. Extract hours, minutes, and remaining seconds
+  let hours = Math.floor(totalSeconds / 3600);
+  let minutes = Math.floor((totalSeconds % 3600) / 60);
+  let seconds = totalSeconds % 60;
 
-    // 3. Format with leading zeros (e.g., "01" instead of "1")
-    let hDisplay = hours.toString().padStart(2, '0');
-    let mDisplay = minutes.toString().padStart(2, '0');
-    let sDisplay = seconds.toString().padStart(2, '0');
+  // 3. Format with leading zeros (e.g., "01" instead of "1")
+  let hDisplay = hours.toString().padStart(2, '0');
+  let mDisplay = minutes.toString().padStart(2, '0');
+  let sDisplay = seconds.toString().padStart(2, '0');
 
-    return `Listen : ${hDisplay}:${mDisplay}:${sDisplay}`;
+  return `Listen : ${hDisplay}:${mDisplay}:${sDisplay}`;
 }
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — HIT EVENTS
@@ -503,7 +533,7 @@ function renderVibingHitEvents(vibeOver = false) {
         </div>
         <div class="prison-hexagon">
           <img class="event-img" loading="lazy" src="${event.eventDpUrl || ""}">
-          <img class="lock" loading="lazy"
+          <img class="lock" loading="lazy" style="visibility: ${event.hasEnded ? 'hidden' : 'visible'};"
             src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png">
         </div>
         <div class="hit-lock">
@@ -531,6 +561,8 @@ function renderVibingHitEvents(vibeOver = false) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — LAKHPATI LOOPS
 // ══════════════════════════════════════════════════════════════════════════════
+
+
 function renderLakhpatiLoops(vibeOver = false) {
   if (!premiumLegue) return;
   premiumLegue.innerHTML = "";
@@ -1204,8 +1236,8 @@ function renderLeaderboardCard(taskData, leaderboard) {
 // ══════════════════════════════════════════════════════════════════════════════
 a_t_d_overlay?.addEventListener("click", async (e) => {
   const closeButton = e.target.closest(".a-t-d-close");
-  const claimBtn    = e.target.closest(".claim-btn");
-  const vibeBtn     = e.target.closest(".vibe-btn");
+  const claimBtn = e.target.closest(".claim-btn");
+  const vibeBtn = e.target.closest(".vibe-btn");
 
   if (closeButton) {
     a_t_d_overlay.classList.remove("active");
@@ -1216,7 +1248,7 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   if (claimBtn) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
-      const res  = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
+      const res = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
       const data = res?.data;
 
       if (!data?.success) {
@@ -1225,13 +1257,13 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       }
 
       const icons = {
-        cash:       "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+        cash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
         listenCoin: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
         luckCredit: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
       };
 
       const labels = {
-        cash:       "Cash Reward",
+        cash: "Cash Reward",
         listenCoin: "Listen Coins",
         luckCredit: "Luck Credit",
       };
@@ -1285,13 +1317,13 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     // Clear any lingering listen/hit join state
     pendingJoinEventId = null;
-    adOpenTime         = 0;
+    adOpenTime = 0;
 
     showAdCountdownToast(10);
 
     pendingSponsorApkPath = taskData.sponsorLink;
-    pendingSponsorId      = sponsorId;
-    sponsorAdOpenTime     = Date.now();
+    pendingSponsorId = sponsorId;
+    sponsorAdOpenTime = Date.now();
 
     const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
 
@@ -1352,8 +1384,8 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
       // Cleanup
       pendingSponsorApkPath = null;
-      pendingSponsorId      = null;
-      sponsorAdOpenTime     = 0;
+      pendingSponsorId = null;
+      sponsorAdOpenTime = 0;
 
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
@@ -1363,9 +1395,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  JOINED — redirect user to sponsor app/site to complete tasks
-  // ══════════════════════════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════════════════════════
+    //  JOINED — redirect user to sponsor app/site to complete tasks
+    // ══════════════════════════════════════════════════════════════════════════
   } else {
     const link = taskData.sponsorLink;
 
@@ -1409,9 +1441,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.getElementById("dtc-redirect-toast")?.remove();
 
     const COUNTDOWN_MS = 4000;
-    const isApk  = link.toLowerCase().endsWith(".apk");
-    const isApp  = isApk || link.includes("play.google") || link.includes("apps.apple");
-    const btnTxt  = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
+    const isApk = link.toLowerCase().endsWith(".apk");
+    const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
+    const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
     const descTxt = isApp
       ? "Open the app, complete the task, then come back here."
       : "Visit the page, complete the task, then return here.";
