@@ -64,23 +64,37 @@ const appTaskList = document.getElementById("task-list");
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════════════════════
 const EVENT_TYPE_INDEX = { listen: 1, hit: 2, lakhpati: 3, cash: 4 };
-const AD_WAIT_MS = { listen: 10000, hit: 10000, dc: 10000 };
+
+// AD_WAIT_MS — 10 s gate on every join type + sponsor/check-in
+const AD_WAIT_MS = { listen: 10000, hit: 10000, lakhpati: 10000, dc: 10000 };
 
 const DP_FALLBACK = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
 const COIN_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
 const PRIZE_POOL_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png";
 
+// ── Ad link pools ─────────────────────────────────────────────────────────────
+// ✅ NEW: Added Monetag direct link (10749383) as the first (highest-priority) slot
+//         in every pool. Rotates automatically via adIndexL.
 const linksL = [
+  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
   "https://omg10.com/4/10260662",
   "https://omg10.com/4/10260660",
   "https://www.effectivegatecpm.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
 ];
 const linksH = [
+  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
   "https://omg10.com/4/10619467",
   "https://omg10.com/4/10216281",
   "https://www.effectivegatecpm.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
 ];
-const linksDCI = ["https://omg10.com/4/10619475"];
+const linksLP = [
+  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link (Lakhpati)
+  "https://omg10.com/4/10260662",
+];
+const linksDCI = [
+  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
+  "https://omg10.com/4/10619475",
+];
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  GLOBAL STATE
@@ -114,11 +128,7 @@ let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
 
 let sponsorProcessing = false;
 let visibilityHandler = null;
-
-
-// ── 2. ADD this flag near the top of GLOBAL STATE ────────────────────────────
-
-let dailyActiveMarked = false;   // session guard — fire once per page load
+let dailyActiveMarked = false;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
@@ -128,6 +138,7 @@ showSkeletons(hit_grid);
 showSkeletons(premiumLegue);
 showSkeletons(appTaskList);
 setupNetworkBanner();
+setupPullToRefresh();
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NETWORK BANNER
@@ -149,38 +160,32 @@ function setupNetworkBanner() {
 //  AUTH
 // ══════════════════════════════════════════════════════════════════════════════
 async function trackDailyActive() {
-  // Skip if already called this session or no user is logged in.
   if (dailyActiveMarked || !currentUser) return;
-
-  dailyActiveMarked = true;   // optimistic — prevents duplicate calls
-
+  dailyActiveMarked = true;
   try {
     const result = await markDailyActive();
     if (result?.data?.success && !result.data.alreadyMarked) {
       console.log("[DAU] Marked active for", result.data.date);
     }
   } catch (err) {
-    // Non-critical — silently fail; do NOT show a toast to the user.
-    dailyActiveMarked = false;   // allow retry on next interaction if it failed
+    dailyActiveMarked = false;
     console.warn("[DAU] Could not mark daily active:", err.message);
   }
 }
-
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     if (userNameEl) userNameEl.textContent = user.displayName || user.email?.split("@")[0];
-
-    // ✅ Track daily active immediately after auth is confirmed.
-    trackDailyActive();   // fire-and-forget — don't await, won't block the UI
-
+    trackDailyActive();
     await getUser();
   } else {
     currentUser = null;
-    dailyActiveMarked = false;   // reset so it fires again if user logs back in
+    dailyActiveMarked = false;
     if (userNameEl) userNameEl.textContent = "Log In";
+    await Promise.all([getEventList(), getSponsorTasksList()]);
   }
+
   renderVibingListenEvents(false);
   renderVibingHitEvents(false);
   renderLakhpatiLoops(false);
@@ -198,32 +203,21 @@ userNameEl?.addEventListener("click", () => {
 // ══════════════════════════════════════════════════════════════════════════════
 async function getUser() {
   let userAvailable = false;
-
   try {
     const result = await connectUser();
-
     if (result?.data?.success && result.data.userData) {
       uiData = result.data.userData;
       userAvailable = true;
     } else {
       uiData = null;
     }
-
   } catch (err) {
     console.error("User fetch failed:", err);
     uiData = null;
     showToast("Failed to load your data. Please refresh.", "error");
   }
-
-  /* 🔥 ALWAYS run UI init */
   init(userAvailable);
-
-  /* 🔥 ALWAYS load events + sponsor tasks */
-  await Promise.all([
-    getEventList(),
-    getSponsorTasksList(),
-  ]);
-
+  await Promise.all([getEventList(), getSponsorTasksList()]);
   return uiData;
 }
 
@@ -232,14 +226,8 @@ async function getUser() {
 // ══════════════════════════════════════════════════════════════════════════════
 function checkusercheckin() {
   if (!uiData) return;
-
-  const today = new Date(
-    Date.now() + 5.5 * 60 * 60 * 1000
-  ).toISOString().slice(0, 10);
-
-  if (uiData.lastCheckInDay !== today) {
-    showDailyCheckInRewardDialog();
-  }
+  const today = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  if (uiData.lastCheckInDay !== today) showDailyCheckInRewardDialog();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -258,7 +246,6 @@ async function getEventList() {
       getEvents({ i: 3, needJoined: false }), getEvents({ i: 3, needJoined: true }),
       getEvents({ i: 4, needJoined: false }), getEvents({ i: 4, needJoined: true }),
     ]);
-
     if (r1.data?.events) listenEvents.push(...r1.data.events);
     if (rj1.data?.events) listenEventsJoin.push(...rj1.data.events);
     if (r2.data?.events) hitEvents.push(...r2.data.events);
@@ -269,6 +256,9 @@ async function getEventList() {
     if (rj4.data?.events) cashHaandisJoin.push(...rj4.data.events);
 
     updatePlayerVisibility();
+    renderVibingListenEvents(isJoinedList && joinedType === "L");
+    renderVibingHitEvents(isJoinedList && joinedType === "H");
+    renderLakhpatiLoops(isJoinedList && joinedType === "PL");
   } catch (err) {
     showToast("Could not load events. Try refreshing.", "error");
   }
@@ -283,20 +273,17 @@ async function getSponsorTasksList() {
     ]);
     if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
     if (resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
+    renderSponsorAppTasks(isJoinedList && joinedType === "SAT");
   } catch (err) {
-    showToast("Could not load events. Try refreshing.", "error");
+    showToast("Could not load sponsor tasks. Try refreshing.", "error");
   }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  PURE HELPERS
 // ══════════════════════════════════════════════════════════════════════════════
-const isEnded = (endTime) =>
-  !!(endTime?._seconds && Date.now() > endTime._seconds * 1000);
-
-const calculatePrizePool = (totalViber) =>
-  Math.min(Math.floor(100 + Number(totalViber) * 0.30 * 0.4), 50000);
-
+const isEnded = (endTime) => !!(endTime?._seconds && Date.now() > endTime._seconds * 1000);
+const calculatePrizePool = (totalViber) => Math.min(Math.floor(100 + Number(totalViber) * 0.30 * 0.4), 50000);
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function startCountdown(el, endTime) {
@@ -332,6 +319,14 @@ async function downloadSponsorApk(apkPath) {
   }
 }
 
+function formatListenTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+  const s = String(totalSeconds % 60).padStart(2, "0");
+  return `Listen : ${h}:${m}:${s}`;
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  DIALOG
 // ══════════════════════════════════════════════════════════════════════════════
@@ -340,12 +335,85 @@ const closeDialog = () => { if (dialog) dialog.style.display = "none"; };
 dialogCloseBtn?.addEventListener("click", closeDialog);
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  AD TRIGGER
+//  Opens a direct-link ad in a new tab and records the open time.
+//  eventType: "listen" | "hit" | "lakhpati" | "dc"
+// ══════════════════════════════════════════════════════════════════════════════
+function trigger(eventId, eventType) {
+  if (adLocked) return;
+  adLocked = true;
+
+  const links =
+    eventType === "listen" ? linksL :
+      eventType === "hit" ? linksH :
+        eventType === "lakhpati" ? linksLP :
+          eventType === "dc" ? linksDCI : [];
+
+  if (!links.length) {
+    showToast("No ad links available 😕", "error");
+    adLocked = false;
+    return;
+  }
+
+  window.open(links[adIndexL++ % links.length], "_blank");
+  adOpenTime = Date.now(); // ✅ record open time for 10 s gate
+  setTimeout(() => { adLocked = false; }, 2000);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  AD RETURN — VISIBILITY CHANGE  (Listen / Hit / Lakhpati join flow)
+//
+//  FIX: Now handles all three event types (listen, hit, lakhpati).
+//       Bails immediately when sponsor visibilityHandler owns the return,
+//       preventing race conditions.
+// ══════════════════════════════════════════════════════════════════════════════
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  if (visibilityHandler) return; // sponsor flow owns the return — don't interfere
+  if (!pendingJoinEventId || !adOpenTime) return;
+
+  const stayedMs = Date.now() - adOpenTime;
+
+  // Map numeric type index → string key used in AD_WAIT_MS and event arrays
+  const typeKey =
+    pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" :
+      pendingJoinTypeIndex === EVENT_TYPE_INDEX.lakhpati ? "lakhpati" :
+        "listen";
+
+  const required = AD_WAIT_MS[typeKey] ?? 10000;
+
+  if (stayedMs >= required) {
+    // ── User stayed long enough — now show event details dialog ──────────────
+    const pool =
+      typeKey === "hit" ? hitEvents :
+        typeKey === "lakhpati" ? lakhpatiLoops :
+          listenEvents;
+
+    const isLakhpati = typeKey === "lakhpati";
+    const eventData = pool.find((ev) => ev.eventId === pendingJoinEventId);
+
+    if (eventData) {
+      showEventDetails(eventData, isLakhpati, pendingJoinTypeIndex);
+      showToast("Thanks, Viber! 🎉 You're all set to join!", "success");
+    } else {
+      showToast("Event not found — please refresh.", "error");
+    }
+  } else {
+    const secLeft = Math.ceil((required - stayedMs) / 1000);
+    showToast(`Stay on the ad for ${secLeft} more second(s) to continue.`, "error");
+  }
+
+  // Always clean up so repeated clicks work cleanly
+  pendingJoinEventId = null;
+  adOpenTime = 0;
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — SPONSOR TASKS
 // ══════════════════════════════════════════════════════════════════════════════
 function renderSponsorAppTasks(vibeOver = false) {
   if (!appTaskList) return;
   appTaskList.innerHTML = "";
-
   const fullList = vibeOver ? sponsorAppTasksJoin : sponsorAppTasks;
   const tasks = vibeOver
     ? fullList
@@ -353,14 +421,8 @@ function renderSponsorAppTasks(vibeOver = false) {
 
   if (!tasks.length) {
     appTaskList.innerHTML = vibeOver
-      ? `<div class="no-events-container">
-           <div class="no-events-icon">📭</div>
-           <p class="no-events-text">You haven't joined any sponsor tasks yet!</p>
-           <button class="start-joining-btn">START JOINING NOW</button>
-         </div>`
-      : `<div class="no-events-container">
-           <p class="no-events-text">No sponsor tasks available right now. Try again later.</p>
-         </div>`;
+      ? `<div class="no-events-container"><div class="no-events-icon">📭</div><p class="no-events-text">You haven't joined any sponsor tasks yet!</p><button class="start-joining-btn">START JOINING NOW</button></div>`
+      : `<div class="no-events-container"><p class="no-events-text">No sponsor tasks available right now. Try again later.</p></div>`;
     return;
   }
 
@@ -368,15 +430,9 @@ function renderSponsorAppTasks(vibeOver = false) {
     const card = document.createElement("div");
     card.className = "t-b";
     const progressHTML = vibeOver && !task.isComplete
-      ? `<div class="task-progress-bar">
-           <div class="task-progress-fill"
-             style="width:${Math.round(((task.stepsCompleted || 0) / (task.allSteps || 1)) * 100)}%">
-           </div>
-         </div>`
+      ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${Math.round(((task.stepsCompleted || 0) / (task.allSteps || 1)) * 100)}%"></div></div>`
       : "";
-    const label = vibeOver
-      ? (task.isComplete ? "Completed" : `${task.stepsCompleted || 0}/${task.allSteps || 0}`)
-      : "Vibe";
+    const label = vibeOver ? (task.isComplete ? "Completed" : `${task.stepsCompleted || 0}/${task.allSteps || 0}`) : "Vibe";
 
     card.innerHTML = `
       <div class="a-t-h">
@@ -400,7 +456,6 @@ function renderSponsorAppTasks(vibeOver = false) {
 function renderVibingListenEvents(vibeOver = false) {
   if (!listen_grid) return;
   listen_grid.innerHTML = "";
-
   const fullList = vibeOver ? listenEventsJoin : listenEvents;
   const events = vibeOver
     ? fullList
@@ -408,14 +463,8 @@ function renderVibingListenEvents(vibeOver = false) {
 
   if (!events.length) {
     listen_grid.innerHTML = vibeOver
-      ? `<div class="no-events-container">
-           <div class="no-events-icon">📭</div>
-           <p class="no-events-text">You haven't joined any events yet, baby!</p>
-           <button class="start-joining-btn">START JOINING NOW</button>
-         </div>`
-      : `<div class="no-events-container">
-           <p class="no-events-text">No active listen events right now. Check back soon!</p>
-         </div>`;
+      ? `<div class="no-events-container"><div class="no-events-icon">📭</div><p class="no-events-text">You haven't joined any events yet, baby!</p><button class="start-joining-btn">START JOINING NOW</button></div>`
+      : `<div class="no-events-container"><p class="no-events-text">No active listen events right now. Check back soon!</p></div>`;
     return;
   }
 
@@ -426,14 +475,11 @@ function renderVibingListenEvents(vibeOver = false) {
     const prizePool = calculatePrizePool(vibers);
     const ended = isEnded(event.endTime);
 
-
     card.className = "event-card";
     card.innerHTML = `
       <div class="event-tag-row">
         <span class="vibe-dot"></span>
-        <span class="event-date">
-          ${event.eventDate ? new Date(event.eventDate._seconds * 1000).toDateString() : ""}
-        </span>
+        <span class="event-date">${event.eventDate ? new Date(event.eventDate._seconds * 1000).toDateString() : ""}</span>
       </div>
       <div class="event-thumb">
         <img class="event-thumb-img" src="${event.eventDpUrl || ""}" loading="lazy">
@@ -445,7 +491,7 @@ function renderVibingListenEvents(vibeOver = false) {
       <div class="event-title">${event.eventTitle || "Untitled Event"}</div>
       <div class="event-meta">
         <span class="event-duration">--:--:--</span>
-        <span>${vibeOver ? `${formatListenTime(event.curatedMs)}` : `Vibers: ${vibers} `}</span>
+        <span>${vibeOver ? formatListenTime(event.curatedMs) : `Vibers: ${vibers}`}</span>
       </div>
       <div class="event-progress"><span style="width:100%"></span></div>
       <div class="event-actions">
@@ -464,29 +510,13 @@ function renderVibingListenEvents(vibeOver = false) {
 
   enableScrollHighlight(listen_grid, listen_grid.querySelectorAll(".event-card"), listenEvents);
 }
-function formatListenTime(ms) {
-  // 1. Calculate total seconds
-  let totalSeconds = Math.floor(ms / 1000);
 
-  // 2. Extract hours, minutes, and remaining seconds
-  let hours = Math.floor(totalSeconds / 3600);
-  let minutes = Math.floor((totalSeconds % 3600) / 60);
-  let seconds = totalSeconds % 60;
-
-  // 3. Format with leading zeros (e.g., "01" instead of "1")
-  let hDisplay = hours.toString().padStart(2, '0');
-  let mDisplay = minutes.toString().padStart(2, '0');
-  let sDisplay = seconds.toString().padStart(2, '0');
-
-  return `Listen : ${hDisplay}:${mDisplay}:${sDisplay}`;
-}
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — HIT EVENTS
 // ══════════════════════════════════════════════════════════════════════════════
 function renderVibingHitEvents(vibeOver = false) {
   if (!hit_grid) return;
   hit_grid.innerHTML = "";
-
   const fullList = vibeOver ? hitEventsJoin : hitEvents;
   const events = vibeOver
     ? fullList
@@ -494,14 +524,8 @@ function renderVibingHitEvents(vibeOver = false) {
 
   if (!events.length) {
     hit_grid.innerHTML = vibeOver
-      ? `<div class="no-events-container">
-           <div class="no-events-icon">📭</div>
-           <p class="no-events-text">You haven't joined any events yet, baby!</p>
-           <button class="start-joining-btn">START JOINING NOW</button>
-         </div>`
-      : `<div class="no-events-container">
-           <p class="no-events-text">No active hit events right now. Check back soon!</p>
-         </div>`;
+      ? `<div class="no-events-container"><div class="no-events-icon">📭</div><p class="no-events-text">You haven't joined any events yet, baby!</p><button class="start-joining-btn">START JOINING NOW</button></div>`
+      : `<div class="no-events-container"><p class="no-events-text">No active hit events right now. Check back soon!</p></div>`;
     return;
   }
 
@@ -533,7 +557,7 @@ function renderVibingHitEvents(vibeOver = false) {
         </div>
         <div class="prison-hexagon">
           <img class="event-img" loading="lazy" src="${event.eventDpUrl || ""}">
-          <img class="lock" loading="lazy" style="visibility: ${event.hasEnded ? 'hidden' : 'visible'};"
+          <img class="lock" loading="lazy" style="visibility:${event.hasEnded ? "hidden" : "visible"};"
             src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/A%20fiery%20iron%20chain%20f.png">
         </div>
         <div class="hit-lock">
@@ -561,12 +585,9 @@ function renderVibingHitEvents(vibeOver = false) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — LAKHPATI LOOPS
 // ══════════════════════════════════════════════════════════════════════════════
-
-
 function renderLakhpatiLoops(vibeOver = false) {
   if (!premiumLegue) return;
   premiumLegue.innerHTML = "";
-
   const fullList = vibeOver ? lakhpatiLoopsJoin : lakhpatiLoops;
   const events = vibeOver
     ? fullList
@@ -574,14 +595,8 @@ function renderLakhpatiLoops(vibeOver = false) {
 
   if (!events.length) {
     premiumLegue.innerHTML = vibeOver
-      ? `<div class="no-events-container">
-           <div class="no-events-icon">📭</div>
-           <p class="no-events-text">You haven't joined any events yet, baby!</p>
-           <button class="start-joining-btn">START JOINING NOW</button>
-         </div>`
-      : `<div class="no-events-container">
-           <p class="no-events-text">No Lakhpati events active right now. Check back soon!</p>
-         </div>`;
+      ? `<div class="no-events-container"><div class="no-events-icon">📭</div><p class="no-events-text">You haven't joined any events yet, baby!</p><button class="start-joining-btn">START JOINING NOW</button></div>`
+      : `<div class="no-events-container"><p class="no-events-text">No Lakhpati events active right now. Check back soon!</p></div>`;
     return;
   }
 
@@ -609,22 +624,19 @@ function renderLakhpatiLoops(vibeOver = false) {
           <div class="l-p-p">
             <div class="l-p-m">
               <img loading="lazy"
-                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/motivator-elements%20of%20lakhpatis1.png"
-                alt="">
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/motivator-elements%20of%20lakhpatis1.png" alt="">
               <span class="t-p-p">₹${prizePool.toLocaleString("en-IN")}</span>
               <div class="T-J">0</div>
             </div>
             <div class="p-b">
               <img loading="lazy"
-                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/prize-box%20of%20lakhpatis.png"
-                alt="">
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/prize-box%20of%20lakhpatis.png" alt="">
             </div>
           </div>
           <div class="l-p-bottom">
             <div class="left">
               <img class="j-m-l" data-eventid="${event.eventId}" loading="lazy"
-                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/join-btnelements%20of%20lakhpatis.png"
-                alt="">
+                src="https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/join-btnelements%20of%20lakhpatis.png" alt="">
               <span class="E-f-l" data-eventid="${event.eventId}">
                 Entry Fee : ${fee > 0 ? `₹${fee}` : "Free"}
               </span>
@@ -678,7 +690,7 @@ vibingBtns.forEach((btn) => {
 listen_grid?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderVibingListenEvents(false); return; }
 
-  // ── Joined tab (.joinNow) ─────────────────────────────────────────────────
+  // ── Joined tab (.joinNow) — vibe directly, no ad gate ────────────────────
   const vibeNowBtn = e.target.closest(".joinNow");
   if (vibeNowBtn) {
     e.stopPropagation();
@@ -688,23 +700,23 @@ listen_grid?.addEventListener("click", (e) => {
     if (!eventId) { showToast("Event ID missing — try refreshing", "error"); return; }
 
     const eventData = listenEventsJoin.find((ev) => ev.eventId === eventId);
+    if (isEnded(eventData?.endTime)) { showEventDetails(eventData, false, EVENT_TYPE_INDEX.listen); return; }
 
-    if (isEnded(eventData?.endTime)) {
-      showEventDetails(eventData, false, EVENT_TYPE_INDEX.listen);
-      return;
-    }
-
-    // running → start vibe directly, no dialog
     vibingEventId = eventId;
     frame?.classList.replace("not-joined", "joined");
     suggestEvent?.classList.remove("enable");
     c_s_p?.classList.add("enable");
+    // scroll to player
+    const playerCard = document.querySelector(".layout-two-col");
+    if (playerCard) playerCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
+
     if (eventIdEl) eventIdEl.style.display = "none";
     marathon.vibeNow(eventId);
     return;
   }
 
-  // ── Non-joined tab (.join) ────────────────────────────────────────────────
+  // ── Non-joined tab (.join) — trigger ad → wait 10 s → show event dialog ──
   const joinBtn = e.target.closest(".join");
   if (!joinBtn) return;
   e.stopPropagation();
@@ -715,11 +727,10 @@ listen_grid?.addEventListener("click", (e) => {
   if (!eventData) return;
 
   if (isEnded(eventData.endTime)) {
-    showToast("⏰ This event has ended. Check for new events!", "error");
-    return;
+    showToast("⏰ This event has ended. Check for new events!", "error"); return;
   }
 
-  // balance check
+  // Balance check
   if (eventData.eventEntryFee) {
     const fee = eventData.eventEntryFee;
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
@@ -732,36 +743,32 @@ listen_grid?.addEventListener("click", (e) => {
     }
   }
 
+  // ✅ FIX: trigger ad BEFORE showing event dialog; dialog shows on return (10 s gate)
+  pendingJoinEventId = eventId;
   pendingJoinTypeIndex = EVENT_TYPE_INDEX.listen;
-  showEventDetails(eventData, false, EVENT_TYPE_INDEX.listen);
+
+  showAdCountdownToast(10, "Watch the ad for 10 s, then your event details will open 🎧");
+  trigger(eventId, "listen");
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  HIT GRID CLICK
 // ══════════════════════════════════════════════════════════════════════════════
 hit_grid?.addEventListener("click", (e) => {
-
-  if (e.target.closest(".start-joining-btn")) {
-    renderVibingHitEvents(false);
-    return;
-  }
+  if (e.target.closest(".start-joining-btn")) { renderVibingHitEvents(false); return; }
 
   const hitBtn = e.target.closest(".hit-btn");
   if (!hitBtn) return;
-
   e.stopPropagation();
 
   const evId = hitBtn.dataset.eventid;
 
+  // ── Joined tab — show leaderboard/result ─────────────────────────────────
   if (isJoinedList && joinedType === "H") {
     const eventData = hitEventsJoin.find((ev) => ev.eventId === evId);
     if (!eventData) return;
-
-    if (isEnded(eventData.endTime)) {
-      showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
-    } else {
-      showToast("⏳ Event is still running — results coming soon!", "info");
-    }
+    if (isEnded(eventData.endTime)) showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
+    else showToast("⏳ Event is still running — results coming soon!", "info");
     return;
   }
 
@@ -769,8 +776,7 @@ hit_grid?.addEventListener("click", (e) => {
   if (!eventData) return;
 
   if (isEnded(eventData.endTime)) {
-    showToast("⏰ This event has ended. Check for new events!", "error");
-    return;
+    showToast("⏰ This event has ended. Check for new events!", "error"); return;
   }
 
   if (eventData.eventEntryFee) {
@@ -778,29 +784,29 @@ hit_grid?.addEventListener("click", (e) => {
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
       const lcAmount = parseInt(fee.replace(/\D/g, "")) || 0;
       if (!currentUser || (uiData?.listenCoins || 0) < lcAmount) {
-        showToast("Not enough Listen Coins.", "error");
-        return;
+        showToast("Not enough Listen Coins.", "error"); return;
       }
     } else if ((uiData?.cash || 0) < Number(fee)) {
-      showToast("Insufficient balance. You can go with free events.", "error");
-      return;
+      showToast("Insufficient balance. You can go with free events.", "error"); return;
     }
   }
 
-  /* lock shake animation */
   const card = hitBtn.closest(".hit-card");
   const lock = card?.querySelector(".lock");
 
+  // ✅ FIX: trigger ad BEFORE showing event dialog (same pattern as listen)
+  const proceed = () => {
+    pendingJoinEventId = evId;
+    pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
+    showAdCountdownToast(10, "Watch the ad for 10 s, then your event details will open 🎯");
+    trigger(evId, "hit");
+  };
+
   if (lock) {
     lock.classList.add("shaking");
-    setTimeout(() => {
-      lock.classList.remove("shaking");
-      pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
-      showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
-    }, 400);
+    setTimeout(() => { lock.classList.remove("shaking"); proceed(); }, 400);
   } else {
-    pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
-    showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
+    proceed();
   }
 });
 
@@ -817,14 +823,12 @@ premiumLegue?.addEventListener("click", (e) => {
 
   const evId = String(joinBtn?.dataset.eventid || feeCont?.dataset.eventid || "");
 
+  // ── Joined tab — show result ──────────────────────────────────────────────
   if (isJoinedList && joinedType === "PL") {
     const eventData = lakhpatiLoopsJoin.find((ev) => String(ev.eventId) === evId);
     if (!eventData) return;
-    if (isEnded(eventData.endTime)) {
-      showEventDetails(eventData, true, EVENT_TYPE_INDEX.lakhpati);
-    } else {
-      showToast("⏳ Event is still running — results coming soon!", "info");
-    }
+    if (isEnded(eventData.endTime)) showEventDetails(eventData, true, EVENT_TYPE_INDEX.lakhpati);
+    else showToast("⏳ Event is still running — results coming soon!", "info");
     return;
   }
 
@@ -832,75 +836,20 @@ premiumLegue?.addEventListener("click", (e) => {
   if (!eventData) return;
 
   if (isEnded(eventData.endTime)) {
-    showToast("⏰ This event has ended. Check for new events!", "error");
-    return;
+    showToast("⏰ This event has ended. Check for new events!", "error"); return;
   }
-
   if (eventData.eventEntryFee > 0 && (!currentUser || (uiData?.cash || 0) < eventData.eventEntryFee)) {
     showToast("Insufficient balance. Please top up to join.", "error"); return;
   }
-
-  if (Number(uiData.streakDays) > 3) {
-    pendingJoinTypeIndex = EVENT_TYPE_INDEX.lakhpati;
-    showEventDetails(eventData, true, EVENT_TYPE_INDEX.lakhpati);
-  } else {
-    showToast("🔥 Build a 3-day streak to unlock the Lakhpati Loop challenge!", "info");
-  }
-});
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  AD TRIGGER
-//  FIX: adOpenTime is now recorded here so the global visibilitychange handler
-//       can correctly measure how long the user stayed on the ad page.
-// ══════════════════════════════════════════════════════════════════════════════
-function trigger(eventId, eventType) {
-  if (adLocked) return;
-  adLocked = true;
-  const links =
-    eventType === "listen" ? linksL :
-      eventType === "hit" ? linksH :
-        eventType === "dc" ? linksDCI : [];
-  if (!links.length) {
-    showToast("No ad links available 😕", "error");
-    adLocked = false;
-    return;
-  }
-  window.open(links[adIndexL++ % links.length], "_blank");
-  adOpenTime = Date.now(); // ✅ FIX: was never set — caused stayedMs to always be ~0
-  setTimeout(() => { adLocked = false; }, 2000);
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  AD RETURN — VISIBILITY CHANGE (global — for listen/hit join flow)
-//  FIX: bail immediately when the sponsor visibilityHandler owns the return,
-//       preventing the two handlers from racing each other.
-// ══════════════════════════════════════════════════════════════════════════════
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) return;
-
-  // ✅ FIX: if sponsor flow has its own handler active, do not interfere
-  if (visibilityHandler) return;
-
-  if (!pendingJoinEventId || !adOpenTime) return;
-
-  const stayedMs = Date.now() - adOpenTime;
-  const typeKey = pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" : "listen";
-  const required = AD_WAIT_MS[typeKey] || 10000;
-
-  if (stayedMs >= required) {
-    const pool = typeKey === "hit" ? hitEvents : listenEvents;
-    const eventData = pool.find((ev) => ev.eventId === pendingJoinEventId);
-    if (eventData) {
-      showEventDetails(eventData, false, pendingJoinTypeIndex);
-      showToast("Thanks, Dear Viber! You can now join 🎉", "success");
-    }
-  } else {
-    const secLeft = Math.ceil((required - stayedMs) / 1000);
-    showToast(`Please watch the ad for at least ${secLeft} more second(s).`, "error");
+  if (Number(uiData?.streakDays || 0) <= 3) {
+    showToast("🔥 Build a 3-day streak to unlock the Lakhpati Loop challenge!", "info"); return;
   }
 
-  pendingJoinEventId = null;
-  adOpenTime = 0;
+  // ✅ FIX: trigger ad BEFORE showing event dialog (same pattern as listen/hit)
+  pendingJoinEventId = evId;
+  pendingJoinTypeIndex = EVENT_TYPE_INDEX.lakhpati;
+  showAdCountdownToast(10, "Watch the ad for 10 s, then your Lakhpati event will open 💰");
+  trigger(evId, "lakhpati");
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -909,9 +858,7 @@ document.addEventListener("visibilitychange", () => {
 async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   const dialogC = document.querySelector(".eventData");
   if (!dialogC) return;
-
   openDialog();
-
   const vibe = document.querySelector(".join-now");
   if (vibe) vibe.textContent = "Loading Your Vibe...";
 
@@ -920,7 +867,6 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
     try {
       const res = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
       const data = res.data;
-
       if (data.success && data.winners?.length) {
         renderLeaderboard(dialogC, ED, data.winners, data.myRank || 0, data.myWinAmount || 0, eventTypeIndex);
       } else {
@@ -931,21 +877,14 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
               Results will be published shortly.<br>Check back soon!
             </p>
           </div>
-          <div class="btm">
-            <div class="join-now" id="join-now">Event is not Finish yet!</div>
-          </div>`;
-        const vibeBtn = document.querySelector(".join-now");
-        vibeBtn.addEventListener("click", () => {
+          <div class="btm"><div class="join-now" id="join-now">Event is not Finish yet!</div></div>`;
+        document.querySelector(".join-now")?.addEventListener("click", () => {
           closeDialog();
           showToast("Leaderboard in progress. Your rewards are coming soon! 🏆", "info");
         });
       }
-    } catch (err) {
-      dialogC.innerHTML = `
-        <div style="padding:32px;text-align:center">
-          <div style="font-size:48px">😕</div>
-          <p style="color:rgba(255,255,255,.45)">Could not load results. Please try again.</p>
-        </div>`;
+    } catch {
+      dialogC.innerHTML = `<div style="padding:32px;text-align:center"><div style="font-size:48px">😕</div><p style="color:rgba(255,255,255,.45)">Could not load results. Please try again.</p></div>`;
       showToast("Could not load leaderboard", "error");
     }
     return;
@@ -954,10 +893,8 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   // ── JOIN UI PATH ──────────────────────────────────────────────────────────
   const poolIndex = ED.lakhpatiLoopAmountIndex ?? 0;
   const rawPrize = ED.eventPrizePool ?? (poolIndex * 100_000);
-  const title = !ED.eventTitle
-    ? "Best of Luck, Viber!"
+  const title = !ED.eventTitle ? "Best of Luck, Viber!"
     : ED.eventTitle.length > 30 ? `${ED.eventTitle.slice(0, 27)}…` : ED.eventTitle;
-
   const prizeText = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
   const explainText = isLakhpati
     ? `Lakhpati Prize Pool Increase!</b><br>Today: ₹1 Lakh ⮕ Next 5 Days: ₹5 Lakh ⮕ Weekly Goal: <b>₹18 Lakh!`
@@ -979,12 +916,9 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
       <li>Bonus rewards come in the form of <strong>Listen Coins &amp; Luck Credits</strong>.</li>
       <li><strong>Secret: Your Daily Activity increases your Luck Credit!</strong></li>
     </ul>
-    <div class="btm">
-      <div class="join-now" id="join-now">Join Now!</div>
-    </div>`;
+    <div class="btm"><div class="join-now" id="join-now">Vibe Now 🎧</div></div>`;
 
-  const vibeBtn = document.querySelector(".join-now");
-  vibeBtn.addEventListener("click", async () => {
+  document.querySelector(".join-now")?.addEventListener("click", async () => {
     closeDialog();
     await handleJoinEvent(ED, isLakhpati, eventTypeIndex);
   });
@@ -995,12 +929,9 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
 // ══════════════════════════════════════════════════════════════════════════════
 function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0, eventType) {
   const safe = (u) => ({
-    rank: u?.rank || 0,
-    viberDp: u?.viberDp || DP_FALLBACK,
-    viberName: u?.viberName || "Unknown",
-    winAmount: u?.winAmount || 0,
+    rank: u?.rank || 0, viberDp: u?.viberDp || DP_FALLBACK,
+    viberName: u?.viberName || "Unknown", winAmount: u?.winAmount || 0,
   });
-
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
   const rest = leaderboard.slice(3);
 
@@ -1008,24 +939,9 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
     <div class="l-card">
       <div class="leaderBoard">
         <div class="high-rank">
-          ${second ? `
-            <div class="rank two">
-              <img class="rank-two-frame" src="/assets/leaderboard/rank-2.png">
-              <img class="viberDp" src="${second.viberDp}">
-              <div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div>
-            </div>` : ""}
-          ${first ? `
-            <div class="rank one">
-              <img class="rank-one-frame" src="/assets/leaderboard/rank-1.png">
-              <img class="viberDp" src="${first.viberDp}">
-              <div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div>
-            </div>` : ""}
-          ${third ? `
-            <div class="rank three">
-              <img class="rank-three-frame" src="/assets/leaderboard/rank-3.png">
-              <img class="viberDp" src="${third.viberDp}">
-              <div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div>
-            </div>` : ""}
+          ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
+          ${first ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
+          ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
         </div>
         <div class="midRank">
           ${rest.map((u) => `
@@ -1042,18 +958,15 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
     </div>`;
 
   const lCard = dialogC.querySelector(".l-card");
-
   if (ED.isClaim) {
     const thanks = document.createElement("p");
     thanks.style.cssText = "text-align:center;color:#22c55e;font-weight:600;padding:12px 0 4px";
     thanks.textContent = "❤️ Reward already claimed — Thank you!";
     lCard.appendChild(thanks);
-
   } else if (myRank > 0 && myWinAmount > 0) {
     const claimBtn = document.createElement("button");
     claimBtn.className = "vibe-btn";
     claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
-
     claimBtn.addEventListener("click", async () => {
       claimBtn.disabled = true;
       claimBtn.textContent = "Claiming…";
@@ -1072,7 +985,6 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
         claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
       }
     });
-
     lCard.appendChild(claimBtn);
   }
 }
@@ -1090,7 +1002,6 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
     "Registering you in the event",
     "All done! 🎉",
   ];
-
   const progress = showProgressToast(steps);
 
   try {
@@ -1105,7 +1016,6 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
     progress.update(steps.length - 1);
     progress.finish(true, "You're in! Good luck, Viber 🎉");
     spawnConfetti();
-
     await getUser();
 
     if (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
@@ -1135,8 +1045,6 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  SPONSOR TASK LIST CLICK
-//  FIX: added return after renderLeaderboardCard so it doesn't fall through
-//       to renderTaskDetailCard and overwrite the leaderboard.
 // ══════════════════════════════════════════════════════════════════════════════
 appTaskList?.addEventListener("click", async (e) => {
   if (e.target.closest(".start-joining-btn")) { renderSponsorAppTasks(false); isJoinedList = false; return; }
@@ -1163,13 +1071,8 @@ appTaskList?.addEventListener("click", async (e) => {
     try {
       const res = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
       const leaderboard = res?.data?.leaderboard || [];
-      if (leaderboard.length) {
-        renderLeaderboardCard(resolvedTask, leaderboard);
-        return; // ✅ FIX: was missing — fell through and overwrote the leaderboard
-      }
-    } catch {
-      // fall through to renderTaskDetailCard on error
-    }
+      if (leaderboard.length) { renderLeaderboardCard(resolvedTask, leaderboard); return; }
+    } catch { /* fall through */ }
   }
 
   renderTaskDetailCard(resolvedTask);
@@ -1197,10 +1100,8 @@ function renderTaskDetailCard(taskData) {
 
 function renderLeaderboardCard(taskData, leaderboard) {
   const safe = (u) => ({
-    viberDp: u?.viberDp || DP_FALLBACK,
-    viberName: u?.viberName || "Unknown",
-    winAmount: u?.winAmount || 0,
-    rank: u?.rank || 0,
+    viberDp: u?.viberDp || DP_FALLBACK, viberName: u?.viberName || "Unknown",
+    winAmount: u?.winAmount || 0, rank: u?.rank || 0,
   });
   const [first, second, third] = leaderboard.slice(0, 3).map(safe);
   const rest = leaderboard.slice(3);
@@ -1210,7 +1111,7 @@ function renderLeaderboardCard(taskData, leaderboard) {
       <div class="leaderBoard">
         <div class="high-rank">
           ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
-          ${first ? `<div class="rank one"><img class="rank-one-frame"  src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
+          ${first ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
           ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
         </div>
         <div class="midRank">
@@ -1239,61 +1140,42 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   const claimBtn = e.target.closest(".claim-btn");
   const vibeBtn = e.target.closest(".vibe-btn");
 
-  if (closeButton) {
-    a_t_d_overlay.classList.remove("active");
-    return;
-  }
+  if (closeButton) { a_t_d_overlay.classList.remove("active"); return; }
 
-  // ───── CLAIM ─────
+  // ── CLAIM ─────────────────────────────────────────────────────────────────
   if (claimBtn) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
       const res = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
       const data = res?.data;
-
-      if (!data?.success) {
-        showToast("Claim failed 😕", "error");
-        return;
-      }
+      if (!data?.success) { showToast("Claim failed 😕", "error"); return; }
 
       const icons = {
         cash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
         listenCoin: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
         luckCredit: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
       };
-
-      const labels = {
-        cash: "Cash Reward",
-        listenCoin: "Listen Coins",
-        luckCredit: "Luck Credit",
-      };
+      const labels = { cash: "Cash Reward", listenCoin: "Listen Coins", luckCredit: "Luck Credit" };
 
       spawnConfetti();
-
       a_t_d_overlay.innerHTML = `
         <div class="reward-box-a">
           <img class="reward-icon" src="${icons[data.rewardType] || ""}">
           <h2>${labels[data.rewardType] || "Reward"}</h2>
-          <div class="reward-value">
-            ${data.rewardType === "cash" ? "₹" : ""}${data.rewardAmount || 0}
-          </div>
+          <div class="reward-value">${data.rewardType === "cash" ? "₹" : ""}${data.rewardAmount || 0}</div>
           <button class="a-t-d-close">Close</button>
         </div>`;
-
       showToast("Reward claimed 🎉", "success");
       await getUser();
-
     } catch (err) {
       console.error(err);
       showToast("Something went wrong 😕", "error");
     }
-
     return;
   }
 
-  // ───── VIBE ─────
+  // ── VIBE ──────────────────────────────────────────────────────────────────
   if (!vibeBtn) return;
-
   const sponsorId = vibeBtn.dataset.sponsor;
   if (!sponsorId) return;
 
@@ -1301,36 +1183,24 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     sponsorAppTasks.find((t) => String(t.sponsorId) === String(sponsorId)) ||
     sponsorAppTasksJoin.find((t) => String(t.sponsorId) === String(sponsorId));
 
-  if (!taskData) {
-    showToast("Task not found 😕", "error");
-    return;
-  }
+  if (!taskData) { showToast("Task not found 😕", "error"); return; }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  NOT JOINED — show ad → user returns → vibeInSponsor → open sponsor link
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── NOT JOINED — ad gate → vibeInSponsor → open sponsor link ─────────────
   if (!isJoinedList) {
-    if (!taskData.sponsorLink) {
-      showToast("Download link not found 😕", "error");
-      return;
-    }
+    if (!taskData.sponsorLink) { showToast("Download link not found 😕", "error"); return; }
 
-    // Clear any lingering listen/hit join state
     pendingJoinEventId = null;
     adOpenTime = 0;
 
-    showAdCountdownToast(10);
+    showAdCountdownToast(10, "Watch the ad for 10 s to activate your reward 🎁");
 
     pendingSponsorApkPath = taskData.sponsorLink;
     pendingSponsorId = sponsorId;
     sponsorAdOpenTime = Date.now();
 
     const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
-
-    // Open the ad
     trigger(sponsorId, "dc");
 
-    // Remove any old sponsor handler before attaching a new one
     if (visibilityHandler) {
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
@@ -1338,7 +1208,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     visibilityHandler = async () => {
       if (document.hidden) return;
-
       if (sponsorProcessing) return;
       sponsorProcessing = true;
 
@@ -1346,47 +1215,30 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
       try {
         if (stayed >= AD_WAIT_MS.dc) {
-
-          if (pendingSponsorId) {
-            localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
-          }
-
+          if (pendingSponsorId) localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
           showToast("Verifying reward... ⏳", "info");
-
           const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
           await getUser();
 
           if (res?.data?.success) {
             showToast("Reward Activated 🎉 Opening now...", "success");
-
-            // ✅ vibeInSponsor done — NOW open sponsor link
-            // No blank window trick — just window.open after await.
-            // visibilitychange return = user interaction = browser allows it.
-            if (isApkLink) {
-              await downloadSponsorApk(pendingSponsorApkPath);
-            } else {
-              window.open(pendingSponsorApkPath, "_blank");
-            }
-
+            if (isApkLink) await downloadSponsorApk(pendingSponsorApkPath);
+            else window.open(pendingSponsorApkPath, "_blank");
           } else {
             showToast(res?.data?.message || "Reward pending ⏳", "info");
           }
-
         } else {
           const secLeft = Math.ceil((AD_WAIT_MS.dc - stayed) / 1000);
           showToast(`Stay at least ${secLeft} more second(s) on the ad page.`, "error");
         }
-
       } catch (err) {
         console.error(err);
         showToast("Reward failed 😕", "error");
       }
 
-      // Cleanup
       pendingSponsorApkPath = null;
       pendingSponsorId = null;
       sponsorAdOpenTime = 0;
-
       document.removeEventListener("visibilitychange", visibilityHandler);
       visibilityHandler = null;
       sponsorProcessing = false;
@@ -1395,41 +1247,27 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
 
-    // ══════════════════════════════════════════════════════════════════════════
-    //  JOINED — redirect user to sponsor app/site to complete tasks
-    // ══════════════════════════════════════════════════════════════════════════
+    // ── JOINED — redirect to sponsor link ────────────────────────────────────
   } else {
     const link = taskData.sponsorLink;
-
-    if (!link) {
-      showToast("No link found for this task 😕", "error");
-      return;
-    }
-
+    if (!link) { showToast("No link found for this task 😕", "error"); return; }
     a_t_d_overlay.classList.remove("active");
 
-    // Inject styles once
     if (!document.getElementById("dtc-redirect-style")) {
       const s = document.createElement("style");
       s.id = "dtc-redirect-style";
       s.textContent = `
-        #dtc-redirect-toast{
-          position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(30px);
-          z-index:99999;opacity:0;
-          background:#0d1117;border:1px solid rgba(34,197,94,.28);border-radius:16px;
-          padding:14px 18px;min-width:280px;max-width:90vw;
-          box-shadow:0 8px 32px rgba(0,0,0,.55);
-          transition:all .35s cubic-bezier(.22,1,.36,1);
-        }
+        #dtc-redirect-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(30px);
+          z-index:99999;opacity:0;background:#0d1117;border:1px solid rgba(34,197,94,.28);border-radius:16px;
+          padding:14px 18px;min-width:280px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.55);
+          transition:all .35s cubic-bezier(.22,1,.36,1);}
         #dtc-redirect-toast.dtc-show{opacity:1;transform:translateX(-50%) translateY(0)}
         .dtc-rt-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-        .dtc-rt-icon{width:36px;height:36px;border-radius:9px;object-fit:cover;
-          border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);flex-shrink:0}
+        .dtc-rt-icon{width:36px;height:36px;border-radius:9px;object-fit:cover;border:1px solid rgba(255,255,255,.08);flex-shrink:0}
         .dtc-rt-info h4{font-size:.84rem;font-weight:700;color:#e2e8f0;margin-bottom:2px}
         .dtc-rt-info p{font-size:.72rem;color:rgba(226,232,240,.45);line-height:1.4}
         .dtc-rt-bar-wrap{height:3px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-bottom:10px}
-        .dtc-rt-bar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#4ade80);
-          border-radius:100px;transition:width linear}
+        .dtc-rt-bar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:100px;transition:width linear}
         .dtc-rt-btn{width:100%;padding:10px;border:none;border-radius:10px;
           background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;
           font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;
@@ -1439,7 +1277,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     }
 
     document.getElementById("dtc-redirect-toast")?.remove();
-
     const COUNTDOWN_MS = 4000;
     const isApk = link.toLowerCase().endsWith(".apk");
     const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
@@ -1452,19 +1289,11 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     toast.id = "dtc-redirect-toast";
     toast.innerHTML = `
       <div class="dtc-rt-top">
-        <img class="dtc-rt-icon"
-          src="${taskData.sponsorAppLogoUrl || ""}"
-          onerror="this.style.display='none'" alt="">
-        <div class="dtc-rt-info">
-          <h4>${taskData.sponsorAppName || "Task"}</h4>
-          <p>${descTxt}</p>
-        </div>
+        <img class="dtc-rt-icon" src="${taskData.sponsorAppLogoUrl || ""}" onerror="this.style.display='none'" alt="">
+        <div class="dtc-rt-info"><h4>${taskData.sponsorAppName || "Task"}</h4><p>${descTxt}</p></div>
       </div>
-      <div class="dtc-rt-bar-wrap">
-        <div class="dtc-rt-bar" id="dtc-rt-bar"></div>
-      </div>
+      <div class="dtc-rt-bar-wrap"><div class="dtc-rt-bar" id="dtc-rt-bar"></div></div>
       <button class="dtc-rt-btn" id="dtc-rt-btn">${btnTxt}</button>`;
-
     document.body.appendChild(toast);
 
     requestAnimationFrame(() => {
@@ -1475,20 +1304,12 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     });
 
     const openLink = () => {
-      if (isApk) {
-        pendingSponsorApkPath = link;
-        downloadSponsorApk(pendingSponsorApkPath);
-      } else {
-        window.open(link, "_blank");
-      }
+      if (isApk) { pendingSponsorApkPath = link; downloadSponsorApk(link); }
+      else window.open(link, "_blank");
     };
 
     const autoTimer = setTimeout(openLink, COUNTDOWN_MS);
-
-    document.getElementById("dtc-rt-btn").addEventListener("click", () => {
-      clearTimeout(autoTimer);
-      openLink();
-    });
+    document.getElementById("dtc-rt-btn")?.addEventListener("click", () => { clearTimeout(autoTimer); openLink(); });
 
     const onReturn = () => {
       if (document.hidden) return;
@@ -1497,7 +1318,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       document.removeEventListener("visibilitychange", onReturn);
     };
     document.addEventListener("visibilitychange", onReturn);
-
     setTimeout(() => toast.remove(), COUNTDOWN_MS + 10000);
   }
 });
@@ -1507,7 +1327,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 // ══════════════════════════════════════════════════════════════════════════════
 function showProgressToast(steps = []) {
   document.querySelector(".progress-toast")?.remove();
-
   if (!document.getElementById("progress-toast-styles")) {
     const s = document.createElement("style");
     s.id = "progress-toast-styles";
@@ -1547,10 +1366,7 @@ function showProgressToast(steps = []) {
       <span class="pt-title" id="pt-title">Joining event…</span>
     </div>
     <div class="pt-steps">
-      ${steps.map((s, i) => `
-        <div class="pt-step" data-step="${i}">
-          <div class="pt-step-dot"></div><span>${s}</span>
-        </div>`).join("")}
+      ${steps.map((s, i) => `<div class="pt-step" data-step="${i}"><div class="pt-step-dot"></div><span>${s}</span></div>`).join("")}
     </div>
     <div class="pt-bar-wrap"><div class="pt-bar" id="pt-bar"></div></div>`;
   document.body.appendChild(toast);
@@ -1614,17 +1430,18 @@ function showToast(message, type = "info") {
   return toast;
 }
 
-function showAdCountdownToast(seconds) {
-  const toast = showToast(
-    `⏳ Stay on the ad for <strong id="ad-cd">${seconds}</strong> second(s) to continue`,
-    "info"
-  );
+// ══════════════════════════════════════════════════════════════════════════════
+//  AD COUNTDOWN TOAST
+//  Ticks down visually so users know exactly how long to stay on the ad.
+// ══════════════════════════════════════════════════════════════════════════════
+function showAdCountdownToast(seconds, label = `Stay on the ad for ${seconds} s to continue`) {
+  const toast = showToast(`⏳ ${label} — <strong id="ad-cd">${seconds}</strong>s remaining`, "info");
   const cdEl = toast?.querySelector("#ad-cd");
   if (!cdEl) return;
   let remaining = seconds;
   const iv = setInterval(() => {
     remaining--;
-    cdEl.textContent = remaining;
+    if (cdEl.isConnected) cdEl.textContent = remaining;
     if (remaining <= 0) clearInterval(iv);
   }, 1000);
 }
@@ -1636,8 +1453,7 @@ function enableScrollHighlight(gridEl, cards, events) {
   if (!gridEl || !cards?.length) return;
   const update = () => {
     const center = gridEl.getBoundingClientRect().left + gridEl.getBoundingClientRect().width / 2;
-    let closest = null;
-    let minDist = Infinity;
+    let closest = null, minDist = Infinity;
     cards.forEach((c) => {
       const r = c.getBoundingClientRect();
       const d = Math.abs(r.left + r.width / 2 - center);
@@ -1647,8 +1463,7 @@ function enableScrollHighlight(gridEl, cards, events) {
     if (closest && !closest.classList.contains("active")) {
       closest.classList.add("active");
       const prizeSpan = closest.querySelector(".dynamic-prize");
-      const eId = closest.querySelector(".hit-btn")?.dataset.eventid
-        || closest.querySelector(".join")?.dataset.eventid;
+      const eId = closest.querySelector(".hit-btn")?.dataset.eventid || closest.querySelector(".join")?.dataset.eventid;
       const ed = events.find((e) => e.eventId === eId);
       if (prizeSpan && ed && closest.dataset.animated !== "true") {
         animatePrizeValue(prizeSpan, 0, calculatePrizePool(Number(ed.totalViber || 0)), 2000);
@@ -1698,109 +1513,67 @@ suggestEvent?.addEventListener("click", () => eventPPage?.scrollIntoView({ behav
 //  LOTTIE
 // ══════════════════════════════════════════════════════════════════════════════
 function playLottie(path, loop = true) {
-  if (currentLottieInstance) {
-    currentLottieInstance.destroy();
-    currentLottieInstance = null;
-    fireContainer.innerHTML = "";
-  }
-  currentLottieInstance = lottie.loadAnimation({
-    container: fireContainer,
-    renderer: "svg",
-    loop,
-    autoplay: true,
-    path,
-  });
+  if (currentLottieInstance) { currentLottieInstance.destroy(); currentLottieInstance = null; fireContainer.innerHTML = ""; }
+  currentLottieInstance = lottie.loadAnimation({ container: fireContainer, renderer: "svg", loop, autoplay: true, path });
   return currentLottieInstance;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CHECK-IN BUTTON
-//  FIX: pass uiData to getStreakDays — was called without argument so it
-//       always returned 0 (uiData was undefined inside the function).
 // ══════════════════════════════════════════════════════════════════════════════
 checkInBtn?.addEventListener("click", () => {
   fireContainer.classList.add("active");
   checkInBtn.classList.add("active-check");
   playLottie("/assets/anim/fire.json");
-
-  let streakDays = getStreakDays(uiData); // ✅ FIX: was getStreakDays() — no arg
+  let streakDays = getStreakDays(uiData);
   updateStreakUI(streakDays + 1, streakDays || 0);
   checkInBtn.style.pointerEvents = "none";
 });
 
 function getStreakDays(uiData) {
   if (!uiData?.lastCheckInDay) return 0;
-
   const today = new Date().toISOString().slice(0, 10);
   const lastDay = uiData.lastCheckInDay;
-
   if (lastDay === today) return uiData.streakDays || 0;
-
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   if (lastDay === yesterday) return uiData.streakDays || 0;
-
   return 0;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  DAILY CHECK-IN DIALOG
-//  FIX: removed the unused `false` argument that was passed in the original
-//       call — showDailyCheckInRewardDialog() takes no parameters.
-// ══════════════════════════════════════════════════════════════════════════════
 function showDailyCheckInRewardDialog() {
   if (!uiData) return;
-
   const today = new Date().toISOString().slice(0, 10);
-  if (uiData.lastCheckInDay === today) return; // already checked in
-
+  if (uiData.lastCheckInDay === today) return;
   let streakDays = getStreakDays(uiData);
-
   checkInOverlay?.classList.add("active");
-
   const streak = document.getElementById("count");
   if (streak) streak.textContent = streakDays;
-
   fireContainer?.classList.add("active");
-
   currentLottieInstance = playLottie("/assets/anim/Gift.json", true);
 }
 
 async function updateStreakUI(newVal, startVal) {
   const countEl = document.getElementById("count");
   if (!countEl) return;
-
   try {
     trigger("", "dc");
-
     const result = await dailyCheckIn();
     if (!result?.data) throw new Error("No data");
-
     const finalVal = result.data.newStreak;
     let ts0 = null;
     const duration = 800;
-
     const step = (ts) => {
       if (!ts0) ts0 = ts;
       const p = Math.min((ts - ts0) / duration, 1);
-
       countEl.textContent = Math.floor(p * (finalVal - startVal) + startVal);
-
       if (p < 1) {
         requestAnimationFrame(step);
       } else {
         countEl.classList.add("trigger-bounce");
-
         fireContainer.classList.remove("active");
         checkInBtn.classList.remove("active-check");
-
-        if (currentLottieInstance) {
-          currentLottieInstance.destroy();
-          currentLottieInstance = null;
-          fireContainer.innerHTML = "";
-        }
-
+        if (currentLottieInstance) { currentLottieInstance.destroy(); currentLottieInstance = null; fireContainer.innerHTML = ""; }
         rewardContainer?.classList.add("active");
-
         setTimeout(() => {
           countEl.classList.remove("trigger-bounce");
           showRewardBox(result.data.isLCReward, result.data.rewardAmount);
@@ -1808,9 +1581,7 @@ async function updateStreakUI(newVal, startVal) {
         }, 1200);
       }
     };
-
     requestAnimationFrame(step);
-
   } catch (err) {
     console.error("Check-in failed:", err.message);
     showToast("Check-in failed. Please try again.", "error");
@@ -1823,12 +1594,10 @@ function showRewardBox(isLC = true, amount = 0) {
   const rewardText = document.getElementById("a");
   const iconBox = document.getElementById("r-i");
   if (!rewardText || !iconBox) return;
-
   rewardText.textContent = isLC ? `${amount} LC` : `₹${amount}`;
   iconBox.src = isLC
     ? "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png"
     : "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png";
-
   rewardContainer.classList.add("active");
   spawnConfetti();
   setTimeout(() => {
@@ -1846,18 +1615,17 @@ function spawnConfetti(count = 80) {
   if (!document.getElementById("confetti-kf")) {
     const s = document.createElement("style");
     s.id = "confetti-kf";
-    s.textContent = `@keyframes confettiFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0 } }`;
+    s.textContent = `@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}`;
     document.head.appendChild(s);
   }
   for (let i = 0; i < count; i++) {
     const d = document.createElement("div");
     const size = Math.random() * 8 + 4;
-    d.style.cssText = `
-      position:fixed;pointer-events:none;z-index:99999;
+    d.style.cssText = `position:fixed;pointer-events:none;z-index:99999;
       width:${size}px;height:${size}px;border-radius:50%;
       background:${colors[Math.floor(Math.random() * colors.length)]};
       left:${Math.random() * 100}vw;top:-10px;
-      animation:confettiFall ${Math.random() * 2 + 1.5}s ease-in ${Math.random() * 0.5}s forwards;`;
+      animation:confettiFall ${Math.random() * 2 + 1.5}s ease-in ${Math.random() * .5}s forwards;`;
     document.body.appendChild(d);
     d.addEventListener("animationend", () => d.remove());
   }
@@ -1890,9 +1658,7 @@ function updatePlayerVisibility() {
 function setupPullToRefresh() {
   let startY = 0, pulling = false;
   document.addEventListener("touchstart", (e) => { startY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener("touchmove", (e) => {
-    if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true;
-  }, { passive: true });
+  document.addEventListener("touchmove", (e) => { if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true; }, { passive: true });
   document.addEventListener("touchend", async () => {
     if (!pulling) return;
     pulling = false;
@@ -1916,5 +1682,21 @@ for (let i = 0; i < 45; i++) {
   p.className = "particle";
   const s = Math.random() * 2.5 + 1;
   p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;--dur:${(Math.random() * 5 + 3).toFixed(1)}s;--delay:-${(Math.random() * 8).toFixed(1)}s;--op:${(Math.random() * .28 + .08).toFixed(2)};`;
-  pc.appendChild(p);
+  pc?.appendChild(p);
 }
+
+
+// lol move 
+const goToLoL = document.querySelector(".lol-btn");
+goToLoL?.addEventListener("click", () => {
+  // show toast for lol is being ready for you comming soon 
+  showToast("LoL is coming soon!", "info");
+});
+
+
+// e-Sport Arena
+const goToArena = document.querySelector(".arena-btn");
+goToArena?.addEventListener("click", () => {
+  // show toast for arena is being ready for you comming soon
+  showToast("E-Sport Arena is coming soon!", "info");
+});

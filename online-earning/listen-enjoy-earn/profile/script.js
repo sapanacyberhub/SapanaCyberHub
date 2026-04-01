@@ -983,4 +983,92 @@ function timeAgo(ts) {
     year: "numeric"
   });
 }
+// 🎧 Luck Credit Info
+const luckCreditInfo = document.querySelector(".k-a-lC");
 
+luckCreditInfo?.addEventListener("click", () => {
+  showToast(
+    "Boost your luck! Higher Luck Credit increases your win chance and maximizes your earnings. Keep vibing to level up!",
+    "info"
+  );
+});
+
+// 🔥 Toast Function
+function showToast(message, type = "info", duration = 4000) {
+  let container = document.querySelector(".toast-container");
+
+  // ✅ Create container once
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast-message ${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  // Trigger animation
+  setTimeout(() => toast.classList.add("show"), 50);
+
+  // Auto remove
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// 🎨 Styles (only inject once)
+if (!document.getElementById("toast-style")) {
+  const style = document.createElement("style");
+  style.id = "toast-style";
+
+  style.textContent = `
+  .toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+  }
+
+  .toast-message {
+    min-width: 250px;
+    max-width: 320px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+
+  .toast-message.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* 🎨 Types */
+  .toast-message.info {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+  }
+
+  .toast-message.success {
+    background: linear-gradient(135deg, #00c853, #64dd17);
+  }
+
+  .toast-message.error {
+    background: linear-gradient(135deg, #ff5252, #ff1744);
+  }
+  `;
+
+  document.head.appendChild(style);
+}

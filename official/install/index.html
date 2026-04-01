@@ -2,92 +2,411 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SapanaCyberHub Install</title>
 
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- ════════════════════════════════════════════════════════════
+       ADS — AUTO-RENDER (no container needed)
+       ════════════════════════════════════════════════════════════ -->
+
+  <!-- Adsterra · Social Bar (sticky floating bar, renders itself) -->
+  <script src="https://pl28160948.profitablecpmratenetwork.com/a3/f8/7d/a3f87d980e8ae573f535875f32f4c021.js"></script>
+
+  <!-- Monetag · Multiformat tag (push + pop + inpage combined) -->
+  <script src="https://quge5.com/88/tag.min.js"
+          data-zone="186851"
+          async
+          data-cfasync="false"></script>
+
+  <!-- Monetag · Vignette (full-screen interstitial) -->
+  <script>
+    (function(s){
+      s.dataset.zone = '10246448';
+      s.src = 'https://izcle.com/vignette.min.js';
+    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+  </script>
+
+  <!-- Monetag · In-Page Push (sticky push-style banner) -->
+  <script>
+    (function(s){
+      s.dataset.zone = '10246441';
+      s.src = 'https://nap5k.com/tag.min.js';
+    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+  </script>
+
+  <!-- ════════════════════════════════════════════════════════════
+       STYLES
+       ════════════════════════════════════════════════════════════ -->
   <style>
-    body {
-      margin: 0;
-      background: #0f172a;
-      font-family: sans-serif;
-      color: #fff;
+    /* ── Reset & tokens ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c18;
+      --surface:   #0d1526;
+      --border:    rgba(99,102,241,.18);
+      --accent1:   #6366f1;
+      --accent2:   #8b5cf6;
+      --accent3:   #38bdf8;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --radius:    20px;
     }
 
-    .install-screen {
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated star/mesh background ───────────────────────── */
+    body::before {
+      content: '';
       position: fixed;
       inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(56,189,248,.09) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(139,92,246,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Page wrapper ─────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
+      padding: 16px 12px 80px; /* bottom pad = mobile banner height */
+    }
+
+    /* ── Top leaderboard banner (468×60) — desktop only ────────── */
+    .ad-top {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 520px) { .ad-top { display: none; } }
+
+    /* ── Main content row ──────────────────────────────────────── */
+    .content-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
       justify-content: center;
     }
 
+    /* ── Sidebar 160×300 — desktop only ────────────────────────── */
+    .ad-side {
+      flex-shrink: 0;
+    }
+    @media (max-width: 600px) { .ad-side { display: none; } }
+
+    /* ── Install card ──────────────────────────────────────────── */
     .install-card {
-      background: #020617;
-      padding: 25px;
-      border-radius: 18px;
-      text-align: center;
-      width: 90%;
+      flex: 1;
       max-width: 340px;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px 26px;
+      text-align: center;
+      box-shadow:
+        0 0 0 1px rgba(99,102,241,.08),
+        0 20px 60px rgba(0,0,0,.6),
+        inset 0 1px 0 rgba(255,255,255,.06);
+      animation: cardIn .5s cubic-bezier(.22,1,.36,1) both;
     }
 
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(24px) scale(.97); }
+      to   { opacity:1; transform:translateY(0)    scale(1);   }
+    }
+
+    /* ── Logo ──────────────────────────────────────────────────── */
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      margin-bottom: 20px;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 8px 28px rgba(99,102,241,.35); }
+      50%      { box-shadow: 0 8px 40px rgba(139,92,246,.55); }
+    }
     .install-logo {
-      width: 90px;
-      border-radius: 20px;
-      margin-bottom: 15px;
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      object-fit: cover;
     }
 
+    /* ── Typography ────────────────────────────────────────────── */
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -.3px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .card-sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+
+    /* ── Pill badges ───────────────────────────────────────────── */
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(99,102,241,.14);
+      border: 1px solid rgba(99,102,241,.25);
+      color: var(--accent3);
+    }
+
+    /* ── Install button ────────────────────────────────────────── */
     #installBtn {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
       color: #fff;
+      font-family: 'DM Sans', sans-serif;
       font-size: 16px;
       font-weight: 600;
-      margin-bottom: 10px;
+      letter-spacing: .2px;
+      margin-bottom: 12px;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: transform .15s, opacity .15s, box-shadow .15s;
+      box-shadow: 0 6px 24px rgba(99,102,241,.4);
+      position: relative;
+      overflow: hidden;
     }
-
-    #installBtn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    #installBtn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.12), transparent);
+      pointer-events: none;
     }
+    #installBtn:not(:disabled):hover  { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(99,102,241,.55); }
+    #installBtn:not(:disabled):active { transform: translateY(0);    box-shadow: 0 4px 16px rgba(99,102,241,.35); }
+    #installBtn:disabled { opacity: .55; cursor: not-allowed; }
 
+    /* ── Skip button ───────────────────────────────────────────── */
     #skipBtn {
       width: 100%;
       padding: 10px;
       background: none;
       border: none;
-      color: #aaa;
-      cursor: pointer;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
       font-size: 14px;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    #skipBtn:hover { color: #94a3b8; }
+
+    /* ── Divider ───────────────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* ── Direct link CTA ───────────────────────────────────────── */
+    .direct-link {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .direct-link:hover { color: var(--accent3); }
+
+    /* ── Below-card ad (300×250) ───────────────────────────────── */
+    .ad-below {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    /* ── Fixed bottom mobile banner (320×50) ───────────────────── */
+    .ad-bottom-fixed {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      background: rgba(8,12,24,.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 4px 0;
+    }
+    /* Hide fixed bottom on desktop where 468 top banner shows */
+    @media (min-width: 521px) { .ad-bottom-fixed { display: none; } }
+
+    /* ── Toast container (injected by JS) ──────────────────────── */
+    #__toast-container {
+      position: fixed;
+      bottom: 70px;   /* above the mobile ad bar */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      width: max-content;
+      max-width: 90vw;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="install-screen">
-    <div class="install-card">
-      <img src="/assets/logo.png" class="install-logo" alt="SapanaCyberHub Logo">
-      <h2>SapanaCyberHub X Listen</h2>
-      <p>Install app for better experience 🚀</p>
+  <div class="page">
 
-      <button id="installBtn" disabled>Preparing...</button>
-      <button id="skipBtn">Continue in Browser</button>
+    <!-- ── Top leaderboard 468×60 (desktop) ───────────────────── -->
+    <div class="ad-top">
+      <script>
+        atOptions = {
+          'key'    : '1ec158b6632bf6a6bac690778268b1f7',
+          'format' : 'iframe',
+          'height' : 60,
+          'width'  : 468,
+          'params' : {}
+        };
+      </script>
+      <script src="https://www.highperformanceformat.com/1ec158b6632bf6a6bac690778268b1f7/invoke.js"></script>
     </div>
+
+    <!-- ── Main content row ───────────────────────────────────── -->
+    <div class="content-row">
+
+      <!-- Sidebar 160×300 (desktop only) -->
+      <div class="ad-side">
+        <script>
+          atOptions = {
+            'key'    : 'be84f4cdee8a397c6208c778695c8973',
+            'format' : 'iframe',
+            'height' : 300,
+            'width'  : 160,
+            'params' : {}
+          };
+        </script>
+        <script src="https://www.highperformanceformat.com/be84f4cdee8a397c6208c778695c8973/invoke.js"></script>
+      </div>
+
+      <!-- Install card -->
+      <div class="install-card">
+        <div class="logo-wrap">
+          <img src="/assets/logo.png" class="install-logo" alt="SapanaCyberHub" />
+        </div>
+
+        <h2 class="card-title">SapanaCyberHub X&nbsp;Listen</h2>
+        <p class="card-sub">Install the app for the best experience.<br>Works online, loads faster, feels native.</p>
+
+        <div class="badge-row">
+          <span class="badge">⚡ Fast</span>
+          <span class="badge">📶 online</span>
+          <span class="badge">🎁 Earn Rewards</span>
+          <span class="badge">lot of thing to be engaged with SapanaCyberHub X Listen</span>
+        </div>
+
+        <button id="installBtn" disabled>Preparing...</button>
+        <button id="skipBtn">Continue in Browser</button>
+
+        <div class="divider"></div>
+
+        <!-- Monetag direct link — subtle CTA -->
+        <a class="direct-link"
+           href="https://omg10.com/4/10749383"
+           target="_blank"
+           rel="noopener noreferrer">
+          🔗 Open via direct link
+        </a>
+      </div>
+
+    </div><!-- /.content-row -->
+
+    <!-- ── Below-card 300×250 banner ──────────────────────────── -->
+    <div class="ad-below">
+      <script>
+        atOptions = {
+          'key'    : '71197c8b1966802bbfa05225ac458a7b',
+          'format' : 'iframe',
+          'height' : 250,
+          'width'  : 300,
+          'params' : {}
+        };
+      </script>
+      <script src="https://www.highperformanceformat.com/71197c8b1966802bbfa05225ac458a7b/invoke.js"></script>
+    </div>
+
+  </div><!-- /.page -->
+
+  <!-- ── Fixed bottom 320×50 mobile banner ───────────────────── -->
+  <div class="ad-bottom-fixed">
+    <script>
+      atOptions = {
+        'key'    : '522259f00affdbfdaf791b01f86b1a64',
+        'format' : 'iframe',
+        'height' : 50,
+        'width'  : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/522259f00affdbfdaf791b01f86b1a64/invoke.js"></script>
   </div>
 
-  <!-- ✅ FIX: script tag is separate from HTML — JS was accidentally merged into the HTML body -->
+  <!-- ── Toast container (JS will populate) ──────────────────── -->
+  <div id="__toast-container"></div>
+
+  <!-- ── App module ───────────────────────────────────────────── -->
   <script type="module" src="./sup.js"></script>
 
 </body>
-
 </html>
