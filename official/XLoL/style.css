@@ -1,0 +1,129 @@
+.lol-card {
+  width: 380px;
+  max-width: 95%;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.lol-card:hover {
+  transform: translateY(-5px);
+}
+
+/* HEADER */
+.lol-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+}
+
+.creator-info {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.creator-dp {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+}
+
+.creator-name {
+  font-weight:600;
+}
+
+.creator-time {
+  font-size:12px;
+  color:#777;
+}
+
+/* CONTENT */
+.lol-content {
+  height:320px;
+  background:#f3f4f7;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.lol-content img,
+.lol-content video {
+  max-width:100%;
+  max-height:100%;
+  border-radius:10px;
+}
+
+/* TEXT */
+.lol-text {
+  padding:12px;
+}
+
+.lol-title {
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.lol-tags span {
+  font-size:12px;
+  color:#6b7280;
+  margin-right:6px;
+}
+
+.lol-desc {
+  font-size:13px;
+  color:#444;
+  margin-top:6px;
+}
+
+/* STATS */
+.lol-stats {
+  display:flex;
+  justify-content:space-around;
+  font-size:13px;
+  padding:8px;
+  border-top:1px solid #eee;
+}
+
+/* ACTIONS */
+.lol-actions {
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+}
+
+.lol-actions span {
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* BONUS */
+.lol-bonus {
+  padding:20px;
+  text-align:center;
+}
+
+.bonus-box {
+  background:#f9fafc;
+  padding:20px;
+  border-radius:15px;
+}
+
+.claim-btn {
+  margin-top:10px;
+  padding:8px 16px;
+  border:none;
+  border-radius:20px;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* UTIL */
+.hidden {
+  display:none;
+}

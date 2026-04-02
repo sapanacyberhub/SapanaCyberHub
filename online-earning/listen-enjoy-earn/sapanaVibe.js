@@ -1,5 +1,56 @@
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 
+// ── 🔥 AD SYSTEM ─────────────────────────────────────────
+
+const VIGNETTE_ZONE = "10246448";
+const PUSH_ZONE = "10246441";
+const VIGNETTE_COOLDOWN = 3 * 60 * 1000;
+
+let lastVignetteTime = 0;
+let vignetteLoaded = false;
+
+function loadVignetteScript() {
+  if (vignetteLoaded) return;
+
+  const s = document.createElement("script");
+  s.dataset.zone = VIGNETTE_ZONE;
+  s.src = "https://n6wxm.com/vignette.min.js";
+  s.async = true;
+
+  document.body.appendChild(s);
+  vignetteLoaded = true;
+}
+
+function loadPushScript() {
+  const s = document.createElement("script");
+  s.dataset.zone = PUSH_ZONE;
+  s.src = "https://nap5k.com/tag.min.js";
+  s.async = true;
+
+  document.body.appendChild(s);
+}
+
+function showVignetteAd() {
+  const now = Date.now();
+
+  if (now - lastVignetteTime < VIGNETTE_COOLDOWN) {
+    return false;
+  }
+
+  try {
+    if (typeof window.showVignette === "function") {
+      window.showVignette();
+    } else if (window.vignette?.show) {
+      window.vignette.show();
+    }
+
+    lastVignetteTime = now;
+    return true;
+  } catch (e) {
+    console.log("Vignette error:", e);
+    return false;
+  }
+}
 export class MusicMarathon {
 
   constructor({ containerId = "marathon-root", functions } = {}) {
@@ -20,8 +71,19 @@ export class MusicMarathon {
 
   async vibeNow(eventId) {
     if (!eventId) { this._toast("Event ID missing", "error"); return; }
+
     this._eventId = eventId;
     this._ui.shell.classList.add("marathon-active");
+
+    // 🔥 LOAD ADS
+    loadVignetteScript();
+    loadPushScript();
+
+    // 🎯 SHOW VIGNETTE ON START
+    setTimeout(() => {
+      showVignetteAd();
+    }, 500);
+
     this._setStatus("Loading playlist…");
     await this._startMarathon();
   }
@@ -43,6 +105,7 @@ export class MusicMarathon {
     this._currentVideoId = null;
     this._embedCheckTm = null;
     this._ui = {};
+
   }
 
   // ── HTML ───────────────────────────────────────────────────────────────────
@@ -577,7 +640,24 @@ export class MusicMarathon {
 
   async _onSongEnd() {
     this._setStatus("Song ended — saving progress…");
+
     await this._completeSession();
+
+    // 🚫 don't run ads in background
+    if (!document.hidden) {
+
+      // 🔄 refresh push every song
+      loadPushScript();
+
+      // 🎯 try vignette (3 min cooldown applied)
+      const adShown = showVignetteAd();
+
+      // ⏳ wait 2 sec if ad triggered
+      if (adShown) {
+        await new Promise(res => setTimeout(res, 2000));
+      }
+    }
+
     await this._playNext();
   }
 
