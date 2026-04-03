@@ -450,31 +450,54 @@ function checkusercheckin() {
 // ══════════════════════════════════════════════════════════════════════════════
 async function getEventList() {
   try {
+    // Clear old data
     listenEvents.length = listenEventsJoin.length = 0;
-    hitEvents.length    = hitEventsJoin.length    = 0;
+    hitEvents.length = hitEventsJoin.length = 0;
     lakhpatiLoops.length = lakhpatiLoopsJoin.length = 0;
-    cashHaandis.length  = cashHaandisJoin.length  = 0;
+    cashHaandis.length = cashHaandisJoin.length = 0;
 
-    const [r1,rj1,r2,rj2,r3,rj3,r4,rj4] = await Promise.all([
-      getEvents({ i:1, needJoined:false }), getEvents({ i:1, needJoined:true }),
-      getEvents({ i:2, needJoined:false }), getEvents({ i:2, needJoined:true }),
-      getEvents({ i:3, needJoined:false }), getEvents({ i:3, needJoined:true }),
-      getEvents({ i:4, needJoined:false }), getEvents({ i:4, needJoined:true }),
-    ]);
-    if (r1.data?.events)  listenEvents.push(...r1.data.events);
-    if (rj1.data?.events) listenEventsJoin.push(...rj1.data.events);
-    if (r2.data?.events)  hitEvents.push(...r2.data.events);
-    if (rj2.data?.events) hitEventsJoin.push(...rj2.data.events);
-    if (r3.data?.events)  lakhpatiLoops.push(...r3.data.events);
-    if (rj3.data?.events) lakhpatiLoopsJoin.push(...rj3.data.events);
-    if (r4.data?.events)  cashHaandis.push(...r4.data.events);
-    if (rj4.data?.events) cashHaandisJoin.push(...rj4.data.events);
+    // Prepare only public calls first
+    const calls = [
+      getEvents({ i: 1, needJoined: false }),
+      getEvents({ i: 2, needJoined: false }),
+      getEvents({ i: 3, needJoined: false }),
+      getEvents({ i: 4, needJoined: false }),
+    ];
+
+    // ONLY add joined calls if user is logged in
+    if (currentUser) {
+      calls.push(
+        getEvents({ i: 1, needJoined: true }),
+        getEvents({ i: 2, needJoined: true }),
+        getEvents({ i: 3, needJoined: true }),
+        getEvents({ i: 4, needJoined: true })
+      );
+    }
+
+    const results = await Promise.all(calls);
+
+    // Assign Public Data (always indices 0-3)
+    if (results[0].data?.events) listenEvents.push(...results[0].data.events);
+    if (results[1].data?.events) hitEvents.push(...results[1].data.events);
+    if (results[2].data?.events) lakhpatiLoops.push(...results[2].data.events);
+    if (results[3].data?.events) cashHaandis.push(...results[3].data.events);
+
+    // Assign Joined Data (indices 4-7) only if user was logged in
+    if (currentUser && results.length > 4) {
+      if (results[4].data?.events) listenEventsJoin.push(...results[4].data.events);
+      if (results[5].data?.events) hitEventsJoin.push(...results[5].data.events);
+      if (results[6].data?.events) lakhpatiLoopsJoin.push(...results[6].data.events);
+      if (results[7].data?.events) cashHaandisJoin.push(...results[7].data.events);
+    }
 
     updatePlayerVisibility();
+    // Render the lists
     renderVibingListenEvents(isJoinedList && joinedType === "L");
     renderVibingHitEvents(isJoinedList && joinedType === "H");
     renderLakhpatiLoops(isJoinedList && joinedType === "PL");
-  } catch {
+
+  } catch (err) {
+    console.error("Event fetch failed:", err);
     showToast("Could not load events. Try refreshing.", "error");
   }
 }
@@ -482,15 +505,25 @@ async function getEventList() {
 async function getSponsorTasksList() {
   try {
     sponsorAppTasks.length = sponsorAppTasksJoin.length = 0;
-    const [res, resJoin] = await Promise.all([
-      getSponsorTasks({ needJoined: false }),
-      getSponsorTasks({ needJoined: true  }),
-    ]);
-    if (res.data?.success && res.data.sponsors)       sponsorAppTasks.push(...res.data.sponsors);
-    if (resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
+    
+    const calls = [getSponsorTasks({ needJoined: false })];
+    if (currentUser) {
+      calls.push(getSponsorTasks({ needJoined: true }));
+    }
+
+    const [res, resJoin] = await Promise.all(calls);
+
+    if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
+    
+    // resJoin will only exist if user is logged in
+    if (resJoin && resJoin.data?.success && resJoin.data.sponsors) {
+        sponsorAppTasksJoin.push(...resJoin.data.sponsors);
+    }
+
     renderSponsorAppTasks(isJoinedList && joinedType === "SAT");
-  } catch {
-    showToast("Could not load sponsor tasks. Try refreshing.", "error");
+  } catch (err) {
+    console.error("Sponsor fetch failed:", err);
+    showToast("Could not load sponsor tasks.", "error");
   }
 }
 
