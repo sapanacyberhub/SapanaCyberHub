@@ -288,7 +288,7 @@ function buildAuthGuardDOM() {
       <button class="ag-btn-primary" id="ag-signin-btn">🚀 Be a Viber — Sign In Free</button>
       <button class="ag-btn-ghost"   id="ag-close-btn">Maybe Later</button>
     </div>
-    <p class="ag-note">Free to join · No credit card needed · Instant rewards</p>
+    <p class="ag-note">Free to join · No Join Fee needed · Instant rewards</p>
   `;
   document.body.appendChild(sheet);
 
