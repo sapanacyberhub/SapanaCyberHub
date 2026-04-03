@@ -16,119 +16,334 @@ const app = initializeApp({
   appId: "1:448116453690:web:01a91dd284b715bf0a2003",
   measurementId: "G-HKGQ8D55N1",
 });
-const auth = getAuth(app);
-const storage = getStorage(app);
+const auth     = getAuth(app);
+const storage  = getStorage(app);
 const functions = getFunctions(app);
-const marathon = new MusicMarathon({ containerId: "marathon-root", functions });
+const marathon  = new MusicMarathon({ containerId: "marathon-root", functions });
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CALLABLES
 // ══════════════════════════════════════════════════════════════════════════════
-const dailyCheckIn = httpsCallable(functions, "dailyCheckIn");
-const markDailyActive = httpsCallable(functions, "markDailyActive");
-const connectUser = httpsCallable(functions, "loadUserData");
-const getEvents = httpsCallable(functions, "getEvents");
-const joinvibeEvents = httpsCallable(functions, "vibeInEvent");
-const vibeInSponsor = httpsCallable(functions, "vibeInSponsor");
-const getSponsorTasks = httpsCallable(functions, "getSponsorAppTasks");
+const dailyCheckIn          = httpsCallable(functions, "dailyCheckIn");
+const markDailyActive       = httpsCallable(functions, "markDailyActive");
+const connectUser           = httpsCallable(functions, "loadUserData");
+const getEvents             = httpsCallable(functions, "getEvents");
+const joinvibeEvents        = httpsCallable(functions, "vibeInEvent");
+const vibeInSponsor         = httpsCallable(functions, "vibeInSponsor");
+const getSponsorTasks       = httpsCallable(functions, "getSponsorAppTasks");
 const getSponsorTaskLeaderBoard = httpsCallable(functions, "getLeaderBoard");
-const getVibeLeaderBoard = httpsCallable(functions, "getVibeLeaderBoard");
-const claimSponsorReward = httpsCallable(functions, "claimMyReward");
-const claimVibeReward = httpsCallable(functions, "claimMyVibe");
+const getVibeLeaderBoard    = httpsCallable(functions, "getVibeLeaderBoard");
+const claimSponsorReward    = httpsCallable(functions, "claimMyReward");
+const claimVibeReward       = httpsCallable(functions, "claimMyVibe");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DOM REFERENCES
 // ══════════════════════════════════════════════════════════════════════════════
-const eventPPage = document.getElementById("event-page");
-const dialog = document.getElementById("over-hidden");
-const dialogCloseBtn = document.getElementById("dialog-close");
-const a_t_d_overlay = document.getElementById("app-task-overlay");
-const userNameEl = document.getElementById("user_name");
-const userBalance = document.getElementById("user_earning");
-const vibingBtns = document.querySelectorAll(".vibing-btn");
-const vibingOverBtns = document.querySelectorAll(".vibing-over-btn");
-const fireContainer = document.getElementById("fire");
-const checkInBtn = document.getElementById("check-in-btn");
-const frame = document.querySelector(".player-frame");
-const eventIdEl = document.getElementById("vibing-event-id");
-const suggestEvent = document.getElementById("suggest-event");
-const c_s_p = document.getElementById("custom-yt-playlist");
-const checkInOverlay = document.getElementById("d-v-c-s-overlay");
-const rewardContainer = document.getElementById("r-b");
-const hit_grid = document.getElementById("hit-event-grid");
-const listen_grid = document.getElementById("listen-event-grid");
-const premiumLegue = document.getElementById("lakhpati-loop");
-const appTaskList = document.getElementById("task-list");
+const eventPPage       = document.getElementById("event-page");
+const dialog           = document.getElementById("over-hidden");
+const dialogCloseBtn   = document.getElementById("dialog-close");
+const a_t_d_overlay    = document.getElementById("app-task-overlay");
+const userNameEl       = document.getElementById("user_name");
+const userBalance      = document.getElementById("user_earning");
+const vibingBtns       = document.querySelectorAll(".vibing-btn");
+const vibingOverBtns   = document.querySelectorAll(".vibing-over-btn");
+const fireContainer    = document.getElementById("fire");
+const checkInBtn       = document.getElementById("check-in-btn");
+const frame            = document.querySelector(".player-frame");
+const eventIdEl        = document.getElementById("vibing-event-id");
+const suggestEvent     = document.getElementById("suggest-event");
+const c_s_p            = document.getElementById("custom-yt-playlist");
+const checkInOverlay   = document.getElementById("d-v-c-s-overlay");
+const rewardContainer  = document.getElementById("r-b");
+const hit_grid         = document.getElementById("hit-event-grid");
+const listen_grid      = document.getElementById("listen-event-grid");
+const premiumLegue     = document.getElementById("lakhpati-loop");
+const appTaskList      = document.getElementById("task-list");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════════════════════
 const EVENT_TYPE_INDEX = { listen: 1, hit: 2, lakhpati: 3, cash: 4 };
+const AD_WAIT_MS       = { listen: 10000, hit: 10000, lakhpati: 10000, dc: 10000 };
+const DP_FALLBACK      = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
+const COIN_IMG         = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
+const PRIZE_POOL_IMG   = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png";
 
-// AD_WAIT_MS — 10 s gate on every join type + sponsor/check-in
-const AD_WAIT_MS = { listen: 10000, hit: 10000, lakhpati: 10000, dc: 10000 };
-
-const DP_FALLBACK = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/me%20jaan.png";
-const COIN_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/Listen-coin-og.png";
-const PRIZE_POOL_IMG = "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/dynamic-prize-pool.png";
-
-// ── Ad link pools ─────────────────────────────────────────────────────────────
-// ✅ NEW: Added Monetag direct link (10749383) as the first (highest-priority) slot
-//         in every pool. Rotates automatically via adIndexL.
 const linksL = [
-  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
+  "https://omg10.com/4/10749383",
   "https://omg10.com/4/10260662",
   "https://omg10.com/4/10260660",
   "https://www.effectivegatecpm.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
 ];
 const linksH = [
-  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
+  "https://omg10.com/4/10749383",
   "https://omg10.com/4/10619467",
   "https://omg10.com/4/10216281",
   "https://www.effectivegatecpm.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
 ];
-const linksLP = [
-  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link (Lakhpati)
-  "https://omg10.com/4/10260662",
-];
-const linksDCI = [
-  "https://omg10.com/4/10749383",   // ← NEW Monetag direct link
-  "https://omg10.com/4/10619475",
-];
+const linksLP  = ["https://omg10.com/4/10749383", "https://omg10.com/4/10260662"];
+const linksDCI = ["https://omg10.com/4/10749383", "https://omg10.com/4/10619475"];
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  GLOBAL STATE
 // ══════════════════════════════════════════════════════════════════════════════
-let uiData = null;
-let currentUser = null;
+let uiData              = null;
+let currentUser         = null;
 let currentLottieInstance = null;
-let vibingEventId = null;
+let vibingEventId       = null;
 
-const listenEvents = [];
-const listenEventsJoin = [];
-const hitEvents = [];
-const hitEventsJoin = [];
-const lakhpatiLoops = [];
+const listenEvents      = [];
+const listenEventsJoin  = [];
+const hitEvents         = [];
+const hitEventsJoin     = [];
+const lakhpatiLoops     = [];
 const lakhpatiLoopsJoin = [];
-const cashHaandis = [];
-const cashHaandisJoin = [];
-const sponsorAppTasks = [];
+const cashHaandis       = [];
+const cashHaandisJoin   = [];
+const sponsorAppTasks   = [];
 const sponsorAppTasksJoin = [];
 
-let adOpenTime = 0;
-let adLocked = false;
-let pendingJoinEventId = null;
-let pendingJoinTypeIndex = null;   // numeric: 1 | 2 | 3 | 4
+let adOpenTime          = 0;
+let adLocked            = false;
+let pendingJoinEventId  = null;
+let pendingJoinTypeIndex = null;
 let pendingSponsorApkPath = null;
-let pendingSponsorId = null;
-let sponsorAdOpenTime = 0;
-let adIndexL = 0;
-let isJoinedList = false;
-let joinedType = null;   // "L" | "H" | "PL" | "SAT" | null
+let pendingSponsorId    = null;
+let sponsorAdOpenTime   = 0;
+let adIndexL            = 0;
+let isJoinedList        = false;
+let joinedType          = null;
+let sponsorProcessing   = false;
+let visibilityHandler   = null;
+let dailyActiveMarked   = false;
 
-let sponsorProcessing = false;
-let visibilityHandler = null;
-let dailyActiveMarked = false;
+// ══════════════════════════════════════════════════════════════════════════════
+//  AUTH GUARD — "Be a Viber" bottom sheet
+// ══════════════════════════════════════════════════════════════════════════════
+(function injectAuthGuardStyles() {
+  if (document.getElementById("auth-guard-styles")) return;
+  const s = document.createElement("style");
+  s.id = "auth-guard-styles";
+  s.textContent = `
+    #auth-guard-scrim {
+      position: fixed; inset: 0; z-index: 99990;
+      background: rgba(0,0,0,0);
+      backdrop-filter: blur(0px);
+      transition: background .35s ease, backdrop-filter .35s ease;
+      pointer-events: none;
+    }
+    #auth-guard-scrim.ag-open {
+      background: rgba(0,0,0,.58);
+      backdrop-filter: blur(7px);
+      pointer-events: auto;
+    }
+    #auth-guard-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 99991;
+      background: linear-gradient(180deg, #13131f 0%, #0d0d18 100%);
+      border-top: 1px solid rgba(167,139,250,.18);
+      border-radius: 24px 24px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom, 20px);
+      transform: translateY(110%);
+      transition: transform .44s cubic-bezier(.32, 1.28, .5, 1);
+      max-width: 540px;
+      margin: 0 auto;
+      box-shadow: 0 -12px 60px rgba(124,58,237,.18);
+    }
+    #auth-guard-sheet.ag-open { transform: translateY(0); }
+
+    .ag-pill {
+      width: 40px; height: 4px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.13);
+      margin: 14px auto 0;
+    }
+    .ag-hero {
+      text-align: center;
+      padding: 26px 24px 0;
+    }
+    .ag-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(167,139,250,.13);
+      border: 1px solid rgba(167,139,250,.3);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 11px; font-weight: 700;
+      color: #a78bfa;
+      letter-spacing: .6px; text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .ag-emoji { font-size: 54px; line-height: 1; margin-bottom: 10px; }
+    .ag-title {
+      font-size: 23px; font-weight: 800; color: #f0f0f5;
+      margin-bottom: 7px; letter-spacing: -.4px;
+    }
+    .ag-sub {
+      font-size: 13px; color: rgba(240,240,245,.4);
+      line-height: 1.55; max-width: 290px; margin: 0 auto;
+    }
+    .ag-perks {
+      display: flex; gap: 8px;
+      padding: 20px 20px 0;
+      justify-content: center;
+    }
+    .ag-perk {
+      flex: 1; max-width: 110px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 13px 8px; text-align: center;
+      transition: border-color .2s, background .2s;
+    }
+    .ag-perk:hover {
+      background: rgba(167,139,250,.08);
+      border-color: rgba(167,139,250,.25);
+    }
+    .ag-perk-icon { font-size: 22px; margin-bottom: 5px; }
+    .ag-perk-label {
+      font-size: 10px; font-weight: 700;
+      color: rgba(240,240,245,.4);
+      text-transform: uppercase; letter-spacing: .4px; line-height: 1.3;
+    }
+    .ag-actions {
+      padding: 20px 20px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ag-btn-primary {
+      width: 100%; padding: 15px; border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      color: #fff;
+      font-size: 15px; font-weight: 800;
+      cursor: pointer; letter-spacing: .2px;
+      transition: transform .18s, box-shadow .18s;
+      box-shadow: 0 4px 24px rgba(124,58,237,.42);
+      font-family: inherit;
+    }
+    .ag-btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(124,58,237,.55); }
+    .ag-btn-primary:active { transform: scale(.97); }
+    .ag-btn-ghost {
+      width: 100%; padding: 13px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      background: transparent;
+      color: rgba(240,240,245,.4);
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      font-family: inherit;
+    }
+    .ag-btn-ghost:hover { border-color: rgba(255,255,255,.22); color: rgba(240,240,245,.7); }
+    .ag-note {
+      text-align: center; font-size: 11px;
+      color: rgba(240,240,245,.2);
+      padding: 6px 20px 22px;
+    }
+    @keyframes ag-shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-5px); }
+      40%,80%  { transform: translateX(5px); }
+    }
+    .ag-shake { animation: ag-shake .42s ease; }
+  `;
+  document.head.appendChild(s);
+})();
+
+function buildAuthGuardDOM() {
+  if (document.getElementById("auth-guard-sheet")) return;
+
+  const scrim = document.createElement("div");
+  scrim.id = "auth-guard-scrim";
+  document.body.appendChild(scrim);
+
+  const sheet = document.createElement("div");
+  sheet.id = "auth-guard-sheet";
+  sheet.setAttribute("role", "dialog");
+  sheet.setAttribute("aria-modal", "true");
+  sheet.setAttribute("aria-label", "Sign in to join events");
+  sheet.innerHTML = `
+    <div class="ag-pill"></div>
+    <div class="ag-hero">
+      <div class="ag-badge">✨ Exclusive Access</div>
+      <div class="ag-emoji">🎧</div>
+      <h2 class="ag-title">Become a Viber!</h2>
+      <p class="ag-sub">Sign in to join live events, earn real rewards, and vibe with thousands of people.</p>
+    </div>
+    <div class="ag-perks">
+      <div class="ag-perk">
+        <div class="ag-perk-icon">💰</div>
+        <div class="ag-perk-label">Earn Real Cash</div>
+      </div>
+      <div class="ag-perk">
+        <div class="ag-perk-icon">🏆</div>
+        <div class="ag-perk-label">Win Prizes</div>
+      </div>
+      <div class="ag-perk">
+        <div class="ag-perk-icon">🔥</div>
+        <div class="ag-perk-label">Daily Streaks</div>
+      </div>
+    </div>
+    <div class="ag-actions">
+      <button class="ag-btn-primary" id="ag-signin-btn">🚀 Be a Viber — Sign In Free</button>
+      <button class="ag-btn-ghost"   id="ag-close-btn">Maybe Later</button>
+    </div>
+    <p class="ag-note">Free to join · No credit card needed · Instant rewards</p>
+  `;
+  document.body.appendChild(sheet);
+
+  // Scrim closes sheet
+  scrim.addEventListener("click", closeAuthGuard);
+
+  // Buttons
+  sheet.querySelector("#ag-close-btn").addEventListener("click", closeAuthGuard);
+  sheet.querySelector("#ag-signin-btn").addEventListener("click", () => {
+    closeAuthGuard();
+    setTimeout(() => {
+      window.location.href = "/online-earning/listen-enjoy-earn/create-vibers/index.html";
+    }, 300);
+  });
+
+  // Drag-to-dismiss
+  let dragY = 0;
+  sheet.addEventListener("touchstart", (e) => { dragY = e.touches[0].clientY; }, { passive: true });
+  sheet.addEventListener("touchmove",  (e) => {
+    const dy = e.touches[0].clientY - dragY;
+    if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  sheet.addEventListener("touchend", (e) => {
+    const dy = e.changedTouches[0].clientY - dragY;
+    sheet.style.transform = "";
+    if (dy > 80) closeAuthGuard();
+  });
+
+  // Keyboard escape
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAuthGuard(); });
+}
+
+function openAuthGuard() {
+  buildAuthGuardDOM();
+  requestAnimationFrame(() => {
+    document.getElementById("auth-guard-scrim")?.classList.add("ag-open");
+    document.getElementById("auth-guard-sheet")?.classList.add("ag-open");
+  });
+}
+
+function closeAuthGuard() {
+  document.getElementById("auth-guard-scrim")?.classList.remove("ag-open");
+  document.getElementById("auth-guard-sheet")?.classList.remove("ag-open");
+}
+
+/**
+ * Call at the top of every join/check-in handler.
+ * Returns true  → user is NOT authenticated → sheet opened → caller must bail.
+ * Returns false → user IS authenticated     → proceed normally.
+ */
+function requireAuth() {
+  if (currentUser && !currentUser.isAnonymous) return false;
+  openAuthGuard();
+  return true;
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP
@@ -153,7 +368,7 @@ function setupNetworkBanner() {
   banner.textContent = "⚡ You're offline — some features may not work";
   document.body.prepend(banner);
   window.addEventListener("offline", () => { banner.style.display = "block"; });
-  window.addEventListener("online", () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
+  window.addEventListener("online",  () => { banner.style.display = "none"; showToast("Back online! 🎉", "success"); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -236,30 +451,30 @@ function checkusercheckin() {
 async function getEventList() {
   try {
     listenEvents.length = listenEventsJoin.length = 0;
-    hitEvents.length = hitEventsJoin.length = 0;
+    hitEvents.length    = hitEventsJoin.length    = 0;
     lakhpatiLoops.length = lakhpatiLoopsJoin.length = 0;
-    cashHaandis.length = cashHaandisJoin.length = 0;
+    cashHaandis.length  = cashHaandisJoin.length  = 0;
 
-    const [r1, rj1, r2, rj2, r3, rj3, r4, rj4] = await Promise.all([
-      getEvents({ i: 1, needJoined: false }), getEvents({ i: 1, needJoined: true }),
-      getEvents({ i: 2, needJoined: false }), getEvents({ i: 2, needJoined: true }),
-      getEvents({ i: 3, needJoined: false }), getEvents({ i: 3, needJoined: true }),
-      getEvents({ i: 4, needJoined: false }), getEvents({ i: 4, needJoined: true }),
+    const [r1,rj1,r2,rj2,r3,rj3,r4,rj4] = await Promise.all([
+      getEvents({ i:1, needJoined:false }), getEvents({ i:1, needJoined:true }),
+      getEvents({ i:2, needJoined:false }), getEvents({ i:2, needJoined:true }),
+      getEvents({ i:3, needJoined:false }), getEvents({ i:3, needJoined:true }),
+      getEvents({ i:4, needJoined:false }), getEvents({ i:4, needJoined:true }),
     ]);
-    if (r1.data?.events) listenEvents.push(...r1.data.events);
+    if (r1.data?.events)  listenEvents.push(...r1.data.events);
     if (rj1.data?.events) listenEventsJoin.push(...rj1.data.events);
-    if (r2.data?.events) hitEvents.push(...r2.data.events);
+    if (r2.data?.events)  hitEvents.push(...r2.data.events);
     if (rj2.data?.events) hitEventsJoin.push(...rj2.data.events);
-    if (r3.data?.events) lakhpatiLoops.push(...r3.data.events);
+    if (r3.data?.events)  lakhpatiLoops.push(...r3.data.events);
     if (rj3.data?.events) lakhpatiLoopsJoin.push(...rj3.data.events);
-    if (r4.data?.events) cashHaandis.push(...r4.data.events);
+    if (r4.data?.events)  cashHaandis.push(...r4.data.events);
     if (rj4.data?.events) cashHaandisJoin.push(...rj4.data.events);
 
     updatePlayerVisibility();
     renderVibingListenEvents(isJoinedList && joinedType === "L");
     renderVibingHitEvents(isJoinedList && joinedType === "H");
     renderLakhpatiLoops(isJoinedList && joinedType === "PL");
-  } catch (err) {
+  } catch {
     showToast("Could not load events. Try refreshing.", "error");
   }
 }
@@ -269,12 +484,12 @@ async function getSponsorTasksList() {
     sponsorAppTasks.length = sponsorAppTasksJoin.length = 0;
     const [res, resJoin] = await Promise.all([
       getSponsorTasks({ needJoined: false }),
-      getSponsorTasks({ needJoined: true }),
+      getSponsorTasks({ needJoined: true  }),
     ]);
-    if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
+    if (res.data?.success && res.data.sponsors)       sponsorAppTasks.push(...res.data.sponsors);
     if (resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
     renderSponsorAppTasks(isJoinedList && joinedType === "SAT");
-  } catch (err) {
+  } catch {
     showToast("Could not load sponsor tasks. Try refreshing.", "error");
   }
 }
@@ -282,9 +497,9 @@ async function getSponsorTasksList() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  PURE HELPERS
 // ══════════════════════════════════════════════════════════════════════════════
-const isEnded = (endTime) => !!(endTime?._seconds && Date.now() > endTime._seconds * 1000);
+const isEnded           = (endTime) => !!(endTime?._seconds && Date.now() > endTime._seconds * 1000);
 const calculatePrizePool = (totalViber) => Math.min(Math.floor(100 + Number(totalViber) * 0.30 * 0.4), 50000);
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+const delay             = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function startCountdown(el, endTime) {
   if (!el) return;
@@ -301,24 +516,6 @@ function startCountdown(el, endTime) {
   setInterval(tick, 1000);
 }
 
-function formatEntryFee(value) {
-  if (!value) return "Free";
-  if (typeof value === "string" && value.toUpperCase().includes("LC"))
-    return `${parseInt(value.replace(/\D/g, ""))} LC`;
-  return `₹${Number(value)}`;
-}
-
-async function downloadSponsorApk(apkPath) {
-  try {
-    const url = await getDownloadURL(ref(storage, apkPath));
-    window.open(url, "_blank");
-    showToast("Downloading app… 📥", "success");
-  } catch (err) {
-    console.error("APK download failed:", err);
-    showToast("Download failed 😕", "error");
-  }
-}
-
 function formatListenTime(ms) {
   const totalSeconds = Math.floor(ms / 1000);
   const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
@@ -330,67 +527,52 @@ function formatListenTime(ms) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  DIALOG
 // ══════════════════════════════════════════════════════════════════════════════
-const openDialog = () => { if (dialog) dialog.style.display = "flex"; };
+const openDialog  = () => { if (dialog) dialog.style.display = "flex"; };
 const closeDialog = () => { if (dialog) dialog.style.display = "none"; };
 dialogCloseBtn?.addEventListener("click", closeDialog);
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD TRIGGER
-//  Opens a direct-link ad in a new tab and records the open time.
-//  eventType: "listen" | "hit" | "lakhpati" | "dc"
 // ══════════════════════════════════════════════════════════════════════════════
 function trigger(eventId, eventType) {
   if (adLocked) return;
   adLocked = true;
 
   const links =
-    eventType === "listen" ? linksL :
-      eventType === "hit" ? linksH :
-        eventType === "lakhpati" ? linksLP :
-          eventType === "dc" ? linksDCI : [];
+    eventType === "listen"   ? linksL  :
+    eventType === "hit"      ? linksH  :
+    eventType === "lakhpati" ? linksLP :
+    eventType === "dc"       ? linksDCI : [];
 
-  if (!links.length) {
-    showToast("No ad links available 😕", "error");
-    adLocked = false;
-    return;
-  }
+  if (!links.length) { showToast("No ad links available 😕", "error"); adLocked = false; return; }
 
   window.open(links[adIndexL++ % links.length], "_blank");
-  adOpenTime = Date.now(); // ✅ record open time for 10 s gate
+  adOpenTime = Date.now();
   setTimeout(() => { adLocked = false; }, 2000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  AD RETURN — VISIBILITY CHANGE  (Listen / Hit / Lakhpati join flow)
-//
-//  FIX: Now handles all three event types (listen, hit, lakhpati).
-//       Bails immediately when sponsor visibilityHandler owns the return,
-//       preventing race conditions.
+//  AD RETURN — VISIBILITY CHANGE  (Listen / Hit / Lakhpati)
 // ══════════════════════════════════════════════════════════════════════════════
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) return;
-  if (visibilityHandler) return; // sponsor flow owns the return — don't interfere
+  if (visibilityHandler)   return;
   if (!pendingJoinEventId || !adOpenTime) return;
 
   const stayedMs = Date.now() - adOpenTime;
-
-  // Map numeric type index → string key used in AD_WAIT_MS and event arrays
-  const typeKey =
-    pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit ? "hit" :
-      pendingJoinTypeIndex === EVENT_TYPE_INDEX.lakhpati ? "lakhpati" :
-        "listen";
+  const typeKey  =
+    pendingJoinTypeIndex === EVENT_TYPE_INDEX.hit      ? "hit"      :
+    pendingJoinTypeIndex === EVENT_TYPE_INDEX.lakhpati ? "lakhpati" : "listen";
 
   const required = AD_WAIT_MS[typeKey] ?? 10000;
 
   if (stayedMs >= required) {
-    // ── User stayed long enough — now show event details dialog ──────────────
     const pool =
-      typeKey === "hit" ? hitEvents :
-        typeKey === "lakhpati" ? lakhpatiLoops :
-          listenEvents;
+      typeKey === "hit"      ? hitEvents      :
+      typeKey === "lakhpati" ? lakhpatiLoops  : listenEvents;
 
     const isLakhpati = typeKey === "lakhpati";
-    const eventData = pool.find((ev) => ev.eventId === pendingJoinEventId);
+    const eventData  = pool.find((ev) => ev.eventId === pendingJoinEventId);
 
     if (eventData) {
       showEventDetails(eventData, isLakhpati, pendingJoinTypeIndex);
@@ -403,9 +585,8 @@ document.addEventListener("visibilitychange", () => {
     showToast(`Stay on the ad for ${secLeft} more second(s) to continue.`, "error");
   }
 
-  // Always clean up so repeated clicks work cleanly
-  pendingJoinEventId = null;
-  adOpenTime = 0;
+  pendingJoinEventId   = null;
+  adOpenTime           = 0;
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -415,7 +596,7 @@ function renderSponsorAppTasks(vibeOver = false) {
   if (!appTaskList) return;
   appTaskList.innerHTML = "";
   const fullList = vibeOver ? sponsorAppTasksJoin : sponsorAppTasks;
-  const tasks = vibeOver
+  const tasks    = vibeOver
     ? fullList
     : fullList.filter((t) => !sponsorAppTasksJoin.some((j) => j.sponsorId === t.sponsorId));
 
@@ -430,9 +611,9 @@ function renderSponsorAppTasks(vibeOver = false) {
     const card = document.createElement("div");
     card.className = "t-b";
     const progressHTML = vibeOver && !task.isComplete
-      ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${Math.round(((task.stepsCompleted || 0) / (task.allSteps || 1)) * 100)}%"></div></div>`
+      ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${Math.round(((task.stepsCompleted||0)/(task.allSteps||1))*100)}%"></div></div>`
       : "";
-    const label = vibeOver ? (task.isComplete ? "Completed" : `${task.stepsCompleted || 0}/${task.allSteps || 0}`) : "Vibe";
+    const label = vibeOver ? (task.isComplete ? "Completed" : `${task.stepsCompleted||0}/${task.allSteps||0}`) : "Vibe";
 
     card.innerHTML = `
       <div class="a-t-h">
@@ -457,7 +638,7 @@ function renderVibingListenEvents(vibeOver = false) {
   if (!listen_grid) return;
   listen_grid.innerHTML = "";
   const fullList = vibeOver ? listenEventsJoin : listenEvents;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !listenEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -469,11 +650,11 @@ function renderVibingListenEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("article");
-    const fee = Number(event.eventEntryFee || 0);
-    const vibers = Number(event.totalViber || 0);
+    const card    = document.createElement("article");
+    const fee     = Number(event.eventEntryFee || 0);
+    const vibers  = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const ended = isEnded(event.endTime);
+    const ended   = isEnded(event.endTime);
 
     card.className = "event-card";
     card.innerHTML = `
@@ -518,7 +699,7 @@ function renderVibingHitEvents(vibeOver = false) {
   if (!hit_grid) return;
   hit_grid.innerHTML = "";
   const fullList = vibeOver ? hitEventsJoin : hitEvents;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !hitEventsJoin.some((j) => j.eventId === e.eventId));
 
@@ -530,10 +711,10 @@ function renderVibingHitEvents(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("div");
-    const vibers = Number(event.totalViber || 0);
+    const card    = document.createElement("div");
+    const vibers  = Number(event.totalViber || 0);
     const prizePool = calculatePrizePool(vibers);
-    const fee = Number(event.eventEntryFee || 0);
+    const fee     = Number(event.eventEntryFee || 0);
 
     card.className = "hit-card";
     card.innerHTML = `
@@ -589,7 +770,7 @@ function renderLakhpatiLoops(vibeOver = false) {
   if (!premiumLegue) return;
   premiumLegue.innerHTML = "";
   const fullList = vibeOver ? lakhpatiLoopsJoin : lakhpatiLoops;
-  const events = vibeOver
+  const events   = vibeOver
     ? fullList
     : fullList.filter((e) => !lakhpatiLoopsJoin.some((j) => j.eventId === e.eventId));
 
@@ -601,10 +782,10 @@ function renderLakhpatiLoops(vibeOver = false) {
   }
 
   events.forEach((event) => {
-    const card = document.createElement("div");
+    const card    = document.createElement("div");
     card.className = "lakhpati-card";
     const prizePool = (event.lakhpatiLoopAmountIndex || 0) * 100_000;
-    const fee = Number(event.eventEntryFee || 0);
+    const fee     = Number(event.eventEntryFee || 0);
 
     card.innerHTML = `
       <div class="lakhpati-content">
@@ -664,10 +845,10 @@ function renderLakhpatiLoops(vibeOver = false) {
 vibingOverBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = true;
-    joinedType = e.currentTarget.dataset.eventType;
-    if (joinedType === "L") renderVibingListenEvents(true);
-    else if (joinedType === "H") renderVibingHitEvents(true);
-    else if (joinedType === "PL") renderLakhpatiLoops(true);
+    joinedType   = e.currentTarget.dataset.eventType;
+    if (joinedType === "L")   renderVibingListenEvents(true);
+    else if (joinedType === "H")   renderVibingHitEvents(true);
+    else if (joinedType === "PL")  renderLakhpatiLoops(true);
     else if (joinedType === "SAT") renderSponsorAppTasks(true);
   });
 });
@@ -675,28 +856,29 @@ vibingOverBtns.forEach((btn) => {
 vibingBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     isJoinedList = false;
-    joinedType = null;
+    joinedType   = null;
     const t = e.currentTarget.dataset.eventType;
-    if (t === "L") renderVibingListenEvents(false);
-    else if (t === "H") renderVibingHitEvents(false);
-    else if (t === "PL") renderLakhpatiLoops(false);
+    if (t === "L")   renderVibingListenEvents(false);
+    else if (t === "H")   renderVibingHitEvents(false);
+    else if (t === "PL")  renderLakhpatiLoops(false);
     else if (t === "SAT") renderSponsorAppTasks(false);
   });
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  LISTEN GRID CLICK
+//  LISTEN GRID CLICK  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 listen_grid?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderVibingListenEvents(false); return; }
 
-  // ── Joined tab (.joinNow) — vibe directly, no ad gate ────────────────────
+  // ── Joined tab (.joinNow) ─────────────────────────────────────────────────
   const vibeNowBtn = e.target.closest(".joinNow");
   if (vibeNowBtn) {
     e.stopPropagation();
     if (!isJoinedList || joinedType !== "L") return;
+    if (requireAuth()) return;                              // 🔒 AUTH GUARD
 
-    const eventId = vibeNowBtn.dataset.eventid;
+    const eventId   = vibeNowBtn.dataset.eventid;
     if (!eventId) { showToast("Event ID missing — try refreshing", "error"); return; }
 
     const eventData = listenEventsJoin.find((ev) => ev.eventId === eventId);
@@ -706,24 +888,21 @@ listen_grid?.addEventListener("click", (e) => {
     frame?.classList.replace("not-joined", "joined");
     suggestEvent?.classList.remove("enable");
     c_s_p?.classList.add("enable");
-    // scroll to player
     const playerCard = document.querySelector(".layout-two-col");
     if (playerCard) playerCard.scrollIntoView({ behavior: "smooth", block: "center" });
-    // show monetag vignette <script>(function(s){s.dataset.zone='10246448',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script> 
-    
-
     if (eventIdEl) eventIdEl.style.display = "none";
     marathon.vibeNow(eventId);
     return;
   }
 
-  // ── Non-joined tab (.join) — trigger ad → wait 10 s → show event dialog ──
+  // ── Non-joined tab (.join) ────────────────────────────────────────────────
   const joinBtn = e.target.closest(".join");
   if (!joinBtn) return;
   e.stopPropagation();
   if (isJoinedList && joinedType === "L") return;
+  if (requireAuth()) return;                                // 🔒 AUTH GUARD
 
-  const eventId = joinBtn.dataset.eventid;
+  const eventId   = joinBtn.dataset.eventid;
   const eventData = listenEvents.find((ev) => ev.eventId === eventId);
   if (!eventData) return;
 
@@ -736,7 +915,7 @@ listen_grid?.addEventListener("click", (e) => {
     const fee = eventData.eventEntryFee;
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
       const lcAmount = parseInt(fee.replace(/\D/g, "")) || 0;
-      if (!currentUser || (uiData?.listenCoins || 0) < lcAmount) {
+      if ((uiData?.listenCoins || 0) < lcAmount) {
         showToast("Not enough Listen Coins.", "error"); return;
       }
     } else if ((uiData?.cash || 0) < Number(fee)) {
@@ -744,16 +923,14 @@ listen_grid?.addEventListener("click", (e) => {
     }
   }
 
-  // ✅ FIX: trigger ad BEFORE showing event dialog; dialog shows on return (10 s gate)
-  pendingJoinEventId = eventId;
+  pendingJoinEventId   = eventId;
   pendingJoinTypeIndex = EVENT_TYPE_INDEX.listen;
-
   showAdCountdownToast(10, "Watch the ad for 10 s, then your event details will open 🎧");
   trigger(eventId, "listen");
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  HIT GRID CLICK
+//  HIT GRID CLICK  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 hit_grid?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderVibingHitEvents(false); return; }
@@ -764,14 +941,17 @@ hit_grid?.addEventListener("click", (e) => {
 
   const evId = hitBtn.dataset.eventid;
 
-  // ── Joined tab — show leaderboard/result ─────────────────────────────────
+  // ── Joined tab ────────────────────────────────────────────────────────────
   if (isJoinedList && joinedType === "H") {
+    if (requireAuth()) return;                              // 🔒 AUTH GUARD
     const eventData = hitEventsJoin.find((ev) => ev.eventId === evId);
     if (!eventData) return;
     if (isEnded(eventData.endTime)) showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
     else showToast("⏳ Event is still running — results coming soon!", "info");
     return;
   }
+
+  if (requireAuth()) return;                                // 🔒 AUTH GUARD
 
   const eventData = hitEvents.find((ev) => ev.eventId === evId);
   if (!eventData) return;
@@ -784,7 +964,7 @@ hit_grid?.addEventListener("click", (e) => {
     const fee = eventData.eventEntryFee;
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
       const lcAmount = parseInt(fee.replace(/\D/g, "")) || 0;
-      if (!currentUser || (uiData?.listenCoins || 0) < lcAmount) {
+      if ((uiData?.listenCoins || 0) < lcAmount) {
         showToast("Not enough Listen Coins.", "error"); return;
       }
     } else if ((uiData?.cash || 0) < Number(fee)) {
@@ -795,9 +975,8 @@ hit_grid?.addEventListener("click", (e) => {
   const card = hitBtn.closest(".hit-card");
   const lock = card?.querySelector(".lock");
 
-  // ✅ FIX: trigger ad BEFORE showing event dialog (same pattern as listen)
   const proceed = () => {
-    pendingJoinEventId = evId;
+    pendingJoinEventId   = evId;
     pendingJoinTypeIndex = EVENT_TYPE_INDEX.hit;
     showAdCountdownToast(10, "Watch the ad for 10 s, then your event details will open 🎯");
     trigger(evId, "hit");
@@ -812,7 +991,7 @@ hit_grid?.addEventListener("click", (e) => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  LAKHPATI GRID CLICK
+//  LAKHPATI GRID CLICK  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 premiumLegue?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderLakhpatiLoops(false); return; }
@@ -823,8 +1002,9 @@ premiumLegue?.addEventListener("click", (e) => {
   e.stopPropagation();
 
   const evId = String(joinBtn?.dataset.eventid || feeCont?.dataset.eventid || "");
+  if (requireAuth()) return;                                // 🔒 AUTH GUARD
 
-  // ── Joined tab — show result ──────────────────────────────────────────────
+  // ── Joined tab ────────────────────────────────────────────────────────────
   if (isJoinedList && joinedType === "PL") {
     const eventData = lakhpatiLoopsJoin.find((ev) => String(ev.eventId) === evId);
     if (!eventData) return;
@@ -839,15 +1019,14 @@ premiumLegue?.addEventListener("click", (e) => {
   if (isEnded(eventData.endTime)) {
     showToast("⏰ This event has ended. Check for new events!", "error"); return;
   }
-  if (eventData.eventEntryFee > 0 && (!currentUser || (uiData?.cash || 0) < eventData.eventEntryFee)) {
+  if (eventData.eventEntryFee > 0 && (uiData?.cash || 0) < eventData.eventEntryFee) {
     showToast("Insufficient balance. Please top up to join.", "error"); return;
   }
   if (Number(uiData?.streakDays || 0) <= 3) {
     showToast("🔥 Build a 3-day streak to unlock the Lakhpati Loop challenge!", "info"); return;
   }
 
-  // ✅ FIX: trigger ad BEFORE showing event dialog (same pattern as listen/hit)
-  pendingJoinEventId = evId;
+  pendingJoinEventId   = evId;
   pendingJoinTypeIndex = EVENT_TYPE_INDEX.lakhpati;
   showAdCountdownToast(10, "Watch the ad for 10 s, then your Lakhpati event will open 💰");
   trigger(evId, "lakhpati");
@@ -863,10 +1042,10 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   const vibe = document.querySelector(".join-now");
   if (vibe) vibe.textContent = "Loading Your Vibe...";
 
-  // ── LEADERBOARD PATH ──────────────────────────────────────────────────────
+  // ── Leaderboard path ──────────────────────────────────────────────────────
   if (isJoinedList && isEnded(ED?.endTime)) {
     try {
-      const res = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
+      const res  = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
       const data = res.data;
       if (data.success && data.winners?.length) {
         renderLeaderboard(dialogC, ED, data.winners, data.myRank || 0, data.myWinAmount || 0, eventTypeIndex);
@@ -891,12 +1070,12 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
     return;
   }
 
-  // ── JOIN UI PATH ──────────────────────────────────────────────────────────
-  const poolIndex = ED.lakhpatiLoopAmountIndex ?? 0;
-  const rawPrize = ED.eventPrizePool ?? (poolIndex * 100_000);
-  const title = !ED.eventTitle ? "Best of Luck, Viber!"
+  // ── Join UI path ──────────────────────────────────────────────────────────
+  const poolIndex   = ED.lakhpatiLoopAmountIndex ?? 0;
+  const rawPrize    = ED.eventPrizePool ?? (poolIndex * 100_000);
+  const title       = !ED.eventTitle ? "Best of Luck, Viber!"
     : ED.eventTitle.length > 30 ? `${ED.eventTitle.slice(0, 27)}…` : ED.eventTitle;
-  const prizeText = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
+  const prizeText   = isLakhpati ? `₹ ${rawPrize.toLocaleString("en-IN")}` : "Dynamic Prize Pool";
   const explainText = isLakhpati
     ? `Lakhpati Prize Pool Increase!</b><br>Today: ₹1 Lakh ⮕ Next 5 Days: ₹5 Lakh ⮕ Weekly Goal: <b>₹18 Lakh!`
     : `The more who join, the bigger the pot! Every new listener scales the rewards, creating more winning spots for everyone.`;
@@ -941,8 +1120,8 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
       <div class="leaderBoard">
         <div class="high-rank">
           ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
-          ${first ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
-          ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
+          ${first  ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
+          ${third  ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
         </div>
         <div class="midRank">
           ${rest.map((u) => `
@@ -972,7 +1151,7 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
       claimBtn.disabled = true;
       claimBtn.textContent = "Claiming…";
       try {
-        const res = await claimVibeReward({ eventId: ED.eventId, eventType });
+        const res  = await claimVibeReward({ eventId: ED.eventId, eventType });
         const data = res?.data;
         if (!data?.success) throw new Error(data?.message || "Claim failed");
         claimBtn.textContent = "❤️ Claimed!";
@@ -982,7 +1161,7 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
       } catch (err) {
         console.error("Claim error:", err);
         showToast(err.message || "Claim failed 😕", "error");
-        claimBtn.disabled = false;
+        claimBtn.disabled    = false;
         claimBtn.textContent = `🏆 Claim ₹${myWinAmount}`;
       }
     });
@@ -994,9 +1173,9 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
 //  HANDLE JOIN EVENT
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
-  const isFree = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
+  const isFree   = !ED.eventEntryFee || Number(ED.eventEntryFee) === 0;
   const feeLabel = isFree ? "Free entry ✓" : `Deducting ₹${ED.eventEntryFee}`;
-  const steps = [
+  const steps    = [
     "Verifying your account",
     feeLabel,
     ...(eventTypeIndex !== EVENT_TYPE_INDEX.listen ? ["Assigning lucky tickets 🎲"] : []),
@@ -1019,25 +1198,25 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
     spawnConfetti();
     await getUser();
 
-    if (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen) { renderVibingListenEvents(false); updatePlayerVisibility(); }
-    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit) renderVibingHitEvents(false);
+    if      (eventTypeIndex === EVENT_TYPE_INDEX.lakhpati) renderLakhpatiLoops(false);
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.listen)   { renderVibingListenEvents(false); updatePlayerVisibility(); }
+    else if (eventTypeIndex === EVENT_TYPE_INDEX.hit)      renderVibingHitEvents(false);
 
-    pendingJoinEventId = null;
+    pendingJoinEventId   = null;
     pendingJoinTypeIndex = null;
 
   } catch (err) {
     console.error("Join failed:", err);
     const map = {
-      "already-exists": "You've already joined this event!",
-      "failed-precondition": err.message?.includes("LC") ? "Not enough Listen Coins."
-        : err.message?.includes("cash") ? "Insufficient balance. Please top up."
-          : "This event has ended.",
-      "not-found": "Event not found. It may have just ended.",
-      "unauthenticated": "Please log in first.",
+      "already-exists":     "You've already joined this event!",
+      "failed-precondition": err.message?.includes("LC")   ? "Not enough Listen Coins."
+                           : err.message?.includes("cash") ? "Insufficient balance. Please top up."
+                           : "This event has ended.",
+      "not-found":          "Event not found. It may have just ended.",
+      "unauthenticated":    "Please log in first.",
       "resource-exhausted": "Server busy. Please try again in a moment.",
     };
-    const code = err?.code?.replace("functions/", "") || "";
+    const code    = err?.code?.replace("functions/", "") || "";
     const message = map[code] || err.message || "Something went wrong.";
     progress.finish(false, message);
     showToast(message, "error");
@@ -1045,13 +1224,14 @@ async function handleJoinEvent(ED, isLakhpati, eventTypeIndex) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  SPONSOR TASK LIST CLICK
+//  SPONSOR TASK LIST CLICK  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 appTaskList?.addEventListener("click", async (e) => {
   if (e.target.closest(".start-joining-btn")) { renderSponsorAppTasks(false); isJoinedList = false; return; }
 
   const btn = e.target.closest(".a-t-get");
   if (!btn) return;
+  if (requireAuth()) return;                                // 🔒 AUTH GUARD
 
   const taskId = btn.dataset.taskId;
   a_t_d_overlay.classList.add("active");
@@ -1059,7 +1239,7 @@ appTaskList?.addEventListener("click", async (e) => {
   const resolvedTask =
     (isJoinedList ? sponsorAppTasksJoin : sponsorAppTasks).find((t) => String(t.sponsorId) === String(taskId)) ||
     sponsorAppTasksJoin.find((t) => String(t.sponsorId) === String(taskId)) ||
-    sponsorAppTasks.find((t) => String(t.sponsorId) === String(taskId));
+    sponsorAppTasks.find((t)     => String(t.sponsorId) === String(taskId));
 
   if (!resolvedTask) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><h2>Task not found</h2><button class="a-t-d-close">Close</button></div>`;
@@ -1070,7 +1250,7 @@ appTaskList?.addEventListener("click", async (e) => {
 
   if (isJoinedList && joinedType === "SAT") {
     try {
-      const res = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
+      const res        = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
       const leaderboard = res?.data?.leaderboard || [];
       if (leaderboard.length) { renderLeaderboardCard(resolvedTask, leaderboard); return; }
     } catch { /* fall through */ }
@@ -1089,8 +1269,8 @@ function renderTaskDetailCard(taskData) {
       </div>
       <ul class="a-t-d-guide">
         ${taskData.taskCompleteSteps?.length
-      ? taskData.taskCompleteSteps.map((s, i) => `<li>Step ${i + 1}: ${s}</li>`).join("")
-      : `<li>No specific steps provided.</li>`}
+          ? taskData.taskCompleteSteps.map((s, i) => `<li>Step ${i + 1}: ${s}</li>`).join("")
+          : `<li>No specific steps provided.</li>`}
       </ul>
       <div class="a-t-d-reward"><strong>Reward:</strong> ₹${taskData.taskPool}</div>
       <button class="vibe-btn" data-sponsor="${taskData.sponsorId}">
@@ -1112,8 +1292,8 @@ function renderLeaderboardCard(taskData, leaderboard) {
       <div class="leaderBoard">
         <div class="high-rank">
           ${second ? `<div class="rank two"><img class="rank-two-frame" src="/assets/leaderboard/rank-2.png"><img class="viberDp" src="${second.viberDp}"><div class="n-wa"><strong>₹${second.winAmount}</strong><span>${second.viberName}</span></div></div>` : ""}
-          ${first ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
-          ${third ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
+          ${first  ? `<div class="rank one"><img class="rank-one-frame" src="/assets/leaderboard/rank-1.png"><img class="viberDp" src="${first.viberDp}"><div class="n-wa"><strong>₹${first.winAmount}</strong><span>${first.viberName}</span></div></div>` : ""}
+          ${third  ? `<div class="rank three"><img class="rank-three-frame" src="/assets/leaderboard/rank-3.png"><img class="viberDp" src="${third.viberDp}"><div class="n-wa"><strong>₹${third.winAmount}</strong><span>${third.viberName}</span></div></div>` : ""}
         </div>
         <div class="midRank">
           ${rest.map((u) => `
@@ -1138,8 +1318,8 @@ function renderLeaderboardCard(taskData, leaderboard) {
 // ══════════════════════════════════════════════════════════════════════════════
 a_t_d_overlay?.addEventListener("click", async (e) => {
   const closeButton = e.target.closest(".a-t-d-close");
-  const claimBtn = e.target.closest(".claim-btn");
-  const vibeBtn = e.target.closest(".vibe-btn");
+  const claimBtn    = e.target.closest(".claim-btn");
+  const vibeBtn     = e.target.closest(".vibe-btn");
 
   if (closeButton) { a_t_d_overlay.classList.remove("active"); return; }
 
@@ -1147,14 +1327,14 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   if (claimBtn) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
-      const res = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
+      const res  = await claimSponsorReward({ sponsorId: claimBtn.dataset.sponsor });
       const data = res?.data;
       if (!data?.success) { showToast("Claim failed 😕", "error"); return; }
 
       const icons = {
-        cash: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
-        listenCoin: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
-        luckCredit: "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
+        cash:        "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/cash-ic.png",
+        listenCoin:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/SapanaCyberHub-Logo-X-Listen-og.png",
+        luckCredit:  "https://kzrbqsvvauqugmuwxwse.supabase.co/storage/v1/object/public/bucket0001/luckCreditIcon1.png",
       };
       const labels = { cash: "Cash Reward", listenCoin: "Listen Coins", luckCredit: "Luck Credit" };
 
@@ -1181,23 +1361,22 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
   if (!sponsorId) return;
 
   const taskData =
-    sponsorAppTasks.find((t) => String(t.sponsorId) === String(sponsorId)) ||
+    sponsorAppTasks.find((t)     => String(t.sponsorId) === String(sponsorId)) ||
     sponsorAppTasksJoin.find((t) => String(t.sponsorId) === String(sponsorId));
 
   if (!taskData) { showToast("Task not found 😕", "error"); return; }
 
-  // ── NOT JOINED — ad gate → vibeInSponsor → open sponsor link ─────────────
+  // ── NOT JOINED — ad gate ──────────────────────────────────────────────────
   if (!isJoinedList) {
     if (!taskData.sponsorLink) { showToast("Download link not found 😕", "error"); return; }
 
     pendingJoinEventId = null;
-    adOpenTime = 0;
+    adOpenTime         = 0;
 
     showAdCountdownToast(10, "Watch the ad for 10 s to activate your reward 🎁");
-
     pendingSponsorApkPath = taskData.sponsorLink;
-    pendingSponsorId = sponsorId;
-    sponsorAdOpenTime = Date.now();
+    pendingSponsorId      = sponsorId;
+    sponsorAdOpenTime     = Date.now();
 
     const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
     trigger(sponsorId, "dc");
@@ -1213,14 +1392,12 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       sponsorProcessing = true;
 
       const stayed = Date.now() - sponsorAdOpenTime;
-
       try {
         if (stayed >= AD_WAIT_MS.dc) {
           if (pendingSponsorId) localStorage.setItem("pendingSponsorId", String(pendingSponsorId));
           showToast("Verifying reward... ⏳", "info");
           const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
           await getUser();
-
           if (res?.data?.success) {
             showToast("Reward Activated 🎉 Opening now...", "success");
             if (isApkLink) await downloadSponsorApk(pendingSponsorApkPath);
@@ -1238,17 +1415,17 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
       }
 
       pendingSponsorApkPath = null;
-      pendingSponsorId = null;
-      sponsorAdOpenTime = 0;
+      pendingSponsorId      = null;
+      sponsorAdOpenTime     = 0;
       document.removeEventListener("visibilitychange", visibilityHandler);
-      visibilityHandler = null;
-      sponsorProcessing = false;
+      visibilityHandler     = null;
+      sponsorProcessing     = false;
     };
 
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
 
-    // ── JOINED — redirect to sponsor link ────────────────────────────────────
+  // ── JOINED — redirect ─────────────────────────────────────────────────────
   } else {
     const link = taskData.sponsorLink;
     if (!link) { showToast("No link found for this task 😕", "error"); return; }
@@ -1279,15 +1456,15 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     document.getElementById("dtc-redirect-toast")?.remove();
     const COUNTDOWN_MS = 4000;
-    const isApk = link.toLowerCase().endsWith(".apk");
-    const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
+    const isApk  = link.toLowerCase().endsWith(".apk");
+    const isApp  = isApk || link.includes("play.google") || link.includes("apps.apple");
     const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
     const descTxt = isApp
       ? "Open the app, complete the task, then come back here."
       : "Visit the page, complete the task, then return here.";
 
     const toast = document.createElement("div");
-    toast.id = "dtc-redirect-toast";
+    toast.id    = "dtc-redirect-toast";
     toast.innerHTML = `
       <div class="dtc-rt-top">
         <img class="dtc-rt-icon" src="${taskData.sponsorAppLogoUrl || ""}" onerror="this.style.display='none'" alt="">
@@ -1373,13 +1550,13 @@ function showProgressToast(steps = []) {
   document.body.appendChild(toast);
 
   const spinnerEl = toast.querySelector("#pt-spinner");
-  const titleEl = toast.querySelector("#pt-title");
-  const barEl = toast.querySelector("#pt-bar");
+  const titleEl   = toast.querySelector("#pt-title");
+  const barEl     = toast.querySelector("#pt-bar");
 
   const update = (idx) => {
     toast.querySelectorAll(".pt-step").forEach((el, i) => {
       el.classList.remove("active", "done");
-      if (i < idx) el.classList.add("done");
+      if (i < idx)  el.classList.add("done");
       if (i === idx) el.classList.add("active");
     });
     barEl.style.width = (steps.length > 1 ? Math.round((idx / (steps.length - 1)) * 90) : 50) + "%";
@@ -1387,16 +1564,16 @@ function showProgressToast(steps = []) {
 
   const finish = (ok, message) => {
     if (ok) toast.querySelectorAll(".pt-step").forEach((el) => { el.classList.remove("active"); el.classList.add("done"); });
-    barEl.style.width = ok ? "100%" : barEl.style.width;
+    barEl.style.width  = ok ? "100%" : barEl.style.width;
     barEl.style.background = ok
       ? "linear-gradient(90deg,#22c55e,#16a34a)"
       : "linear-gradient(90deg,#ef4444,#dc2626)";
-    spinnerEl.className = `pt-spinner ${ok ? "done" : "error"}`;
+    spinnerEl.className  = `pt-spinner ${ok ? "done" : "error"}`;
     spinnerEl.textContent = ok ? "✅" : "❌";
-    titleEl.textContent = ok ? "Done!" : "Failed";
+    titleEl.textContent  = ok ? "Done!" : "Failed";
     const r = document.createElement("div");
-    r.className = `pt-result ${ok ? "success" : "error"}`;
-    r.textContent = message;
+    r.className    = `pt-result ${ok ? "success" : "error"}`;
+    r.textContent  = message;
     toast.appendChild(r);
     setTimeout(() => { toast.classList.add("pt-exit"); setTimeout(() => toast.remove(), 350); }, ok ? 3000 : 4000);
   };
@@ -1433,11 +1610,10 @@ function showToast(message, type = "info") {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD COUNTDOWN TOAST
-//  Ticks down visually so users know exactly how long to stay on the ad.
 // ══════════════════════════════════════════════════════════════════════════════
 function showAdCountdownToast(seconds, label = `Stay on the ad for ${seconds} s to continue`) {
   const toast = showToast(`⏳ ${label} — <strong id="ad-cd">${seconds}</strong>s remaining`, "info");
-  const cdEl = toast?.querySelector("#ad-cd");
+  const cdEl  = toast?.querySelector("#ad-cd");
   if (!cdEl) return;
   let remaining = seconds;
   const iv = setInterval(() => {
@@ -1465,7 +1641,7 @@ function enableScrollHighlight(gridEl, cards, events) {
       closest.classList.add("active");
       const prizeSpan = closest.querySelector(".dynamic-prize");
       const eId = closest.querySelector(".hit-btn")?.dataset.eventid || closest.querySelector(".join")?.dataset.eventid;
-      const ed = events.find((e) => e.eventId === eId);
+      const ed  = events.find((e) => e.eventId === eId);
       if (prizeSpan && ed && closest.dataset.animated !== "true") {
         animatePrizeValue(prizeSpan, 0, calculatePrizePool(Number(ed.totalViber || 0)), 2000);
         closest.dataset.animated = "true";
@@ -1487,7 +1663,7 @@ function init() {
 
 function animatePrizeValue(element, start, end, duration) {
   let ts0 = null;
-  const fv = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
+  const fv   = typeof end === "string" ? parseInt(end.replace(/\D/g, "")) : end;
   const ease = (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
   const step = (ts) => {
     if (!ts0) ts0 = ts;
@@ -1520,9 +1696,11 @@ function playLottie(path, loop = true) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  CHECK-IN BUTTON
+//  CHECK-IN BUTTON  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 checkInBtn?.addEventListener("click", () => {
+  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+
   fireContainer.classList.add("active");
   checkInBtn.classList.add("active-check");
   playLottie("/assets/anim/fire.json");
@@ -1533,8 +1711,8 @@ checkInBtn?.addEventListener("click", () => {
 
 function getStreakDays(uiData) {
   if (!uiData?.lastCheckInDay) return 0;
-  const today = new Date().toISOString().slice(0, 10);
-  const lastDay = uiData.lastCheckInDay;
+  const today     = new Date().toISOString().slice(0, 10);
+  const lastDay   = uiData.lastCheckInDay;
   if (lastDay === today) return uiData.streakDays || 0;
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   if (lastDay === yesterday) return uiData.streakDays || 0;
@@ -1558,12 +1736,12 @@ async function updateStreakUI(newVal, startVal) {
   if (!countEl) return;
   try {
     trigger("", "dc");
-    const result = await dailyCheckIn();
+    const result   = await dailyCheckIn();
     if (!result?.data) throw new Error("No data");
     const finalVal = result.data.newStreak;
-    let ts0 = null;
+    let ts0        = null;
     const duration = 800;
-    const step = (ts) => {
+    const step     = (ts) => {
       if (!ts0) ts0 = ts;
       const p = Math.min((ts - ts0) / duration, 1);
       countEl.textContent = Math.floor(p * (finalVal - startVal) + startVal);
@@ -1593,7 +1771,7 @@ async function updateStreakUI(newVal, startVal) {
 function showRewardBox(isLC = true, amount = 0) {
   if (!rewardContainer) return;
   const rewardText = document.getElementById("a");
-  const iconBox = document.getElementById("r-i");
+  const iconBox    = document.getElementById("r-i");
   if (!rewardText || !iconBox) return;
   rewardText.textContent = isLC ? `${amount} LC` : `₹${amount}`;
   iconBox.src = isLC
@@ -1609,6 +1787,20 @@ function showRewardBox(isLC = true, amount = 0) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  APK DOWNLOAD
+// ══════════════════════════════════════════════════════════════════════════════
+async function downloadSponsorApk(apkPath) {
+  try {
+    const url = await getDownloadURL(ref(storage, apkPath));
+    window.open(url, "_blank");
+    showToast("Downloading app… 📥", "success");
+  } catch (err) {
+    console.error("APK download failed:", err);
+    showToast("Download failed 😕", "error");
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  CONFETTI
 // ══════════════════════════════════════════════════════════════════════════════
 function spawnConfetti(count = 80) {
@@ -1620,7 +1812,7 @@ function spawnConfetti(count = 80) {
     document.head.appendChild(s);
   }
   for (let i = 0; i < count; i++) {
-    const d = document.createElement("div");
+    const d    = document.createElement("div");
     const size = Math.random() * 8 + 4;
     d.style.cssText = `position:fixed;pointer-events:none;z-index:99999;
       width:${size}px;height:${size}px;border-radius:50%;
@@ -1659,8 +1851,8 @@ function updatePlayerVisibility() {
 function setupPullToRefresh() {
   let startY = 0, pulling = false;
   document.addEventListener("touchstart", (e) => { startY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener("touchmove", (e) => { if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true; }, { passive: true });
-  document.addEventListener("touchend", async () => {
+  document.addEventListener("touchmove",  (e) => { if (window.scrollY === 0 && e.touches[0].clientY - startY > 80) pulling = true; }, { passive: true });
+  document.addEventListener("touchend",   async () => {
     if (!pulling) return;
     pulling = false;
     showToast("Refreshing… 🔄", "info");
@@ -1686,18 +1878,8 @@ for (let i = 0; i < 45; i++) {
   pc?.appendChild(p);
 }
 
-
-// lol move 
-const goToLoL = document.querySelector(".lol-btn");
-goToLoL?.addEventListener("click", () => {
-  // show toast for lol is being ready for you comming soon 
-  showToast("LoL is coming soon!", "info");
-});
-
-
-// e-Sport Arena
-const goToArena = document.querySelector(".arena-btn");
-goToArena?.addEventListener("click", () => {
-  // show toast for arena is being ready for you comming soon
-  showToast("E-Sport Arena is coming soon!", "info");
-});
+// ══════════════════════════════════════════════════════════════════════════════
+//  COMING SOON BUTTONS
+// ══════════════════════════════════════════════════════════════════════════════
+document.querySelector(".lol-btn")?.addEventListener("click",   () => showToast("LoL is coming soon!", "info"));
+document.querySelector(".arena-btn")?.addEventListener("click", () => showToast("E-Sport Arena is coming soon!", "info"));
