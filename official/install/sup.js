@@ -269,7 +269,7 @@ if (
   window.matchMedia("(display-mode: standalone)").matches ||
   window.navigator.standalone === true
 ) {
-  window.location.href = "/";
+  window.location.href = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -354,5 +354,5 @@ installBtn.addEventListener("click", async () => {
 //  SKIP BUTTON
 // ══════════════════════════════════════════════════════════════════════════════
 skipBtn.addEventListener("click", () => {
-  window.location.href = "/";
+  window.location.href = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
 });

@@ -100,6 +100,7 @@ async function loadStats() {
     const { data } = await getAdminStats();
     const s = data.stats;
     document.getElementById("active-users").textContent    = s.dailyActiveUsers         ?? "—";
+    document.getElementById("active-guest-users").textContent = s.totalAnonymousVisitors ?? "—";
     document.getElementById("active-events").textContent   = s.activeEvents        ?? "—";
     document.getElementById("kyc-pending").textContent     = s.pendingKYC          ?? "—";
     document.getElementById("pending-withdrwal").textContent = s.pendingWithdrawals ?? "—";

@@ -2,886 +2,299 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SapanaCyberHub X LoL</title>
-    <meta name="description" content="SapanaCyberHub X LoL – Laugh and make laugh with us!" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SapanaCyberHub X LoL</title>
+  <meta name="description" content="SapanaCyberHub X LoL – Laugh and make laugh with us!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-    <!-- ───────────────── AUTH SCREEN ───────────────── -->
-    <div id="auth-screen" class="screen active">
-        <div class="auth-bg">
-            <div class="auth-blobs">
-                <div class="blob b1"></div>
-                <div class="blob b2"></div>
-                <div class="blob b3"></div>
-            </div>
-            <div class="auth-card">
-                <div class="auth-logo">
-                    <span class="logo-main">SCH</span>
-                    <span class="logo-x">✕</span>
-                    <span class="logo-lol">LoL</span>
-                </div>
-                <p class="auth-tagline">Laugh. Create. Earn. 😂</p>
-                <button id="btn-google" class="btn-auth">
-                    <svg width="20" height="20" viewBox="0 0 48 48">
-                        <path fill="#FFC107"
-                            d="M43.6 20.1H42V20H24v8h11.3C33.6 32.9 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.4 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
-                        <path fill="#FF3D00"
-                            d="M6.3 14.7l6.6 4.8C14.6 15.1 19 12 24 12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.4 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                        <path fill="#4CAF50"
-                            d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.5 26.8 36 24 36c-5.2 0-9.5-3.1-11.3-7.5l-6.5 5C9.7 39.7 16.3 44 24 44z" />
-                        <path fill="#1976D2"
-                            d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.6l6.2 5.2C37 38.4 44 33 44 24c0-1.3-.1-2.6-.4-3.9z" />
-                    </svg>
-                    Continue with Google
-                </button>
-                <button id="btn-guest" class="btn-auth btn-ghost">Browse as Guest 👀</button>
-                <p class="auth-note">By joining, you agree to spread only joy & laughter 🎉</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ───────────────── MAIN APP ───────────────── -->
-    <div id="app-screen" class="screen">
-
-        <!-- HEADER -->
-        <header class="app-header">
-            <div class="header-brand">
-                <span class="h-logo">SCH<span class="h-x">✕</span>LoL</span>
-            </div>
-            <div class="header-right">
-                <div class="streak-badge" id="streak-badge" title="Daily Streak">🔥 <span id="streak-count">0</span>
-                </div>
-                <div class="credit-badge" title="LoL Creator Credits">🪙 <span id="credit-count">0</span></div>
-                <button id="btn-create" class="btn-create-top" title="Create Post">＋</button>
-                <div id="user-avatar-wrap" class="user-avatar-wrap">
-                    <img id="user-avatar" src="" alt="avatar"
-                        onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=lol'" />
-                </div>
-            </div>
-        </header>
-
-        <!-- FEED AREA -->
-        <main class="feed-wrap">
-            <div id="card-stack" class="card-stack">
-                <!-- Cards injected by JS -->
-                <div class="loading-state" id="feed-loader">
-                    <div class="loader-emoji">😂</div>
-                    <p>Loading LoLs…</p>
-                </div>
-            </div>
-
-            <!-- Swipe hints -->
-            <div class="swipe-hint" id="swipe-hint">
-                <span>← Swipe or tap arrows →</span>
-            </div>
-        </main>
-
-        <!-- BOTTOM NAV -->
-        <nav class="bottom-nav">
-            <button class="nav-btn active" data-view="feed" id="nav-feed">
-                <span>🏠</span><label>Feed</label>
-            </button>
-            <button class="nav-btn" data-view="profile" id="nav-profile">
-                <span>👤</span><label>Profile</label>
-            </button>
-        </nav>
-
-    </div>
-
-    <!-- ───────────────── PROFILE VIEW ───────────────── -->
-    <div id="profile-screen" class="screen">
-        <div class="profile-wrap">
-            <div class="profile-top-bar">
-                <button class="back-btn" id="back-from-profile">←</button>
-                <h2 class="profile-title">My Profile</h2>
-                <button class="btn-logout" id="btn-logout">Exit</button>
-            </div>
-
-            <div class="profile-hero">
-                <img id="p-avatar" src="" alt="" class="p-avatar"
-                    onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=lol'" />
-                <h3 id="p-name" class="p-name">—</h3>
-                <p id="p-email" class="p-email">—</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-icon">🔥</span>
-                    <span class="stat-val" id="p-streak">0</span>
-                    <span class="stat-label">Day Streak</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">⚡</span>
-                    <span class="stat-val" id="p-score">0</span>
-                    <span class="stat-label">Eng. Score</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">🪙</span>
-                    <span class="stat-val" id="p-credits">0</span>
-                    <span class="stat-label">LoL CC</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">💰</span>
-                    <span class="stat-val" id="p-earning">₹0</span>
-                    <span class="stat-label">Earnings</span>
-                </div>
-            </div>
-
-            <div class="progress-section">
-                <div class="progress-label">
-                    <span>Engagement → Next Credit</span>
-                    <span id="progress-text">0 / 1000</span>
-                </div>
-                <div class="progress-bar-wrap">
-                    <div class="progress-bar-fill" id="progress-fill"></div>
-                </div>
-            </div>
-
-            <div class="transfer-section">
-                <div class="transfer-info">
-                    <span>Available to transfer</span>
-                    <strong id="transfer-amount">₹0.00</strong>
-                </div>
-                <button class="btn-transfer" id="btn-transfer">Transfer to Listen Wallet (80%)</button>
-            </div>
-
-            <div class="history-section">
-                <h3 class="history-title">📜 Post History</h3>
-                <div id="post-history-list" class="history-list">
-                    <p class="empty-history">No posts yet. Start creating! 🚀</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ───────────────── CREATE POST OVERLAY ───────────────── -->
-    <div id="create-overlay" class="overlay hidden">
-        <div class="create-card">
-            <div class="create-header">
-                <h3>Create LoL Post</h3>
-                <button id="close-create" class="btn-close">✕</button>
-            </div>
-
-            <div class="create-requirements" id="create-reqs">
-                <div class="req-item" id="req-streak">
-                    <span class="req-icon">🔥</span>
-                    <span class="req-text">5-Day Streak: <strong id="req-streak-val">0/5</strong></span>
-                </div>
-                <div class="req-item" id="req-credit">
-                    <span class="req-icon">🪙</span>
-                    <span class="req-text">LoL Creator Credits: <strong id="req-credit-val">0</strong></span>
-                </div>
-            </div>
-
-            <div class="create-form" id="create-form">
-                <!-- Media preview -->
-                <div class="media-dropzone" id="media-dropzone">
-                    <input type="file" id="media-input" accept="image/*,video/*,image/gif" hidden />
-                    <div class="dropzone-inner" id="dropzone-inner">
-                        <span class="dropzone-icon">🎬</span>
-                        <p>Tap to select Photo / Video / GIF</p>
-                    </div>
-                </div>
-
-                <input type="text" id="post-title" class="form-input" placeholder="Enter a funny title... 😂"
-                    maxlength="80" />
-                <input type="text" id="post-desc" class="form-input" placeholder="Description (optional)"
-                    maxlength="160" />
-                <input type="text" id="post-tags" class="form-input" placeholder="#hashtags #separated #byspace"
-                    maxlength="100" />
-
-                <button class="btn-post" id="btn-post-submit">🚀 Post LoL (costs 1 LoL CC)</button>
-                <p class="post-note">Post stays live for 48hrs. Earn based on engagement!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ───────────────── TOAST ───────────────── -->
-    <div id="toast" class="toast hidden"></div>
-
-    <!-- ───────────────── SCRIPTS ───────────────── -->
-    <!-- Firebase -->
-    <script type="module">
-        // ═══════════════════════════════════════════
-        //  🔥 PASTE YOUR FIREBASE CONFIG HERE
-        // ═══════════════════════════════════════════
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, signOut, onAuthStateChanged }
-            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import {
-            getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where,
-            orderBy, limit, getDocs, addDoc, increment, serverTimestamp, Timestamp, writeBatch
-        }
-            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL }
-            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-            authDomain: "sapanacyberhub-26310.firebaseapp.com",
-            projectId: "sapanacyberhub-26310",
-            storageBucket: "sapanacyberhub-26310.firebasestorage.app",
-            messagingSenderId: "448116453690",
-            appId: "1:448116453690:web:01a91dd284b715bf0a2003",
-            measurementId: "G-HKGQ8D55N1",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const stor = getStorage(app);
-
-        // ═══════════════════════════ HELPERS ═══════════════════════════
-
-        const $ = id => document.getElementById(id);
-        const today = () => new Date().toISOString().slice(0, 10);
-
-        function showToast(msg, dur = 2800) {
-            const t = $("toast");
-            t.textContent = msg;
-            t.classList.remove("hidden");
-            setTimeout(() => t.classList.add("hidden"), dur);
-        }
-
-        function showScreen(id) {
-            document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-            $(id).classList.add("active");
-        }
-
-        // ═══════════════════════════ AUTH ═══════════════════════════
-
-        $("btn-google").addEventListener("click", async () => {
-            try {
-                const provider = new GoogleAuthProvider();
-                await signInWithPopup(auth, provider);
-            } catch (e) { showToast("Sign-in failed: " + e.message); }
-        });
-
-        $("btn-guest").addEventListener("click", async () => {
-            try { await signInAnonymously(auth); }
-            catch (e) { showToast("Guest mode failed: " + e.message); }
-        });
-
-        $("btn-logout").addEventListener("click", async () => {
-            await signOut(auth);
-            showScreen("auth-screen");
-        });
-
-        // ═══════════════════════════ USER DOCUMENT ═══════════════════════════
-
-        async function ensureUserDoc(user) {
-            const ref = doc(db, "users", user.uid);
-            const snap = await getDoc(ref);
-            if (!snap.exists()) {
-                await setDoc(ref, {
-                    uid: user.uid,
-                    displayName: user.displayName || "LoLer",
-                    photoURL: user.photoURL || "",
-                    email: user.email || "",
-                    isAnonymous: user.isAnonymous,
-                    lolStreak: 0,
-                    lastActiveDate: "",
-                    engagementScore: 0,
-                    lolCreatorCredits: 0,
-                    estimatedEarning: 0,
-                    totalEarning: 0,
-                    createdAt: serverTimestamp()
-                });
-            }
-            return (await getDoc(ref)).data();
-        }
-
-        async function updateStreak(uid) {
-            const ref = doc(db, "users", uid);
-            const snap = await getDoc(ref);
-            const data = snap.data();
-            const todayStr = today();
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            const yestStr = yesterday.toISOString().slice(0, 10);
-
-            if (data.lastActiveDate === todayStr) return data;
-            let streak = data.lolStreak;
-            if (data.lastActiveDate === yestStr) streak++;
-            else if (data.lastActiveDate !== todayStr) streak = 1;
-            await updateDoc(ref, { lolStreak: streak, lastActiveDate: todayStr });
-            return { ...data, lolStreak: streak, lastActiveDate: todayStr };
-        }
-
-        // ═══════════════════════════ STATE ═══════════════════════════
-
-        let currentUser = null;
-        let userData = null;
-        let posts = [];
-        let cardIndex = 0;
-        let swipeCount = 0;
-        let viewTimer = null;
-        let viewedPostId = null;
-        let selectedFile = null;
-        let adCardInterval = Math.floor(Math.random() * 3) + 3; // 3-5
-        let nextAdAt = adCardInterval;
-
-        // ═══════════════════════════ ON AUTH STATE ═══════════════════════════
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) { showScreen("auth-screen"); return; }
-
-            currentUser = user;
-            userData = await ensureUserDoc(user);
-            userData = await updateStreak(user.uid);
-            userData = (await getDoc(doc(db, "users", user.uid))).data();
-
-            // expire old posts
-            await expireOldPosts();
-
-            // UI init
-            updateHeaderUI();
-            showScreen("app-screen");
-            await loadPosts();
-            renderCard();
-        });
-
-        function updateHeaderUI() {
-            if (!userData) return;
-            $("streak-count").textContent = userData.lolStreak || 0;
-            $("credit-count").textContent = userData.lolCreatorCredits || 0;
-            const av = $("user-avatar");
-            av.src = userData.photoURL || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${userData.uid}`;
-        }
-
-        // ═══════════════════════════ EXPIRE POSTS ═══════════════════════════
-
-        async function expireOldPosts() {
-            const now = new Date();
-            const q = query(collection(db, "posts"),
-                where("status", "==", "active"),
-                where("expiresAt", "<=", Timestamp.fromDate(now))
-            );
-            const snaps = await getDocs(q);
-            const batch = writeBatch(db);
-            snaps.forEach(snap => {
-                const d = snap.data();
-                // calc earning: 0.001 INR per engagement point (adjust as needed)
-                const earning = +(d.engagementScore * 0.001).toFixed(2);
-                batch.update(snap.ref, { status: "finished", earning });
-                // update creator earning
-                const cRef = doc(db, "users", d.uid);
-                batch.update(cRef, {
-                    estimatedEarning: increment(earning),
-                    totalEarning: increment(earning)
-                });
-            });
-            await batch.commit();
-        }
-
-        // ═══════════════════════════ LOAD POSTS ═══════════════════════════
-
-        async function loadPosts() {
-            $("feed-loader").style.display = "flex";
-            const q = query(
-                collection(db, "posts"),
-                where("status", "==", "active"),
-                orderBy("createdAt", "desc"),
-                limit(40)
-            );
-            const snaps = await getDocs(q);
-            posts = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
-
-            // shuffle
-            for (let i = posts.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [posts[i], posts[j]] = [posts[j], posts[i]];
-            }
-
-            $("feed-loader").style.display = "none";
-
-            if (posts.length === 0) {
-                $("card-stack").innerHTML = `
-        <div class="empty-feed">
-          <div style="font-size:80px">😅</div>
-          <h3>No LoLs yet!</h3>
-          <p>Be the first to post something hilarious</p>
-        </div>`;
-            }
-        }
-
-        // ═══════════════════════════ CARD RENDERING ═══════════════════════════
-
-        function renderCard() {
-            if (posts.length === 0) return;
-            stopViewTimer();
-
-            // Bonus card every 10 swipes
-            if (swipeCount > 0 && swipeCount % 10 === 0) {
-                renderBonusCard();
-                return;
-            }
-
-            // Ad card every 3-5 cards
-            if (swipeCount === nextAdAt) {
-                nextAdAt += Math.floor(Math.random() * 3) + 3;
-                renderAdCard();
-                return;
-            }
-
-            const post = posts[cardIndex % posts.length];
-            if (!post) return;
-            viewedPostId = post.id;
-            $("card-stack").innerHTML = buildCard(post);
-            attachCardEvents(post);
-            startViewTimer(post);
-        }
-
-        function buildCard(post) {
-            const tags = (post.hashtags || []).map(t => `<span class="tag">${t}</span>`).join("");
-            const media = buildMedia(post);
-            const likedKey = `liked_${post.id}`;
-            const isLiked = localStorage.getItem(likedKey) === "1";
-
-            return `
-    <div class="lol-card" data-id="${post.id}">
-      <div class="card-creator">
-        <img class="c-dp" src="${post.creatorPhoto || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${post.uid}`}" onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=x'" />
-        <div class="c-info">
-          <span class="c-name">${escHtml(post.creatorName || "Anonymous")}</span>
-          <span class="c-time">${timeAgo(post.createdAt?.toDate?.() || new Date())}</span>
-        </div>
-        <div class="card-counter">${(cardIndex % posts.length) + 1} / ${posts.length}</div>
+  <!-- ═══════════════════════════════════════════════════════════
+     GATE SCREEN  —  Three inner states managed by lol.js:
+       #gate-loading    → spinner while Firebase / CF resolves
+       #gate-noaccount  → signed in but no Listen account
+       #gate-error      → signed in + has Listen but CF/network failed
+════════════════════════════════════════════════════════════ -->
+  <div id="gate-screen" class="screen active">
+    <div class="gate-bg">
+      <div class="gate-blobs">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
       </div>
 
-      <div class="card-title-wrap">
-        <h2 class="card-title">${escHtml(post.title)}</h2>
-        <p class="card-desc">${escHtml(post.description || "")}</p>
-        <div class="card-tags">${tags}</div>
-      </div>
+      <div class="gate-card">
 
-      <div class="card-media">${media}</div>
-
-      <div class="card-footer">
-        <div class="card-stats">
-          <span>👁 <span class="stat-v">${fmtNum(post.views || 0)}</span></span>
-          <span>💖 <span class="stat-l">${fmtNum(post.likes || 0)}</span></span>
-          <span>🔗 <span class="stat-s">${fmtNum(post.shares || 0)}</span></span>
+        <!-- ── STATE 1: Loading spinner (default on page load) ─────────────── -->
+        <div id="gate-loading" class="gate-loading">
+          <img class="icon" src="/assets/logo/lol-ic.png" alt="">
+          <div class="gate-spin"></div>
+          <p id="gate-loading-text">Checking your Viber status…</p>
         </div>
-        <div class="card-actions">
-          <button class="act-btn like-btn ${isLiked ? "liked" : ""}" data-id="${post.id}">
-            ${isLiked ? "💖" : "🤍"} Like
+
+        <!-- ── STATE 2: No Listen account ────────────────────────────────────── -->
+        <div id="gate-noaccount" class="gate-noaccount hidden">
+          <div class="gate-logo">
+            <span class="logo-main">SCH</span>
+            <span class="logo-x">✕</span>
+            <span class="logo-lol">LoL</span>
+          </div>
+          <div class="gate-lock-emoji">🔐</div>
+          <h2 class="gate-title">Vibers Only Zone!</h2>
+          <p class="gate-sub">
+            SCH X LoL is <strong>exclusively</strong> for members of
+            <strong>SapanaCyberHub X Listen</strong>.<br />
+            Create your free Listen account first — then come back and LoL it up! 😂
+          </p>
+          <div class="gate-perks">
+            <div class="gate-perk"><span>🎧</span><span>Listen &amp; Earn</span></div>
+            <div class="gate-perk"><span>🔥</span><span>Build Streaks</span></div>
+            <div class="gate-perk"><span>😂</span><span>Unlock LoL</span></div>
+          </div>
+          <button class="btn-gate-primary" id="btn-join-listen">
+            🚀 Join SCH X Listen — It's Free
           </button>
-          <button class="act-btn share-btn" data-id="${post.id}">🔗 Share</button>
+          <p class="gate-note">
+            Already a member?
+            <button class="btn-gate-retry" id="btn-retry">Tap here to retry ↺</button>
+          </p>
         </div>
-        <div class="nav-arrows">
-          <button class="arrow-btn prev-btn">⬅</button>
-          <button class="arrow-btn next-btn">➡</button>
+
+        <!-- ── STATE 3: Network / CF error (auth OK but CF call failed) ──────── -->
+        <div id="gate-error" class="gate-error hidden">
+          <div class="gate-error-emoji">😵</div>
+          <h2 class="gate-title" style="color:var(--pink)">Oops!</h2>
+          <p id="gate-error-msg" class="gate-sub">Something went wrong. Please retry.</p>
+          <button class="btn-gate-primary" id="btn-error-retry">↺ Retry</button>
+          <p class="gate-note">
+            If this keeps happening,
+            <a href="/online-earning/listen-enjoy-earn/index.html" class="gate-listen-link">
+              open Listen first
+            </a>
+            then come back.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     MAIN APP SCREEN
+════════════════════════════════════════════════════════════ -->
+  <div id="app-screen" class="screen">
+
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="h-logo"><img src="/assets/logo/lol-ic.png" alt="">
+      </div>
+      <div class="header-right">
+        <div class="credit-badge" title="LoL Creator Credits">
+          🪙 <span id="credit-count">0</span>
+        </div>
+        <button id="btn-feed-fullscreen" class="btn-feed-mode" title="Toggle fullscreen feed"
+          aria-label="Toggle fullscreen feed">⛶</button>
+        <button id="btn-create" class="btn-create-top" title="Create Post">＋</button>
+        <div id="user-avatar-wrap" class="user-avatar-wrap">
+          <img id="user-avatar" src="" alt="avatar"
+            onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=lol'" />
         </div>
       </div>
-    </div>`;
-        }
+    </header>
 
-        function buildMedia(post) {
-            if (!post.mediaURL) return `<div class="no-media">😂</div>`;
-            if (post.mediaType === "video")
-                return `<video class="card-video" src="${post.mediaURL}" controls playsinline autoplay muted loop></video>`;
-            return `<img class="card-img" src="${post.mediaURL}" alt="${escHtml(post.title)}" loading="lazy" />`;
-        }
+    <main class="feed-wrap">
 
-        function attachCardEvents(post) {
-            const stack = $("card-stack");
+      <div id="card-stack" class="card-stack">
 
-            // Like
-            stack.querySelector(".like-btn")?.addEventListener("click", () => handleLike(post));
-            // Share
-            stack.querySelector(".share-btn")?.addEventListener("click", () => handleShare(post));
-            // Next / Prev
-            stack.querySelector(".next-btn")?.addEventListener("click", () => navigate(1));
-            stack.querySelector(".prev-btn")?.addEventListener("click", () => navigate(-1));
-
-            // Touch swipe
-            let touchX = 0;
-            stack.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
-            stack.addEventListener("touchend", e => {
-                const diff = touchX - e.changedTouches[0].clientX;
-                if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
-            }, { passive: true });
-        }
-
-        function navigate(dir) {
-            cardIndex = (cardIndex + dir + posts.length) % posts.length;
-            swipeCount++;
-            renderCard();
-        }
-
-        // ═══════════════════════════ AD CARD ═══════════════════════════
-
-        function renderAdCard() {
-            $("card-stack").innerHTML = `
-    <div class="lol-card ad-card">
-      <div class="ad-label">📢 Sponsored</div>
-      <div id="ad-container" class="ad-container">
-        <p class="ad-loading">Loading ad…</p>
       </div>
-      <div class="nav-arrows" style="margin-top:12px;">
-        <button class="arrow-btn prev-btn-ad">⬅</button>
-        <button class="arrow-btn next-btn-ad">➡</button>
+      <button id="btn-feed-exit" class="feed-mode-fab hidden" type="button" aria-label="Exit fullscreen feed">Exit
+        Full</button>
+      <div class="swipe-hint" id="swipe-hint">Drag or scroll any direction. Up or left goes next, down or right goes
+        previous.</div>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-view="feed" id="nav-feed">
+        <span><img src="/assets/logo/lough-theme-feed.png" alt=""></span>
+      </button>
+      <button class="nav-btn" data-view="leaderboard" id="nav-leaderboard">
+        <img src="/assets/logo/lough-theme-leaderboard.png" alt="">
+        <span> daily lol leaderboard</span>
+      </button>
+      <button class="nav-btn" data-view="profile" id="nav-profile">
+        <span><img src="/assets/logo/lough-theme-profile.png" alt=""></span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="loading-state" id="feed-loader">
+    <div class="loader-emoji"><img src="/assets/logo/lol-ic.png" alt=""></div>
+    <p>Loading LoLs…</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     PROFILE SCREEN
+════════════════════════════════════════════════════════════ -->
+  <div id="profile-screen" class="screen">
+    <div class="profile-wrap">
+
+      <div class="profile-top-bar">
+        <button class="back-btn" id="back-from-profile">←</button>
+        <h2 class="profile-title">LoL Dashboard</h2>
       </div>
-    </div>`;
 
-            // Inject Monetag banner (replace with your zone ID)
-            injectAdScript("//cdn.monetag.com/tag.min.js", "monetag-banner");
-
-            $("card-stack").querySelector(".next-btn-ad").addEventListener("click", () => {
-                removeAdScripts(); navigate(1);
-            });
-            $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => {
-                removeAdScripts(); navigate(-1);
-            });
-        }
-
-        function renderBonusCard() {
-            $("card-stack").innerHTML = `
-    <div class="lol-card bonus-card">
-      <div class="bonus-inner">
-        <div class="bonus-emoji">🎁</div>
-        <h2 class="bonus-title">Bonus LoL Coin!</h2>
-        <p class="bonus-sub">Watch a short ad to claim your reward</p>
-        <button class="btn-claim" id="btn-claim">Claim Bonus 🪙</button>
-        <button class="arrow-btn skip-bonus" id="skip-bonus" style="margin-top:12px">Skip ➡</button>
+      <div class="profile-hero">
+        <img id="p-avatar" src="" alt="" class="p-avatar"
+          onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=lol'" />
+        <h3 id="p-name" class="p-name">—</h3>
+        <p id="p-email" class="p-email">—</p>
+        <div class="listen-balance-badge">
+          <span>💰 Listen Balance: </span>
+          <strong id="p-listen-balance">₹0</strong>
+        </div>
       </div>
-    </div>`;
 
-            $("btn-claim").addEventListener("click", () => {
-                // Inject vignette/interstitial (Adsterra or Monetag)
-                injectAdScript("//www.topcreativeformat.com/YOURZONEID/invoke.js", "adsterra-int");
-                // Give engagement points for watching
-                awardEngagement(50);
-                showToast("🪙 Bonus claimed! +50 Engagement Points");
-                setTimeout(() => { removeAdScripts(); navigate(1); }, 3000);
-            });
-
-            $("skip-bonus").addEventListener("click", () => navigate(1));
-        }
-
-        function injectAdScript(src, id) {
-            if (document.getElementById(id)) return;
-            const s = document.createElement("script");
-            s.src = src; s.id = id; s.async = true;
-            document.body.appendChild(s);
-        }
-
-        function removeAdScripts() {
-            ["monetag-banner", "adsterra-int"].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.remove();
-            });
-        }
-
-        // ═══════════════════════════ VIEW TIMER ═══════════════════════════
-
-        function startViewTimer(post) {
-            viewTimer = setTimeout(async () => {
-                // 5 seconds viewed — update engagement
-                await updateDoc(doc(db, "posts", post.id), { views: increment(1), engagementScore: increment(2) });
-                awardEngagement(2);
-            }, 5000);
-        }
-
-        function stopViewTimer() {
-            if (viewTimer) { clearTimeout(viewTimer); viewTimer = null; }
-        }
-
-        // ═══════════════════════════ ENGAGEMENT ═══════════════════════════
-
-        async function awardEngagement(pts) {
-            if (!currentUser || currentUser.isAnonymous) return;
-            const ref = doc(db, "users", currentUser.uid);
-            const snap = await getDoc(ref);
-            const data = snap.data();
-            let score = (data.engagementScore || 0) + pts;
-            let credits = data.lolCreatorCredits || 0;
-            // every 1000 pts = 1 credit
-            while (score >= 1000) { score -= 1000; credits++; }
-            await updateDoc(ref, { engagementScore: score, lolCreatorCredits: credits });
-            userData = { ...data, engagementScore: score, lolCreatorCredits: credits };
-            updateHeaderUI();
-        }
-
-        // ═══════════════════════════ LIKE ═══════════════════════════
-
-        async function handleLike(post) {
-            const key = `liked_${post.id}`;
-            const alreadyLiked = localStorage.getItem(key) === "1";
-            if (alreadyLiked) { showToast("Already liked! 💖"); return; }
-            localStorage.setItem(key, "1");
-            await updateDoc(doc(db, "posts", post.id), { likes: increment(1), engagementScore: increment(10) });
-            awardEngagement(5);
-            // refresh card like button
-            const btn = $("card-stack").querySelector(".like-btn");
-            if (btn) { btn.classList.add("liked"); btn.textContent = "💖 Like"; }
-            const lEl = $("card-stack").querySelector(".stat-l");
-            if (lEl) lEl.textContent = fmtNum((post.likes || 0) + 1);
-            showToast("Liked! 💖");
-        }
-
-        // ═══════════════════════════ SHARE ═══════════════════════════
-
-        async function handleShare(post) {
-            const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-            try {
-                await navigator.share({ title: post.title, url });
-            } catch {
-                await navigator.clipboard.writeText(url);
-                showToast("Link copied! 🔗");
-            }
-            await updateDoc(doc(db, "posts", post.id), { shares: increment(1), engagementScore: increment(15) });
-            awardEngagement(8);
-        }
-
-        // ═══════════════════════════ DEEP LINK ═══════════════════════════
-
-        async function checkDeepLink() {
-            const params = new URLSearchParams(location.search);
-            const lolId = params.get("lol");
-            if (!lolId) return;
-            const snap = await getDoc(doc(db, "posts", lolId));
-            if (!snap.exists()) return;
-            const post = { id: snap.id, ...snap.data() };
-            // Put it first
-            posts = [post, ...posts.filter(p => p.id !== lolId)];
-            cardIndex = 0;
-            renderCard();
-        }
-
-        // ═══════════════════════════ CREATE POST ═══════════════════════════
-
-        $("btn-create").addEventListener("click", openCreate);
-        $("close-create").addEventListener("click", () => $("create-overlay").classList.add("hidden"));
-
-        function openCreate() {
-            if (!currentUser || currentUser.isAnonymous) {
-                showToast("Sign in to create posts! 🔐"); return;
-            }
-            refreshCreateReqs();
-            $("create-overlay").classList.remove("hidden");
-        }
-
-        function refreshCreateReqs() {
-            const streak = userData?.lolStreak || 0;
-            const credits = userData?.lolCreatorCredits || 0;
-            $("req-streak-val").textContent = `${streak}/5`;
-            $("req-credit-val").textContent = credits;
-
-            const canPost = streak >= 5 && credits >= 1;
-            $("create-form").style.opacity = canPost ? "1" : "0.4";
-            $("create-form").style.pointerEvents = canPost ? "auto" : "none";
-
-            if (!canPost) {
-                const msgs = [];
-                if (streak < 5) msgs.push(`🔥 Need ${5 - streak} more day(s) of streak`);
-                if (credits < 1) msgs.push("🪙 Need at least 1 LoL CC (earn by engaging!)");
-                showToast(msgs.join(" | "), 4000);
-            }
-        }
-
-        // Media picker
-        $("media-dropzone").addEventListener("click", () => $("media-input").click());
-        $("media-input").addEventListener("change", e => {
-            selectedFile = e.target.files[0];
-            if (!selectedFile) return;
-            const inner = $("dropzone-inner");
-            const type = selectedFile.type.startsWith("video") ? "video" : "image";
-            if (type === "video") {
-                inner.innerHTML = `<video src="${URL.createObjectURL(selectedFile)}" class="preview-media" muted loop autoplay></video>`;
-            } else {
-                inner.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" class="preview-media" />`;
-            }
-        });
-
-        $("btn-post-submit").addEventListener("click", submitPost);
-
-        async function submitPost() {
-            const title = $("post-title").value.trim();
-            if (!title) { showToast("Add a title! 😅"); return; }
-            if (!selectedFile) { showToast("Pick a photo/video first! 📸"); return; }
-
-            const streak = userData?.lolStreak || 0;
-            const credits = userData?.lolCreatorCredits || 0;
-            if (streak < 5) { showToast("Need 5-day streak first! 🔥"); return; }
-            if (credits < 1) { showToast("Need at least 1 LoL CC! 🪙"); return; }
-
-            $("btn-post-submit").disabled = true;
-            $("btn-post-submit").textContent = "Uploading…";
-
-            try {
-                const ext = selectedFile.name.split(".").pop();
-                const path = `lol-posts/${currentUser.uid}/${Date.now()}.${ext}`;
-                const sRef = ref(stor, path);
-                const snap = await new Promise((res, rej) => {
-                    const task = uploadBytesResumable(sRef, selectedFile);
-                    task.on("state_changed", null, rej, () => res(task.snapshot));
-                });
-                const mediaURL = await getDownloadURL(snap.ref);
-
-                const tags = ($("post-tags").value || "").match(/#\w+/g) || [];
-                const expires = new Date(); expires.setHours(expires.getHours() + 48);
-
-                const postRef = await addDoc(collection(db, "posts"), {
-                    uid: currentUser.uid,
-                    creatorName: userData.displayName,
-                    creatorPhoto: userData.photoURL,
-                    title,
-                    description: $("post-desc").value.trim(),
-                    hashtags: tags,
-                    mediaURL,
-                    mediaType: selectedFile.type.startsWith("video") ? "video" : "image",
-                    likes: 0, views: 0, shares: 0,
-                    engagementScore: 0,
-                    earning: 0,
-                    status: "active",
-                    expiresAt: Timestamp.fromDate(expires),
-                    createdAt: serverTimestamp()
-                });
-
-                // Deduct 1 LoL CC
-                await updateDoc(doc(db, "users", currentUser.uid), {
-                    lolCreatorCredits: increment(-1)
-                });
-                userData.lolCreatorCredits = Math.max(0, (userData.lolCreatorCredits || 1) - 1);
-                updateHeaderUI();
-
-                showToast("LoL posted! 🚀 Goes live 48hrs");
-                $("create-overlay").classList.add("hidden");
-                resetCreateForm();
-                await loadPosts(); renderCard();
-            } catch (e) {
-                showToast("Upload failed: " + e.message);
-            }
-            $("btn-post-submit").disabled = false;
-            $("btn-post-submit").textContent = "🚀 Post LoL (costs 1 LoL CC)";
-        }
-
-        function resetCreateForm() {
-            selectedFile = null;
-            $("post-title").value = "";
-            $("post-desc").value = "";
-            $("post-tags").value = "";
-            $("dropzone-inner").innerHTML = `<span class="dropzone-icon">🎬</span><p>Tap to select Photo / Video / GIF</p>`;
-        }
-
-        // ═══════════════════════════ PROFILE VIEW ═══════════════════════════
-
-        $("nav-profile").addEventListener("click", openProfile);
-        $("user-avatar-wrap").addEventListener("click", openProfile);
-        $("back-from-profile").addEventListener("click", () => showScreen("app-screen"));
-
-        async function openProfile() {
-            showScreen("profile-screen");
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            const d = snap.data();
-            userData = d;
-
-            $("p-avatar").src = d.photoURL || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${d.uid}`;
-            $("p-name").textContent = d.displayName || "LoLer";
-            $("p-email").textContent = d.email || (d.isAnonymous ? "Guest User" : "");
-            $("p-streak").textContent = d.lolStreak || 0;
-            $("p-score").textContent = d.engagementScore || 0;
-            $("p-credits").textContent = d.lolCreatorCredits || 0;
-            $("p-earning").textContent = `₹${(d.estimatedEarning || 0).toFixed(2)}`;
-            $("transfer-amount").textContent = `₹${((d.estimatedEarning || 0) * 0.8).toFixed(2)}`;
-
-            const pct = Math.min(100, ((d.engagementScore || 0) / 1000) * 100);
-            $("progress-fill").style.width = pct + "%";
-            $("progress-text").textContent = `${d.engagementScore || 0} / 1000`;
-
-            loadPostHistory(d.uid);
-        }
-
-        async function loadPostHistory(uid) {
-            const list = $("post-history-list");
-            list.innerHTML = `<p style="color:#888;text-align:center">Loading…</p>`;
-            const q = query(collection(db, "posts"), where("uid", "==", uid), orderBy("createdAt", "desc"), limit(20));
-            const snaps = await getDocs(q);
-            if (snaps.empty) { list.innerHTML = `<p class="empty-history">No posts yet 🚀</p>`; return; }
-            list.innerHTML = snaps.docs.map(snap => {
-                const d = snap.data();
-                const isActive = d.status === "active";
-                const expires = d.expiresAt?.toDate?.();
-                return `
-      <div class="history-item">
-        <div class="hi-top">
-          <span class="hi-title">${escHtml(d.title)}</span>
-          <span class="hi-badge ${isActive ? "badge-active" : "badge-done"}">${isActive ? "🟢 Live" : "✅ Done"}</span>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">🔥</span>
+          <span class="stat-val" id="p-streak">0</span>
+          <span class="stat-label">LoL Streak</span>
         </div>
-        <div class="hi-stats">
-          👁 ${fmtNum(d.views || 0)} &nbsp; 💖 ${fmtNum(d.likes || 0)} &nbsp; 🔗 ${fmtNum(d.shares || 0)}
+        <div class="stat-card">
+          <span class="stat-icon">⚡</span>
+          <span class="stat-val" id="p-score">0</span>
+          <span class="stat-label">Eng. Score</span>
         </div>
-        <div class="hi-earn">
-          <span>Eng. Score: ${d.engagementScore || 0}</span>
-          <span class="hi-earning">₹${(d.earning || 0).toFixed(2)}</span>
+        <div class="stat-card">
+          <span class="stat-icon">🪙</span>
+          <span class="stat-val" id="p-credits">0</span>
+          <span class="stat-label">LoL CC</span>
         </div>
-        ${expires ? `<div class="hi-exp">⏱ ${isActive ? "Expires" : "Expired"}: ${expires.toLocaleString()}</div>` : ""}
-      </div>`;
-            }).join("");
-        }
+        <div class="stat-card">
+          <span class="stat-icon">💰</span>
+          <span class="stat-val" id="p-earning">₹0</span>
+          <span class="stat-label">Est. Earnings</span>
+        </div>
+      </div>
 
-        // Transfer
-        $("btn-transfer").addEventListener("click", async () => {
-            if (!currentUser || currentUser.isAnonymous) { showToast("Sign in first! 🔐"); return; }
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            const d = snap.data();
-            const amt = +(((d.estimatedEarning || 0) * 0.8).toFixed(2));
-            if (amt <= 0) { showToast("Nothing to transfer yet! Keep engaging 🎯"); return; }
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Engagement → Next Credit</span>
+          <span id="progress-text">0 / 1000</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
 
-            // Log transfer
-            await addDoc(collection(db, "transfers"), {
-                uid: currentUser.uid,
-                amount: amt,
-                fullAmount: d.estimatedEarning,
-                timestamp: serverTimestamp()
-            });
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                estimatedEarning: 0,
-                totalEarned: increment(amt)
-            });
-            showToast(`₹${amt} transferred to Listen Wallet! 💸`);
-            openProfile();
-        });
+      <div class="transfer-section">
+        <div class="transfer-info">
+          <span>After 30% Platform Fee Est. Recieve</span>
+          <strong id="transfer-amount">₹0.00</strong>
+        </div>
+        <button class="btn-transfer" id="btn-transfer">
+          Transfer to Listen Wallet
+        </button>
+      </div>
 
-        // ═══════════════════════════ UTILS ═══════════════════════════
+      <section class="profile-sponsor hidden" id="profile-sponsor">
+        <div class="profile-sponsor-head">
+          <span class="sponsor-kicker">Sponsored</span>
+          <span class="profile-sponsor-copy">Inline offers only. Nothing auto-opens here.</span>
+        </div>
+        <div id="profile-ad-slot" class="inline-ad-slot inline-ad-slot--profile">
+          <p class="ad-loading">Sponsor banner loads when you open profile.</p>
+        </div>
+        <div class="quick-links quick-links--profile" id="profile-quick-links"></div>
+      </section>
 
-        function escHtml(s) {
-            return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-        }
+      <div class="history-section">
+        <h3 class="history-title">📜 Post History</h3>
+        <div id="post-history-list" class="history-list">
+          <p class="empty-history">No posts yet. Start creating! 🚀</p>
+        </div>
+      </div>
 
-        function fmtNum(n) {
-            if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
-            if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
-            return String(n);
-        }
+      <div class="history-section">
+        <h3 class="history-title">💸 Transfer History</h3>
+        <div id="transfer-history-list" class="history-list">
+          <p class="empty-history">No transfers yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function timeAgo(date) {
-            const diff = (Date.now() - date.getTime()) / 1000;
-            if (diff < 60) return "just now";
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            return `${Math.floor(diff / 86400)}d ago`;
-        }
+  <!-- Daily LoL Leaderboad  -->
+  <div class="lolLeaderBoard-overlay hidden" id="lolLeaderBoard-overlay">
+    <div class="leaderboard-card">
+      <div class="header">
+        <strong id="back">←</strong>
+        <img src="/assets/logo/lough-theme-leaderboard.png" alt="">
+        <span>←</span>
+      </div>
 
-        // ═══════════════════════════ SWIPE HINT HIDE ═══════════════════════════
-        setTimeout(() => {
-            const hint = $("swipe-hint");
-            if (hint) hint.style.opacity = "0";
-        }, 4000);
+      <div class="leaderboard-data">
+        
+      </div>
 
-        // ═══════════════════════════ DEEP LINK ON LOAD ═══════════════════════════
-        window.addEventListener("lol-ready", checkDeepLink);
-    </script>
+    </div>
+
+
+  </div>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+     CREATE POST OVERLAY
+════════════════════════════════════════════════════════════ -->
+  <div id="create-overlay" class="overlay hidden">
+    <div class="create-card">
+      <div class="create-header">
+        <h3>Create LoL Post</h3>
+        <button id="close-create" class="btn-close">✕</button>
+      </div>
+      <div class="create-requirements">
+        <div class="req-item">
+          <span class="req-icon">🔥</span>
+          <span class="req-text">5-Day Streak: <strong id="req-streak-val">0/5</strong></span>
+        </div>
+        <div class="req-item">
+          <span class="req-icon">🪙</span>
+          <span class="req-text">LoL Credits: <strong id="req-credit-val">0</strong></span>
+        </div>
+      </div>
+      <div class="create-form" id="create-form">
+        <div class="media-dropzone" id="media-dropzone">
+          <input type="file" id="media-input" accept="image/*,video/*,image/gif" hidden />
+          <div class="dropzone-inner" id="dropzone-inner">
+            <span class="dropzone-icon">🎬</span>
+            <p>Tap to select Photo / Video / GIF</p>
+          </div>
+        </div>
+        <input type="text" id="post-title" class="form-input" placeholder="Enter a funny title… 😂" maxlength="80" />
+        <input type="text" id="post-desc" class="form-input" placeholder="Description (optional)" maxlength="160" />
+        <input type="text" id="post-tags" class="form-input" placeholder="#hashtags #separated #byspace"
+          maxlength="100" />
+        <button class="btn-post" id="btn-post-submit">🚀 Post LoL (costs 1 LoL CC)</button>
+        <p class="post-note">Post stays live 48 hrs. Earn based on engagement!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+     All logic lives in lol.js (ES module)
+════════════════════════════════════════════════════════════ -->
+  <script type="module" src="lol.js"></script>
+
 </body>
 
 </html>
