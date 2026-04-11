@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Partner Network — SapanaCyberHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --bg:       #080a0f;
+  --bg2:      #0d1018;
+  --bg3:      #131720;
+  --surface:  #181d2a;
+  --border:   #232940;
+  --gold:     #f5c842;
+  --gold2:    #e8a600;
+  --cyan:     #00e5ff;
+  --red:      #ff4560;
+  --green:    #00e096;
+  --text:     #e8eaf0;
+  --muted:    #7a8099;
+  --card-glow: 0 0 40px rgba(245,200,66,.07), 0 2px 16px rgba(0,0,0,.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: .5;
+}
+
+/* ── ANIMATED GRID BG ── */
+.grid-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(245,200,66,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,200,66,.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.wrap { position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(1rem,5vw,3rem);
+  height: 64px;
+  background: rgba(8,10,15,.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+.nav-logo {
+  width: 32px; height: 32px;
+  background: var(--gold); border-radius: 8px;
+  display: grid; place-items: center;
+  font-family: 'Bebas Neue'; font-size: 18px; color: #000;
+}
+.nav-name { font-family: 'Bebas Neue'; font-size: 1.2rem; letter-spacing: .05em; color: var(--gold); }
+.nav-badge {
+  background: rgba(245,200,66,.12); color: var(--gold);
+  font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+  padding: 2px 10px; border-radius: 20px; border: 1px solid rgba(245,200,66,.25);
+}
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero {
+  min-height: 92vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 6rem clamp(1rem,5vw,3rem) 4rem;
+  position: relative;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(245,200,66,.08); border: 1px solid rgba(245,200,66,.2);
+  color: var(--gold); font-size: .8rem; font-weight: 700; letter-spacing: .12em;
+  padding: 6px 18px; border-radius: 20px;
+  margin-bottom: 2rem;
+  animation: fadeUp .6s ease both;
+}
+.pulse-dot {
+  width: 8px; height: 8px; background: var(--gold); border-radius: 50%;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.4; transform:scale(.7); } }
+
+.hero h1 {
+  font-family: 'Bebas Neue';
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  line-height: .95;
+  letter-spacing: .02em;
+  background: linear-gradient(135deg, #fff 30%, var(--gold) 80%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: fadeUp .7s ease .1s both;
+}
+.hero h1 span { -webkit-text-fill-color: var(--gold); }
+
+.hero-sub {
+  max-width: 560px;
+  color: var(--muted); font-size: 1.1rem; font-weight: 300;
+  margin: 1.5rem auto 2.5rem;
+  animation: fadeUp .7s ease .2s both;
+}
+
+.hero-cta-row {
+  display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp .7s ease .3s both;
+}
+
+.btn-primary {
+  background: var(--gold); color: #000;
+  font-family: 'DM Sans'; font-weight: 700; font-size: 1rem;
+  padding: .85rem 2.2rem; border-radius: 8px; border: none;
+  cursor: pointer; text-decoration: none;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 0 30px rgba(245,200,66,.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(245,200,66,.6); }
+
+.btn-outline {
+  background: transparent; color: var(--text);
+  font-family: 'DM Sans'; font-weight: 500; font-size: 1rem;
+  padding: .85rem 2.2rem; border-radius: 8px;
+  border: 1px solid var(--border); cursor: pointer; text-decoration: none;
+  transition: border-color .15s, color .15s;
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+/* floating stats */
+.hero-stats {
+  display: flex; gap: clamp(1.5rem,5vw,4rem); flex-wrap: wrap; justify-content: center;
+  margin-top: 4rem;
+  animation: fadeUp .7s ease .4s both;
+}
+.hstat { text-align: center; }
+.hstat-num {
+  font-family: 'Bebas Neue'; font-size: 2.8rem; color: var(--gold);
+  line-height: 1;
+}
+.hstat-lbl { font-size: .8rem; color: var(--muted); letter-spacing: .06em; }
+
+/* ═══════════════════════════════════════════════
+   SECTION WRAPPER
+═══════════════════════════════════════════════ */
+section {
+  padding: 6rem clamp(1rem,6vw,4rem);
+  max-width: 1100px; margin: 0 auto;
+}
+.sec-label {
+  font-size: .75rem; font-weight: 700; letter-spacing: .14em; color: var(--gold);
+  margin-bottom: .6rem;
+}
+.sec-title {
+  font-family: 'Bebas Neue'; font-size: clamp(2rem,5vw,3.5rem);
+  line-height: 1.05; margin-bottom: 1rem;
+}
+.sec-sub { color: var(--muted); font-weight: 300; max-width: 520px; margin-bottom: 3rem; }
+
+/* ═══════════════════════════════════════════════
+   PARTNER TYPES
+═══════════════════════════════════════════════ */
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.type-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  transition: border-color .2s, transform .2s;
+  box-shadow: var(--card-glow);
+  position: relative; overflow: hidden;
+}
+.type-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, var(--gold));
+}
+.type-card:hover { border-color: var(--accent, var(--gold)); transform: translateY(-4px); }
+.type-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  background: rgba(245,200,66,.1); border: 1px solid rgba(245,200,66,.15);
+  display: grid; place-items: center; font-size: 1.6rem; margin-bottom: 1.2rem;
+}
+.type-card h3 { font-family: 'Bebas Neue'; font-size: 1.6rem; margin-bottom: .5rem; }
+.type-card p { color: var(--muted); font-size: .9rem; margin-bottom: 1.2rem; }
+.type-pills { display: flex; gap: .5rem; flex-wrap: wrap; }
+.pill {
+  font-size: .72rem; font-weight: 600; letter-spacing: .05em;
+  padding: 3px 10px; border-radius: 20px;
+  background: rgba(245,200,66,.08); color: var(--gold);
+  border: 1px solid rgba(245,200,66,.15);
+}
+
+/* ═══════════════════════════════════════════════
+   BENEFITS
+═══════════════════════════════════════════════ */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.benefit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  box-shadow: var(--card-glow);
+  transition: border-color .2s, transform .2s;
+}
+.benefit-card:hover { border-color: rgba(245,200,66,.3); transform: translateY(-3px); }
+.benefit-icon { font-size: 2rem; margin-bottom: 1rem; }
+.benefit-card h3 { font-family: 'Bebas Neue'; font-size: 1.4rem; margin-bottom: .4rem; }
+.benefit-card p  { color: var(--muted); font-size: .88rem; }
+.benefit-value {
+  margin-top: 1rem;
+  font-family: 'Bebas Neue'; font-size: 2rem; color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════
+   HOW IT WORKS TIMELINE
+═══════════════════════════════════════════════ */
+.timeline { position: relative; padding-left: 3rem; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 1rem; top: 0; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.tl-item { position: relative; margin-bottom: 3rem; }
+.tl-dot {
+  position: absolute; left: -2.4rem; top: .2rem;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--gold);
+  display: grid; place-items: center;
+  font-family: 'Bebas Neue'; font-size: .95rem; color: var(--gold);
+}
+.tl-item h3 { font-family: 'Bebas Neue'; font-size: 1.4rem; margin-bottom: .4rem; }
+.tl-item p  { color: var(--muted); font-size: .9rem; max-width: 480px; }
+
+/* ═══════════════════════════════════════════════
+   REVENUE SPLIT
+═══════════════════════════════════════════════ */
+.split-visual {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 2.5rem;
+  box-shadow: var(--card-glow);
+}
+.split-bar {
+  display: flex; border-radius: 8px; overflow: hidden;
+  height: 44px; margin: 1.5rem 0;
+}
+.split-seg {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .82rem; letter-spacing: .04em;
+  transition: flex .8s cubic-bezier(.4,0,.2,1);
+}
+.split-seg.company  { flex: 20; background: var(--bg3); color: var(--muted); }
+.split-seg.creators { flex: 80; background: linear-gradient(90deg, var(--gold2), var(--gold)); color: #000; }
+.split-legend { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1rem; }
+.leg-item { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+.leg-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* revenue pool details */
+.pool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+.pool-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.2rem; text-align: center;
+}
+.pool-pct { font-family: 'Bebas Neue'; font-size: 2.2rem; color: var(--gold); }
+.pool-lbl { font-size: .8rem; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════
+   LEVEL TABLE
+═══════════════════════════════════════════════ */
+.level-table { width: 100%; border-collapse: separate; border-spacing: 0 .5rem; }
+.level-table thead th {
+  text-align: left; font-size: .72rem; letter-spacing: .1em; color: var(--muted);
+  font-weight: 600; padding: 0 1rem .5rem;
+}
+.level-table tbody tr {
+  background: var(--surface); border-radius: 12px;
+}
+.level-table tbody td {
+  padding: 1rem 1rem; font-size: .9rem;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.level-table tbody td:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
+.level-table tbody td:last-child  { border-right: 1px solid var(--border); border-radius: 0 12px 12px 0; }
+.lvl-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-weight: 700; font-size: .85rem;
+}
+
+/* ═══════════════════════════════════════════════
+   APPLICATION FORM
+═══════════════════════════════════════════════ */
+#apply { max-width: 760px; }
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: clamp(1.5rem, 5vw, 3rem);
+  box-shadow: var(--card-glow);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+@media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: .4rem; }
+.form-group.full { grid-column: 1 / -1; }
+label { font-size: .8rem; font-weight: 600; letter-spacing: .06em; color: var(--muted); }
+input, textarea, select {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text);
+  font-family: 'DM Sans'; font-size: .95rem;
+  padding: .7rem 1rem;
+  transition: border-color .15s;
+  outline: none; width: 100%;
+}
+input::placeholder, textarea::placeholder { color: #3a4060; }
+input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+select option { background: var(--bg3); }
+textarea { resize: vertical; min-height: 90px; }
+
+/* platform checkboxes */
+.platform-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .6rem;
+}
+.plat-check { display: none; }
+.plat-label {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: .6rem 1rem; cursor: pointer;
+  font-size: .88rem; font-weight: 500;
+  transition: border-color .15s, background .15s;
+}
+.plat-check:checked + .plat-label {
+  border-color: var(--gold); background: rgba(245,200,66,.07); color: var(--gold);
+}
+.plat-icon { font-size: 1.1rem; }
+
+/* file upload */
+.file-zone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 1.5rem; text-align: center; cursor: pointer;
+  transition: border-color .15s;
+  position: relative;
+}
+.file-zone:hover { border-color: var(--gold); }
+.file-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+}
+.file-zone-icon { font-size: 1.8rem; margin-bottom: .4rem; }
+.file-zone p { color: var(--muted); font-size: .85rem; }
+.file-zone strong { color: var(--gold); }
+.file-names { margin-top: .5rem; font-size: .8rem; color: var(--cyan); }
+
+/* submit */
+.form-submit {
+  margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.btn-submit {
+  background: var(--gold); color: #000; font-family: 'DM Sans';
+  font-weight: 700; font-size: 1rem; padding: .9rem 2.5rem;
+  border-radius: 10px; border: none; cursor: pointer;
+  box-shadow: 0 0 28px rgba(245,200,66,.35);
+  transition: transform .15s, box-shadow .15s;
+  display: flex; align-items: center; gap: .5rem;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(245,200,66,.55); }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.form-note { font-size: .78rem; color: var(--muted); }
+
+/* ── status messages ── */
+.form-status {
+  padding: 1rem 1.2rem; border-radius: 10px; font-size: .9rem; font-weight: 500;
+  display: none;
+}
+.form-status.success { background: rgba(0,224,150,.1); border: 1px solid rgba(0,224,150,.25); color: var(--green); display: block; }
+.form-status.error   { background: rgba(255,69,96,.1);  border: 1px solid rgba(255,69,96,.25);  color: var(--red);   display: block; }
+
+/* ── auth gate ── */
+#auth-gate {
+  padding: 2rem; text-align: center;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 16px;
+}
+#auth-gate p { color: var(--muted); margin-bottom: 1.2rem; }
+
+/* ═══════════════════════════════════════════════
+   FAQ ACCORDION
+═══════════════════════════════════════════════ */
+.faq-list { display: flex; flex-direction: column; gap: .7rem; }
+.faq-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.faq-q {
+  width: 100%; text-align: left; background: none; border: none; color: var(--text);
+  font-family: 'DM Sans'; font-size: .95rem; font-weight: 600;
+  padding: 1.1rem 1.3rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.faq-q:hover { color: var(--gold); }
+.faq-arrow { font-size: 1.2rem; transition: transform .25s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0; overflow: hidden; transition: max-height .3s ease;
+}
+.faq-a-inner { padding: 0 1.3rem 1.1rem; color: var(--muted); font-size: .9rem; }
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border);
+  text-align: center; padding: 2.5rem 1rem;
+  color: var(--muted); font-size: .85rem;
+}
+footer a { color: var(--gold); text-decoration: none; }
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── SPINNER ── */
+.spinner {
+  width: 18px; height: 18px; border: 2px solid rgba(0,0,0,.2);
+  border-top-color: #000; border-radius: 50%;
+  animation: spin .6s linear infinite; display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<!-- ───────── NAV ───────── -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">S</div>
+    <span class="nav-name">SapanaCyberHub</span>
+  </a>
+  <span class="nav-badge">PARTNER NETWORK</span>
+</nav>
+
+<div class="wrap">
+
+<!-- ───────── HERO ───────── -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <span class="pulse-dot"></span>
+    NOW ACCEPTING PARTNERS
+  </div>
+  <h1>BUILD YOUR<br /><span>EARNING</span><br />EMPIRE</h1>
+  <p class="hero-sub">
+    Join SapanaCyberHub's Partner Network — earn every time your users earn.
+    Revenue share, Creator Credits, Boost Tokens &amp; weekly pool payouts.
+  </p>
+  <div class="hero-cta-row">
+    <a href="#apply" class="btn-primary">Apply Now — It's Free</a>
+    <a href="#benefits" class="btn-outline">See Benefits ↓</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-num">5%</div><div class="hstat-lbl">LIFETIME EARNING SHARE</div></div>
+    <div class="hstat"><div class="hstat-num">1%</div><div class="hstat-lbl">WEEKLY REVENUE POOL</div></div>
+    <div class="hstat"><div class="hstat-num">72H</div><div class="hstat-lbl">EXTENDED POST EARNINGS</div></div>
+    <div class="hstat"><div class="hstat-num">∞</div><div class="hstat-lbl">GROWTH CEILING</div></div>
+  </div>
+</div>
+
+<!-- ───────── PARTNER TYPES ───────── -->
+<section class="reveal">
+  <p class="sec-label">WHO CAN JOIN</p>
+  <h2 class="sec-title">Three Types of Partners</h2>
+  <p class="sec-sub">Different roles, same mission — grow the ecosystem and earn together.</p>
+  <div class="types-grid">
+    <div class="type-card" style="--accent:#f5c842">
+      <div class="type-icon">📣</div>
+      <h3>Promoter</h3>
+      <p>Traffic bringers who spread the word and onboard new users to Listen &amp; LoL.</p>
+      <div class="type-pills">
+        <span class="pill">Telegram</span>
+        <span class="pill">Instagram</span>
+        <span class="pill">YouTube</span>
+        <span class="pill">WhatsApp</span>
+        <span class="pill">Facebook</span>
+      </div>
+    </div>
+    <div class="type-card" style="--accent:#00e5ff">
+      <div class="type-icon" style="background:rgba(0,229,255,.08); border-color:rgba(0,229,255,.15);">🎨</div>
+      <h3>Creator</h3>
+      <p>Content makers who fuel engagement — memes, videos, events &amp; challenges.</p>
+      <div class="type-pills" style="--pill-c:#00e5ff">
+        <span class="pill" style="background:rgba(0,229,255,.07);color:#00e5ff;border-color:rgba(0,229,255,.2)">Meme Creator</span>
+        <span class="pill" style="background:rgba(0,229,255,.07);color:#00e5ff;border-color:rgba(0,229,255,.2)">Video Maker</span>
+        <span class="pill" style="background:rgba(0,229,255,.07);color:#00e5ff;border-color:rgba(0,229,255,.2)">Event Host</span>
+      </div>
+    </div>
+    <div class="type-card" style="--accent:#00e096">
+      <div class="type-icon" style="background:rgba(0,224,150,.08); border-color:rgba(0,224,150,.15);">🧠</div>
+      <h3>Builder</h3>
+      <p>Idea generators and feature suggesters who shape the product's future.</p>
+      <div class="type-pills">
+        <span class="pill" style="background:rgba(0,224,150,.07);color:#00e096;border-color:rgba(0,224,150,.2)">Feature Ideas</span>
+        <span class="pill" style="background:rgba(0,224,150,.07);color:#00e096;border-color:rgba(0,224,150,.2)">Mini Games</span>
+        <span class="pill" style="background:rgba(0,224,150,.07);color:#00e096;border-color:rgba(0,224,150,.2)">Events</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── BENEFITS ───────── -->
+<section id="benefits" class="reveal">
+  <p class="sec-label">WHAT YOU EARN</p>
+  <h2 class="sec-title">Partner Rewards</h2>
+  <p class="sec-sub">A multi-layer reward system designed so the best partners earn the most.</p>
+  <div class="benefits-grid">
+
+    <div class="benefit-card">
+      <div class="benefit-icon">💰</div>
+      <h3>Lifetime Revenue Share</h3>
+      <p>Every time a user you referred earns on Listen or LoL, you get a cut — forever.</p>
+      <div class="benefit-value">5% / earning</div>
+    </div>
+
+    <div class="benefit-card">
+      <div class="benefit-icon">🎨</div>
+      <h3>Creator Credits</h3>
+      <p>Earn 1 Creator Credit for every 100 active users you bring. Credits unlock LoL posting.</p>
+      <div class="benefit-value">1 CC / 100 users</div>
+    </div>
+
+    <div class="benefit-card">
+      <div class="benefit-icon">⏱️</div>
+      <h3>Boost Token (Weekly)</h3>
+      <p>Extend your best post's earning window from the standard 48h to a full 72h — once per week.</p>
+      <div class="benefit-value">48h → 72h</div>
+    </div>
+
+    <div class="benefit-card">
+      <div class="benefit-icon">🏦</div>
+      <h3>Weekly Revenue Pool</h3>
+      <p>1% of platform revenue each week goes into the Partner Pool — split between all active partners.</p>
+      <div class="benefit-value">1% weekly pool</div>
+    </div>
+
+    <div class="benefit-card">
+      <div class="benefit-icon">🏆</div>
+      <h3>Leaderboard Bonus</h3>
+      <p>Top partners on the weekly leaderboard earn an extra 10% on their pool share + bonus tokens.</p>
+      <div class="benefit-value">+10% bonus</div>
+    </div>
+
+    <div class="benefit-card">
+      <div class="benefit-icon">🚀</div>
+      <h3>Creator Reach Boost</h3>
+      <p>Partner creators get boosted reach and a higher earning percentage on their own LoL posts.</p>
+      <div class="benefit-value">90% earnings</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────── REVENUE SPLIT ───────── -->
+<section class="reveal">
+  <p class="sec-label">TRANSPARENCY</p>
+  <h2 class="sec-title">How the Pool Works</h2>
+  <div class="split-visual">
+    <p style="color:var(--muted);font-size:.9rem">Weekly Revenue Distribution</p>
+    <div class="split-bar">
+      <div class="split-seg company">20% Platform</div>
+      <div class="split-seg creators">80% Creators + Partners</div>
+    </div>
+    <div class="split-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--bg3);border:1px solid var(--border)"></div> 20% Platform Operations</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--gold)"></div> 80% Back to Creators &amp; Partners</div>
+    </div>
+    <div class="pool-grid" style="margin-top:2rem">
+      <div class="pool-card">
+        <div class="pool-pct">30%</div>
+        <div class="pool-lbl">Equal share<br/>across all active partners</div>
+      </div>
+      <div class="pool-card">
+        <div class="pool-pct">70%</div>
+        <div class="pool-lbl">Performance-based<br/>(users brought × activity + earnings)</div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.8rem;margin-top:1.2rem">
+      ⚡ Only <strong style="color:var(--text)">active partners</strong> (with users active in the past 7 days) qualify for pool payouts.
+    </p>
+  </div>
+</section>
+
+<!-- ───────── LEVELS ───────── -->
+<section class="reveal">
+  <p class="sec-label">PROGRESSION</p>
+  <h2 class="sec-title">Partner Levels</h2>
+  <p class="sec-sub">Grow your network and unlock better perks at every level.</p>
+  <div style="overflow-x:auto">
+    <table class="level-table">
+      <thead>
+        <tr>
+          <th>LEVEL</th>
+          <th>ACTIVE USERS</th>
+          <th>POOL %</th>
+          <th>TOKENS/WK</th>
+          <th>PERKS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="lvl-badge">🥉 Bronze</span></td>
+          <td>100+</td>
+          <td>Base</td>
+          <td>1</td>
+          <td>5% share, 1 CC / 100 users</td>
+        </tr>
+        <tr>
+          <td><span class="lvl-badge">🥈 Silver</span></td>
+          <td>500+</td>
+          <td>+10%</td>
+          <td>2</td>
+          <td>Boost token × 2, featured badge</td>
+        </tr>
+        <tr>
+          <td><span class="lvl-badge">🥇 Gold</span></td>
+          <td>2,000+</td>
+          <td>+25%</td>
+          <td>3</td>
+          <td>Priority support, creator boost 92%</td>
+        </tr>
+        <tr>
+          <td><span class="lvl-badge">💎 Elite</span></td>
+          <td>10,000+</td>
+          <td>+50%</td>
+          <td>Unlimited</td>
+          <td>Revenue lab access, co-branding</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ───────── HOW IT WORKS ───────── -->
+<section class="reveal">
+  <p class="sec-label">PROCESS</p>
+  <h2 class="sec-title">How Partnership Works</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">1</div>
+      <h3>Apply &amp; Get Reviewed</h3>
+      <p>Fill the application below — share how you promote and attach screenshots + your profile link. We review within 3–5 business days.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">2</div>
+      <h3>Get Your Partner ID</h3>
+      <p>On approval you'll receive a unique Partner ID and a referral link to track every user you bring in.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">3</div>
+      <h3>Promote &amp; Grow</h3>
+      <p>Share your link across Instagram, YouTube, Telegram, WhatsApp or Facebook. Every user who signs up gets tagged to you permanently.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">4</div>
+      <h3>Earn Every Week</h3>
+      <p>Revenue share is calculated weekly. Pool payouts, milestone bonuses and Creator Credits land in your account automatically.</p>
+    </div>
+    <div class="tl-item" style="margin-bottom:0">
+      <div class="tl-dot">5</div>
+      <h3>Level Up</h3>
+      <p>Hit milestones to unlock Silver, Gold and Elite tiers — each with better pool share, more Boost Tokens and exclusive perks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── APPLICATION FORM ───────── -->
+<section id="apply" style="max-width:820px" class="reveal">
+  <p class="sec-label">JOIN NOW</p>
+  <h2 class="sec-title">Apply for Partnership</h2>
+  <p class="sec-sub">Fill in the details below — our team reviews every application manually.</p>
+
+  <!-- Auth check -->
+  <div id="auth-gate" style="display:none">
+    <p>⚠️ You need to be signed in to your SapanaCyberHub account to apply.</p>
+    <a href="/login" class="btn-primary" style="display:inline-block">Sign In First</a>
+  </div>
+
+  <!-- The form -->
+  <div class="form-card" id="partner-form-wrap">
+    <div id="form-status-msg" class="form-status"></div>
+
+    <div class="form-grid" style="margin-bottom:1.5rem">
+
+      <div class="form-group">
+        <label>FULL NAME *</label>
+        <input type="text" id="f-name" placeholder="Your full name" required />
+      </div>
+
+      <div class="form-group">
+        <label>EMAIL *</label>
+        <input type="email" id="f-email" placeholder="you@email.com" required />
+      </div>
+
+      <div class="form-group">
+        <label>WHATSAPP / PHONE</label>
+        <input type="tel" id="f-phone" placeholder="+91 XXXXXXXXXX" />
+      </div>
+
+      <div class="form-group">
+        <label>PARTNER TYPE *</label>
+        <select id="f-type">
+          <option value="">Select type…</option>
+          <option>Promoter</option>
+          <option>Creator</option>
+          <option>Builder</option>
+          <option>Hybrid (multiple roles)</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>YOUR MAIN PROFILE / CHANNEL LINK *</label>
+        <input type="url" id="f-profile" placeholder="https://instagram.com/yourpage  or  youtube.com/channel/…" required />
+      </div>
+
+      <div class="form-group full">
+        <label>HOW DO YOU PLAN TO PROMOTE US? *</label>
+        <div class="platform-grid">
+          <input class="plat-check" type="checkbox" id="p-insta" value="Instagram">
+          <label class="plat-label" for="p-insta"><span class="plat-icon">📸</span> Instagram</label>
+
+          <input class="plat-check" type="checkbox" id="p-fb" value="Facebook">
+          <label class="plat-label" for="p-fb"><span class="plat-icon">📘</span> Facebook</label>
+
+          <input class="plat-check" type="checkbox" id="p-yt" value="YouTube">
+          <label class="plat-label" for="p-yt"><span class="plat-icon">▶️</span> YouTube</label>
+
+          <input class="plat-check" type="checkbox" id="p-wa" value="WhatsApp">
+          <label class="plat-label" for="p-wa"><span class="plat-icon">💬</span> WhatsApp</label>
+
+          <input class="plat-check" type="checkbox" id="p-tg" value="Telegram">
+          <label class="plat-label" for="p-tg"><span class="plat-icon">✈️</span> Telegram</label>
+
+          <input class="plat-check" type="checkbox" id="p-tw" value="X/Twitter">
+          <label class="plat-label" for="p-tw"><span class="plat-icon">𝕏</span> X / Twitter</label>
+
+          <input class="plat-check" type="checkbox" id="p-other" value="Other">
+          <label class="plat-label" for="p-other"><span class="plat-icon">🌐</span> Other</label>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>TELL US ABOUT YOUR AUDIENCE / REACH *</label>
+        <textarea id="f-audience" placeholder="e.g. 12K Instagram followers (18-25 age, India), Telegram group with 3K members, etc."></textarea>
+      </div>
+
+      <div class="form-group full">
+        <label>PROMOTION PLAN — HOW WILL YOU BRING USERS? *</label>
+        <textarea id="f-plan" placeholder="Describe your plan — reels, posts, group blasts, tutorials, giveaways, events etc."></textarea>
+      </div>
+
+      <div class="form-group full">
+        <label>DASHBOARD / ANALYTICS SCREENSHOT (PROOF OF REACH)</label>
+        <div class="file-zone" id="ss-zone">
+          <input type="file" id="f-screenshots" accept="image/*" multiple />
+          <div class="file-zone-icon">📊</div>
+          <p>Drag &amp; drop or <strong>tap to upload</strong> screenshots<br/>
+          <span style="font-size:.75rem">Instagram insights, YouTube analytics, Telegram member count, etc.</span></p>
+          <div class="file-names" id="ss-names"></div>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>ANYTHING ELSE YOU WANT TO ADD?</label>
+        <textarea id="f-extra" placeholder="Ideas, questions, collab proposals…" style="min-height:70px"></textarea>
+      </div>
+
+    </div><!-- /form-grid -->
+
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.2rem;padding:.8rem;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+      ℹ️ <strong style="color:var(--text)">Review timeline:</strong> 3–5 business days. You'll receive an email with approval / feedback.
+      Submitting false information disqualifies your application permanently.
+    </div>
+
+    <div class="form-submit">
+      <button class="btn-submit" id="btn-submit">
+        <span>Submit Application</span>
+        <span>🚀</span>
+        <div class="spinner" id="form-spinner"></div>
+      </button>
+      <p class="form-note">We read every application. No spam. No auto-rejections.</p>
+    </div>
+  </div><!-- /form-card -->
+</section>
+
+<!-- ───────── FAQ ───────── -->
+<section class="reveal" style="max-width:760px">
+  <p class="sec-label">FAQ</p>
+  <h2 class="sec-title">Common Questions</h2>
+  <div class="faq-list">
+
+    <div class="faq-item">
+      <button class="faq-q">When do I start earning?
+        <span class="faq-arrow">⌄</span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Immediately after approval — your Partner ID is active and every user who signs up through your link is tagged to you from day one. Pool payouts happen every Monday.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">What counts as an "active user"?
+        <span class="faq-arrow">⌄</span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        A user who has logged in and engaged (listen session, LoL view, like or share) at least once in the past 7 days. Inactive accounts don't count toward your metrics.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">Is there a cost to join?
+        <span class="faq-arrow">⌄</span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Absolutely not. Joining the Partner Network is free. We only share revenue — we never charge partners.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">How is the Boost Token used?
+        <span class="faq-arrow">⌄</span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Use it on your best-performing LoL post to extend earning time from 48h to 72h. One token per week, refreshes every Monday. Higher tiers get multiple tokens.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">Can I apply if I don't have a large following yet?
+        <span class="faq-arrow">⌄</span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Yes — we look at quality of plan, niche relevance, and how engaged your existing audience is, not just follower count. A focused 500-member Telegram group can outperform a disengaged 50K page.
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────── FOOTER ───────── -->
+<footer>
+  <p>© 2025 SapanaCyberHub · <a href="#">Privacy Policy</a> · <a href="#">Terms</a></p>
+  <p style="margin-top:.4rem;font-size:.75rem">Partner Network is subject to our <a href="#">Partner Terms &amp; Conditions</a></p>
+</footer>
+
+</div><!-- /wrap -->
+
+<!-- ═══════════════════════════════════════════════
+     FIREBASE + LOGIC
+═══════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as storRef, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ── Firebase config (same project) ───────────────────────────────────────────
+const app = initializeApp({
+    apiKey:            "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+    authDomain:        "sapanacyberhub-26310.firebaseapp.com",
+    projectId:         "sapanacyberhub-26310",
+    storageBucket:     "sapanacyberhub-26310.firebasestorage.app",
+    messagingSenderId: "448116453690",
+    appId:             "1:448116453690:web:01a91dd284b715bf0a2003",
+});
+
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// ── Auth gate ─────────────────────────────────────────────────────────────────
+let currentUser = null;
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    // Uncomment below to enforce sign-in (optional):
+    // document.getElementById("auth-gate").style.display = user ? "none" : "block";
+    // document.getElementById("partner-form-wrap").style.display = user ? "block" : "none";
+});
+
+// ── Screenshot file names preview ─────────────────────────────────────────────
+document.getElementById("f-screenshots").addEventListener("change", (e) => {
+    const names = [...e.target.files].map(f => f.name).join(", ");
+    document.getElementById("ss-names").textContent = names || "";
+});
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+document.getElementById("btn-submit").addEventListener("click", async () => {
+    const btn     = document.getElementById("btn-submit");
+    const spinner = document.getElementById("form-spinner");
+    const status  = document.getElementById("form-status-msg");
+
+    // collect fields
+    const name     = document.getElementById("f-name").value.trim();
+    const email    = document.getElementById("f-email").value.trim();
+    const phone    = document.getElementById("f-phone").value.trim();
+    const type     = document.getElementById("f-type").value;
+    const profile  = document.getElementById("f-profile").value.trim();
+    const audience = document.getElementById("f-audience").value.trim();
+    const plan     = document.getElementById("f-plan").value.trim();
+    const extra    = document.getElementById("f-extra").value.trim();
+    const files    = document.getElementById("f-screenshots").files;
+
+    // platforms
+    const platforms = [...document.querySelectorAll(".plat-check:checked")]
+        .map(c => c.value);
+
+    // validation
+    status.className = "form-status";
+    status.style.display = "none";
+
+    if (!name || !email || !type || !profile || !audience || !plan) {
+        status.textContent = "⚠️ Please fill in all required fields.";
+        status.className = "form-status error";
+        status.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+    }
+    if (platforms.length === 0) {
+        status.textContent = "⚠️ Please select at least one promotion platform.";
+        status.className = "form-status error";
+        status.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+    }
+
+    // disable + show spinner
+    btn.disabled = true;
+    spinner.style.display = "block";
+    btn.querySelector("span:last-of-type").style.display = "none";
+
+    try {
+        // 1. upload screenshots to Storage
+        const screenshotURLs = [];
+        for (const file of files) {
+            const path = `SapanaCyberHub/PartnerApplications/${Date.now()}_${file.name}`;
+            const snap = await uploadBytes(storRef(storage, path), file);
+            const url  = await getDownloadURL(snap.ref);
+            screenshotURLs.push(url);
+        }
+
+        // 2. write application to Firestore
+        await addDoc(collection(db, "SapanaCyberHub", "Partners", "Applications"), {
+            name,
+            email,
+            phone:    phone || null,
+            type,
+            profileLink: profile,
+            platforms,
+            audience,
+            promotionPlan: plan,
+            extra:    extra || null,
+            screenshotURLs,
+            uid:      currentUser?.uid || null,
+            status:   "pending",          // pending | approved | rejected
+            appliedAt: serverTimestamp(),
+        });
+
+        // success
+        status.textContent = "✅ Application submitted! We'll review it within 3–5 business days and email you.";
+        status.className = "form-status success";
+        status.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // reset form
+        ["f-name","f-email","f-phone","f-profile","f-audience","f-plan","f-extra"]
+            .forEach(id => { document.getElementById(id).value = ""; });
+        document.getElementById("f-type").value = "";
+        document.getElementById("f-screenshots").value = "";
+        document.getElementById("ss-names").textContent = "";
+        document.querySelectorAll(".plat-check").forEach(c => { c.checked = false; });
+
+    } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Something went wrong: " + err.message;
+        status.className = "form-status error";
+        status.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    btn.disabled = false;
+    spinner.style.display = "none";
+    btn.querySelector("span:last-of-type").style.display = "";
+});
+
+// ── FAQ accordion ─────────────────────────────────────────────────────────────
+document.querySelectorAll(".faq-q").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const item = btn.closest(".faq-item");
+        const ans  = item.querySelector(".faq-a");
+        const open = item.classList.toggle("open");
+        ans.style.maxHeight = open ? ans.scrollHeight + "px" : "0";
+    });
+});
+
+// ── Scroll reveal ─────────────────────────────────────────────────────────────
+const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } });
+}, { threshold: .1 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

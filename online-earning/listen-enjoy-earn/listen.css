@@ -3417,8 +3417,9 @@ small.vibing-event-id {
   transform: translateX(-50%);
   background: #ff4655;
   color: white;
-  padding: 12px 30px;
+  padding: 8px 30px;
   font-weight: 800;
+  font-size: clamp(0.5rem, 2vw, 1rem);
   text-transform: uppercase;
   border-radius: 4px;
   clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
@@ -3440,7 +3441,7 @@ small.vibing-event-id {
   100% { background-position: 0% 50%; }
 }
 .lol-btn:after {
-  content: 'LoL🔥 Soon';
+  content: 'LoL 😂 ';
   position: absolute;
   top: 0; left: 0;
   width: 100%;

@@ -1958,5 +1958,5 @@ for (let i = 0; i < 45; i++) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  COMING SOON BUTTONS
 // ══════════════════════════════════════════════════════════════════════════════
-document.querySelector(".lol-btn")?.addEventListener("click", () =>   window.location.href = "https://sapanacyberhub.in/official/XLoL/");
+document.querySelector(".lol-btn")?.addEventListener("click", () =>   window.location.href = "/official/XLoL/");
 document.querySelector(".arena-btn")?.addEventListener("click", () => {showToast("E-Sport Arena is coming soon!", "info")});

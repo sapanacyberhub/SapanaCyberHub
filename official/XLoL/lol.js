@@ -38,6 +38,7 @@ const cfLoLtoListen = httpsCallable(functions, "transferLolToListenWallet");
 const cfClaimLolSessionBonus = httpsCallable(functions, "claimLolSessionBonus");
 const cfGetLeaderboard = httpsCallable(functions, "getTodayLeaderboard");
 const cfLoadLolProfileHistory = httpsCallable(functions, "loadLolProfileHistory");
+const cfDeleteLolPost = httpsCallable(functions, "deleteLolPost");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  FIRESTORE PATHS
@@ -92,7 +93,7 @@ const NATIVE_BANNER_SCRIPT = "https://pl28037543.profitablecpmratenetwork.com/b4
 const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 3 };
 
 // Bonus card only shown when session engagement reaches this floor
-const BONUS_CARD_MIN_ENGAGEMENT = 100;
+const BONUS_CARD_MIN_ENGAGEMENT = 50;
 
 const AD_COOLDOWN_MIN_SWIPES = 6;
 const AD_COOLDOWN_MAX_SWIPES = 8;
@@ -100,8 +101,6 @@ const BONUS_CARD_MIN_SWIPES = 8;
 const BONUS_CARD_MAX_SWIPES = 12;
 const PASSIVE_AD_AUTO_REMOVE_MS = 5000;
 
-// Quick-break opens sponsor in a new tab after 1.5 s, then auto-advances feed
-const QUICK_BREAK_REDIRECT_MS = 1500;
 
 const VIDEO_HOLD_DELAY_MS = 180;
 const VIDEO_HOLD_MOVE_TOLERANCE = 18;
@@ -155,6 +154,7 @@ function setFeedFullscreen(enabled) {
 function clearPendingAdRedirect() {
     if (quickBreakRedirectTimer) { clearTimeout(quickBreakRedirectTimer); quickBreakRedirectTimer = null; }
     if (quickBreakRedirectInterval) { clearInterval(quickBreakRedirectInterval); quickBreakRedirectInterval = null; }
+    _clearQbTick();
 }
 
 function scheduleNextFeedAd(min = AD_COOLDOWN_MIN_SWIPES, max = AD_COOLDOWN_MAX_SWIPES) {
@@ -348,39 +348,6 @@ function getNextSponsorLink() {
     return link;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  QUICK-BREAK REDIRECT
-//  Opens sponsor in a NEW TAB after 1.5 s, then auto-advances the feed card.
-//  The feed page is NEVER hijacked. Tab-return listener toasts an explanation.
-// ══════════════════════════════════════════════════════════════════════════════
-function scheduleQuickBreakRedirect(link, labelEl, delayMs = QUICK_BREAK_REDIRECT_MS) {
-    if (!link?.url) return;
-
-    clearPendingAdRedirect();
-    const startedAt = Date.now();
-
-    const renderCountdown = () => {
-        const remainingMs = Math.max(0, delayMs - (Date.now() - startedAt));
-        const remainingSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
-        if (labelEl) {
-            labelEl.textContent = remainingMs <= 300
-                ? "Opening sponsor now…"
-                : `Quick sponsor break — opening in ${remainingSeconds}s. Tap Skip to stay.`;
-        }
-    };
-
-    renderCountdown();
-    quickBreakRedirectInterval = setInterval(renderCountdown, 250);
-
-    quickBreakRedirectTimer = setTimeout(() => {
-        clearPendingAdRedirect();
-        const popup = window.open(link.url, "_blank", "noopener,noreferrer");
-        if (!popup) showToast("Tap the offer button if your browser blocked the new tab.", 3600);
-        attachBonusTabReturnListener("quick-break");
-        navigate(1); // auto-advance — feed page stays intact
-    }, delayMs);
-}
-
 function openSponsorLink(link) {
     if (!link?.url) return;
     const popup = window.open(link.url, "_blank", "noopener,noreferrer");
@@ -437,24 +404,114 @@ function mountVignetteBreakPanel(target) {
     triggerPassiveAdPulse("vignette");
 }
 
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 function mountQuickBreakPanel(target) {
     if (!target) return;
-    const link = getNextSponsorLink();
+
+    const mode = Math.random() < 0.6 ? "A" : "B";
+    const sponsorLink = getNextSponsorLink();   // always get one (used in both modes)
+
+    // Build inner HTML for both modes
+    if (mode === "A") {
+        _renderQuickBreakModeA(target, sponsorLink);
+    } else {
+        _renderQuickBreakModeB(target);
+    }
+}
+
+// ── Mode A: Support Our Creators ──────────────────────────────────────────────
+function _renderQuickBreakModeA(target, sponsorLink) {
     target.innerHTML = `
-      <div class="quick-break-panel">
-        <p class="ad-break-note" id="feed-quick-break-note">Quick sponsor break — opening in 1s. Tap Skip to stay.</p>
-        <a class="featured-link" href="${link.url}" target="_blank" rel="noopener noreferrer sponsored">
-          <span class="quick-link-meta">${esc(link.network)}</span>
-          <strong>${esc(link.label)}</strong>
-          <small>Tap to open now — timer stops on tap.</small>
+      <div class="qb-panel" id="qb-panel-a">
+        <div class="qb-support-badge">
+          <span class="qb-support-dot"></span>
+          SPONSOR SUPPORT
+        </div>
+        <p class="qb-msg">
+          <strong>This sponsor supports our creators.</strong><br/>
+          Tap below to visit — it helps us keep LoL free &amp; rewarding.
+        </p>
+        <a
+          class="qb-support-btn"
+          href="${esc(sponsorLink.url)}"
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          id="qb-support-link">
+          ❤️ Support Our Creators
         </a>
+        <div class="qb-ad-slot" id="qb-ad-slot-a"></div>
+        <button class="qb-skip-btn" id="qb-skip-a">Skip ➡</button>
       </div>`;
-    // Manual tap cancels the auto-open timer and attaches the return listener
-    target.querySelector("a.featured-link")?.addEventListener("click", () => {
-        clearPendingAdRedirect();
+
+    // Fire vignette immediately
+    triggerPassiveAdPulse("vignette");
+
+
+    // Attach return listener when user actually clicks the sponsor link
+    target.querySelector("#qb-support-link")?.addEventListener("click", () => {
         attachBonusTabReturnListener("quick-break");
     });
-    scheduleQuickBreakRedirect(link, target.querySelector("#feed-quick-break-note"));
+
+    // Skip navigates forward (no timer — user already sees ads)
+    target.querySelector("#qb-skip-a")?.addEventListener("click", () => {
+        clearPendingAdRedirect();
+        navigate(1);
+    });
+}
+
+// ── Mode B: Passive Only (no redirect) ───────────────────────────────────────
+function _renderQuickBreakModeB(target) {
+    target.innerHTML = `
+      <div class="qb-panel" id="qb-panel-b">
+        <div class="qb-support-badge">
+          <span class="qb-support-dot"></span>
+          SPONSOR BREAK
+        </div>
+        <p class="qb-msg">
+          <strong>A quick message from our sponsors.</strong><br/>
+          Helps us keep the creator economy running 🙏
+        </p>
+        <div class="qb-ad-slot" id="qb-ad-slot-b"></div>
+        <p class="qb-passive-note">Vignette ad may appear — close it to continue.</p>
+        <button class="qb-skip-btn" id="qb-skip-b" disabled>
+          Skip in <span class="qb-skip-countdown" id="qb-countdown">3</span>s
+        </button>
+      </div>`;
+
+    // Fire vignette immediately
+    triggerPassiveAdPulse("vignette");
+
+    // Mount banner in slot
+    mountAdsterraBanner(target.querySelector("#qb-ad-slot-b"));
+
+    // 3-second countdown on skip button
+    const skipBtn = target.querySelector("#qb-skip-b");
+    const countdownEl = target.querySelector("#qb-countdown");
+    let remaining = 3;
+
+    const tick = setInterval(() => {
+        remaining--;
+        if (countdownEl) countdownEl.textContent = remaining;
+        if (remaining <= 0) {
+            clearInterval(tick);
+            if (skipBtn) {
+                skipBtn.disabled = false;
+                skipBtn.innerHTML = "Skip ➡";
+            }
+        }
+    }, 1000);
+
+    skipBtn?.addEventListener("click", () => {
+        if (skipBtn.disabled) return;
+        clearInterval(tick);
+        clearPendingAdRedirect();
+        navigate(1);
+    });
+
+    // Also store the tick so renderCard cleanup can clear it
+    target._qbTick = tick;
 }
 
 function mountFeaturedLink(target, link, note = "Opens only when tapped") {
@@ -614,6 +671,7 @@ let posts = [];
 let cardIndex = 0;
 let swipeCount = 0;
 let viewTimer = null;
+let activePostId = null;
 let selectedFile = null;
 let touchStartX = 0;
 let touchStartY = 0;
@@ -637,7 +695,10 @@ let bonusFlowCompleted = false;
 let bonusClaimPending = false;
 let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
+let _qbSkipTick = null;
 
+
+function _clearQbTick() { if (_qbSkipTick) { clearInterval(_qbSkipTick); _qbSkipTick = null; } }
 // ══════════════════════════════════════════════════════════════════════════════
 //  AUTH STATE
 // ══════════════════════════════════════════════════════════════════════════════
@@ -858,15 +919,58 @@ async function navigate(dir) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  VIEW TIMER
 // ══════════════════════════════════════════════════════════════════════════════
-function startViewTimer(post) {
-    viewTimer = setTimeout(async () => {
-        registerSessionEngagement("view", post.id);
-        try { await cfTrackEngagement({ postId: post.id, type: "view" }); updateHeaderUI(); }
-        catch (err) { console.warn("[LoL] trackEngagement view:", err.message); }
-    }, 5000);
-}
-function stopViewTimer() { if (viewTimer) { clearTimeout(viewTimer); viewTimer = null; } }
 
+
+function startViewTimer(post) {
+    stopViewTimer();
+
+    activePostId = post.id;
+
+    const key = `viewed_${post.id}`;
+    const lastView = Number(localStorage.getItem(key) || 0);
+    const now = Date.now();
+
+    // ⛔ prevent repeat within 30 mins
+    if (now - lastView < 30 * 60 * 1000) return;
+
+    let visibleTime = 0;
+
+    viewTimer = setInterval(async () => {
+        // ✅ only count when tab is active
+        if (document.hidden) return;
+
+        visibleTime += 1000;
+
+        // ✅ require real watch time (5 sec)
+        if (visibleTime >= 5000) {
+            clearInterval(viewTimer);
+            viewTimer = null;
+
+            // save locally
+            localStorage.setItem(key, now);
+
+            registerSessionEngagement("view", post.id);
+
+            try {
+                await cfTrackEngagement({
+                    postId: post.id,
+                    type: "view",
+                    watchTime: visibleTime
+                });
+
+                updateHeaderUI();
+            } catch (err) {}
+
+        }
+    }, 1000);
+}
+
+function stopViewTimer() {
+    if (viewTimer) {
+        clearInterval(viewTimer);
+        viewTimer = null;
+    }
+}
 // ══════════════════════════════════════════════════════════════════════════════
 //  LIKE
 // ══════════════════════════════════════════════════════════════════════════════
@@ -890,7 +994,6 @@ async function handleLike(post) {
         await cfTrackEngagement({ postId: post.id, type: "like" });
         updateHeaderUI();
     } catch (err) {
-        console.warn("[LoL] like failed:", err.message);
         localStorage.removeItem(key);
         likeBtn?.classList.remove("liked");
         if (likeBtn) likeBtn.textContent = "🤍 Like";
@@ -935,7 +1038,7 @@ function renderAdCard() {
   </div>`;
 
     mountFeedAdExperience(config, $("feed-ad-stage"));
-    if (config.type === "smart-link") maybeTriggerPassiveAdPulse(0.3);
+    if (config.type === "smart-link") maybeTriggerPassiveAdPulse(0.5);
     renderQuickLinks("feed-ad-links");
     $("card-stack").querySelector(".next-btn-ad")
         .addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
@@ -956,11 +1059,11 @@ function renderBonusCard() {
   <div class="lol-card bonus-card">
     <div class="bonus-inner">
       <div class="bonus-emoji">🎁</div>
-      <h2 class="bonus-title">Bonus Available</h2>
+      <h2 class="bonus-title">Bonus Available </h2>
       <p class="bonus-sub">
         You've reached <strong>${sessionEngagementScore}</strong> session engagement points.
         Tapping <em>Claim</em> opens a sponsor offer in a new tab and submits your session
-        for a <strong>possible</strong> Listen Coin reward — <em>not guaranteed</em>.
+        for a <strong>possible</strong> Listen Coin reward.
         Rewards are processed server-side and may take a few minutes to appear.
         Skipping has no penalty.
       </p>
@@ -1050,7 +1153,7 @@ $("media-input").addEventListener("change", (e) => {
     if (!selectedFile) return;
     const inner = $("dropzone-inner");
     inner.innerHTML = selectedFile.type.startsWith("video")
-        ? `<video src="${URL.createObjectURL(selectedFile)}" class="preview-media" muted loop autoplay></video>`
+        ? `<video src="${URL.createObjectURL(selectedFile)}" class="preview-media" loop autoplay></video>`
         : `<img src="${URL.createObjectURL(selectedFile)}" class="preview-media" />`;
 });
 
@@ -1087,7 +1190,6 @@ async function submitPost() {
         $("create-overlay").classList.add("hidden");
         resetCreateForm();
         await loadPosts(true); cardIndex = 0; renderCard();
-        lolUserData = (await getDoc(lolUserRef(currentUser.uid))).data();
         updateHeaderUI();
 
     } catch (err) {
@@ -1183,8 +1285,8 @@ async function loadLeaderboard() {
         container.innerHTML = html;
 
     } catch (err) {
-        showToast("Failed to load leaderboard 😵"); 
-        
+        showToast("Failed to load leaderboard 😵");
+
         container.innerHTML = `
         
       <div class="row">
@@ -1214,7 +1316,7 @@ async function openProfile() {
     $("p-credits").textContent = lolUserData.lolCreatorCredits || 0;
     $("p-earning").textContent = `₹${((lolUserData.estimatedEarning) || 0).toFixed(2)}`;
     $("transfer-amount").textContent =
-        `₹${(((lolUserData.estimatedEarning* 0.7) || 0)).toFixed(2)}`;
+        `₹${(((lolUserData.estimatedEarning * 0.7) || 0)).toFixed(2)}`;
 
     const pct = Math.min(100, ((lolUserData.engagementScore || 0) / 1000) * 100);
     $("progress-fill").style.width = pct + "%";
@@ -1223,38 +1325,252 @@ async function openProfile() {
     await loadProfileHistory(currentUser.uid);
 }
 
-function toMillisValue(value) {
-    if (!value) return 0;
-    if (typeof value.toMillis === "function") return value.toMillis();
-    if (typeof value.seconds === "number") return (value.seconds * 1000) + Math.floor((value.nanoseconds || 0) / 1e6);
-    if (typeof value._seconds === "number") return (value._seconds * 1000) + Math.floor((value._nanoseconds || 0) / 1e6);
-    return Number(value) || 0;
-}
+
 
 function setHistoryLoading(id, label = "Loading...") {
     const list = $(id);
     if (list) list.innerHTML = `<p class="empty-history">${esc(label)}</p>`;
 }
 
+
+let _postHistoryCache = [];
+
 function renderPostHistory(items) {
-    const list = $("post-history-list");
+    _postHistoryCache = items || [];
+
+    const list = document.getElementById("post-history-list");
     if (!list) return;
-    if (!items.length) { list.innerHTML = `<p class="empty-history">No posts yet 🚀</p>`; return; }
-    list.innerHTML = items.map((d) => {
-        const active = d.status === "active";
-        const expires = d.expiresAtMs ? new Date(d.expiresAtMs) : null;
-        return `
-    <div class="history-item">
-      <div class="hi-top">
-        <span class="hi-title">${esc(d.title)}</span>
-        <span class="hi-badge ${active ? "badge-active" : "badge-done"}">${active ? "🟢 Live" : "✅ Done"}</span>
-      </div>
-      <div class="hi-stats">👁 ${fmt(d.views || 0)} &nbsp; 💖 ${fmt(d.likes || 0)} &nbsp; 🔗 ${fmt(d.shares || 0)}</div>
-      <div class="hi-earn"><span>Eng: ${d.engagementScore || 0}</span><span class="hi-earning">₹${(d.earning || 0).toFixed(2)}</span></div>
-      ${expires ? `<div class="hi-exp">⏱ ${active ? "Expires" : "Expired"}: ${expires.toLocaleString()}</div>` : ""}
-    </div>`;
-    }).join("");
+
+    if (!items.length) {
+        list.innerHTML = `<div class="post-thumb-grid"><div class="post-grid-empty">No LoLs yet 🚀<br/>Post your first funny!</div></div>`;
+        return;
+    }
+
+    list.innerHTML = `<div class="post-thumb-grid">${items.map((d, i) => buildThumb(d, i)).join("")}</div>`;
+
+    // bind taps
+    list.querySelectorAll(".post-thumb").forEach((el) => {
+        el.addEventListener("click", () => {
+            const idx = parseInt(el.dataset.idx, 10);
+            openAnalyticsModal(_postHistoryCache[idx]);
+        });
+    });
 }
+
+function buildThumb(d, idx) {
+    const isVideo = d.postType === "video";
+    const isLive = d.status === "active";
+    const earning = (d.earning || 0).toFixed(2);
+    const mediaEl = d.postURL
+        ? (isVideo
+            ? `<video src="${esc(d.postURL)}" muted playsinline preload="metadata" loop></video>`
+            : `<img src="${esc(d.postURL)}" loading="lazy" alt="${esc(d.title)}" />`)
+        : `<div style="width:100%;height:100%;background:#1a1f2e;display:grid;place-items:center;font-size:2rem">😂</div>`;
+
+    return `
+    <div class="post-thumb" data-idx="${idx}">
+      ${mediaEl}
+      ${isLive ? `<span class="post-thumb-live">LIVE</span>` : ""}
+      <span class="post-thumb-type">${isVideo ? "▶" : "🖼"}</span>
+      <span class="post-thumb-views">👁 ${fmt(d.views || 0)}</span>
+      <div class="post-thumb-overlay">
+        <span class="post-thumb-earn">₹${earning}</span>
+      </div>
+    </div>`;
+}
+
+function ensureAnalyticsOverlay() {
+    if (document.getElementById("post-analytics-overlay")) return;
+    const el = document.createElement("div");
+    el.id = "post-analytics-overlay";
+    el.innerHTML = `
+      <div class="analytics-media" id="am-media">
+        <button class="analytics-close" id="am-close">✕</button>
+        <button class="analytics-mute-btn" id="am-mute" style="display:none">🔇 Mute</button>
+      </div>
+      <div class="analytics-panel" id="am-panel"></div>
+    `;
+    document.body.appendChild(el);
+    document.getElementById("am-close").addEventListener("click", closeAnalyticsModal);
+    el.addEventListener("click", (e) => { if (e.target === el) closeAnalyticsModal(); });
+}
+
+function openAnalyticsModal(post) {
+    ensureAnalyticsOverlay();
+    const overlay = document.getElementById("post-analytics-overlay");
+    const mediaWrap = document.getElementById("am-media");
+    const panel = document.getElementById("am-panel");
+    const muteBtn = document.getElementById("am-mute");
+
+    // ── media ─────────────────────────────────────────────────────────────────
+    // Remove previous media (keep close/mute buttons)
+    mediaWrap.querySelectorAll("video, img, .analytics-status-badge").forEach(n => n.remove());
+
+    const isVideo = post.postType === "video";
+    const isLive = post.status === "active";
+
+    // status badge
+    const badge = document.createElement("span");
+    badge.className = `analytics-status-badge ${isLive ? "live" : "done"}`;
+    badge.textContent = isLive ? "🟢 LIVE" : "✅ DONE";
+    mediaWrap.insertBefore(badge, mediaWrap.querySelector(".analytics-close"));
+
+    if (post.postURL) {
+        if (isVideo) {
+            const vid = document.createElement("video");
+            vid.src = post.postURL;
+            vid.autoplay = true;
+            vid.loop = true;
+            vid.playsInline = true;
+            vid.muted = false;         // unmuted by default
+            vid.controls = false;
+            mediaWrap.insertBefore(vid, muteBtn);
+            muteBtn.style.display = "";
+            muteBtn.textContent = "🔇 Mute";
+            muteBtn.onclick = () => {
+                vid.muted = !vid.muted;
+                muteBtn.textContent = vid.muted ? "🔊 Unmute" : "🔇 Mute";
+            };
+            vid.play().catch(() => { vid.muted = true; vid.play().catch(() => { }); });
+        } else {
+            const img = document.createElement("img");
+            img.src = post.postURL;
+            img.alt = post.title || "";
+            mediaWrap.insertBefore(img, muteBtn);
+            muteBtn.style.display = "none";
+        }
+    } else {
+        const placeholder = document.createElement("div");
+        placeholder.style.cssText = "width:100%;height:200px;display:grid;place-items:center;font-size:3rem";
+        placeholder.textContent = "😂";
+        mediaWrap.insertBefore(placeholder, muteBtn);
+        muteBtn.style.display = "none";
+    }
+
+    // ── analytics panel ───────────────────────────────────────────────────────
+    const createdDate = post.createdAtMs
+        ? new Date(post.createdAtMs).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+        : "";
+    const expiresDate = post.expiresAtMs
+        ? new Date(post.expiresAtMs).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+        : null;
+
+    const earning = (post.earning || 0).toFixed(2);
+    const shareUrl = `${location.origin}${location.pathname}?lol=${post.id}`;
+
+    panel.innerHTML = `
+      <h2 class="analytics-title">${esc(post.title || "Untitled")}</h2>
+      <p class="analytics-date">${createdDate ? "Posted " + createdDate : ""}</p>
+
+      <div class="analytics-stats">
+        <div class="a-stat">
+          <div class="a-stat-val">${fmt(post.views || 0)}</div>
+          <div class="a-stat-lbl">👁 Views</div>
+        </div>
+        <div class="a-stat">
+          <div class="a-stat-val">${fmt(post.likes || 0)}</div>
+          <div class="a-stat-lbl">💖 Likes</div>
+        </div>
+        <div class="a-stat">
+          <div class="a-stat-val">${fmt(post.shares || 0)}</div>
+          <div class="a-stat-lbl">🔗 Shares</div>
+        </div>
+        <div class="a-stat">
+          <div class="a-stat-val">${post.engagementScore || 0}</div>
+          <div class="a-stat-lbl">⚡ Score</div>
+        </div>
+      </div>
+
+      <div class="analytics-earning-banner">
+        <div>
+          <div class="aeb-label">Estimated Earning</div>
+          <div class="aeb-value">₹${earning}</div>
+          <div class="aeb-status">${isLive ? "🟢 Post still earning" : "✅ Final earning"}</div>
+        </div>
+        <div style="font-size:2.2rem">💰</div>
+      </div>
+
+      ${expiresDate ? `
+        <div class="analytics-expiry">
+          ⏱ ${isLive ? "Expires" : "Expired"}: <strong style="color:#e8eaf0">${expiresDate}</strong>
+        </div>` : ""}
+
+      <div class="analytics-actions">
+        <button class="aa-btn aa-share" id="am-share-btn">🔗 Share Post</button>
+        <button class="aa-btn aa-delete" id="am-delete-btn">🗑 Delete</button>
+      </div>
+      <p id="am-action-msg" style="text-align:center;font-size:.8rem;color:#7a8099;margin-top:.8rem"></p>
+    `;
+
+    // Share
+    panel.querySelector("#am-share-btn").addEventListener("click", async () => {
+        try { await navigator.share({ title: post.title, url: shareUrl }); }
+        catch { await navigator.clipboard.writeText(shareUrl); showToast("Link copied! 🔗"); }
+    });
+
+    // Delete
+    const deleteBtn = panel.querySelector("#am-delete-btn");
+    const actionMsg = panel.querySelector("#am-action-msg");
+    deleteBtn.addEventListener("click", () => handleDeletePost(post, deleteBtn, actionMsg));
+
+    // open
+    requestAnimationFrame(() => overlay.classList.add("open"));
+}
+
+function closeAnalyticsModal() {
+    const overlay = document.getElementById("post-analytics-overlay");
+    if (!overlay) return;
+    overlay.classList.remove("open");
+    setTimeout(() => {
+        overlay.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; });
+    }, 350);
+}
+
+async function handleDeletePost(post, deleteBtn, msgEl) {
+    if (deleteBtn.dataset.confirm !== "1") {
+        deleteBtn.dataset.confirm = "1";
+        deleteBtn.textContent = "⚠️ Confirm Delete";
+        deleteBtn.style.background = "rgba(255,69,96,.25)";
+        msgEl.textContent = "Tap again to permanently delete this post.";
+        setTimeout(() => {
+            if (deleteBtn.dataset.confirm === "1") {
+                deleteBtn.dataset.confirm = "";
+                deleteBtn.textContent = "🗑 Delete";
+                deleteBtn.style.background = "";
+                msgEl.textContent = "";
+            }
+        }, 4000);
+        return;
+    }
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = "Deleting…";
+    msgEl.textContent = "";
+
+    try {
+        const res = await cfDeleteLolPost({ postId: post.id });
+
+        if (res?.data?.success === false) {
+            throw new Error(res.data.message || "Delete failed");
+        }
+
+        showToast("Post deleted ✅");
+        closeAnalyticsModal();
+
+        // Remove from local cache and re-render grid
+        _postHistoryCache = _postHistoryCache.filter(p => p.id !== post.id);
+        renderPostHistory(_postHistoryCache);
+
+    } catch (err) {
+        console.error("[LoL] delete:", err);
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = "🗑 Delete";
+        deleteBtn.dataset.confirm = "";
+        msgEl.textContent = "Delete failed: " + (err.message || "try again");
+        showToast("Delete failed ❌");
+    }
+}
+
 
 function renderTransferHistory(items) {
     const list = $("transfer-history-list");
@@ -1284,48 +1600,19 @@ async function loadProfileHistory(uid) {
         renderPostHistory(res?.data?.posts || []);
         renderTransferHistory(res?.data?.transfers || []);
         return;
-    } catch (err) { console.warn("[LoL] loadLolProfileHistory:", err.message); }
-    await loadProfileHistoryFallback(uid);
-}
-
-async function loadProfileHistoryFallback(uid) {
-    try {
-        const [postSnaps, transferSnaps] = await Promise.all([
-            getDocs(query(lolPostsCol(), where("uid", "==", uid))),
-            getDocs(query(lolTransfersCol(), where("uid", "==", uid)))
-        ]);
-
-        const posts = postSnaps.docs.map((snap) => {
-            const d = snap.data();
-            return {
-                id: snap.id, title: d.title || "", status: d.status || "finished",
-                views: d.views || 0, likes: d.likes || 0, shares: d.shares || 0,
-                engagementScore: d.engagementScore || 0, earning: Number(d.earning || 0),
-                createdAtMs: toMillisValue(d.createdAt), expiresAtMs: toMillisValue(d.expiresAt)
-            };
-        }).sort((a, b) => b.createdAtMs - a.createdAtMs).slice(0, 20);
-
-        const transfers = transferSnaps.docs.map((snap) => {
-            const d = snap.data();
-            return {
-                id: snap.id, amount: Number(d.amount || 0),
-                fullAmount: Number(d.fullAmount || 0), timestampMs: toMillisValue(d.timestamp)
-            };
-        }).sort((a, b) => b.timestampMs - a.timestampMs).slice(0, 20);
-
-        renderPostHistory(posts);
-        renderTransferHistory(transfers);
     } catch (err) {
-        console.error("[LoL] profile history fallback:", err);
+        console.log("history", err);
         $("post-history-list").innerHTML = `<p class="empty-history">History unavailable right now.</p>`;
         $("transfer-history-list").innerHTML = `<p class="empty-history">Transfer history unavailable right now.</p>`;
         showToast("Failed to load history");
     }
 }
 
+
+
 $("btn-transfer").addEventListener("click", async () => {
     try {
-        
+
 
         const estimated = Number(lolUserData.estimatedEarning || 0);
 
@@ -1411,9 +1698,9 @@ if (sapanacyberhubRetun) {
         // If the second tap happens within 300ms, it's a double tap
         if (tapLength < 300 && tapLength > 0) {
             e.preventDefault();
-            window.location.href = "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
+            window.location.href = "/online-earning/listen-enjoy-earn/";
         }
-        
+
         lastTap = currentTime;
     });
 }

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Partner Dashboard — SapanaCyberHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090e;--bg2:#0c0f1a;--surface:#111520;--surface2:#161c2b;
+  --border:#1c2236;--border2:#242d45;
+  --gold:#f5c842;--gold2:#e8a600;
+  --cyan:#00e5ff;--green:#00e096;--red:#ff4560;
+  --text:#e2e5f0;--muted:#68728f;
+  --glow:0 0 40px rgba(245,200,66,.06),0 2px 16px rgba(0,0,0,.7);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;
+  min-height:100vh;
+}
+/* grid bg */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(245,200,66,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,200,66,.015) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(1rem,4vw,2.5rem);height:62px;
+  background:rgba(7,9,14,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;}
+.nav-logo{width:32px;height:32px;background:var(--gold);border-radius:8px;display:grid;place-items:center;font-family:'Bebas Neue';font-size:17px;color:#000;}
+.nav-name{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:.05em;color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:.8rem;}
+.nav-user{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--muted);}
+.nav-avatar{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);object-fit:cover;}
+.nav-tag{
+  background:rgba(245,200,66,.1);color:var(--gold);
+  font-size:.68rem;font-weight:700;letter-spacing:.1em;
+  padding:3px 10px;border-radius:20px;border:1px solid rgba(245,200,66,.2);
+}
+
+/* ── LAYOUT ── */
+.page{position:relative;z-index:1;}
+.main{
+  max-width:1120px;margin:0 auto;
+  padding:2.5rem clamp(1rem,4vw,2.5rem) 5rem;
+}
+
+/* ── STATES ── */
+.state-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:3rem 2rem;text-align:center;
+  box-shadow:var(--glow); max-width:500px;margin:4rem auto;
+}
+.state-icon{font-size:3rem;margin-bottom:1rem;}
+.state-card h2{font-family:'Bebas Neue';font-size:2rem;margin-bottom:.6rem;}
+.state-card p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;}
+.btn-gold{
+  background:var(--gold);color:#000;font-family:'DM Sans';
+  font-weight:700;font-size:.9rem;padding:.75rem 2rem;
+  border-radius:9px;border:none;cursor:pointer;text-decoration:none;
+  display:inline-block;box-shadow:0 0 24px rgba(245,200,66,.3);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(245,200,66,.5);}
+.btn-outline{
+  background:transparent;color:var(--text);font-family:'DM Sans';
+  font-size:.85rem;padding:.6rem 1.4rem;border-radius:8px;
+  border:1px solid var(--border2);cursor:pointer;text-decoration:none;
+  display:inline-block;transition:border-color .15s,color .15s;
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Pending banner */
+.pending-banner{
+  background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);
+  border-radius:14px;padding:1.5rem;
+  display:flex;align-items:flex-start;gap:1rem;
+  margin-bottom:2rem;
+}
+.pending-icon{font-size:1.6rem;flex-shrink:0;}
+.pending-banner h3{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:.2rem;}
+.pending-banner p{font-size:.85rem;color:var(--muted);}
+
+/* ── DASHBOARD HEADER ── */
+.dash-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;
+}
+.dash-title{font-family:'Bebas Neue';font-size:clamp(2rem,5vw,3rem);line-height:1;}
+.partner-id-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:10px;padding:.5rem 1rem;font-size:.82rem;
+  color:var(--muted);
+}
+.partner-id-pill strong{color:var(--gold);font-family:monospace;letter-spacing:.05em;}
+.copy-btn{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1rem;padding:2px 4px;transition:color .15s;
+}
+.copy-btn:hover{color:var(--gold);}
+
+/* ── STAT GRID ── */
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1rem;margin-bottom:2rem;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.3rem;
+  box-shadow:var(--glow);
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.stat-card:hover{border-color:var(--border2);}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent,var(--gold));opacity:.6;
+}
+.stat-lbl{font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem;}
+.stat-val{font-family:'Bebas Neue';font-size:2.4rem;line-height:1;color:var(--accent,var(--gold));}
+.stat-sub{font-size:.75rem;color:var(--muted);margin-top:.3rem;}
+
+/* ── REFERRAL LINK BOX ── */
+.ref-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;
+  box-shadow:var(--glow);margin-bottom:2rem;
+}
+.ref-box-title{font-family:'Bebas Neue';font-size:1.3rem;margin-bottom:.8rem;}
+.ref-row{display:flex;gap:.6rem;align-items:center;}
+.ref-input{
+  flex:1;background:var(--bg2);border:1px solid var(--border2);
+  border-radius:9px;padding:.65rem 1rem;color:var(--text);
+  font-size:.85rem;font-family:monospace;outline:none;
+}
+.copy-link-btn{
+  background:var(--gold);color:#000;font-weight:700;
+  padding:.65rem 1.2rem;border:none;border-radius:9px;
+  cursor:pointer;font-size:.85rem;white-space:nowrap;
+  transition:transform .12s;
+}
+.copy-link-btn:hover{transform:scale(1.03);}
+.ref-tip{font-size:.75rem;color:var(--muted);margin-top:.6rem;}
+
+/* ── PROGRESS ROWS ── */
+.progress-section{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;
+}
+@media(max-width:640px){.progress-section{grid-template-columns:1fr;}}
+.prog-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.4rem;box-shadow:var(--glow);
+}
+.prog-head{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;}
+.prog-icon{font-size:1.4rem;}
+.prog-title{font-family:'Bebas Neue';font-size:1.1rem;}
+.prog-bar-wrap{background:var(--bg2);border-radius:6px;height:8px;overflow:hidden;margin:.5rem 0;}
+.prog-bar{height:100%;border-radius:6px;background:var(--gold);transition:width .8s cubic-bezier(.4,0,.2,1);}
+.prog-meta{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);}
+
+/* ── REWARD HISTORY TABLE ── */
+.section-title{font-family:'Bebas Neue';font-size:1.5rem;margin-bottom:1rem;}
+.history-table-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;box-shadow:var(--glow);
+  margin-bottom:2rem;
+}
+.h-table{width:100%;border-collapse:collapse;}
+.h-table thead th{
+  text-align:left;font-size:.7rem;letter-spacing:.1em;color:var(--muted);
+  font-weight:700;padding:.9rem 1.2rem;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+}
+.h-table tbody td{
+  padding:.9rem 1.2rem;font-size:.88rem;
+  border-bottom:1px solid var(--border);
+}
+.h-table tbody tr:last-child td{border-bottom:none;}
+.h-table tbody tr:hover td{background:var(--surface2);}
+.td-earn{color:var(--green);font-weight:700;}
+.empty-row td{text-align:center;color:var(--muted);padding:2.5rem;}
+
+/* ── HOW REWARDS WORK card ── */
+.reward-rules{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;margin-bottom:2rem;
+  box-shadow:var(--glow);
+}
+.rr-title{font-family:'Bebas Neue';font-size:1.3rem;margin-bottom:1rem;}
+.rr-grid{display:flex;flex-direction:column;gap:.7rem;}
+.rr-row{
+  display:flex;align-items:center;gap:1rem;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:.9rem 1.1rem;
+}
+.rr-icon{font-size:1.4rem;flex-shrink:0;}
+.rr-text strong{color:var(--gold);}
+.rr-text{font-size:.88rem;color:var(--muted);}
+
+/* ── SPINNER / LOADING ── */
+.loading-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:40vh;gap:1rem;color:var(--muted);
+}
+.spin{
+  width:36px;height:36px;border:3px solid var(--border2);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* toast */
+#toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:10px;padding:.7rem 1.4rem;font-size:.85rem;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;
+  opacity:0;transition:opacity .25s;pointer-events:none;
+}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">S</div>
+    <span class="nav-name">SapanaCyberHub</span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-user" id="nav-user-info" style="display:none">
+      <img class="nav-avatar" id="nav-avatar" src="" alt=""/>
+      <span id="nav-email"></span>
+    </div>
+    <span class="nav-tag">PARTNER DASHBOARD</span>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="main">
+
+    <!-- LOADING -->
+    <div class="loading-state" id="state-loading">
+      <div class="spin"></div>
+      <span>Loading your dashboard…</span>
+    </div>
+
+    <!-- NOT SIGNED IN -->
+    <div class="state-card" id="state-noauth" style="display:none">
+      <div class="state-icon">🔐</div>
+      <h2>Sign In Required</h2>
+      <p>You need to be signed in to your SapanaCyberHub account to view your Partner Dashboard.</p>
+      <a href="/login" class="btn-gold">Sign In</a>
+    </div>
+
+    <!-- NOT APPLIED -->
+    <div class="state-card" id="state-notapplied" style="display:none">
+      <div class="state-icon">🚀</div>
+      <h2>You're Not a Partner Yet</h2>
+      <p>Apply for the Partner Network — it's free. Earn Creator Credits, weekly revenue share, and Boost Tokens by growing our community.</p>
+      <a href="partner-program.html#apply" class="btn-gold" style="margin-right:.6rem">Apply Now</a>
+      <a href="partner-terms.html" class="btn-outline">Read Terms</a>
+    </div>
+
+    <!-- PENDING -->
+    <div id="state-pending" style="display:none">
+      <div class="pending-banner">
+        <div class="pending-icon">⏳</div>
+        <div>
+          <h3>Application Under Review</h3>
+          <p id="pending-msg">Your application is pending. We review applications within 3–5 business days and will email you at the address you applied with.</p>
+        </div>
+      </div>
+      <div class="state-card" style="margin:0 auto">
+        <div class="state-icon">📬</div>
+        <h2>Hang Tight!</h2>
+        <p>We read every application manually. You'll hear from us soon. In the meantime, keep building your audience.</p>
+        <a href="partner-program.html" class="btn-outline">Back to Partner Page</a>
+      </div>
+    </div>
+
+    <!-- APPROVED DASHBOARD -->
+    <div id="state-approved" style="display:none">
+
+      <!-- Header -->
+      <div class="dash-header">
+        <div>
+          <p style="font-size:.75rem;letter-spacing:.12em;color:var(--gold);font-weight:700;margin-bottom:.3rem">PARTNER DASHBOARD</p>
+          <h1 class="dash-title">Your Network<br/>Analytics</h1>
+        </div>
+        <div class="partner-id-pill">
+          Your ID &nbsp;<strong id="disp-pid">—</strong>
+          <button class="copy-btn" title="Copy Partner ID" onclick="copyText(document.getElementById('disp-pid').textContent)">📋</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card" style="--accent:#f5c842">
+          <div class="stat-lbl">TOTAL REFERRED</div>
+          <div class="stat-val" id="d-total">0</div>
+          <div class="stat-sub">All-time users onboarded</div>
+        </div>
+        <div class="stat-card" style="--accent:#00e5ff">
+          <div class="stat-lbl">ACTIVE THIS WEEK</div>
+          <div class="stat-val" id="d-active">0</div>
+          <div class="stat-sub">Logged in &amp; engaged</div>
+        </div>
+        <div class="stat-card" style="--accent:#00e096">
+          <div class="stat-lbl">CREATOR CREDITS</div>
+          <div class="stat-val" id="d-credits">0</div>
+          <div class="stat-sub">1 per 10 users you bring</div>
+        </div>
+        <div class="stat-card" style="--accent:#f5c842">
+          <div class="stat-lbl">BOOST TOKENS</div>
+          <div class="stat-val" id="d-tokens">0</div>
+          <div class="stat-sub">Extends post earning 48h→72h</div>
+        </div>
+        <div class="stat-card" style="--accent:#00e096">
+          <div class="stat-lbl">TOTAL EARNED</div>
+          <div class="stat-val" id="d-earning">₹0</div>
+          <div class="stat-sub">Lifetime revenue share</div>
+        </div>
+        <div class="stat-card" style="--accent:#ff4560">
+          <div class="stat-lbl">NEXT PAYOUT</div>
+          <div class="stat-val" id="d-nextpayout">SUN</div>
+          <div class="stat-sub" id="d-nextpayout-sub">Days until Sunday pool</div>
+        </div>
+      </div>
+
+      <!-- Referral Link -->
+      <div class="ref-box">
+        <div class="ref-box-title">🔗 Your Referral Link</div>
+        <div class="ref-row">
+          <input class="ref-input" id="ref-link-input" readonly value="Loading…"/>
+          <button class="copy-link-btn" onclick="copyRefLink()">Copy Link</button>
+        </div>
+        <p class="ref-tip">Share this link on Instagram, YouTube, Telegram, WhatsApp or Facebook. Every user who signs up through it is attributed to you <strong>permanently</strong>.</p>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="progress-section">
+        <div class="prog-card">
+          <div class="prog-head">
+            <span class="prog-icon">🎨</span>
+            <span class="prog-title">Next Creator Credit</span>
+          </div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">
+            <span id="prog-credit-done">0</span> / 10 users in current batch
+          </p>
+          <div class="prog-bar-wrap">
+            <div class="prog-bar" id="prog-credit-bar" style="width:0%"></div>
+          </div>
+          <div class="prog-meta">
+            <span>0</span>
+            <span id="prog-credit-next">10 users = 1 CC</span>
+          </div>
+        </div>
+
+        <div class="prog-card">
+          <div class="prog-head">
+            <span class="prog-icon">⚡</span>
+            <span class="prog-title">Next Boost Token</span>
+          </div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">
+            <span id="prog-token-done">0</span> / 1,000 users in current batch
+          </p>
+          <div class="prog-bar-wrap">
+            <div class="prog-bar" id="prog-token-bar" style="width:0%;background:var(--cyan)"></div>
+          </div>
+          <div class="prog-meta">
+            <span>0</span>
+            <span>1,000 users = 1 Boost Token</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reward rules quick ref -->
+      <div class="reward-rules">
+        <div class="rr-title">How Your Rewards Work</div>
+        <div class="rr-grid">
+          <div class="rr-row">
+            <span class="rr-icon">🎨</span>
+            <span class="rr-text">Every <strong>10 users</strong> you bring → 1 Creator Credit credited to your LoL account automatically.</span>
+          </div>
+          <div class="rr-row">
+            <span class="rr-icon">💰</span>
+            <span class="rr-text">Every <strong>Sunday</strong> → 1% of platform revenue shared among all active partners, proportional to how many users you've brought (highest first).</span>
+          </div>
+          <div class="rr-row">
+            <span class="rr-icon">⚡</span>
+            <span class="rr-text">Hit <strong>1,000 referred users</strong> (then 2,000, 3,000…) → 1 Boost Token auto-applied to your next LoL post — extends earning from 48h to 72h.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly payout history -->
+      <h2 class="section-title">Recent Weekly Payouts</h2>
+      <div class="history-table-wrap">
+        <table class="h-table">
+          <thead>
+            <tr>
+              <th>WEEK</th>
+              <th>YOUR ACTIVE USERS</th>
+              <th>YOUR SHARE</th>
+            </tr>
+          </thead>
+          <tbody id="payout-tbody">
+            <tr class="empty-row"><td colspan="3">Loading payout history…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /state-approved -->
+
+  </div><!-- /main -->
+</div><!-- /page -->
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FIREBASE LOGIC
+═══════════════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFunctions, httpsCallable }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+const app = initializeApp({
+    apiKey:            "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+    authDomain:        "sapanacyberhub-26310.firebaseapp.com",
+    projectId:         "sapanacyberhub-26310",
+    storageBucket:     "sapanacyberhub-26310.firebasestorage.app",
+    messagingSenderId: "448116453690",
+    appId:             "1:448116453690:web:01a91dd284b715bf0a2003",
+});
+
+const auth      = getAuth(app);
+const functions = getFunctions(app);
+const cfDash    = httpsCallable(functions, "loadPartnerDashboard");
+
+// ── show/hide states ──────────────────────────────────────────────────────────
+const states = ["loading","noauth","notapplied","pending","approved"];
+function show(name){ states.forEach(s => { document.getElementById(`state-${s}`).style.display = s===name ? "" : "none"; }); }
+
+// ── DOM shortcuts ─────────────────────────────────────────────────────────────
+const el = (id) => document.getElementById(id);
+
+// ── auth ──────────────────────────────────────────────────────────────────────
+show("loading");
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { show("noauth"); return; }
+
+    // Nav user info
+    el("nav-user-info").style.display = "flex";
+    el("nav-email").textContent = user.email || "Partner";
+    el("nav-avatar").src = user.photoURL ||
+        `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${user.uid}`;
+
+    try {
+        const res  = await cfDash();
+        const data = res.data;
+
+        if (data.status === "not_applied") { show("notapplied"); return; }
+
+        if (data.status === "pending") {
+            show("pending");
+            const appliedDate = data.appliedAt
+                ? new Date(data.appliedAt).toLocaleDateString("en-IN",{dateStyle:"long"})
+                : "";
+            el("pending-msg").textContent =
+                `Your application is under review${appliedDate ? ` (submitted ${appliedDate})` : ""}. We review within 3–5 business days and will email you.`;
+            return;
+        }
+
+        // ── APPROVED ─────────────────────────────────────────────────────────
+        show("approved");
+        populateDashboard(data);
+
+    } catch (err) {
+        console.error(err);
+        show("noauth");
+    }
+});
+
+function populateDashboard(d) {
+    // Stats
+    el("disp-pid").textContent      = d.partnerId  || "—";
+    el("d-total").textContent       = fmt(d.totalReferred   || 0);
+    el("d-active").textContent      = fmt(d.activeThisWeek  || 0);
+    el("d-credits").textContent     = fmt(d.creatorCredits  || 0);
+    el("d-tokens").textContent      = fmt(d.boostTokens     || 0);
+    el("d-earning").textContent     = `₹${(d.totalEarning || 0).toFixed(2)}`;
+
+    // Next Sunday countdown
+    const daysToSun = (7 - new Date().getDay()) % 7 || 7;
+    el("d-nextpayout").textContent     = `${daysToSun}d`;
+    el("d-nextpayout-sub").textContent = daysToSun === 1
+        ? "Tomorrow is payout Sunday!" : `${daysToSun} days until Sunday pool`;
+
+    // Referral link
+    const link = d.referralUrl || `https://sapanacyberhub.com/signup?ref=${d.partnerId}`;
+    el("ref-link-input").value = link;
+
+    // Creator Credit progress bar
+    const creditDone = 10 - (d.nextCreditIn || 10);
+    el("prog-credit-done").textContent = creditDone;
+    el("prog-credit-bar").style.width  = Math.max(0, (creditDone / 10) * 100) + "%";
+    el("prog-credit-next").textContent = `${d.nextCreditIn || 10} more to next CC`;
+
+    // Boost Token progress bar
+    const tokenDone = 1000 - (d.nextTokenIn || 1000);
+    el("prog-token-done").textContent = fmt(tokenDone);
+    el("prog-token-bar").style.width  = Math.max(0, (tokenDone / 1000) * 100) + "%";
+
+    // Payout history
+    const tbody  = el("payout-tbody");
+    const payouts = d.recentPayouts || [];
+    if (!payouts.length) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="3">No payouts yet — your first Sunday payout will appear here.</td></tr>`;
+    } else {
+        tbody.innerHTML = payouts.map((p) => {
+            const wk = p.weekStart || "—";
+            const dt = p.processedAt ? new Date(p.processedAt).toLocaleDateString("en-IN",{dateStyle:"medium"}) : wk;
+            return `<tr>
+              <td>${dt}</td>
+              <td>${fmt(p.myUserCount || 0)}</td>
+              <td class="td-earn">₹${(p.myShare || 0).toFixed(2)}</td>
+            </tr>`;
+        }).join("");
+    }
+}
+
+// ── utils ─────────────────────────────────────────────────────────────────────
+function fmt(n){ if(n>=1e6) return (n/1e6).toFixed(1)+"M"; if(n>=1e3) return (n/1e3).toFixed(1)+"K"; return String(n); }
+
+window.copyText = function(txt){
+    navigator.clipboard.writeText(txt).then(() => toast("Copied! 📋"));
+};
+window.copyRefLink = function(){
+    const link = el("ref-link-input").value;
+    navigator.clipboard.writeText(link).then(() => toast("Referral link copied! 🔗"));
+};
+
+function toast(msg, dur=2500){
+    const t = el("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), dur);
+}
+</script>
+</body>
+</html>
