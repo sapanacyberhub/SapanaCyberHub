@@ -735,7 +735,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 12px;
+  padding: 4px 12px;
   border-radius: 12px;
   border: 1px solid rgba(219, 226, 234, .95);
   background: linear-gradient(180deg, #ffffff, #f9fbfd);

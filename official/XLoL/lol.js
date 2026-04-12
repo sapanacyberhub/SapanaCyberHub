@@ -9,6 +9,9 @@ import {
 import {
     getFunctions, httpsCallable
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+import {
+    getFirestore, collection, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  FIREBASE INIT
@@ -26,6 +29,7 @@ const firebaseApp = initializeApp({
 const auth = getAuth(firebaseApp);
 const stor = getStorage(firebaseApp);
 const functions = getFunctions(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CLOUD FUNCTIONS
@@ -95,15 +99,18 @@ const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 3 };
 // Bonus card only shown when session engagement reaches this floor
 const BONUS_CARD_MIN_ENGAGEMENT = 50;
 
-const AD_COOLDOWN_MIN_SWIPES = 6;
-const AD_COOLDOWN_MAX_SWIPES = 8;
-const BONUS_CARD_MIN_SWIPES = 8;
+const AD_COOLDOWN_MIN_SWIPES = 5;
+const AD_COOLDOWN_MAX_SWIPES = 7;
+const BONUS_CARD_MIN_SWIPES = 7;
 const BONUS_CARD_MAX_SWIPES = 12;
 const PASSIVE_AD_AUTO_REMOVE_MS = 5000;
 
 
 const VIDEO_HOLD_DELAY_MS = 180;
 const VIDEO_HOLD_MOVE_TOLERANCE = 18;
+const FEED_LOAD_LIMIT = 10;
+const FEED_SEEN_STORAGE_KEY = "lol_seen_post_ids";
+const FEED_SEEN_LIMIT = 150;
 
 let lastCreatedAt = null;
 let isLoading = false;
@@ -181,6 +188,45 @@ function resetSessionExperience() {
     Object.values(sessionEngagementLedger).forEach((b) => b.clear());
     scheduleNextFeedAd();
     scheduleNextBonusCard();
+}
+
+function getStoredSeenPostIds() {
+    try {
+        const ids = JSON.parse(localStorage.getItem(FEED_SEEN_STORAGE_KEY) || "[]");
+        return Array.isArray(ids) ? ids.filter((id) => typeof id === "string") : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveSeenPostIds(ids) {
+    localStorage.setItem(FEED_SEEN_STORAGE_KEY, JSON.stringify(ids.slice(-FEED_SEEN_LIMIT)));
+}
+
+function rememberSeenPost(postId) {
+    if (!postId) return;
+    const ids = getStoredSeenPostIds().filter((id) => id !== postId);
+    ids.push(postId);
+    saveSeenPostIds(ids);
+}
+
+function getFeedExcludeIds() {
+    const ids = new Set(getStoredSeenPostIds());
+    posts.forEach((post) => {
+        if (post?.id) ids.add(post.id);
+    });
+    return [...ids].slice(-FEED_SEEN_LIMIT);
+}
+
+function normalizeFeedPosts(items) {
+    const existingIds = new Set(posts.map((post) => post.id));
+    const seenIds = new Set(getStoredSeenPostIds());
+    return (items || [])
+        .filter((post) => post?.id && !existingIds.has(post.id) && !seenIds.has(post.id))
+        .map((post) => ({
+            ...post,
+            createdAtMs: postDateToMillis(post.createdAt)
+        }));
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -761,11 +807,37 @@ async function loadPosts(initial = false) {
     $("feed-loader").style.display = "flex";
 
     try {
-        const res = await cfLoadFeed({ lastCreatedAt, limitCount: 10 });
-        const newPosts = res.data.posts || [];
-        posts.push(...newPosts);
-        lastCreatedAt = res.data.lastCreatedAt;
-        if (newPosts.length === 0) noMorePosts = true;
+        let addedCount = 0;
+
+        for (let attempt = 0; attempt < 2 && addedCount === 0; attempt++) {
+            const res = await cfLoadFeed({
+                lastCreatedAt,
+                limitCount: FEED_LOAD_LIMIT,
+                seenPostIds: getFeedExcludeIds()
+            });
+            const incomingPosts = res.data.posts || [];
+            const freshPosts = normalizeFeedPosts(incomingPosts);
+
+            if (res.data.lastCreatedAt) lastCreatedAt = res.data.lastCreatedAt;
+
+            if (freshPosts.length) {
+                posts.push(...freshPosts);
+                addedCount = freshPosts.length;
+            }
+
+            if (incomingPosts.length === 0) {
+                noMorePosts = true;
+                break;
+            }
+        }
+
+        if (addedCount === 0) {
+            noMorePosts = true;
+        }
+
+        if (addedCount === 0 && !initial) {
+            showToast("No fresh LoLs right now. Try again soon.");
+        }
     } catch (err) {
         console.error("load feed error:", err);
         showToast("Failed to load posts");
@@ -803,9 +875,11 @@ function renderCard() {
         return;
     }
 
-    const post = posts[cardIndex % posts.length];
+    cardIndex = Math.min(Math.max(cardIndex, 0), posts.length - 1);
+    const post = posts[cardIndex];
     if (!post) return;
 
+    rememberSeenPost(post.id);
     $("card-stack").innerHTML = buildCard(post);
     attachCardEvents(post);
     startViewTimer(post);
@@ -822,9 +896,9 @@ function buildCard(post) {
         onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=x'" />
       <div class="c-info">
         <span class="c-name">${esc(post.creatorName || "Anonymous")}</span>
-        <span class="c-time">${timeAgo(post.createdAt?.toDate?.() || new Date())}</span>
+        <span class="c-time">${timeAgo(postDateToDate(post.createdAtMs || post.createdAt))}</span>
       </div>
-      <div class="card-counter">${(cardIndex % posts.length) + 1} / ${posts.length}</div>
+      <div class="card-counter">${cardIndex + 1} / ${posts.length}</div>
     </div>
     <div class="card-title-wrap">
       <h2 class="card-title">${esc(post.title)}</h2>
@@ -835,13 +909,13 @@ function buildCard(post) {
       <div class="card-stats">
         <span>👁 <span class="stat-v">${fmt(post.views || 0)}</span></span>
         <span>💖 <span class="stat-l">${fmt(post.likes || 0)}</span></span>
-        <span>🔗 <span class="stat-s">${fmt(post.shares || 0)}</span></span>
+        <span>ᯓ➤ <span class="stat-s">${fmt(post.shares || 0)}</span></span>
       </div>
       <div class="card-actions">
         <button class="act-btn like-btn ${liked ? "liked" : ""}" data-id="${post.id}">
           ${liked ? "💖" : "🤍"} Like
         </button>
-        <button class="act-btn share-btn" data-id="${post.id}">🔗 Share</button>
+        <button class="act-btn share-btn" data-id="${post.id}">ᯓ➤ Share</button>
       </div>
       <div class="nav-arrows">
         <button class="arrow-btn prev-btn">⬅</button>
@@ -910,9 +984,25 @@ function attachCardEvents(post) {
 
 async function navigate(dir) {
     if (!posts.length) return;
-    cardIndex = (cardIndex + dir + posts.length) % posts.length;
     swipeCount++;
-    if (cardIndex >= posts.length - 3) await loadPosts(false);
+
+    if (dir > 0) {
+        if (cardIndex >= posts.length - 3) await loadPosts(false);
+
+        if (cardIndex < posts.length - 1) {
+            cardIndex++;
+        } else {
+            await loadPosts(false);
+            if (cardIndex < posts.length - 1) {
+                cardIndex++;
+            } else {
+                showToast("You are caught up. Fresh LoLs will appear soon.");
+            }
+        }
+    } else {
+        cardIndex = Math.max(0, cardIndex - 1);
+    }
+
     renderCard();
 }
 
@@ -1117,7 +1207,9 @@ async function checkDeepLink() {
     try {
         const snap = await getDoc(doc(db, "SapanaCyberHub", "LoL", "posts", id));
         if (!snap.exists()) return;
-        posts = [{ id: snap.id, ...snap.data() }, ...posts.filter((p) => p.id !== id)];
+        const deepPost = { id: snap.id, ...snap.data() };
+        deepPost.createdAtMs = postDateToMillis(deepPost.createdAt);
+        posts = [deepPost, ...posts.filter((p) => p.id !== id)];
         cardIndex = 0;
         renderCard();
     } catch (err) { console.warn("[LoL] deepLink:", err.message); }
@@ -1677,6 +1769,23 @@ function fmt(n) {
     if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
     if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
     return String(n);
+}
+function postDateToMillis(value) {
+    if (!value) return 0;
+    if (typeof value === "number") return value;
+    if (typeof value.toMillis === "function") return value.toMillis();
+    if (typeof value.toDate === "function") return value.toDate().getTime();
+    if (typeof value.seconds === "number") {
+        return (value.seconds * 1000) + Math.floor((value.nanoseconds || 0) / 1e6);
+    }
+    if (typeof value._seconds === "number") {
+        return (value._seconds * 1000) + Math.floor((value._nanoseconds || 0) / 1e6);
+    }
+    return Number(value) || 0;
+}
+function postDateToDate(value) {
+    const millis = postDateToMillis(value);
+    return millis ? new Date(millis) : new Date();
 }
 function timeAgo(date) {
     const d = (Date.now() - date.getTime()) / 1000;
