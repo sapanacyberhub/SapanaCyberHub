@@ -1325,11 +1325,16 @@ async function checkDeepLink() {
     } catch (err) { console.warn("[LoL] deepLink:", err.message); }
 }
 
+
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  CREATE POST
 // ══════════════════════════════════════════════════════════════════════════════
 $("btn-create").addEventListener("click", openCreate);
-$("close-create").addEventListener("click", () => $("create-overlay").classList.add("hidden"));
+$("close-create").addEventListener("click", () => {
+    clearCreateMedia(); 
+    $("create-overlay").classList.add("hidden");
+});
 
 function openCreate() { refreshCreateReqs(); $("create-overlay").classList.remove("hidden"); }
 
@@ -1402,7 +1407,35 @@ async function submitPost() {
     btn.disabled = false; btn.textContent = "🚀 Post LoL";
 }
 
+function clearCreateMedia() {
+    // ❌ remove selected file
+    selectedFile = null;
+
+    // ❌ reset file input
+    const input = $("media-input");
+    if (input) input.value = "";
+
+    // ❌ stop preview media (VERY IMPORTANT)
+    const preview = $("dropzone-inner")?.querySelector("video, img");
+    
+    if (preview) {
+        if (preview.tagName === "VIDEO") {
+            preview.pause();
+            preview.src = "";
+            preview.load();
+        }
+        preview.remove();
+    }
+
+    // ✅ restore default UI
+    $("dropzone-inner").innerHTML = `
+        <span class="dropzone-icon">🎬</span>
+        <p>Tap to select Photo / Video / GIF</p>
+    `;
+}
+
 function resetCreateForm() {
+    clearCreateMedia();
     selectedFile = null;
     ["post-title", "post-desc", "post-tags"].forEach((id) => $(id).value = "");
     $("dropzone-inner").innerHTML =
