@@ -1,190 +1,399 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terms of Service | SapanaCyberHub X Listen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | SapanaCyberHub X Listen</title>
+    <link rel="shortcut icon" href="/assets/SapanaCyberHub-Logo.webp" type="image/x-icon">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<script src="https://cdn.tailwindcss.com"></script>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #1a1a2e, #0a0a0f);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+        /* GLOW BACKGROUND */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: #6366f1;
+            filter: blur(120px);
+            opacity: 0.15;
+            top: -100px;
+            left: -100px;
+            z-index: -1;
+        }
 
-<script>
-tailwind.config = {
-theme:{
-extend:{
-fontFamily:{
-sans:['Inter','sans-serif'],
-display:['Space Grotesk','sans-serif']
-},
-colors:{
-brand:{
-dark:'#0a0a0f',
-card:'#13131f',
-accent:'#6366f1',
-text:'#e2e8f0'
-}
-}
-}
-}
-}
-</script>
+        /* CONTAINER */
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 20px;
+        }
 
-<style>
-body{
-background:#0a0a0f;
-color:#e2e8f0;
-}
+        /* NAV */
+        nav {
+            backdrop-filter: blur(14px);
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-.glass{
-background:rgba(19,19,31,.7);
-backdrop-filter:blur(12px);
-border:1px solid rgba(255,255,255,.08);
-}
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
 
-.gradient-text{
-background:linear-gradient(135deg,#fff 0%,#818cf8 100%);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-</style>
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
+        .logo img {
+            width: 32px;
+        }
+
+        .logo span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .logo .x {
+            color: #818cf8;
+        }
+
+        /* BUTTON */
+        .nav-btn {
+            padding: 8px 18px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        /* HERO */
+        .hero {
+            padding: 100px 20px 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk';
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fff, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: #9ca3af;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        /* CARDS */
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-bottom: 80px;
+        }
+
+        .card {
+            background: rgba(19, 19, 31, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 28px;
+            transition: 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* GLOW HOVER EFFECT */
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+            opacity: 0;
+            transition: 0.5s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card p,
+        .card ul {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .card ul {
+            padding-left: 20px;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 30px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        footer p:first-child {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        footer p:last-child {
+            font-size: 12px;
+            color: #4b5563;
+            margin-top: 5px;
+        }
+
+        /* ANIMATION */
+        .card {
+            animation: fadeUp 0.6s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+
+            .hero h1 {
+                font-size: 34px;
+            }
+
+            .nav-inner {
+                height: 60px;
+            }
+
+            .nav-btn {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+        }
+
+        @media (max-width: 480px) {
+
+            .hero {
+                padding: 80px 15px 40px;
+            }
+
+            .hero p {
+                font-size: 14px;
+            }
+
+        }
+    </style>
 </head>
 
-<body class="font-sans">
+<body>
 
-<!-- NAV -->
+    <!-- NAV -->
+    <nav>
+        <div class="container nav-inner">
+            <div class="logo">
+                <img src="/assets/SapanaCyberHub-Logo.webp">
+                <span>
+                    SapanaCyberHub <span class="x">X</span> Listen
+                </span>
+            </div>
 
-<nav class="border-b border-white/10 bg-black/60 backdrop-blur-md">
-<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/online-earning/listen-enjoy-earn/index.html" class="nav-btn">
+                Back to Platform
+            </a>
+        </div>
+    </nav>
 
-<div class="flex items-center space-x-3">
-<img src="/assets/SapanaCyberHub-Logo.webp" class="w-8">
-<span class="font-display font-bold text-white text-lg">
-SapanaCyberHub <span class="text-indigo-400">X</span> Listen
-</span>
-</div>
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Terms of <span class="gradient-text">Service</span></h1>
+        <p>
+            These Terms govern your use of SapanaCyberHub X Listen. By using this platform you agree to comply with all
+            policies described below.
+        </p>
+    </section>
 
-<a href="/online-earning/listen-enjoy-earn/index.html"
-class="px-5 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
-Back to Platform </a>
+    <!-- CONTENT -->
+    <section class="section">
+        <div class="container-sm cards">
 
-</div>
-</nav>
+            <div class="card">
+                <h2>1. Acceptance of Terms</h2>
+                <p>
+                    By accessing or using SapanaCyberHub X Listen, you agree to be bound by these Terms of Service and
+                    our Privacy Policy. If you do not agree with these terms, you must discontinue using the platform
+                    immediately.
+                </p>
+            </div>
 
-<!-- HERO -->
+            <div class="card">
+                <h2>2. Eligibility</h2>
+                <p>
+                    Users must be at least 16+ years old. If a user is under 18, they must have permission from a parent
+                    or legal guardian to use the platform. By registering, you confirm that such consent has been
+                    obtained. SapanaCyberHub reserves the right to request verification of parental consent at any time.
+                </p>
+            </div>
 
-<section class="py-24 text-center">
+            <div class="card">
+                <h2>3. User Accounts</h2>
+                <ul>
+                    <li>You are responsible for maintaining account security.</li>
+                    <li>Only one account per verified individual is allowed.</li>
+                    <li>Creating multiple accounts to gain unfair rewards is strictly prohibited.</li>
+                </ul>
+            </div>
 
-<h1 class="font-display text-5xl font-bold mb-6">
-Terms of <span class="gradient-text">Service</span>
-</h1>
+            <div class="card">
+                <h2>4. Platform Rewards</h2>
+                <p>
+                    Users may earn rewards by interacting with sponsored content, advertisements, or engagement tasks.
+                    Rewards are distributed based on verified engagement and may vary depending on advertiser campaigns.
+                </p>
+            </div>
 
-<p class="text-gray-400 max-w-2xl mx-auto">
-These Terms govern your use of SapanaCyberHub X Listen. By using this platform you agree to comply with all policies described below.
-</p>
+            <div class="card">
+                <h2>5. Prohibited Activities</h2>
+                <ul>
+                    <li>Using bots, scripts, or automation tools</li>
+                    <li>Creating fake or duplicate accounts</li>
+                    <li>Manipulating engagement metrics</li>
+                    <li>Attempting to exploit platform systems</li>
+                </ul>
+            </div>
 
-</section>
+            <div class="card">
+                <h2>6. Payments & Withdrawals</h2>
+                <p>
+                    Users may withdraw earnings once they reach the minimum withdrawal threshold defined by the
+                    platform. Payment methods and processing times may vary depending on location and financial
+                    providers.
+                    <br><br>
+                    Users under the age of 18 may have restricted access to withdrawal features. SapanaCyberHub reserves
+                    the right to delay, limit, or require additional verification (including parental consent) before
+                    processing withdrawals for such users.
+                </p>
+            </div>
 
-<!-- CONTENT -->
+            <div class="card">
+                <h2>7. Account Suspension</h2>
+                <p>
+                    SapanaCyberHub reserves the right to suspend or terminate accounts that violate platform rules,
+                    engage in fraudulent behavior, or attempt to exploit the system.
+                </p>
+            </div>
 
-<section class="pb-24">
+            <div class="card">
+                <h2>8. Limitation of Liability</h2>
+                <p>
+                    SapanaCyberHub X Listen is provided "as is". We are not responsible for any financial loss, system
+                    interruptions, or third-party advertising content displayed on the platform.
+                </p>
+            </div>
 
-<div class="max-w-4xl mx-auto px-6 space-y-10">
+            <div class="card">
+                <h2>9. Changes to Terms</h2>
+                <p>
+                    We may update these Terms of Service periodically. Continued use of the platform after changes
+                    indicates acceptance of the updated terms.
+                </p>
+            </div>
 
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
-<p class="text-gray-400">
-By accessing or using SapanaCyberHub X Listen, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree with these terms, you must discontinue using the platform immediately.
-</p>
-</div>
+            <div class="card">
+                <h2>10. Contact</h2>
+                <p>
+                    If you have questions about these Terms, please contact our <a
+                        style="color: burlywood; cursor: pointer; font-weight: 900; text-transform: capitalize;"
+                        href="/official/connect/">support team</a> through the official
+                    SapanaCyberHub platform.
 
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">2. Eligibility</h2>
-<p class="text-gray-400">
-Users must be at least 18 years old and capable of entering legally binding agreements. Identity verification may be required to prevent fraudulent accounts and ensure fair reward distribution.
-</p>
-</div>
+                </p>
+            </div>
 
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">3. User Accounts</h2>
-<ul class="text-gray-400 space-y-2 list-disc pl-6">
-<li>You are responsible for maintaining account security.</li>
-<li>Only one account per verified individual is allowed.</li>
-<li>Creating multiple accounts to gain unfair rewards is strictly prohibited.</li>
-</ul>
-</div>
+            <div class="card">
+                <h2>11. Parental Responsibility</h2>
+                <p>
+                    For users under 18 years of age, parents or legal guardians are responsible for monitoring activity
+                    and ensuring compliance with these Terms. SapanaCyberHub is not liable for any misuse of the
+                    platform by minors.
+                </p>
+            </div>
 
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">4. Platform Rewards</h2>
-<p class="text-gray-400">
-Users may earn rewards by interacting with sponsored content, advertisements, or engagement tasks. Rewards are distributed based on verified engagement and may vary depending on advertiser campaigns.
-</p>
-</div>
+        </div>
+    </section>
 
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">5. Prohibited Activities</h2>
-<ul class="text-gray-400 space-y-2 list-disc pl-6">
-<li>Using bots, scripts, or automation tools</li>
-<li>Creating fake or duplicate accounts</li>
-<li>Manipulating engagement metrics</li>
-<li>Attempting to exploit platform systems</li>
-</ul>
-</div>
-
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">6. Payments & Withdrawals</h2>
-<p class="text-gray-400">
-Users may withdraw earnings once they reach the minimum withdrawal threshold defined by the platform. Payment methods and processing times may vary depending on location and financial providers.
-</p>
-</div>
-
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">7. Account Suspension</h2>
-<p class="text-gray-400">
-SapanaCyberHub reserves the right to suspend or terminate accounts that violate platform rules, engage in fraudulent behavior, or attempt to exploit the system.
-</p>
-</div>
-
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">8. Limitation of Liability</h2>
-<p class="text-gray-400">
-SapanaCyberHub X Listen is provided "as is". We are not responsible for any financial loss, system interruptions, or third-party advertising content displayed on the platform.
-</p>
-</div>
-
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">9. Changes to Terms</h2>
-<p class="text-gray-400">
-We may update these Terms of Service periodically. Continued use of the platform after changes indicates acceptance of the updated terms.
-</p>
-</div>
-
-<div class="glass rounded-2xl p-8">
-<h2 class="text-2xl font-bold mb-4">10. Contact</h2>
-<p class="text-gray-400">
-If you have questions about these Terms, please contact our support team through the official SapanaCyberHub platform.
-</p>
-</div>
-
-</div>
-
-</section>
-
-<!-- FOOTER -->
-
-<footer class="border-t border-white/10 bg-black/40 py-8 text-center">
-
-<p class="text-gray-500 text-sm">
-© 2026 SapanaCyberHub X Listen. All rights reserved.
-</p>
-
-<p class="text-xs text-gray-600 mt-2">
-By using this platform you agree to our Terms of Service and Privacy Policy.
-</p>
-
-</footer>
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 SapanaCyberHub X Listen. All rights reserved.</p>
+        <p>By using this platform you agree to our Terms of Service and Privacy Policy.</p>
+    </footer>
 
 </body>
+
 </html>

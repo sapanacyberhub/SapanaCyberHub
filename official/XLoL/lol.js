@@ -44,12 +44,6 @@ const cfGetLeaderboard = httpsCallable(functions, "getTodayLeaderboard");
 const cfLoadLolProfileHistory = httpsCallable(functions, "loadLolProfileHistory");
 const cfDeleteLolPost = httpsCallable(functions, "deleteLolPost");
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  FIRESTORE PATHS
-// ══════════════════════════════════════════════════════════════════════════════
-const lolUserRef = (uid) => doc(db, "SapanaCyberHub", "LoL", "user", uid);
-const lolPostsCol = () => collection(db, "SapanaCyberHub", "LoL", "posts");
-const lolTransfersCol = () => collection(db, "SapanaCyberHub", "LoL", "transfers");
 
 const LISTEN_URL = "/online-earning/listen-enjoy-earn/index.html";
 
@@ -58,6 +52,7 @@ const PASSIVE_AD_SCRIPTS = [
     { id: "monetag-inpage-push", src: "https://nap5k.com/tag.min.js", dataset: { zone: "10246441" } },
     { id: "adsterra-social-bar", src: "https://pl28160948.profitablecpmratenetwork.com/a3/f8/7d/a3f87d980e8ae573f535875f32f4c021.js" },
 ];
+
 const VIGNETTE_AD_CONFIG = PASSIVE_AD_SCRIPTS.find((c) => c.id === "monetag-vignette");
 const INPAGE_PUSH_AD_CONFIG = PASSIVE_AD_SCRIPTS.find((c) => c.id === "monetag-inpage-push");
 
@@ -94,7 +89,9 @@ const AD_CARD_ROTATION = [
 const NATIVE_BANNER_CONTAINER_ID = "container-b4d913493bf7a8df560d9a7b633f5918";
 const NATIVE_BANNER_SCRIPT = "https://pl28037543.profitablecpmratenetwork.com/b4d913493bf7a8df560d9a7b633f5918/invoke.js";
 
-const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 3 };
+const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 30 };
+const likeLocks = new Set();
+const LOL_CREATOR_CREDIT_ICON = "/assets/logo/LOLCreatorCredit.png";
 
 // Bonus card only shown when session engagement reaches this floor
 const BONUS_CARD_MIN_ENGAGEMENT = 50;
@@ -102,7 +99,8 @@ const BONUS_CARD_MIN_ENGAGEMENT = 50;
 const AD_COOLDOWN_MIN_SWIPES = 5;
 const AD_COOLDOWN_MAX_SWIPES = 7;
 const BONUS_CARD_MIN_SWIPES = 7;
-const BONUS_CARD_MAX_SWIPES = 12;
+const BONUS_CARD_MAX_SWIPES = 8;
+const BONUS_SPONSOR_MIN_VISIT_MS = 2500;
 const PASSIVE_AD_AUTO_REMOVE_MS = 5000;
 
 
@@ -110,7 +108,7 @@ const VIDEO_HOLD_DELAY_MS = 180;
 const VIDEO_HOLD_MOVE_TOLERANCE = 18;
 const FEED_LOAD_LIMIT = 10;
 const FEED_SEEN_STORAGE_KEY = "lol_seen_post_ids";
-const FEED_SEEN_LIMIT = 150;
+const FEED_SEEN_LIMIT = 500;
 
 let lastCreatedAt = null;
 let isLoading = false;
@@ -221,8 +219,24 @@ function getFeedExcludeIds() {
 function normalizeFeedPosts(items) {
     const existingIds = new Set(posts.map((post) => post.id));
     const seenIds = new Set(getStoredSeenPostIds());
+    const now = Date.now();
+
     return (items || [])
-        .filter((post) => post?.id && !existingIds.has(post.id) && !seenIds.has(post.id))
+        .filter((post) => {
+            if (!post?.id) return false;
+
+            // ❌ remove already loaded
+            if (existingIds.has(post.id)) return false;
+
+            // ❌ remove seen (permanent)
+            if (seenIds.has(post.id)) return false;
+
+            // 🔥 NEW: block rewatch within 30 min
+            const lastView = Number(localStorage.getItem(`viewed_${post.id}`) || 0);
+            if (now - lastView < 30 * 60 * 1000) return false;
+
+            return true;
+        })
         .map((post) => ({
             ...post,
             createdAtMs: postDateToMillis(post.createdAt)
@@ -245,8 +259,7 @@ function attachBonusTabReturnListener(context = "bonus") {
         if (context === "bonus") {
             showToast(
                 "👋 Welcome back! You visited a sponsor offer. " +
-                "Listen Coin rewards and score updates are processed server-side — " +
-                "no guarantee every visit results in a reward. Keep engaging to earn more!",
+                "⚡ Engagement updated based on your interaction. Keep engaging to increase your earning potential!",
                 6000
             );
         } else {
@@ -630,29 +643,40 @@ async function claimSessionBonusReward(link) {
             sponsorNetwork: link?.network || "",
             sponsorLabel: link?.label || "",
             sponsorUrl: link?.url || "",
-            source: "lol-feed-bonus"
+            source: "lol-feed-bonus",
+            sponsorVisited: true,                    // ← missing
+            visitDurationMs: BONUS_SPONSOR_MIN_VISIT_MS + 100  // ← missing
         });
 
         if (res?.data?.listenUser) listenUserData = res.data.listenUser;
-        if (res?.data?.lolUser) { lolUserData = res.data.lolUser; updateHeaderUI(); }
-
-        if (res?.data?.success === false) {
-            return { success: false, message: res.data.message || "Bonus service not ready yet." };
+        if (res?.data?.lolUser) {
+            lolUserData = res.data.lolUser;
+            updateHeaderUI();
         }
 
-        const reward = Number(
-            res?.data?.listenCoinAwarded ?? res?.data?.listenCoins ?? res?.data?.coins ?? 0
-        );
+        if (res?.data?.success === false) {
+            return {
+                success: false,
+                message: res.data.message || "Bonus service not ready yet."
+            };
+        }
+
+        // ✅ FIX: use correct field from server
+        const reward = Number(res?.data?.engagementScoreAwarded || 0);
 
         return {
             success: true,
             message: reward > 0
-                ? `Claim submitted. +${reward} Listen Coin may be added — server processes it shortly.`
-                : "Claim submitted. Check your Listen wallet in a few minutes."
+                ? `🔥 +${reward} Engagement Score added! This boosts your LoL earning power.`
+                : "Claim submitted. Engagement boost will reflect shortly."
         };
+
     } catch (err) {
         console.warn("[LoL] claimLolSessionBonus:", err.message);
-        return { success: false, message: "Bonus server unavailable. Try again later." };
+        return {
+            success: false,
+            message: "Bonus server unavailable. Try again later."
+        };
     }
 }
 
@@ -1049,7 +1073,7 @@ function startViewTimer(post) {
                 });
 
                 updateHeaderUI();
-            } catch (err) {}
+            } catch (err) { }
 
         }
     }, 1000);
@@ -1064,33 +1088,64 @@ function stopViewTimer() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  LIKE
 // ══════════════════════════════════════════════════════════════════════════════
+
+
 async function handleLike(post) {
     const key = `liked_${post.id}`;
+
+    // ❌ prevent double click race
+    if (likeLocks.has(post.id)) return;
+    likeLocks.add(post.id);
+
     const card = $("card-stack");
     if (!card) return;
+
     const likeBtn = card.querySelector(".like-btn");
     const likeEl = card.querySelector(".stat-l");
 
-    if (localStorage.getItem(key) === "1") { showToast("Already liked! 💖"); return; }
+    // ❌ already liked
+    if (localStorage.getItem(key) === "1") {
+        showToast("Already liked! 💖");
+        likeLocks.delete(post.id);
+        return;
+    }
 
+    // ✅ optimistic UI
     localStorage.setItem(key, "1");
     registerSessionEngagement("like", post.id);
+
     likeBtn?.classList.add("liked");
     if (likeBtn) likeBtn.textContent = "💖 Liked";
+
     const oldLikes = post.likes || 0;
     if (likeEl) likeEl.textContent = fmt(oldLikes + 1);
 
     try {
-        await cfTrackEngagement({ postId: post.id, type: "like" });
+        await cfTrackEngagement({
+            postId: post.id,
+            type: "like"
+        });
+
+        // ✅ sync local model
+        post.likes = oldLikes + 1;
+
         updateHeaderUI();
+        showToast("Liked! 💖");
+
     } catch (err) {
+        console.warn("Like failed:", err.message);
+
+        // 🔁 rollback
         localStorage.removeItem(key);
+
         likeBtn?.classList.remove("liked");
         if (likeBtn) likeBtn.textContent = "🤍 Like";
         if (likeEl) likeEl.textContent = fmt(oldLikes);
-        showToast("Like failed ❌"); return;
+
+        showToast("Like failed ❌");
     }
-    showToast("Liked! 💖");
+
+    likeLocks.delete(post.id);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1098,10 +1153,65 @@ async function handleLike(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleShare(post) {
     const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-    try { await navigator.share({ title: post.title, url }); }
-    catch { await navigator.clipboard.writeText(url); showToast("Link copied! 🔗"); }
+
+    let shared = false;
+    let startTime = Date.now();
+
+    try {
+        await navigator.share({
+            title: post.title,
+            url
+        });
+
+        const duration = Date.now() - startTime;
+
+        // ❌ Too fast → likely fake
+        if (duration < 1200) {
+            showToast("⚠️ Share too fast — try properly.");
+            return;
+        }
+
+        shared = true;
+
+    } catch (err) {
+        // fallback → copy only (no reward)
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast("Link copied! 🔗 (no reward)");
+        } catch { }
+        return;
+    }
+
+    if (!shared) return;
+
+    // ✅ prevent duplicate locally
+    const key = `shared_${post.id}`;
+    if (localStorage.getItem(key) === "1") {
+        showToast("Already shared 👍");
+        return;
+    }
+
+    localStorage.setItem(key, "1");
+
+    // ✅ session engagement (your system)
     registerSessionEngagement("share", post.id);
-    try { await cfTrackEngagement({ postId: post.id, type: "share" }); updateHeaderUI(); } catch { }
+
+    try {
+        await cfTrackEngagement({
+            postId: post.id,
+            type: "share",
+
+            // 🔐 required for server validation
+            shareConfirmed: true,
+            visitDurationMs: Date.now() - startTime
+        });
+
+        showToast("🚀 Share counted!");
+
+    } catch (err) {
+        console.warn("Share tracking failed:", err.message);
+        showToast("Share not counted ❌");
+    }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1138,7 +1248,7 @@ function renderAdCard() {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BONUS CARD
-//  Only shown when sessionEngagementScore >= BONUS_CARD_MIN_ENGAGEMENT (100).
+//  Only shown when sessionEngagementScore >= BONUS_CARD_MIN_ENGAGEMENT (50).
 //  Honest copy — no guarantee of coins or score boost.
 //  Tab-return listener fires a clear explanation when user comes back.
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1151,12 +1261,12 @@ function renderBonusCard() {
       <div class="bonus-emoji">🎁</div>
       <h2 class="bonus-title">Bonus Available </h2>
       <p class="bonus-sub">
-        You've reached <strong>${sessionEngagementScore}</strong> session engagement points.
-        Tapping <em>Claim</em> opens a sponsor offer in a new tab and submits your session
-        for a <strong>possible</strong> Listen Coin reward.
-        Rewards are processed server-side and may take a few minutes to appear.
-        Skipping has no penalty.
-      </p>
+         You've reached <strong>${sessionEngagementScore}</strong> session engagement points.
+         Tapping <em>Claim</em> opens a sponsor offer in a new tab and submits your session
+         for a <strong>possible engagement score boost</strong>.
+         Rewards are calculated server-side based on activity quality.
+         Skipping has no penalty.
+        </p>
       <div class="bonus-cta-row">
         <button class="btn-claim" id="btn-claim">Claim &amp; Open Sponsor 🪙</button>
         <a class="bonus-link-btn" href="${sponsorLink.url}" target="_blank" rel="noopener noreferrer sponsored">
@@ -1378,7 +1488,7 @@ async function loadLeaderboard() {
 
     } catch (err) {
         showToast("Failed to load leaderboard 😵");
-
+        console.log("hi creators", err);
         container.innerHTML = `
         
       <div class="row">
@@ -1724,7 +1834,7 @@ $("btn-transfer").addEventListener("click", async () => {
         const now = new Date();
         const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
 
-        if (d.lastTransferMonth === monthKey) {
+        if (lolUserData.lastTransferMonth === monthKey) {
             showToast("You already claimed this month 💸");
             return;
         }
@@ -1807,7 +1917,7 @@ if (sapanacyberhubRetun) {
         // If the second tap happens within 300ms, it's a double tap
         if (tapLength < 300 && tapLength > 0) {
             e.preventDefault();
-            window.location.href = "/online-earning/listen-enjoy-earn/";
+            window.location.href = LISTEN_URL;
         }
 
         lastTap = currentTime;
