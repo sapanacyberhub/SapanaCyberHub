@@ -844,12 +844,11 @@ textarea {
 .card-title-wrap {
   padding: 4px 12px;
   display: flex;
-  align-items: flex-start;
   gap: 6px;
   overflow-y: hidden;
   overflow-x: scroll;
   background: linear-gradient(180deg, rgba(255, 255, 255, .97), rgba(248, 250, 253, .97));
-  flex-shrink: 0;
+  
 }
 
 .card-title {
