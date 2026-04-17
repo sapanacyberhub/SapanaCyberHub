@@ -846,6 +846,8 @@ textarea {
   display: flex;
   align-items: flex-start;
   gap: 6px;
+  overflow-y: hidden;
+  overflow-x: scroll;
   background: linear-gradient(180deg, rgba(255, 255, 255, .97), rgba(248, 250, 253, .97));
   flex-shrink: 0;
 }
@@ -854,12 +856,15 @@ textarea {
   font-size: clamp(.95rem, 2.1vw, 1.08rem);
   font-weight: 900;
   line-height: 1.08;
+  overflow-y: hidden;
+  overflow-x: scroll;
   color: var(--text);
 }
 
 .card-tags {
   display: flex;
-  flex-wrap: wrap;
+  overflow-y: hidden;
+  overflow-x: scroll;
   gap: 6px;
 }
 
