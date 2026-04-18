@@ -1806,6 +1806,11 @@ textarea {
   color: var(--text);
   letter-spacing: .5px;
 }
+.profile-title img{
+  width: 50px;
+  margin-left: 6px;
+  object-fit: contain;
+}
 
 .profile-hero {
   display: flex;
