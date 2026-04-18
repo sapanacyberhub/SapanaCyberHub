@@ -108,7 +108,7 @@ const VIDEO_HOLD_DELAY_MS = 180;
 const VIDEO_HOLD_MOVE_TOLERANCE = 18;
 const FEED_LOAD_LIMIT = 10;
 const FEED_SEEN_STORAGE_KEY = "lol_seen_post_ids";
-const FEED_SEEN_LIMIT = 500;
+const FEED_SEEN_LIMIT = 100;
 
 let lastCreatedAt = null;
 let isLoading = false;
@@ -218,23 +218,35 @@ function getFeedExcludeIds() {
 
 function normalizeFeedPosts(items) {
     const existingIds = new Set(posts.map((post) => post.id));
-    const seenIds = new Set(getStoredSeenPostIds());
     const now = Date.now();
 
     return (items || [])
         .filter((post) => {
             if (!post?.id) return false;
 
-            // ❌ remove already loaded
+            // ❌ already loaded in current feed
             if (existingIds.has(post.id)) return false;
 
-            // ❌ remove seen (permanent)
-            if (seenIds.has(post.id)) return false;
-
-            // 🔥 NEW: block rewatch within 30 min
             const lastView = Number(localStorage.getItem(`viewed_${post.id}`) || 0);
-            if (now - lastView < 30 * 60 * 1000) return false;
 
+            if (!lastView) return true; // never seen → allow
+
+            const diff = now - lastView;
+
+            // ❌ block under 30 min
+            if (diff < 30 * 60 * 1000) return false;
+
+            // ⚠️ 30–120 min → low chance (20%)
+            if (diff < 2 * 60 * 60 * 1000) {
+                return Math.random() < 0.2;
+            }
+
+            // ⚠️ 2–6 hours → medium chance (50%)
+            if (diff < 6 * 60 * 60 * 1000) {
+                return Math.random() < 0.5;
+            }
+
+            // ✅ older → always allow
             return true;
         })
         .map((post) => ({
@@ -767,6 +779,8 @@ let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
 let _qbSkipTick = null;
 
+let feedOffset = 0;
+
 
 function _clearQbTick() { if (_qbSkipTick) { clearInterval(_qbSkipTick); _qbSkipTick = null; } }
 // ══════════════════════════════════════════════════════════════════════════════
@@ -820,46 +834,46 @@ function updateHeaderUI() {
         `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
 }
 
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  LOAD POSTS
 // ══════════════════════════════════════════════════════════════════════════════
+
+
+
 async function loadPosts(initial = false) {
-    if (initial) { posts = []; cardIndex = 0; lastCreatedAt = null; noMorePosts = false; }
+    if (initial) {
+        posts = [];
+        cardIndex = 0;
+        noMorePosts = false;
+        feedOffset = 0;
+    }
+
     if (isLoading || noMorePosts) return;
 
     isLoading = true;
     $("feed-loader").style.display = "flex";
 
     try {
-        let addedCount = 0;
+        const res = await cfLoadFeed({
+            limitCount: FEED_LOAD_LIMIT,
+            offset: feedOffset
+        });
 
-        for (let attempt = 0; attempt < 2 && addedCount === 0; attempt++) {
-            const res = await cfLoadFeed({
-                lastCreatedAt,
-                limitCount: FEED_LOAD_LIMIT,
-                seenPostIds: getFeedExcludeIds()
-            });
-            const incomingPosts = res.data.posts || [];
-            const freshPosts = normalizeFeedPosts(incomingPosts);
+        const incomingPosts = res.data.posts || [];
+        const freshPosts = normalizeFeedPosts(incomingPosts);
 
-            if (res.data.lastCreatedAt) lastCreatedAt = res.data.lastCreatedAt;
-
-            if (freshPosts.length) {
-                posts.push(...freshPosts);
-                addedCount = freshPosts.length;
-            }
-
-            if (incomingPosts.length === 0) {
-                noMorePosts = true;
-                break;
-            }
+        if (freshPosts.length) {
+            posts.push(...freshPosts);
         }
 
-        if (addedCount === 0) {
+        feedOffset = res.data.nextOffset ?? (feedOffset + FEED_LOAD_LIMIT);
+
+        if (!incomingPosts.length && res.data.noMorePosts === true) {
             noMorePosts = true;
         }
 
-        if (addedCount === 0 && !initial) {
+        if (!freshPosts.length && !initial) {
             showToast("No fresh LoLs right now. Try again soon.");
         }
     } catch (err) {
@@ -870,7 +884,6 @@ async function loadPosts(initial = false) {
     $("feed-loader").style.display = "none";
     isLoading = false;
 }
-
 // ══════════════════════════════════════════════════════════════════════════════
 //  CARD RENDER
 // ══════════════════════════════════════════════════════════════════════════════
@@ -926,7 +939,9 @@ function buildCard(post) {
     </div>
     <div class="card-title-wrap">
       <h2 class="card-title">${esc(post.title)}</h2>
-      <div class="card-tags">${tags}</div>
+      <div class="tag-scroll-area">
+        ${tags}
+      </div>
     </div>
     <div class="card-media">${buildMedia(post)}</div>
     <div class="card-footer">
