@@ -814,6 +814,7 @@ async function bootApp(user) {
     }
 
     updateHeaderUI();
+    ensureBackTrap();
     openFeed();
     bindFeedGestures();
     initializeAds();
@@ -1345,13 +1346,513 @@ async function checkDeepLink() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  CREATE POST
 // ══════════════════════════════════════════════════════════════════════════════
-$("btn-create").addEventListener("click", openCreate);
-$("close-create").addEventListener("click", () => {
-    clearCreateMedia(); 
-    $("create-overlay").classList.add("hidden");
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  BACK / ROUTE STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let appView = "feed"; // feed | profile | create
+let backTrapReady = false;
+
+function ensureBackTrap() {
+    if (backTrapReady) return;
+    backTrapReady = true;
+
+    // Create a safe "feed root" entry so back can be intercepted
+    history.replaceState({ view: "root" }, "", location.href);
+    history.pushState({ view: "feed" }, "", location.href);
+
+    window.addEventListener("popstate", handleAppBack);
+}
+
+function handleAppBack() {
+    // Create overlay -> go back to feed instead of exiting
+    if (!$("create-overlay").classList.contains("hidden") || appView === "create") {
+        appView = "feed";
+        closeCreateOverlay(true);
+        openFeed();
+        return;
+    }
+
+    // Profile -> go back to feed
+    if ($("profile-screen").classList.contains("active") || appView === "profile") {
+        appView = "feed";
+        openFeed();
+        return;
+    }
+
+    // Feed -> ask before leaving
+    if (isFeedFullscreen) {
+        setFeedFullscreen(false);
+        return;
+    }
+
+    showLeaveFeedPopup();
+    history.pushState({ view: "feed" }, "", location.href);
+}
+
+function showLeaveFeedPopup() {
+    ensureLeavePopupStyles();
+
+    let popup = document.getElementById("leave-feed-popup");
+    if (!popup) {
+        popup = document.createElement("div");
+        popup.id = "leave-feed-popup";
+        popup.className = "leave-popup hidden";
+        popup.innerHTML = `
+          <div class="leave-popup-card">
+            <div class="leave-popup-badge">👋 Leaving LoL?</div>
+            <h3>Do you want to leave LoL?</h3>
+            <p>Switch to SapanaCyberHub x Listen or exit this screen.</p>
+
+            <div class="leave-popup-actions">
+              <button class="leave-btn leave-btn-secondary" id="leave-stay">Stay here</button>
+              <button class="leave-btn leave-btn-primary" id="leave-listen">Go to x Listen</button>
+            </div>
+
+            <button class="leave-text-link" id="leave-exit">Exit anyway</button>
+          </div>
+        `;
+        document.body.appendChild(popup);
+
+        popup.querySelector("#leave-stay").addEventListener("click", () => {
+            popup.classList.add("hidden");
+        });
+
+        popup.querySelector("#leave-listen").addEventListener("click", () => {
+            window.location.href = LISTEN_URL;
+        });
+
+        popup.querySelector("#leave-exit").addEventListener("click", () => {
+            popup.classList.add("hidden");
+            // best-effort exit
+            history.back();
+        });
+    }
+
+    popup.classList.remove("hidden");
+    requestAnimationFrame(() => popup.classList.add("show"));
+}
+
+function ensureLeavePopupStyles() {
+    if (document.getElementById("leave-popup-styles")) return;
+    const style = document.createElement("style");
+    style.id = "leave-popup-styles";
+    style.textContent = `
+      .leave-popup{
+        position:fixed; inset:0; z-index:99999;
+        display:grid; place-items:center;
+        background:rgba(5,8,18,.58);
+        backdrop-filter:blur(10px);
+        opacity:0; pointer-events:none;
+        transition:.22s ease;
+        padding:20px;
+      }
+      .leave-popup.show{ opacity:1; pointer-events:auto; }
+      .leave-popup-card{
+        width:min(100%, 420px);
+        border-radius:28px;
+        background:linear-gradient(180deg, rgba(18,24,42,.98), rgba(10,14,26,.98));
+        border:1px solid rgba(255,255,255,.08);
+        box-shadow:0 20px 60px rgba(0,0,0,.45);
+        padding:22px;
+        color:#fff;
+        text-align:center;
+      }
+      .leave-popup-badge{
+        display:inline-flex; align-items:center; gap:8px;
+        padding:8px 12px; border-radius:999px;
+        background:rgba(255,255,255,.06);
+        color:#dbe4ff; font-size:.82rem; margin-bottom:12px;
+      }
+      .leave-popup-card h3{ margin:0 0 8px; font-size:1.35rem; }
+      .leave-popup-card p{ margin:0 0 18px; color:#aab2cf; line-height:1.5; }
+      .leave-popup-actions{ display:grid; gap:10px; }
+      .leave-btn{
+        border:none; border-radius:16px; padding:14px 16px;
+        font-weight:700; cursor:pointer;
+      }
+      .leave-btn-primary{
+        background:linear-gradient(135deg, #7c5cff, #00d4ff);
+        color:#09111f;
+      }
+      .leave-btn-secondary{
+        background:rgba(255,255,255,.06);
+        color:#fff;
+      }
+      .leave-text-link{
+        margin-top:12px; background:none; border:none;
+        color:#9fb1ff; cursor:pointer; font-size:.95rem;
+      }
+    `;
+    document.head.appendChild(style);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CREATE UPLOAD POPUP
+// ══════════════════════════════════════════════════════════════════════════════
+let createUploadModal = null;
+let createUploadThumbURL = null;
+
+function ensureCreateUploadModal() {
+    if (createUploadModal) return createUploadModal;
+
+    const wrap = document.createElement("div");
+    wrap.id = "create-upload-modal";
+    wrap.className = "upload-modal hidden";
+    wrap.innerHTML = `
+  <div class="upload-card">
+    <div class="upload-top">
+      <div class="upload-title-wrap">
+        <div class="upload-badge">Uploading…</div>
+        <h3>Posting your LoL</h3>
+        <p class="upload-sub">Almost there. Please do not close this screen.</p>
+      </div>
+      <button class="upload-close" id="upload-cancel-btn">✕</button>
+    </div>
+
+    <div class="upload-body">
+      <div class="upload-thumb-box">
+        <div class="upload-thumb" id="upload-thumb"></div>
+      </div>
+
+      <div class="upload-progress-box">
+        <div class="upload-percent" id="upload-percent-text">0%</div>
+
+        <div class="upload-bar">
+          <div class="upload-bar-fill" id="upload-bar-fill"></div>
+        </div>
+
+        <div class="upload-status" id="upload-status-text">Preparing...</div>
+      </div>
+    </div>
+  </div>
+`;
+    document.body.appendChild(wrap);
+
+    wrap.querySelector("#upload-cancel-btn").addEventListener("click", () => {
+        // light cancel: just hide popup; upload task is not aborted here
+        hideCreateUploadModal();
+        btnEnableCreate();
+        showToast("Upload cancelled.");
+    });
+
+    createUploadModal = wrap;
+    return wrap;
+}
+
+function ensureCreateUploadStyles() {
+    if (document.getElementById("create-upload-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "create-upload-styles";
+    style.textContent = `
+      .upload-modal{
+        position:fixed; inset:0; z-index:99998;
+        display:grid; place-items:center;
+        background:rgba(4,7,16,.62);
+        backdrop-filter:blur(12px);
+        opacity:0; pointer-events:none;
+        transition:.22s ease;
+        padding:18px;
+      }
+      .upload-modal.show{ opacity:1; pointer-events:auto; }
+      .upload-card{
+        width:min(100%, 460px);
+        border-radius:30px;
+        background:linear-gradient(180deg, rgba(18,24,42,.98), rgba(10,14,26,.98));
+        border:1px solid rgba(255,255,255,.08);
+        box-shadow:0 24px 80px rgba(0,0,0,.5);
+        padding:18px;
+        color:#fff;
+      }
+      .upload-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+      .upload-badge{
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 12px; border-radius:999px;
+        background:rgba(0,212,255,.12); color:#8be7ff;
+        font-size:.78rem; font-weight:700;
+      }
+      .upload-title-wrap h3{ margin:10px 0 4px; font-size:1.35rem; }
+      .upload-sub{ margin:0; color:#aab2cf; font-size:.92rem; line-height:1.45; }
+      .upload-close{
+        width:40px; height:40px; border:none; border-radius:14px;
+        background:rgba(255,255,255,.06); color:#fff; cursor:pointer;
+      }
+
+      .upload-body{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.upload-thumb-box{
+  width:100%;
+  aspect-ratio:4/3;
+  border-radius:18px;
+  overflow:hidden;
+  background:#0c1224;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.upload-thumb img,
+.upload-thumb video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:translateZ(0);
+}
+
+.upload-percent{
+  font-size:1.6rem;
+  font-weight:700;
+}
+
+.upload-bar{
+  width:100%;
+  height:12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+
+.upload-bar-fill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#7c5cff,#00d4ff);
+  transition:width .25s ease;
+}
+
+.upload-status{
+  font-size:.9rem;
+  color:#aab2cf;
+}
+    `;
+
+    document.head.appendChild(style);
+
+    // SVG gradient for the ring stroke
+    const svgDefs = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgDefs.setAttribute("width", "0");
+    svgDefs.setAttribute("height", "0");
+    svgDefs.style.position = "absolute";
+    svgDefs.innerHTML = `
+      <defs>
+        <linearGradient id="uploadGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#7c5cff"/>
+          <stop offset="100%" stop-color="#00d4ff"/>
+        </linearGradient>
+      </defs>
+    `;
+    document.body.appendChild(svgDefs);
+}
+
+function showCreateUploadModal(file, percent = 0, label = "Uploading") {
+    ensureCreateUploadStyles();
+    const modal = ensureCreateUploadModal();
+
+    const thumb = modal.querySelector("#upload-thumb");
+
+    if (thumb && file) {
+        const url = URL.createObjectURL(file);
+        createUploadThumbURL = url;
+
+        if (file.type.startsWith("video/")) {
+            thumb.innerHTML = `<video src="${url}" muted playsinline></video>`;
+
+            const vid = thumb.querySelector("video");
+            vid.addEventListener("loadeddata", () => {
+                vid.currentTime = 0.2;
+                vid.pause(); // 🚫 no autoplay
+            });
+
+        } else {
+            thumb.innerHTML = `<img src="${url}" />`;
+        }
+    }
+
+    modal.classList.remove("hidden");
+    requestAnimationFrame(() => modal.classList.add("show"));
+    updateCreateUploadModal(percent, label);
+}
+
+function updateCreateUploadModal(percent, text = "Uploading...") {
+    const p = Math.min(99, Math.round(percent));
+
+    $("upload-bar-fill").style.width = p + "%";
+    $("upload-percent-text").textContent = p + "%";
+    $("upload-status-text").textContent = text;
+}
+
+function hideCreateUploadModal() {
+    const modal = document.getElementById("create-upload-modal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    setTimeout(() => {
+        modal.classList.add("hidden");
+        if (createUploadThumbURL) {
+            URL.revokeObjectURL(createUploadThumbURL);
+            createUploadThumbURL = null;
+        }
+        const thumb = modal.querySelector("#upload-thumb");
+        if (thumb) thumb.innerHTML = "";
+    }, 220);
+}
+
+function btnDisableCreate() {
+    const btn = $("btn-post-submit");
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = "Uploading…";
+}
+
+function btnEnableCreate() {
+    const btn = $("btn-post-submit");
+    if (!btn) return;
+    btn.disabled = false;
+    btn.textContent = "🚀 Post LoL";
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CREATE BUTTONS
+// ══════════════════════════════════════════════════════════════════════════════
+$("btn-create").addEventListener("click", () => {
+    ensureBackTrap();
+    appView = "create";
+    refreshCreateReqs();
+    $("create-overlay").classList.remove("hidden");
 });
 
-function openCreate() { refreshCreateReqs(); $("create-overlay").classList.remove("hidden"); }
+$("close-create").addEventListener("click", () => {
+    // use browser back so route state stays correct
+    if (history.length > 1) history.back();
+    else closeCreateOverlay(true);
+});
+
+function closeCreateOverlay(silent = false) {
+    clearCreateMedia();
+    resetCreateForm();
+    $("create-overlay").classList.add("hidden");
+    hideCreateUploadModal();
+    if (!silent) appView = "feed";
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  UPDATED OPEN PROFILE / BACK
+// ══════════════════════════════════════════════════════════════════════════════
+async function openProfile() {
+    ensureBackTrap();
+    appView = "profile";
+    setFeedFullscreen(false);
+    setNavState("profile");
+    showScreen("profile-screen");
+
+    $("p-avatar").src =
+        listenUserData?.userDp || lolUserData.userDp ||
+        `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
+    $("p-name").textContent = listenUserData?.name || lolUserData.name || "LoLer";
+    $("p-email").textContent = listenUserData?.email || lolUserData.email || "";
+
+    $("p-listen-balance").textContent = `₹${listenUserData?.cash ?? 0}`;
+    $("p-streak").textContent = lolUserData.lolStreak || 0;
+    $("p-score").textContent = lolUserData.engagementScore || 0;
+    $("p-credits").textContent = lolUserData.lolCreatorCredits || 0;
+    $("p-earning").textContent = `₹${((lolUserData.estimatedEarning) || 0).toFixed(2)}`;
+    $("transfer-amount").textContent =
+        `₹${(((lolUserData.estimatedEarning * 0.7) || 0)).toFixed(2)}`;
+
+    const pct = Math.min(100, ((lolUserData.engagementScore || 0) / 1000) * 100);
+    $("progress-fill").style.width = pct + "%";
+    $("progress-text").textContent = `${lolUserData.engagementScore || 0} / 1000`;
+
+    await loadProfileHistory(currentUser.uid);
+}
+
+$("back-from-profile").addEventListener("click", () => {
+    if (history.length > 1) history.back();
+    else openFeed();
+});
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  UPDATED SUBMIT POST
+// ══════════════════════════════════════════════════════════════════════════════
+$("btn-post-submit").addEventListener("click", submitPost);
+
+async function submitPost() {
+    const title = $("post-title").value.trim();
+    if (!title) return showToast("Add a title! 😅");
+    if (!selectedFile) return showToast("Pick a media! 📸");
+
+    const btn = $("btn-post-submit");
+    btnDisableCreate();
+
+    // close create form, show upload popup
+    $("create-overlay").classList.add("hidden");
+    showCreateUploadModal(selectedFile, 0, "Preparing", "Reading file…");
+
+    let uploadTask = null;
+
+    try {
+        const ext = selectedFile.name.split(".").pop();
+        const path = `SapanaCyberHub/LoL/posts/${currentUser.uid}/${Date.now()}.${ext}`;
+
+        const storageRef = storRef(stor, path);
+        uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+        const uploadSnap = await new Promise((resolve, reject) => {
+            uploadTask.on(
+                "state_changed",
+                (snap) => {
+                    const raw = (snap.bytesTransferred / snap.totalBytes) * 100;
+                    const pct = Math.min(99, Math.floor(raw)); // keep the user at 99% until final server commit
+                    updateCreateUploadModal(
+                        pct,
+                        pct >= 95 ? "Almost done" : "Uploading",
+                        pct >= 95 ? "Finalizing your post…" : "Uploading media…"
+                    );
+                },
+                reject,
+                () => resolve(uploadTask.snapshot)
+            );
+        });
+
+        updateCreateUploadModal(99, "Almost done", "Saving your post…");
+
+        const mediaURL = await getDownloadURL(uploadSnap.ref);
+        const tags = ($("post-tags").value || "").match(/#\w+/g) || [];
+
+        await cfCreateLolPost({
+            title,
+            description: $("post-desc").value.trim(),
+            hashtags: tags,
+            mediaURL,
+            mediaType: selectedFile.type.startsWith("video") ? "video" : "image"
+        });
+
+        updateCreateUploadModal(100, "Done", "Your LoL is live!");
+        await new Promise((r) => setTimeout(r, 350));
+
+        showToast("🚀 LoL posted successfully!");
+        hideCreateUploadModal();
+
+        resetCreateForm();
+        await loadPosts(true);
+        cardIndex = 0;
+        renderCard();
+        updateHeaderUI();
+
+    } catch (err) {
+        console.error(err);
+        hideCreateUploadModal();
+        showToast(err.code === "failed-precondition" ? err.message : "Upload failed: " + err.message);
+        $("create-overlay").classList.remove("hidden");
+    }
+
+    btnEnableCreate();
+}
 
 function refreshCreateReqs() {
     const streak = lolUserData?.lolStreak || 0;
@@ -1379,48 +1880,7 @@ $("media-input").addEventListener("change", (e) => {
         : `<img src="${URL.createObjectURL(selectedFile)}" class="preview-media" />`;
 });
 
-$("btn-post-submit").addEventListener("click", submitPost);
 
-async function submitPost() {
-    const title = $("post-title").value.trim();
-    if (!title) return showToast("Add a title! 😅");
-    if (!selectedFile) return showToast("Pick a media! 📸");
-
-    const btn = $("btn-post-submit");
-    btn.disabled = true; btn.textContent = "Uploading…";
-
-    try {
-        const ext = selectedFile.name.split(".").pop();
-        const path = `SapanaCyberHub/LoL/posts/${currentUser.uid}/${Date.now()}.${ext}`;
-
-        const uploadSnap = await new Promise((res, rej) => {
-            const task = uploadBytesResumable(storRef(stor, path), selectedFile);
-            task.on("state_changed", null, rej, () => res(task.snapshot));
-        });
-
-        const mediaURL = await getDownloadURL(uploadSnap.ref);
-        const tags = ($("post-tags").value || "").match(/#\w+/g) || [];
-
-        await cfCreateLolPost({
-            title,
-            description: $("post-desc").value.trim(),
-            hashtags: tags, mediaURL,
-            mediaType: selectedFile.type.startsWith("video") ? "video" : "image"
-        });
-
-        showToast("🚀 LoL posted successfully!");
-        $("create-overlay").classList.add("hidden");
-        resetCreateForm();
-        await loadPosts(true); cardIndex = 0; renderCard();
-        updateHeaderUI();
-
-    } catch (err) {
-        console.error(err);
-        showToast(err.code === "failed-precondition" ? err.message : "Upload failed: " + err.message);
-    }
-
-    btn.disabled = false; btn.textContent = "🚀 Post LoL";
-}
 
 function clearCreateMedia() {
     // ❌ remove selected file
@@ -1432,7 +1892,7 @@ function clearCreateMedia() {
 
     // ❌ stop preview media (VERY IMPORTANT)
     const preview = $("dropzone-inner")?.querySelector("video, img");
-    
+
     if (preview) {
         if (preview.tagName === "VIDEO") {
             preview.pause();
@@ -1548,32 +2008,7 @@ async function loadLeaderboard() {
     }
 }
 
-async function openProfile() {
-    setFeedFullscreen(false);
-    setNavState("profile");
-    showScreen("profile-screen");
-    renderProfileSponsor();
 
-    $("p-avatar").src =
-        listenUserData?.userDp || lolUserData.userDp ||
-        `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
-    $("p-name").textContent = listenUserData?.name || lolUserData.name || "LoLer";
-    $("p-email").textContent = listenUserData?.email || lolUserData.email || "";
-
-    $("p-listen-balance").textContent = `₹${listenUserData?.cash ?? 0}`;
-    $("p-streak").textContent = lolUserData.lolStreak || 0;
-    $("p-score").textContent = lolUserData.engagementScore || 0;
-    $("p-credits").textContent = lolUserData.lolCreatorCredits || 0;
-    $("p-earning").textContent = `₹${((lolUserData.estimatedEarning) || 0).toFixed(2)}`;
-    $("transfer-amount").textContent =
-        `₹${(((lolUserData.estimatedEarning * 0.7) || 0)).toFixed(2)}`;
-
-    const pct = Math.min(100, ((lolUserData.engagementScore || 0) / 1000) * 100);
-    $("progress-fill").style.width = pct + "%";
-    $("progress-text").textContent = `${lolUserData.engagementScore || 0} / 1000`;
-
-    await loadProfileHistory(currentUser.uid);
-}
 
 
 
