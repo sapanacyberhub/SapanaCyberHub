@@ -1013,8 +1013,8 @@ async function handleShare(post) {
         shared = true;
 
     } catch (err) {
-        // 🔥 fallback → custom UI
-        openShareSheet(post, url);
+        // 🔥 fallback → show toast
+        showToast("Share failed ❌");
         return;
     }
 
@@ -1066,66 +1066,7 @@ async function preloadThumbnail(post) {
     }
 }
 
-function openShareSheet(post, url) {
-    let sheet = document.getElementById("share-sheet");
 
-    if (sheet) sheet.remove();
-
-    sheet = document.createElement("div");
-    sheet.id = "share-sheet";
-
-    sheet.innerHTML = `
-    <div class="share-backdrop"></div>
-    <div class="share-panel">
-        <h3>Share</h3>
-        <div class="share-options">
-            <button class="share-opt" data-type="whatsapp">🟢 WhatsApp</button>
-            <button class="share-opt" data-type="copy">🔗 Copy</button>
-            <button class="share-opt" data-type="more">📤 More</button>
-        </div>
-        <button class="share-cancel">Cancel</button>
-    </div>`;
-
-    document.body.appendChild(sheet);
-
-    sheet.querySelector(".share-backdrop").onclick = () => sheet.remove();
-    sheet.querySelector(".share-cancel").onclick = () => sheet.remove();
-
-    sheet.querySelectorAll(".share-opt").forEach(btn => {
-        btn.onclick = async () => {
-            const type = btn.dataset.type;
-
-            if (type === "whatsapp") {
-                window.open(`https://wa.me/?text=${encodeURIComponent(post.title + " " + url)}`, "_blank");
-            }
-
-            if (type === "copy") {
-                await navigator.clipboard.writeText(url);
-                showToast("Link copied 🔗");
-            }
-
-            if (type === "more") {
-                try {
-                    await navigator.share({ title: post.title, text: post.title, url });
-                } catch {}
-            }
-
-            sheet.remove();
-        };
-    });
-}
-
-const shareStyle = document.createElement("style");
-shareStyle.textContent = `
-#share-sheet{position:fixed;inset:0;z-index:99999;}
-.share-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.5);}
-.share-panel{position:absolute;bottom:0;width:100%;background:#111;border-radius:20px 20px 0 0;padding:20px;color:#fff;animation:up .25s;}
-.share-options{display:flex;gap:10px;margin:15px 0;}
-.share-opt{flex:1;padding:12px;border:none;border-radius:12px;background:#222;color:#fff;}
-.share-cancel{width:100%;padding:12px;border:none;border-radius:12px;background:#333;color:#fff;}
-@keyframes up{from{transform:translateY(100%);}to{transform:translateY(0);}}
-`;
-document.head.appendChild(shareStyle);
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD CARD
