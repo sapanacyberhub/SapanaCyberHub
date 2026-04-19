@@ -873,8 +873,27 @@ function attachVideoControls(surface, video) {
         e.preventDefault(); e.stopPropagation();
         if (suppressClick) { suppressClick = false; return; }
         video.muted = !video.muted;
+        // make double tap to fullscreen setFeedFullscreen(!isFeedFullscreen) instead of toggling mute
+        if (e.detail === 2) setFeedFullscreen(!isFeedFullscreen);
+        // hide controls .next-btn"prev-btn") hide this both and unhide when exit fullscreen
+
+        // hide if next/prev post is ad or bonus card and when full screen
+        if (isFeedFullscreen) {
+            const nextPost = posts[cardIndex + 1];
+            const prevPost = posts[cardIndex - 1];
+            document.querySelector(".next-btn")?.classList.add("hidden");
+
+            document.querySelector(".prev-btn")?.classList.add("hidden");
+
+        } else {
+            document.querySelector(".next-btn")?.classList.remove("hidden");
+            document.querySelector(".prev-btn")?.classList.remove("hidden");
+        }
+
+
     });
 }
+
 
 function attachCardEvents(post) {
     const s = $("card-stack");
@@ -882,6 +901,8 @@ function attachCardEvents(post) {
     s.querySelector(".share-btn")?.addEventListener("click", () => handleShare(post));
     s.querySelector(".next-btn")?.addEventListener("click", () => navigate(1));
     s.querySelector(".prev-btn")?.addEventListener("click", () => navigate(-1));
+
+
     const vs = s.querySelector(".video-stage");
     const vid = s.querySelector(".card-video");
     if (vs && vid) {

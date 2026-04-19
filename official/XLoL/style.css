@@ -773,7 +773,6 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 30px 80px rgba(21, 27, 38, .12);
   animation: cardIn .28s var(--ease) both;
   user-select: none;
   -webkit-user-select: none;
@@ -937,7 +936,7 @@ textarea {
 
 .no-media {
   font-size: 80px;
-  opacity: .25;
+  opacity: .90;
 }
 
 /* Card footer */
