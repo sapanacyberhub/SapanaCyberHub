@@ -844,7 +844,7 @@ function buildMedia(post) {
 
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    video.muted = false; video.defaultMuted = true;
+    video.muted = false; 
     video.play().catch(() => { });
     let holdTimer = null, holdTriggered = false, resumeAfterHold = false;
     let pressX = 0, pressY = 0, suppressClick = false;
@@ -869,28 +869,36 @@ function attachVideoControls(surface, video) {
     surface.addEventListener("pointerup", endPress);
     surface.addEventListener("pointercancel", endPress);
     surface.addEventListener("pointerleave", endPress);
+    let clickTimeout = null;
+
     surface.addEventListener("click", e => {
-        e.preventDefault(); e.stopPropagation();
-        if (suppressClick) { suppressClick = false; return; }
-        video.muted = !video.muted;
-        // make double tap to fullscreen setFeedFullscreen(!isFeedFullscreen) instead of toggling mute
-        if (e.detail === 2) setFeedFullscreen(!isFeedFullscreen);
-        // hide controls .next-btn"prev-btn") hide this both and unhide when exit fullscreen
+        e.preventDefault();
+        e.stopPropagation();
 
-        // hide if next/prev post is ad or bonus card and when full screen
-        if (isFeedFullscreen) {
-            const nextPost = posts[cardIndex + 1];
-            const prevPost = posts[cardIndex - 1];
-            document.querySelector(".next-btn")?.classList.add("hidden");
-
-            document.querySelector(".prev-btn")?.classList.add("hidden");
-
-        } else {
-            document.querySelector(".next-btn")?.classList.remove("hidden");
-            document.querySelector(".prev-btn")?.classList.remove("hidden");
+        if (suppressClick) {
+            suppressClick = false;
+            return;
         }
 
+        // detect double tap
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
 
+            // 👉 DOUBLE TAP → fullscreen
+            setFeedFullscreen(!isFeedFullscreen);
+
+            document.querySelector(".next-btn")?.classList.toggle("hidden", isFeedFullscreen);
+            document.querySelector(".prev-btn")?.classList.toggle("hidden", isFeedFullscreen);
+
+            return;
+        }
+
+        // 👉 SINGLE TAP (delay to confirm not double)
+        clickTimeout = setTimeout(() => {
+            video.muted = !video.muted;
+            clickTimeout = null;
+        }, 200);
     });
 }
 
