@@ -785,6 +785,9 @@ function renderCard() {
 
     cardIndex = Math.min(Math.max(cardIndex, 0), posts.length - 1);
     const post = posts[cardIndex];
+    preloadThumbnail(post);
+    if (posts[cardIndex + 1]) preloadThumbnail(posts[cardIndex + 1]);
+    if (posts[cardIndex - 1]) preloadThumbnail(posts[cardIndex - 1]);
     if (!post) return;
     rememberSeenPost(post.id);
     $("card-stack").innerHTML = buildCard(post);
@@ -980,26 +983,149 @@ async function handleLike(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleShare(post) {
     const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-    let shared = false, startTime = Date.now();
+    let shared = false;
+    const startTime = Date.now();
+
     try {
-        await navigator.share({ title: post.title, url });
-        if (Date.now() - startTime < 1200) { showToast("⚠️ Share too fast — try properly."); return; }
+        const file = thumbCache.get(post.id);
+
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: post.title,
+                text: post.title,
+                url,
+                files: [file]
+            });
+        } else {
+            await navigator.share({
+                title: post.title,
+                text: post.title,
+                url
+            });
+        }
+
+        // 🛡 anti fake share
+        if (Date.now() - startTime < 1200) {
+            showToast("⚠️ Share too fast — try properly.");
+            return;
+        }
+
         shared = true;
-    } catch {
-        try { await navigator.clipboard.writeText(url); showToast("Link copied! 🔗 (no reward)"); } catch { }
+
+    } catch (err) {
+        // 🔥 fallback → custom UI
+        openShareSheet(post, url);
         return;
     }
+
     if (!shared) return;
+
     const key = `shared_${post.id}`;
-    if (localStorage.getItem(key) === "1") { showToast("Already shared 👍"); return; }
+    if (localStorage.getItem(key) === "1") {
+        showToast("Already shared 👍");
+        return;
+    }
+
     localStorage.setItem(key, "1");
+
     registerSessionEngagement("share", post.id);
+
     try {
-        await cfTrackEngagement({ postId: post.id, type: "share", shareConfirmed: true, visitDurationMs: Date.now() - startTime });
+        await cfTrackEngagement({
+            postId: post.id,
+            type: "share",
+            shareConfirmed: true,
+            visitDurationMs: Date.now() - startTime
+        });
+
         showToast("🚀 Share counted!");
-    } catch (err) { console.warn("Share tracking failed:", err.message); showToast("Share not counted ❌"); }
+
+    } catch (err) {
+        console.warn("Share tracking failed:", err.message);
+        showToast("Share not counted ❌");
+    }
 }
 
+
+const thumbCache = new Map();
+
+async function preloadThumbnail(post) {
+    if (!post.thumbnail || thumbCache.has(post.id)) return;
+
+    try {
+        const res = await fetch(post.thumbnail, { cache: "force-cache" });
+        const blob = await res.blob();
+
+        const file = new File([blob], "thumb.jpg", {
+            type: blob.type || "image/jpeg"
+        });
+
+        thumbCache.set(post.id, file);
+    } catch (err) {
+        console.warn("Thumbnail preload failed:", err);
+    }
+}
+
+function openShareSheet(post, url) {
+    let sheet = document.getElementById("share-sheet");
+
+    if (sheet) sheet.remove();
+
+    sheet = document.createElement("div");
+    sheet.id = "share-sheet";
+
+    sheet.innerHTML = `
+    <div class="share-backdrop"></div>
+    <div class="share-panel">
+        <h3>Share</h3>
+        <div class="share-options">
+            <button class="share-opt" data-type="whatsapp">🟢 WhatsApp</button>
+            <button class="share-opt" data-type="copy">🔗 Copy</button>
+            <button class="share-opt" data-type="more">📤 More</button>
+        </div>
+        <button class="share-cancel">Cancel</button>
+    </div>`;
+
+    document.body.appendChild(sheet);
+
+    sheet.querySelector(".share-backdrop").onclick = () => sheet.remove();
+    sheet.querySelector(".share-cancel").onclick = () => sheet.remove();
+
+    sheet.querySelectorAll(".share-opt").forEach(btn => {
+        btn.onclick = async () => {
+            const type = btn.dataset.type;
+
+            if (type === "whatsapp") {
+                window.open(`https://wa.me/?text=${encodeURIComponent(post.title + " " + url)}`, "_blank");
+            }
+
+            if (type === "copy") {
+                await navigator.clipboard.writeText(url);
+                showToast("Link copied 🔗");
+            }
+
+            if (type === "more") {
+                try {
+                    await navigator.share({ title: post.title, text: post.title, url });
+                } catch {}
+            }
+
+            sheet.remove();
+        };
+    });
+}
+
+const shareStyle = document.createElement("style");
+shareStyle.textContent = `
+#share-sheet{position:fixed;inset:0;z-index:99999;}
+.share-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.5);}
+.share-panel{position:absolute;bottom:0;width:100%;background:#111;border-radius:20px 20px 0 0;padding:20px;color:#fff;animation:up .25s;}
+.share-options{display:flex;gap:10px;margin:15px 0;}
+.share-opt{flex:1;padding:12px;border:none;border-radius:12px;background:#222;color:#fff;}
+.share-cancel{width:100%;padding:12px;border:none;border-radius:12px;background:#333;color:#fff;}
+@keyframes up{from{transform:translateY(100%);}to{transform:translateY(0);}}
+`;
+document.head.appendChild(shareStyle);
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD CARD
