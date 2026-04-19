@@ -980,108 +980,27 @@ async function handleLike(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleShare(post) {
     const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-    let shared = false;
-    let file = null;
-
+    let shared = false, startTime = Date.now();
     try {
-        // 🎯 1. Prepare thumbnail (best UX)
-        if (post.thumbnail) {
-            const res = await fetch(post.thumbnail);
-            const blob = await res.blob();
-            file = new File([blob], "thumb.jpg", { type: blob.type });
-
-        } else if (post.mediaType === "video") {
-            // 🔥 auto generate thumbnail
-            const blob = await generateThumbnail(post.mediaURL);
-            file = new File([blob], "thumb.jpg", { type: "image/jpeg" });
-        }
-
-        // 🎯 2. Try share with file (if supported)
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: post.title || "Watch this 😂",
-                text: `${post.title || "Watch this"}\n${url}`
-            });
-        } else {
-            // fallback → text only
-            await navigator.share({
-                title: post.title || "Watch this 😂",
-                text: `${post.title || "Watch this"}\n${url}`
-            });
-        }
-
+        await navigator.share({ title: post.title, url });
+        if (Date.now() - startTime < 1200) { showToast("⚠️ Share too fast — try properly."); return; }
         shared = true;
-
-    } catch (err) {
-        // ❌ cancelled OR unsupported → fallback
-        try {
-            await navigator.clipboard.writeText(url);
-            showToast("Link copied! 🔗");
-        } catch {
-            showToast("Sharing not supported ❌");
-        }
+    } catch {
+        try { await navigator.clipboard.writeText(url); showToast("Link copied! 🔗 (no reward)"); } catch { }
         return;
     }
-
     if (!shared) return;
-
-    // 🔒 prevent duplicate reward
     const key = `shared_${post.id}`;
-    if (localStorage.getItem(key) === "1") {
-        showToast("Already shared 👍");
-        return;
-    }
-
+    if (localStorage.getItem(key) === "1") { showToast("Already shared 👍"); return; }
     localStorage.setItem(key, "1");
-
     registerSessionEngagement("share", post.id);
-
     try {
-        await cfTrackEngagement({
-            postId: post.id,
-            type: "share",
-            shareConfirmed: true
-        });
-
+        await cfTrackEngagement({ postId: post.id, type: "share", shareConfirmed: true, visitDurationMs: Date.now() - startTime });
         showToast("🚀 Share counted!");
-
-    } catch (err) {
-        console.warn("Share tracking failed:", err.message);
-        showToast("Share not counted ❌");
-    }
+    } catch (err) { console.warn("Share tracking failed:", err.message); showToast("Share not counted ❌"); }
 }
 
 
-async function generateThumbnail(videoUrl) {
-    return new Promise((resolve, reject) => {
-        const video = document.createElement("video");
-        video.crossOrigin = "anonymous";
-        video.src = videoUrl;
-        video.muted = true;
-        video.playsInline = true;
-
-        video.addEventListener("loadeddata", () => {
-            video.currentTime = 0.3; // grab good frame
-        });
-
-        video.addEventListener("seeked", () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            canvas.toBlob((blob) => {
-                if (!blob) return reject("Thumbnail failed");
-                resolve(blob);
-            }, "image/jpeg", 0.8);
-        });
-
-        video.onerror = reject;
-    });
-}
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD CARD
 // ══════════════════════════════════════════════════════════════════════════════
