@@ -1749,6 +1749,15 @@ textarea {
   text-align: center;
 }
 
+.card-media video{
+  opacity:0;
+  transition:opacity .12s ease;
+}
+
+.card-media video.ready{
+  opacity:1;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    PROFILE SCREEN
 ═══════════════════════════════════════════════════════════════ */

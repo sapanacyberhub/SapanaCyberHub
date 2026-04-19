@@ -779,6 +779,27 @@ let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
 let _qbSkipTick = null;
 
+
+// SMART VIDEO SYSTEM (FINAL CLEAN)
+let activeVideoElement = null;
+let preloadedVideos = new Map();
+
+let lastSwipeTime = 0;
+let lastSwipeDelta = 999;
+let swipeTrend = 1;
+
+let connectionSpeed = "fast";
+
+function detectConnection() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return;
+
+    const type = conn.effectiveType || "";
+    if (type.includes("2g")) connectionSpeed = "slow";
+    else if (type.includes("3g")) connectionSpeed = "medium";
+    else connectionSpeed = "fast";
+}
+detectConnection();
 let feedOffset = 0;
 
 
@@ -969,7 +990,7 @@ function buildMedia(post) {
     if (!post.mediaURL) return `<div class="no-media">😂</div>`;
     if (post.mediaType === "video") return `
       <div class="video-stage">
-        <video class="card-video" src="${post.mediaURL}" playsinline autoplay loop muted></video>
+      <video class="card-video" src="${post.mediaURL}" playsinline loop muted></video>
       </div>`;
     return `<img class="card-img" src="${post.mediaURL}" alt="${esc(post.title)}" loading="lazy" />`;
 }
@@ -1018,13 +1039,31 @@ function attachCardEvents(post) {
     s.querySelector(".share-btn")?.addEventListener("click", () => handleShare(post));
     s.querySelector(".next-btn")?.addEventListener("click", () => navigate(1));
     s.querySelector(".prev-btn")?.addEventListener("click", () => navigate(-1));
-    const vs = s.querySelector(".video-stage"), vid = s.querySelector(".card-video");
-    if (vs && vid) attachVideoControls(vs, vid);
+    const vs = s.querySelector(".video-stage");
+    const vid = s.querySelector(".card-video");
+
+    if (vs && vid) {
+        const pre = preloadedVideos.get(post.id);
+
+        if (pre) {
+            vid.src = pre.currentSrc || pre.src;
+        }
+
+        attachVideoControls(vs, vid);
+        setActiveVideo(vid);
+
+        vid.addEventListener("loadeddata", () => {
+            try { vid.currentTime = 0.1; } catch { }
+            vid.classList.add("ready");
+        });
+    }
 }
 
 async function navigate(dir) {
     if (!posts.length) return;
+
     swipeCount++;
+    trackSwipe(dir);
 
     if (dir > 0) {
         if (cardIndex >= posts.length - 3) await loadPosts(false);
@@ -1036,15 +1075,92 @@ async function navigate(dir) {
             if (cardIndex < posts.length - 1) {
                 cardIndex++;
             } else {
-                showToast("You are caught up. Fresh LoLs will appear soon.");
+                showToast("You are caught up.");
             }
         }
     } else {
         cardIndex = Math.max(0, cardIndex - 1);
     }
 
+    predictivePreload(); // ✅ correct place
     renderCard();
 }
+
+
+function setActiveVideo(video) {
+    if (activeVideoElement && activeVideoElement !== video) {
+        activeVideoElement.pause();
+    }
+    activeVideoElement = video;
+    video?.play().catch(() => { });
+}
+
+function pauseFeedVideos() {
+    if (activeVideoElement) activeVideoElement.pause();
+}
+
+function resumeFeedVideos() {
+    if (!activeVideoElement) return;
+
+    const currentCard = document.querySelector(".lol-card");
+    const currentVideo = currentCard?.querySelector(".card-video");
+
+    if (currentVideo === activeVideoElement) {
+        currentVideo.play().catch(() => { });
+    }
+}
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) pauseFeedVideos();
+    else resumeFeedVideos();
+});
+
+
+function preloadVideo(post) {
+    if (!post || post.mediaType !== "video") return;
+    if (preloadedVideos.has(post.id)) return;
+
+    const v = document.createElement("video");
+
+    v.preload = connectionSpeed === "slow" ? "metadata" : "auto";
+    v.src = post.mediaURL;
+    v.muted = true;
+    v.playsInline = true;
+
+    v.load();
+    preloadedVideos.set(post.id, v);
+}
+
+function predictivePreload() {
+    const next = posts[cardIndex + swipeTrend];
+    const next2 = posts[cardIndex + swipeTrend * 2];
+    const prev = posts[cardIndex - swipeTrend];
+
+    if (next) preloadVideo(next);
+    if (prev) preloadVideo(prev);
+
+    if (next2 && lastSwipeDelta < 200) preloadVideo(next2);
+
+    // cleanup (keep max 3)
+    if (preloadedVideos.size > 3) {
+        const keys = Array.from(preloadedVideos.keys());
+
+        for (let i = 0; i < keys.length - 3; i++) {
+            const v = preloadedVideos.get(keys[i]);
+            v.src = "";
+            v.load();
+            preloadedVideos.delete(keys[i]);
+        }
+    }
+}
+
+function trackSwipe(dir) {
+    const now = Date.now();
+    lastSwipeDelta = now - lastSwipeTime;
+    lastSwipeTime = now;
+    swipeTrend = dir;
+}
+
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  VIEW TIMER
