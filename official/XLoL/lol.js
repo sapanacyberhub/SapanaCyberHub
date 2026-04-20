@@ -202,10 +202,23 @@ function openFeed() {
     showScreen("app-screen");
     resumeFeedVideos();
 }
-
 function setFeedFullscreen(enabled) {
     isFeedFullscreen = Boolean(enabled);
+
     document.body.classList.toggle("feed-fullscreen", isFeedFullscreen);
+
+    const nextBtn = document.querySelector(".next-btn");
+    const prevBtn = document.querySelector(".prev-btn");
+
+    if (isFeedFullscreen) {
+        nextBtn?.classList.add("hidden");
+        prevBtn?.classList.add("hidden");
+    } else {
+        // 🔥 FORCE SHOW on exit
+        nextBtn?.classList.remove("hidden");
+        prevBtn?.classList.remove("hidden");
+    }
+
     $("btn-feed-exit")?.classList.toggle("hidden", !isFeedFullscreen);
 }
 
@@ -798,6 +811,15 @@ function renderCard() {
 function buildCard(post) {
     const tags = (post.hashtags || []).map(t => `<span class="tag">${t}</span>`).join("");
     const liked = localStorage.getItem(`liked_${post.id}`) === "1";
+
+    // 🔥 conditionally render arrows
+    const navArrows = isFeedFullscreen ? "" : `
+      <div class="nav-arrows">
+        <button class="arrow-btn prev-btn">⬅</button>
+        <button class="arrow-btn next-btn">➡</button>
+      </div>
+    `;
+
     return `
   <div class="lol-card" data-id="${post.id}">
     <div class="card-creator">
@@ -810,25 +832,31 @@ function buildCard(post) {
       </div>
       <div class="card-counter">${cardIndex + 1} / ${posts.length}</div>
     </div>
+
     <div class="card-title-wrap">
       <h2 class="card-title">${esc(post.title)}</h2>
       <div class="tag-scroll-area">${tags}</div>
     </div>
+
     <div class="card-media">${buildMedia(post)}</div>
+
     <div class="card-footer">
       <div class="card-stats">
         <span>👁 <span class="stat-v">${fmt(post.views || 0)}</span></span>
         <span>💖 <span class="stat-l">${fmt(post.likes || 0)}</span></span>
         <span>ᯓ➤ <span class="stat-s">${fmt(post.shares || 0)}</span></span>
       </div>
+
       <div class="card-actions">
-        <button class="act-btn like-btn ${liked ? "liked" : ""}" data-id="${post.id}">${liked ? "💖" : "🤍"} Like</button>
-        <button class="act-btn share-btn" data-id="${post.id}">ᯓ➤ Share</button>
+        <button class="act-btn like-btn ${liked ? "liked" : ""}" data-id="${post.id}">
+          ${liked ? "💖" : "🤍"} Like
+        </button>
+        <button class="act-btn share-btn" data-id="${post.id}">
+          ᯓ➤ Share
+        </button>
       </div>
-      <div class="nav-arrows">
-        <button class="arrow-btn prev-btn">⬅</button>
-        <button class="arrow-btn next-btn">➡</button>
-      </div>
+
+      ${navArrows}
     </div>
   </div>`;
 }
@@ -844,7 +872,7 @@ function buildMedia(post) {
 
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    video.muted = false; 
+    video.muted = false;
     video.play().catch(() => { });
     let holdTimer = null, holdTriggered = false, resumeAfterHold = false;
     let pressX = 0, pressY = 0, suppressClick = false;
@@ -871,6 +899,7 @@ function attachVideoControls(surface, video) {
     surface.addEventListener("pointerleave", endPress);
     let clickTimeout = null;
 
+  
     surface.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
@@ -888,8 +917,6 @@ function attachVideoControls(surface, video) {
             // 👉 DOUBLE TAP → fullscreen
             setFeedFullscreen(!isFeedFullscreen);
 
-            document.querySelector(".next-btn")?.classList.toggle("hidden", isFeedFullscreen);
-            document.querySelector(".prev-btn")?.classList.toggle("hidden", isFeedFullscreen);
 
             return;
         }
@@ -901,6 +928,10 @@ function attachVideoControls(surface, video) {
         }, 200);
     });
 }
+
+
+
+
 
 
 function attachCardEvents(post) {
