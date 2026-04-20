@@ -423,13 +423,13 @@
           <tr><th>Data Type</th><th>What It Includes</th><th>Source</th></tr>
         </thead>
         <tbody>
-          <tr><td>Identity</td><td>Name, email, profile photo, Firebase UID</td><td>SCH × Listen account</td></tr>
+          <tr><td>Identity</td><td>Name, email, profile photo, required information</td><td>SCH × Listen account</td></tr>
           <tr><td>Engagement Activity</td><td>Views, likes, shares per post; session score; watch time</td><td>In-app interactions</td></tr>
           <tr><td>Content Uploads</td><td>Images, videos, GIFs, titles, descriptions, hashtags</td><td>Creator submissions</td></tr>
           <tr><td>Earning Data</td><td>LoL Creator Credits, engagement score, estimated earnings, transfer history</td><td>Server-side Firestore</td></tr>
           <tr><td>Session Bonus Data</td><td>Session score, sponsor network visited, claim token</td><td>Bonus card interactions</td></tr>
-          <tr><td>Device &amp; Technical</td><td>Browser type, IP address (Firebase), localStorage keys</td><td>Browser / Firebase</td></tr>
-          <tr><td>Streak &amp; Credits</td><td>Current LoL Streak, LoL Creator Credit balance</td><td>Firestore lolUser document</td></tr>
+          <tr><td>Device &amp; Technical</td><td>Browser type, IP address, localStorage keys</td><td>Browser</td></tr>
+          <tr><td>Streak &amp; Credits</td><td>Current LoL Streak, LoL Creator Credit balance</td><td>lolUser</td></tr>
         </tbody>
       </table>
     </div>
@@ -597,7 +597,7 @@
         <tbody>
           <tr><td>👁 Viewing a post (5+ seconds)</td><td>+10 points</td><td rowspan="3" style="vertical-align:middle;color:var(--pink);font-weight:600">Every 1,000 points = 1 LoL CC</td></tr>
           <tr><td>💖 Liking a post</td><td>+20 points</td></tr>
-          <tr><td>ᯓ➤ Sharing a post</td><td>+3 points</td></tr>
+          <tr><td>ᯓ➤ Sharing a post</td><td>+40 points</td></tr>
         </tbody>
       </table>
       <p style="margin-top:10px;font-size:13px;color:var(--text-dim)">Your Profile dashboard shows your current progress bar toward the next Creator Credit (0 / 1000).</p>

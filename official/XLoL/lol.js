@@ -26,23 +26,23 @@ const firebaseApp = initializeApp({
     measurementId: "G-HKGQ8D55N1",
 });
 
-const auth = getAuth(firebaseApp);
-const stor = getStorage(firebaseApp);
+const auth     = getAuth(firebaseApp);
+const stor     = getStorage(firebaseApp);
 const functions = getFunctions(firebaseApp);
-const db = getFirestore(firebaseApp);
+const db       = getFirestore(firebaseApp);
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CLOUD FUNCTIONS
 // ══════════════════════════════════════════════════════════════════════════════
-const cfInitLolUser = httpsCallable(functions, "initLolUser");
-const cfTrackEngagement = httpsCallable(functions, "trackEngagement");
-const cfCreateLolPost = httpsCallable(functions, "createLolPost");
-const cfLoadFeed = httpsCallable(functions, "loadLolFeed");
-const cfLoLtoListen = httpsCallable(functions, "transferLolToListenWallet");
+const cfInitLolUser          = httpsCallable(functions, "initLolUser");
+const cfTrackEngagement      = httpsCallable(functions, "trackEngagement");
+const cfCreateLolPost        = httpsCallable(functions, "createLolPost");
+const cfLoadFeed             = httpsCallable(functions, "loadLolFeed");
+const cfLoLtoListen          = httpsCallable(functions, "transferLolToListenWallet");
 const cfClaimLolSessionBonus = httpsCallable(functions, "claimLolSessionBonus");
-const cfGetLeaderboard = httpsCallable(functions, "getTodayLeaderboard");
+const cfGetLeaderboard       = httpsCallable(functions, "getTodayLeaderboard");
 const cfLoadLolProfileHistory = httpsCallable(functions, "loadLolProfileHistory");
-const cfDeleteLolPost = httpsCallable(functions, "deleteLolPost");
+const cfDeleteLolPost        = httpsCallable(functions, "deleteLolPost");
 
 const LISTEN_URL = "/online-earning/listen-enjoy-earn/index.html";
 
@@ -50,126 +50,133 @@ const LISTEN_URL = "/online-earning/listen-enjoy-earn/index.html";
 //  AD CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 const PASSIVE_AD_SCRIPTS = [
-    { id: "monetag-vignette", src: "https://n6wxm.com/vignette.min.js", dataset: { zone: "10246448" } },
-    { id: "monetag-inpage-push", src: "https://nap5k.com/tag.min.js", dataset: { zone: "10246441" } },
+    { id: "monetag-vignette",    src: "https://n6wxm.com/vignette.min.js",  dataset: { zone: "10246448" } },
+    { id: "monetag-inpage-push", src: "https://nap5k.com/tag.min.js",       dataset: { zone: "10246441" } },
     { id: "adsterra-social-bar", src: "https://pl28160948.profitablecpmratenetwork.com/a3/f8/7d/a3f87d980e8ae573f535875f32f4c021.js" },
 ];
-const VIGNETTE_AD_CONFIG = PASSIVE_AD_SCRIPTS.find(c => c.id === "monetag-vignette");
+const VIGNETTE_AD_CONFIG   = PASSIVE_AD_SCRIPTS.find(c => c.id === "monetag-vignette");
 const INPAGE_PUSH_AD_CONFIG = PASSIVE_AD_SCRIPTS.find(c => c.id === "monetag-inpage-push");
 
 const ADSTERRA_BANNERS = [
     { key: "be84f4cdee8a397c6208c778695c8973", width: 160, height: 300 },
-    { key: "b5d3a37bebdb18ab0d508dc21053382b", width: 728, height: 90 },
-    { key: "522259f00affdbfdaf791b01f86b1a64", width: 320, height: 50 },
-    { key: "1ec158b6632bf6a6bac690778268b1f7", width: 468, height: 60 },
+    { key: "b5d3a37bebdb18ab0d508dc21053382b", width: 728, height:  90 },
+    { key: "522259f00affdbfdaf791b01f86b1a64", width: 320, height:  50 },
+    { key: "1ec158b6632bf6a6bac690778268b1f7", width: 468, height:  60 },
     { key: "71197c8b1966802bbfa05225ac458a7b", width: 300, height: 250 },
     { key: "73d8d5f56e427b77a8f4c36d202a1097", width: 160, height: 600 },
 ];
 
 const DIRECT_LINKS = [
-    { network: "Monetag", label: "Monetag Offer 1", url: "https://omg10.com/4/10749383" },
+    { network: "Monetag",  label: "Monetag Offer 1",  url: "https://omg10.com/4/10749383" },
     { network: "Adsterra", label: "Adsterra Offer 1", url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861" },
-    { network: "Monetag", label: "Monetag Offer 2", url: "https://omg10.com/4/10216281" },
+    { network: "Monetag",  label: "Monetag Offer 2",  url: "https://omg10.com/4/10216281" },
     { network: "Adsterra", label: "Adsterra Offer 2", url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203" },
 ];
 
 const AD_CARD_ROTATION = [
-    { type: "banner", title: "Sponsor break", copy: "Adsterra banner — stays inside the card, no redirect.", network: "Adsterra" },
-    { type: "banner", title: "Sponsor break", copy: "Another Adsterra banner slot to keep revenue flowing.", network: "Adsterra" },
-    { type: "native", title: "Sponsored feed card", copy: "Native sponsor content stays inside the feed.", network: "Adsterra Native" },
-    { type: "banner", title: "Sponsor break", copy: "Adsterra banner — skippable, inline.", network: "Adsterra" },
-    { type: "vignette", title: "Monetag quick overlay", copy: "Only the Monetag vignette fires here, then you keep scrolling.", network: "Monetag" },
-    { type: "banner", title: "Sponsor break", copy: "Banner sized automatically to your screen.", network: "Adsterra" },
-    { type: "quick-break", title: "Quick break sponsor", copy: "Tap to open the sponsor offer now, or skip and keep scrolling.", network: "Direct Sponsor" },
-    { type: "banner", title: "Sponsor break", copy: "Adsterra banner — picks the best size for your device.", network: "Adsterra" },
-    { type: "smart-link", title: "Tap-only sponsor", copy: "Smart links open only when you tap them.", network: "Mixed" },
-    { type: "banner", title: "Sponsor break", copy: "Final banner in the cycle — then back to more LoLs.", network: "Adsterra" },
+    { type: "banner",      title: "Sponsor break",        copy: "Adsterra banner — stays inside the card, no redirect.",          network: "Adsterra" },
+    { type: "banner",      title: "Sponsor break",        copy: "Another Adsterra banner slot to keep revenue flowing.",           network: "Adsterra" },
+    { type: "native",      title: "Sponsored feed card",  copy: "Native sponsor content stays inside the feed.",                   network: "Adsterra Native" },
+    { type: "banner",      title: "Sponsor break",        copy: "Adsterra banner — skippable, inline.",                            network: "Adsterra" },
+    { type: "vignette",    title: "Monetag quick overlay",copy: "Only the Monetag vignette fires here, then you keep scrolling.", network: "Monetag" },
+    { type: "banner",      title: "Sponsor break",        copy: "Banner sized automatically to your screen.",                      network: "Adsterra" },
+    { type: "quick-break", title: "Quick break sponsor",  copy: "Tap to open the sponsor offer now, or skip and keep scrolling.", network: "Direct Sponsor" },
+    { type: "banner",      title: "Sponsor break",        copy: "Adsterra banner — picks the best size for your device.",          network: "Adsterra" },
+    { type: "smart-link",  title: "Tap-only sponsor",     copy: "Smart links open only when you tap them.",                        network: "Mixed" },
+    { type: "banner",      title: "Sponsor break",        copy: "Final banner in the cycle — then back to more LoLs.",             network: "Adsterra" },
 ];
 
 const NATIVE_BANNER_CONTAINER_ID = "container-b4d913493bf7a8df560d9a7b633f5918";
-const NATIVE_BANNER_SCRIPT = "https://pl28037543.profitablecpmratenetwork.com/b4d913493bf7a8df560d9a7b633f5918/invoke.js";
+const NATIVE_BANNER_SCRIPT       = "https://pl28037543.profitablecpmratenetwork.com/b4d913493bf7a8df560d9a7b633f5918/invoke.js";
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════════════════════
-const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 30 };
-const BONUS_CARD_MIN_ENGAGEMENT = 50;
-const AD_COOLDOWN_MIN_SWIPES = 5;
-const AD_COOLDOWN_MAX_SWIPES = 7;
-const BONUS_CARD_MIN_SWIPES = 7;
-const BONUS_CARD_MAX_SWIPES = 12;
+const SESSION_ENGAGEMENT_POINTS  = { view: 10, like: 20, share: 30 };
+const BONUS_CARD_MIN_ENGAGEMENT  = 50;
+const AD_COOLDOWN_MIN_SWIPES     = 5;
+const AD_COOLDOWN_MAX_SWIPES     = 7;
+const BONUS_CARD_MIN_SWIPES      = 7;
+const BONUS_CARD_MAX_SWIPES      = 12;
 const BONUS_SPONSOR_MIN_VISIT_MS = 2500;
-const PASSIVE_AD_AUTO_REMOVE_MS = 5000;
-const VIDEO_HOLD_DELAY_MS = 180;
-const VIDEO_HOLD_MOVE_TOLERANCE = 18;
-const FEED_LOAD_LIMIT = 10;
-const FEED_SEEN_STORAGE_KEY = "lol_seen_post_ids";
-const FEED_SEEN_LIMIT = 100;
+const PASSIVE_AD_AUTO_REMOVE_MS  = 5000;
+const VIDEO_HOLD_DELAY_MS        = 180;
+const VIDEO_HOLD_MOVE_TOLERANCE  = 18;
+const FEED_LOAD_LIMIT            = 10;
+const FEED_SEEN_STORAGE_KEY      = "lol_seen_post_ids";
+const FEED_SEEN_LIMIT            = 100;
 
 const likeLocks = new Set();
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════════════════════
-let currentUser = null;
-let listenUserData = null;
-let lolUserData = null;
-let posts = [];
-let cardIndex = 0;
-let lastCreatedAt = null;
-let isLoading = false;
-let noMorePosts = false;
-let swipeCount = 0;
-let viewTimer = null;
-let activePostId = null;
-let selectedFile = null;
-let touchStartX = 0, touchStartY = 0, touchCurrentX = 0, touchCurrentY = 0;
+let currentUser        = null;
+let listenUserData     = null;
+let lolUserData        = null;
+let posts              = [];
+let cardIndex          = 0;
+let lastCreatedAt      = null;
+let isLoading          = false;
+let isNavigating       = false;   // FIX: prevents concurrent navigate() calls
+let noMorePosts        = false;
+let swipeCount         = 0;
+let viewTimer          = null;
+let activePostId       = null;
+let selectedFile       = null;
+let selectedFileURL    = null;    // FIX: track object URL for proper revocation
+let touchStartX        = 0, touchStartY  = 0;
+let touchCurrentX      = 0, touchCurrentY = 0;
+let swipeFired         = false;   // FIX: per-touch-sequence flag prevents double-fire
 let swipeNavigationLocked = false;
-let lastWheelNavigateAt = 0;
-let isFeedFullscreen = false;
+let lastWheelNavigateAt   = 0;
+let isFeedFullscreen      = false;
 let passiveAdsInitialized = false;
 const passiveAdCleanupTimers = {};
-let feedAdIndex = 0, bannerIndex = 0, sponsorLinkIndex = 0;
-let quickBreakRedirectTimer = null;
+let feedAdIndex       = 0, bannerIndex = 0, sponsorLinkIndex = 0;
+let quickBreakRedirectTimer   = null;
 let quickBreakRedirectInterval = null;
-let nextAdSwipeAt = Number.POSITIVE_INFINITY;
+let nextAdSwipeAt   = Number.POSITIVE_INFINITY;
 let nextBonusSwipeAt = Number.POSITIVE_INFINITY;
 let sessionEngagementScore = 0;
-let bonusCardPending = false;
-let bonusFlowCompleted = false;
-let bonusClaimPending = false;
+let bonusCardPending    = false;
+let bonusFlowCompleted  = false;
+let bonusClaimPending   = false;
 let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
-let _qbSkipTick = null;
+let _qbSkipTick = null;   // FIX: single canonical variable for quick-break mode-B interval
 
 // ── Smart video system ────────────────────────────────────────────────────────
 let activeVideoElement = null;
-let preloadedVideos = new Map();
-let lastSwipeTime = 0;
-let lastSwipeDelta = 999;
-let swipeTrend = 1;
-let connectionSpeed = "fast";
+let preloadedVideos    = new Map();
+let lastSwipeTime      = 0;
+let lastSwipeDelta     = 999;
+let swipeTrend         = 1;
+let connectionSpeed    = "fast";
 
 function detectConnection() {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (!conn) return;
     const t = conn.effectiveType || "";
-    if (t.includes("2g")) connectionSpeed = "slow";
-    else if (t.includes("3g")) connectionSpeed = "medium";
-    else connectionSpeed = "fast";
+    connectionSpeed = t.includes("2g") ? "slow" : t.includes("3g") ? "medium" : "fast";
 }
 detectConnection();
 
 // ── Back / route state ────────────────────────────────────────────────────────
-let appView = "feed"; // feed | profile | create
+let appView      = "feed"; // feed | profile | create
 let backTrapReady = false;
 
 // ── Upload modal ──────────────────────────────────────────────────────────────
-let createUploadModal = null;
+let createUploadModal  = null;
 let createUploadThumbURL = null;
-let postLock = false;
+let postLock           = false;
 
-function _clearQbTick() { if (_qbSkipTick) { clearInterval(_qbSkipTick); _qbSkipTick = null; } }
+// ══════════════════════════════════════════════════════════════════════════════
+//  QUICK-BREAK TICK HELPERS
+// ══════════════════════════════════════════════════════════════════════════════
+function _clearQbTick() {
+    if (_qbSkipTick) { clearInterval(_qbSkipTick); _qbSkipTick = null; }
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DOM HELPERS
@@ -178,15 +185,17 @@ const $ = id => document.getElementById(id);
 
 function showToast(msg, dur = 2800) {
     const t = $("toast");
+    if (!t) return;
     t.textContent = msg;
     t.classList.remove("hidden");
-    setTimeout(() => t.classList.add("hidden"), dur);
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(() => t.classList.add("hidden"), dur);
 }
 
 function showScreen(id) {
     clearPendingAdRedirect();
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    $(id).classList.add("active");
+    $(id)?.classList.add("active");
 }
 
 function randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -205,27 +214,23 @@ function openFeed() {
 
 function setFeedFullscreen(enabled) {
     isFeedFullscreen = Boolean(enabled);
-
     document.body.classList.toggle("feed-fullscreen", isFeedFullscreen);
 
     const nextBtn = document.querySelector(".next-btn");
     const prevBtn = document.querySelector(".prev-btn");
-
     if (isFeedFullscreen) {
         nextBtn?.classList.add("hidden");
         prevBtn?.classList.add("hidden");
     } else {
-        // 🔥 FORCE SHOW on exit
         nextBtn?.classList.remove("hidden");
         prevBtn?.classList.remove("hidden");
     }
-
     $("btn-feed-exit")?.classList.toggle("hidden", !isFeedFullscreen);
 }
 
 function clearPendingAdRedirect() {
-    if (quickBreakRedirectTimer) { clearTimeout(quickBreakRedirectTimer); quickBreakRedirectTimer = null; }
-    if (quickBreakRedirectInterval) { clearInterval(quickBreakRedirectInterval); quickBreakRedirectInterval = null; }
+    if (quickBreakRedirectTimer)   { clearTimeout(quickBreakRedirectTimer);   quickBreakRedirectTimer = null; }
+    if (quickBreakRedirectInterval){ clearInterval(quickBreakRedirectInterval); quickBreakRedirectInterval = null; }
     _clearQbTick();
 }
 
@@ -243,6 +248,8 @@ function resetSessionExperience() {
     nextAdSwipeAt = nextBonusSwipeAt = Number.POSITIVE_INFINITY;
     touchStartX = touchStartY = touchCurrentX = touchCurrentY = 0;
     swipeNavigationLocked = false;
+    swipeFired = false;
+    isNavigating = false;
     lastWheelNavigateAt = 0;
     feedAdIndex = bannerIndex = sponsorLinkIndex = 0;
     Object.values(sessionEngagementLedger).forEach(b => b.clear());
@@ -271,11 +278,11 @@ function rememberSeenPost(postId) {
 function getFeedExcludeIds() {
     const ids = new Set(getStoredSeenPostIds());
     posts.forEach(p => { if (p?.id) ids.add(p.id); });
-    return [...ids].slice(-FEED_SEEN_LIMIT); // keep within server limit too
+    return [...ids].slice(-FEED_SEEN_LIMIT);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  NORMALIZE FEED POSTS  (FIX: correct 30-min block direction)
+//  NORMALIZE FEED POSTS
 // ══════════════════════════════════════════════════════════════════════════════
 function normalizeFeedPosts(items) {
     const existingIds = new Set(posts.map(p => p.id));
@@ -283,20 +290,20 @@ function normalizeFeedPosts(items) {
     return (items || [])
         .filter(post => {
             if (!post?.id) return false;
-            if (existingIds.has(post.id)) return false;            // already in feed
+            if (existingIds.has(post.id)) return false;
             const lastView = Number(localStorage.getItem(`viewed_${post.id}`) || 0);
-            if (!lastView) return true;                            // never seen → allow
+            if (!lastView) return true;
             const diff = now - lastView;
-            if (diff < 30 * 60 * 1000) return false;              // FIX: block under 30 min
-            if (diff < 2 * 60 * 60 * 1000) return Math.random() < 0.2; // 30–120 min → 20%
-            if (diff < 6 * 60 * 60 * 1000) return Math.random() < 0.5; // 2–6 h  → 50%
-            return true;                                           // older → always allow
+            if (diff < 30 * 60 * 1000) return false;
+            if (diff < 2 * 60 * 60 * 1000) return Math.random() < 0.2;
+            if (diff < 6 * 60 * 60 * 1000) return Math.random() < 0.5;
+            return true;
         })
         .map(post => ({ ...post, createdAtMs: postDateToMillis(post.createdAt) }));
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  TAB-RETURN LISTENER (bonus/quick-break)
+//  TAB-RETURN LISTENER
 // ══════════════════════════════════════════════════════════════════════════════
 let _bonusTabReturnHandler = null;
 
@@ -323,44 +330,65 @@ function detachBonusTabReturnListener() {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  GESTURE HELPERS
+//  FIX: swipeFired flag ensures only ONE navigate fires per touch sequence
 // ══════════════════════════════════════════════════════════════════════════════
 function resolveGestureDirection(diffX, diffY) {
     const absX = Math.abs(diffX), absY = Math.abs(diffY);
     if (Math.max(absX, absY) < 50) return 0;
     return absY > absX ? (diffY > 0 ? 1 : -1) : (diffX > 0 ? 1 : -1);
 }
+
 function tryGestureNavigate(diffX, diffY) {
-    if (swipeNavigationLocked) return false;
+    // FIX: double-guard with both swipeFired and isNavigating
+    if (swipeFired || swipeNavigationLocked || isNavigating) return false;
     const dir = resolveGestureDirection(diffX, diffY);
     if (!dir) return false;
+    swipeFired = true;
     swipeNavigationLocked = true;
-    navigate(dir);
+    navigate(dir);   // async — locks reset inside navigate() finally block
     return true;
 }
+
 function bindFeedGestures() {
     const stack = $("card-stack");
     if (!stack || stack.dataset.gesturesBound === "1") return;
     stack.dataset.gesturesBound = "1";
+
     stack.addEventListener("touchstart", e => {
-        touchStartX = e.touches[0]?.clientX || 0;
-        touchStartY = e.touches[0]?.clientY || 0;
+        const t = e.touches[0]; if (!t) return;
+        touchStartX = t.clientX; touchStartY = t.clientY;
         touchCurrentX = touchStartX; touchCurrentY = touchStartY;
+        swipeFired = false;          // FIX: reset per touch sequence
         swipeNavigationLocked = false;
     }, { passive: true });
+
     stack.addEventListener("touchmove", e => {
         const t = e.touches[0]; if (!t) return;
         touchCurrentX = t.clientX; touchCurrentY = t.clientY;
-        const dX = touchStartX - touchCurrentX, dY = touchStartY - touchCurrentY;
+        const dX = touchStartX - touchCurrentX;
+        const dY = touchStartY - touchCurrentY;
         if (Math.max(Math.abs(dX), Math.abs(dY)) > 10) e.preventDefault();
         tryGestureNavigate(dX, dY);
     }, { passive: false });
+
     stack.addEventListener("touchend", e => {
-        const eX = e.changedTouches[0]?.clientX, eY = e.changedTouches[0]?.clientY;
-        if (typeof eX !== "number" || typeof eY !== "number") return;
-        tryGestureNavigate(touchStartX - eX, touchStartY - eY);
+        // FIX: only attempt navigate from touchend if touchmove didn't already fire it
+        if (!swipeFired) {
+            const ch = e.changedTouches[0];
+            if (ch) tryGestureNavigate(touchStartX - ch.clientX, touchStartY - ch.clientY);
+        }
+        // Reset flags only if navigate is not in-flight; navigate's finally handles its own
+        if (!isNavigating) {
+            swipeFired = false;
+            swipeNavigationLocked = false;
+        }
+    }, { passive: true });
+
+    stack.addEventListener("touchcancel", () => {
+        swipeFired = false;
         swipeNavigationLocked = false;
     }, { passive: true });
-    stack.addEventListener("touchcancel", () => { swipeNavigationLocked = false; }, { passive: true });
+
     stack.addEventListener("wheel", e => {
         const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
         if (Math.abs(delta) < 24) return;
@@ -368,7 +396,7 @@ function bindFeedGestures() {
         if (now - lastWheelNavigateAt < 420) { e.preventDefault(); return; }
         lastWheelNavigateAt = now;
         e.preventDefault();
-        navigate(delta > 0 ? 1 : -1);
+        if (!isNavigating) navigate(delta > 0 ? 1 : -1);
     }, { passive: false });
 }
 
@@ -378,19 +406,18 @@ function bindFeedGestures() {
 function setActiveVideo(video) {
     if (activeVideoElement && activeVideoElement !== video) activeVideoElement.pause();
     activeVideoElement = video;
-    video?.play().catch(() => { });
+    video?.play().catch(() => {});
 }
 function pauseFeedVideos() {
-    if (activeVideoElement) activeVideoElement.pause();
+    activeVideoElement?.pause();
 }
 function resumeFeedVideos() {
     if (!activeVideoElement) return;
     const currentVideo = document.querySelector(".lol-card .card-video");
-    if (currentVideo && currentVideo === activeVideoElement) currentVideo.play().catch(() => { });
+    if (currentVideo && currentVideo === activeVideoElement) currentVideo.play().catch(() => {});
 }
 document.addEventListener("visibilitychange", () => {
-    if (document.hidden) pauseFeedVideos();
-    else resumeFeedVideos();
+    if (document.hidden) pauseFeedVideos(); else resumeFeedVideos();
 });
 
 function preloadVideo(post) {
@@ -404,28 +431,30 @@ function preloadVideo(post) {
     v.load();
     preloadedVideos.set(post.id, v);
 }
+
 function predictivePreload() {
-    const next = posts[cardIndex + swipeTrend];
+    const next  = posts[cardIndex + swipeTrend];
     const next2 = posts[cardIndex + swipeTrend * 2];
-    const prev = posts[cardIndex - swipeTrend];
-    if (next) preloadVideo(next);
-    if (prev) preloadVideo(prev);
+    const prev  = posts[cardIndex - swipeTrend];
+    if (next)  preloadVideo(next);
+    if (prev)  preloadVideo(prev);
     if (next2 && lastSwipeDelta < 200) preloadVideo(next2);
-    // keep max 3, clean up oldest
+    // keep cache size bounded at 3
     if (preloadedVideos.size > 3) {
         const keys = Array.from(preloadedVideos.keys());
         for (let i = 0; i < keys.length - 3; i++) {
             const v = preloadedVideos.get(keys[i]);
-            v.src = ""; v.load();
+            if (v) { v.src = ""; v.load(); }
             preloadedVideos.delete(keys[i]);
         }
     }
 }
+
 function trackSwipe(dir) {
     const now = Date.now();
     lastSwipeDelta = now - lastSwipeTime;
-    lastSwipeTime = now;
-    swipeTrend = dir;
+    lastSwipeTime  = now;
+    swipeTrend     = dir;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -440,27 +469,37 @@ function loadPassiveAdScript(config, { force = false } = {}) {
     Object.entries(config.attributes || {}).forEach(([k, v]) => { s.setAttribute(k, v); });
     document.body.appendChild(s);
 }
+
 function cleanupPassiveAdScript(configOrId) {
     const id = typeof configOrId === "string" ? configOrId : configOrId?.id;
-    if (id) document.getElementById(id)?.remove();
+    if (!id) return;
+    // FIX: also cancel any pending auto-remove timer for this script
+    if (passiveAdCleanupTimers[id]) {
+        clearTimeout(passiveAdCleanupTimers[id]);
+        passiveAdCleanupTimers[id] = null;
+    }
+    document.getElementById(id)?.remove();
 }
+
 function schedulePassiveAdCleanup(config, durationMs = PASSIVE_AD_AUTO_REMOVE_MS) {
     if (!config?.id) return;
     clearTimeout(passiveAdCleanupTimers[config.id]);
     passiveAdCleanupTimers[config.id] = setTimeout(() => {
-        cleanupPassiveAdScript(config.id);
+        document.getElementById(config.id)?.remove();
         passiveAdCleanupTimers[config.id] = null;
     }, durationMs);
 }
+
 function triggerPassiveAdPulse(mode = "random") {
     const candidates = [];
-    if ((mode === "random" || mode === "vignette") && VIGNETTE_AD_CONFIG) candidates.push(VIGNETTE_AD_CONFIG);
-    if ((mode === "random" || mode === "push") && INPAGE_PUSH_AD_CONFIG) candidates.push(INPAGE_PUSH_AD_CONFIG);
+    if ((mode === "random" || mode === "vignette") && VIGNETTE_AD_CONFIG)   candidates.push(VIGNETTE_AD_CONFIG);
+    if ((mode === "random" || mode === "push")     && INPAGE_PUSH_AD_CONFIG) candidates.push(INPAGE_PUSH_AD_CONFIG);
     if (!candidates.length) return;
     const config = candidates[randomBetween(0, candidates.length - 1)];
     loadPassiveAdScript(config, { force: true });
     schedulePassiveAdCleanup(config);
 }
+
 function maybeTriggerPassiveAdPulse(chance = 0.45) {
     if (Math.random() > chance) return;
     triggerPassiveAdPulse(Math.random() < 0.5 ? "vignette" : "push");
@@ -502,6 +541,7 @@ function pickBannerConfig(target) {
     bannerIndex++;
     return banner;
 }
+
 function mountAdsterraBanner(target) {
     if (!target) return;
     const banner = pickBannerConfig(target);
@@ -514,6 +554,7 @@ function mountAdsterraBanner(target) {
     target.appendChild(opt);
     target.appendChild(inv);
 }
+
 function mountNativeBanner(target) {
     if (!target) return;
     target.innerHTML = `<div id="${NATIVE_BANNER_CONTAINER_ID}"></div>`;
@@ -522,16 +563,23 @@ function mountNativeBanner(target) {
     s.setAttribute("data-cfasync", "false");
     target.appendChild(s);
 }
+
 function mountSmartLinkPanel(target) { if (target) mountFeaturedLink(target, getNextSponsorLink()); }
-function mountVignetteBreakPanel(target) { if (!target) return; mountFeaturedLink(target, getNextSponsorLink(), "Vignette only — close it and keep scrolling."); triggerPassiveAdPulse("vignette"); }
+
+function mountVignetteBreakPanel(target) {
+    if (!target) return;
+    mountFeaturedLink(target, getNextSponsorLink(), "Vignette only — close it and keep scrolling.");
+    triggerPassiveAdPulse("vignette");
+}
 
 function mountQuickBreakPanel(target) {
     if (!target) return;
     const mode = Math.random() < 0.6 ? "A" : "B";
     const link = getNextSponsorLink();
     if (mode === "A") _renderQuickBreakModeA(target, link);
-    else _renderQuickBreakModeB(target);
+    else              _renderQuickBreakModeB(target);
 }
+
 function _renderQuickBreakModeA(target, sponsorLink) {
     target.innerHTML = `
       <div class="qb-panel" id="qb-panel-a">
@@ -545,6 +593,7 @@ function _renderQuickBreakModeA(target, sponsorLink) {
     target.querySelector("#qb-support-link")?.addEventListener("click", () => attachBonusTabReturnListener("quick-break"));
     target.querySelector("#qb-skip-a")?.addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
 }
+
 function _renderQuickBreakModeB(target) {
     target.innerHTML = `
       <div class="qb-panel" id="qb-panel-b">
@@ -557,16 +606,26 @@ function _renderQuickBreakModeB(target) {
     triggerPassiveAdPulse("vignette");
     mountAdsterraBanner(target.querySelector("#qb-ad-slot-b"));
     const skipBtn = target.querySelector("#qb-skip-b");
-    const cntEl = target.querySelector("#qb-countdown");
+    const cntEl   = target.querySelector("#qb-countdown");
     let remaining = 3;
-    const tick = setInterval(() => {
+
+    // FIX: assign to _qbSkipTick (module-level) so _clearQbTick() can cancel it
+    _qbSkipTick = setInterval(() => {
         remaining--;
         if (cntEl) cntEl.textContent = remaining;
-        if (remaining <= 0) { clearInterval(tick); if (skipBtn) { skipBtn.disabled = false; skipBtn.innerHTML = "Skip ➡"; } }
+        if (remaining <= 0) {
+            _clearQbTick();
+            if (skipBtn) { skipBtn.disabled = false; skipBtn.innerHTML = "Skip ➡"; }
+        }
     }, 1000);
-    skipBtn?.addEventListener("click", () => { if (skipBtn.disabled) return; clearInterval(tick); clearPendingAdRedirect(); navigate(1); });
-    target._qbTick = tick;
+
+    skipBtn?.addEventListener("click", () => {
+        if (skipBtn.disabled) return;
+        clearPendingAdRedirect();
+        navigate(1);
+    });
 }
+
 function mountFeaturedLink(target, link, note = "Opens only when tapped") {
     if (!target || !link) return;
     target.innerHTML = `
@@ -576,19 +635,23 @@ function mountFeaturedLink(target, link, note = "Opens only when tapped") {
         <small>${esc(note)}</small>
       </a>`;
 }
+
 function getNextFeedAdConfig() {
     const config = AD_CARD_ROTATION[feedAdIndex % AD_CARD_ROTATION.length];
     feedAdIndex++;
     return config;
 }
+
 function mountFeedAdExperience(config, target) {
     if (!target || !config) return;
-    if (config.type === "banner") { mountAdsterraBanner(target); return; }
-    if (config.type === "native") { mountNativeBanner(target); return; }
-    if (config.type === "vignette") { mountVignetteBreakPanel(target); return; }
-    if (config.type === "quick-break") { mountQuickBreakPanel(target); return; }
-    if (config.type === "smart-link") { mountSmartLinkPanel(target); return; }
-    mountAdsterraBanner(target);
+    const handlers = {
+        "banner":      () => mountAdsterraBanner(target),
+        "native":      () => mountNativeBanner(target),
+        "vignette":    () => mountVignetteBreakPanel(target),
+        "quick-break": () => mountQuickBreakPanel(target),
+        "smart-link":  () => mountSmartLinkPanel(target),
+    };
+    (handlers[config.type] || handlers["banner"])();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -603,7 +666,7 @@ function renderProfileSponsor() {
     renderQuickLinks("profile-quick-links");
 }
 
-function initializeAds() { if (!passiveAdsInitialized) passiveAdsInitialized = true; }
+function initializeAds() { passiveAdsInitialized = true; }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  SESSION ENGAGEMENT
@@ -614,6 +677,7 @@ function registerSessionEngagement(type, postId) {
     bucket.add(postId);
     sessionEngagementScore += SESSION_ENGAGEMENT_POINTS[type] || 0;
 }
+
 function completeBonusFlow() {
     bonusCardPending = false; bonusFlowCompleted = true; bonusClaimPending = false;
     sessionBonusClaimToken = createBonusClaimToken();
@@ -621,27 +685,28 @@ function completeBonusFlow() {
     scheduleNextFeedAd();
     scheduleNextBonusCard();
 }
+
 async function claimSessionBonusReward(link) {
     try {
         const res = await cfClaimLolSessionBonus({
             sessionEngagementScore,
-            claimToken: sessionBonusClaimToken,
-            sponsorNetwork: link?.network || "",
-            sponsorLabel: link?.label || "",
-            sponsorUrl: link?.url || "",
-            source: "lol-feed-bonus",
-            sponsorVisited: true,
-            visitDurationMs: BONUS_SPONSOR_MIN_VISIT_MS + 100
+            claimToken:       sessionBonusClaimToken,
+            sponsorNetwork:   link?.network || "",
+            sponsorLabel:     link?.label   || "",
+            sponsorUrl:       link?.url     || "",
+            source:           "lol-feed-bonus",
+            sponsorVisited:   true,
+            visitDurationMs:  BONUS_SPONSOR_MIN_VISIT_MS + 100,
         });
         if (res?.data?.listenUser) listenUserData = res.data.listenUser;
-        if (res?.data?.lolUser) { lolUserData = res.data.lolUser; updateHeaderUI(); }
+        if (res?.data?.lolUser)   { lolUserData = res.data.lolUser; updateHeaderUI(); }
         if (res?.data?.success === false) return { success: false, message: res.data.message || "Bonus service not ready yet." };
         const reward = Number(res?.data?.engagementScoreAwarded || 0);
         return {
             success: true,
             message: reward > 0
                 ? `🔥 +${reward} Engagement Score added! This boosts your LoL earning power.`
-                : "Claim submitted. Engagement boost will reflect shortly."
+                : "Claim submitted. Engagement boost will reflect shortly.",
         };
     } catch (err) {
         console.warn("[LoL] claimLolSessionBonus:", err.message);
@@ -710,7 +775,7 @@ async function bootApp(user) {
         const res = await cfInitLolUser();
         if (!res?.data?.success) { showGateNoAccount(); return; }
         listenUserData = res.data.listenUser;
-        lolUserData = res.data.lolUser;
+        lolUserData    = res.data.lolUser;
     } catch (err) {
         console.error("init failed:", err);
         showGateError("Something went wrong. Retry.");
@@ -737,12 +802,11 @@ function updateHeaderUI() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  LOAD POSTS  (FIX: use lastCreatedAt + seenPostIds, not offset)
+//  LOAD POSTS
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadPosts(initial = false) {
     if (initial) {
         posts = []; cardIndex = 0; lastCreatedAt = null; noMorePosts = false;
-        // FIX: clear preload cache on full reset
         preloadedVideos.forEach(v => { v.src = ""; v.load(); });
         preloadedVideos.clear();
     }
@@ -754,11 +818,11 @@ async function loadPosts(initial = false) {
         for (let attempt = 0; attempt < 2 && addedCount === 0; attempt++) {
             const res = await cfLoadFeed({
                 lastCreatedAt,
-                limitCount: FEED_LOAD_LIMIT,
-                seenPostIds: getFeedExcludeIds()   // slice to 100 max already
+                limitCount:  FEED_LOAD_LIMIT,
+                seenPostIds: getFeedExcludeIds(),
             });
             const incoming = res.data.posts || [];
-            const fresh = normalizeFeedPosts(incoming);
+            const fresh    = normalizeFeedPosts(incoming);
             if (res.data.lastCreatedAt) lastCreatedAt = res.data.lastCreatedAt;
             if (fresh.length) { posts.push(...fresh); addedCount = fresh.length; }
             if (!incoming.length) { noMorePosts = true; break; }
@@ -775,12 +839,15 @@ async function loadPosts(initial = false) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CARD RENDER
+//  FIX: cleanupPassiveAdScript now also cancels pending timers
 // ══════════════════════════════════════════════════════════════════════════════
 function renderCard() {
     stopViewTimer();
     clearPendingAdRedirect();
     detachBonusTabReturnListener();
+    // FIX: cleanupPassiveAdScript already cancels timers now
     PASSIVE_AD_SCRIPTS.forEach(c => cleanupPassiveAdScript(c.id));
+
     if (!posts.length) { renderEmptyFeed(); return; }
 
     if (swipeCount > 0 && swipeCount >= nextBonusSwipeAt) {
@@ -799,10 +866,13 @@ function renderCard() {
 
     cardIndex = Math.min(Math.max(cardIndex, 0), posts.length - 1);
     const post = posts[cardIndex];
+    if (!post) return;
+
+    // Preload thumbnails for neighbours
     preloadThumbnail(post);
     if (posts[cardIndex + 1]) preloadThumbnail(posts[cardIndex + 1]);
     if (posts[cardIndex - 1]) preloadThumbnail(posts[cardIndex - 1]);
-    if (!post) return;
+
     rememberSeenPost(post.id);
     $("card-stack").innerHTML = buildCard(post);
     attachCardEvents(post);
@@ -810,16 +880,13 @@ function renderCard() {
 }
 
 function buildCard(post) {
-    const tags = (post.hashtags || []).map(t => `<span class="tag">${t}</span>`).join("");
+    const tags  = (post.hashtags || []).map(t => `<span class="tag">${t}</span>`).join("");
     const liked = localStorage.getItem(`liked_${post.id}`) === "1";
-
-    // 🔥 conditionally render arrows
     const navArrows = isFeedFullscreen ? "" : `
       <div class="nav-arrows">
         <button class="arrow-btn prev-btn">⬅</button>
         <button class="arrow-btn next-btn">➡</button>
-      </div>
-    `;
+      </div>`;
 
     return `
   <div class="lol-card" data-id="${post.id}">
@@ -847,7 +914,6 @@ function buildCard(post) {
         <span>💖 <span class="stat-l">${fmt(post.likes || 0)}</span></span>
         <span>ᯓ➤ <span class="stat-s">${fmt(post.shares || 0)}</span></span>
       </div>
-
       <div class="card-actions">
         <button class="act-btn like-btn ${liked ? "liked" : ""}" data-id="${post.id}">
           ${liked ? "💖" : "🤍"} Like
@@ -856,7 +922,6 @@ function buildCard(post) {
           ᯓ➤ Share
         </button>
       </div>
-
       ${navArrows}
     </div>
   </div>`;
@@ -866,63 +931,66 @@ function buildMedia(post) {
     if (!post.mediaURL) return `<div class="no-media">😂</div>`;
     if (post.mediaType === "video") return `
       <div class="video-stage">
-        <video class="card-video" src="${post.mediaURL}" autoplay loop muted></video>
+        <video class="card-video" src="${post.mediaURL}" autoplay loop muted playsinline></video>
       </div>`;
     return `<img class="card-img" src="${post.mediaURL}" alt="${esc(post.title)}" loading="lazy" />`;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  VIDEO CONTROLS  (single-tap = mute, double-tap = fullscreen)
+// ══════════════════════════════════════════════════════════════════════════════
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
     video.muted = false;
-    video.play().catch(() => { });
-    let holdTimer = null, holdTriggered = false, resumeAfterHold = false;
-    let pressX = 0, pressY = 0, suppressClick = false;
+    video.play().catch(() => {});
+
+    let holdTimer     = null;
+    let holdTriggered = false;
+    let resumeAfterHold = false;
+    let pressX = 0, pressY = 0;
+    let suppressClick = false;
+    let clickTimeout  = null;   // closure-scoped — safe per card instance
+
     const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
+
     const startPress = (x, y) => {
         pressX = x; pressY = y; holdTriggered = false;
-        resumeAfterHold = !video.paused; clearHold();
+        resumeAfterHold = !video.paused;
+        clearHold();
         holdTimer = setTimeout(() => { holdTriggered = true; video.pause(); }, VIDEO_HOLD_DELAY_MS);
     };
     const movePress = (x, y) => {
-        if (Math.abs(x - pressX) > VIDEO_HOLD_MOVE_TOLERANCE || Math.abs(y - pressY) > VIDEO_HOLD_MOVE_TOLERANCE) clearHold();
+        if (Math.abs(x - pressX) > VIDEO_HOLD_MOVE_TOLERANCE ||
+            Math.abs(y - pressY) > VIDEO_HOLD_MOVE_TOLERANCE) clearHold();
     };
     const endPress = () => {
-        clearHold(); if (!holdTriggered) return;
+        clearHold();
+        if (!holdTriggered) return;
         holdTriggered = false;
-        if (resumeAfterHold) video.play().catch(() => { });
+        if (resumeAfterHold) video.play().catch(() => {});
         suppressClick = true;
         setTimeout(() => { suppressClick = false; }, 260);
     };
-    surface.addEventListener("pointerdown", e => { if (e.pointerType === "mouse" && e.button !== 0) return; startPress(e.clientX, e.clientY); });
-    surface.addEventListener("pointermove", e => movePress(e.clientX, e.clientY));
-    surface.addEventListener("pointerup", endPress);
+
+    surface.addEventListener("pointerdown",  e => { if (e.pointerType === "mouse" && e.button !== 0) return; startPress(e.clientX, e.clientY); });
+    surface.addEventListener("pointermove",  e => movePress(e.clientX, e.clientY));
+    surface.addEventListener("pointerup",    endPress);
     surface.addEventListener("pointercancel", endPress);
     surface.addEventListener("pointerleave", endPress);
-    let clickTimeout = null;
 
-  
     surface.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
+        if (suppressClick) { suppressClick = false; return; }
 
-        if (suppressClick) {
-            suppressClick = false;
-            return;
-        }
-
-        // detect double tap
         if (clickTimeout) {
+            // Double-tap → toggle fullscreen
             clearTimeout(clickTimeout);
             clickTimeout = null;
-
-            // 👉 DOUBLE TAP → fullscreen
             setFeedFullscreen(!isFeedFullscreen);
-
-
             return;
         }
-
-        // 👉 SINGLE TAP (delay to confirm not double)
+        // Single-tap — confirm after 200 ms that it wasn't a double-tap
         clickTimeout = setTimeout(() => {
             video.muted = !video.muted;
             clickTimeout = null;
@@ -930,56 +998,66 @@ function attachVideoControls(surface, video) {
     });
 }
 
-
-
-
-
-
+// ══════════════════════════════════════════════════════════════════════════════
+//  ATTACH CARD EVENTS
+// ══════════════════════════════════════════════════════════════════════════════
 function attachCardEvents(post) {
     const s = $("card-stack");
     s.querySelector(".like-btn")?.addEventListener("click", () => handleLike(post));
     s.querySelector(".share-btn")?.addEventListener("click", () => handleShare(post));
-    s.querySelector(".next-btn")?.addEventListener("click", () => navigate(1));
-    s.querySelector(".prev-btn")?.addEventListener("click", () => navigate(-1));
+    s.querySelector(".next-btn")?.addEventListener("click", () => { if (!isNavigating) navigate(1); });
+    s.querySelector(".prev-btn")?.addEventListener("click", () => { if (!isNavigating) navigate(-1); });
 
-
-    const vs = s.querySelector(".video-stage");
+    const vs  = s.querySelector(".video-stage");
     const vid = s.querySelector(".card-video");
     if (vs && vid) {
         const pre = preloadedVideos.get(post.id);
-        if (pre) {
+        if (pre?.src) {
             vid.src = pre.src;
-            vid.load(); // 🔥 force attach buffer
+            vid.load();
         }
         attachVideoControls(vs, vid);
         setActiveVideo(vid);
         vid.addEventListener("loadeddata", () => {
-            try { vid.currentTime = 0.1; } catch { }
+            try { vid.currentTime = 0.1; } catch {}
             vid.classList.add("ready");
-        });
+        }, { once: true });
     }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  NAVIGATE  — FIX: isNavigating lock prevents concurrent calls
+// ══════════════════════════════════════════════════════════════════════════════
 async function navigate(dir) {
-    if (!posts.length) return;
-    swipeCount++;
-    trackSwipe(dir);
+    if (!posts.length || isNavigating) return;
+    isNavigating = true;
+    swipeNavigationLocked = true;
 
-    if (dir > 0) {
-        if (cardIndex >= posts.length - 3) await loadPosts(false);
-        if (cardIndex < posts.length - 1) {
-            cardIndex++;
+    try {
+        swipeCount++;
+        trackSwipe(dir);
+
+        if (dir > 0) {
+            if (cardIndex >= posts.length - 3) await loadPosts(false);
+            if (cardIndex < posts.length - 1) {
+                cardIndex++;
+            } else {
+                await loadPosts(false);
+                if (cardIndex < posts.length - 1) cardIndex++;
+                else showToast("");
+            }
         } else {
-            await loadPosts(false);
-            if (cardIndex < posts.length - 1) cardIndex++;
-            else showToast("You are caught up. Fresh LoLs will appear soon.");
+            cardIndex = Math.max(0, cardIndex - 1);
         }
-    } else {
-        cardIndex = Math.max(0, cardIndex - 1);
-    }
 
-    predictivePreload(); // after cardIndex is updated
-    renderCard();
+        predictivePreload();
+        renderCard();
+    } finally {
+        // FIX: always reset locks after navigate (sync or async)
+        isNavigating = false;
+        swipeNavigationLocked = false;
+        swipeFired = false;
+    }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -988,9 +1066,9 @@ async function navigate(dir) {
 function startViewTimer(post) {
     stopViewTimer();
     activePostId = post.id;
-    const key = `viewed_${post.id}`;
+    const key      = `viewed_${post.id}`;
     const lastView = Number(localStorage.getItem(key) || 0);
-    const now = Date.now();
+    const now      = Date.now();
     if (now - lastView < 30 * 60 * 1000) return;
     let visibleTime = 0;
     viewTimer = setInterval(async () => {
@@ -1000,7 +1078,7 @@ function startViewTimer(post) {
             clearInterval(viewTimer); viewTimer = null;
             localStorage.setItem(key, now);
             registerSessionEngagement("view", post.id);
-            try { await cfTrackEngagement({ postId: post.id, type: "view", watchTime: visibleTime }); updateHeaderUI(); } catch { }
+            try { await cfTrackEngagement({ postId: post.id, type: "view", watchTime: visibleTime }); updateHeaderUI(); } catch {}
         }
     }, 1000);
 }
@@ -1013,10 +1091,14 @@ async function handleLike(post) {
     const key = `liked_${post.id}`;
     if (likeLocks.has(post.id)) return;
     likeLocks.add(post.id);
-    const card = $("card-stack"); if (!card) return;
+    const card    = $("card-stack"); if (!card) { likeLocks.delete(post.id); return; }
     const likeBtn = card.querySelector(".like-btn");
-    const likeEl = card.querySelector(".stat-l");
-    if (localStorage.getItem(key) === "1") { showToast("Already liked! 💖"); likeLocks.delete(post.id); return; }
+    const likeEl  = card.querySelector(".stat-l");
+    if (localStorage.getItem(key) === "1") {
+        showToast("Already liked! 💖");
+        likeLocks.delete(post.id);
+        return;
+    }
     localStorage.setItem(key, "1");
     registerSessionEngagement("like", post.id);
     likeBtn?.classList.add("liked");
@@ -1043,91 +1125,51 @@ async function handleLike(post) {
 //  SHARE
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleShare(post) {
-    const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-    let shared = false;
+    const url       = `${location.origin}${location.pathname}?lol=${post.id}`;
+    let shared      = false;
     const startTime = Date.now();
-
     try {
         const file = thumbCache.get(post.id);
-
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                title: post.title,
-                text: post.title,
-                url,
-                files: [file]
-            });
+        if (file && navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ title: post.title, text: post.title, url, files: [file] });
         } else {
-            await navigator.share({
-                title: post.title,
-                text: post.title,
-                url
-            });
+            await navigator.share({ title: post.title, text: post.title, url });
         }
-
-        // 🛡 anti fake share
-        if (Date.now() - startTime < 1200) {
-            showToast("⚠️ Share too fast — try properly.");
-            return;
-        }
-
+        if (Date.now() - startTime < 1200) { showToast("⚠️ Share too fast — try properly."); return; }
         shared = true;
-
-    } catch (err) {
-        // 🔥 fallback → show toast
+    } catch {
         showToast("Share failed ❌");
         return;
     }
-
     if (!shared) return;
-
     const key = `shared_${post.id}`;
-    if (localStorage.getItem(key) === "1") {
-        showToast("Already shared 👍");
-        return;
-    }
-
+    if (localStorage.getItem(key) === "1") { showToast("Already shared 👍"); return; }
     localStorage.setItem(key, "1");
-
     registerSessionEngagement("share", post.id);
-
     try {
-        await cfTrackEngagement({
-            postId: post.id,
-            type: "share",
-            shareConfirmed: true,
-            visitDurationMs: Date.now() - startTime
-        });
-
+        await cfTrackEngagement({ postId: post.id, type: "share", shareConfirmed: true, visitDurationMs: Date.now() - startTime });
         showToast("🚀 Share counted!");
-
     } catch (err) {
         console.warn("Share tracking failed:", err.message);
         showToast("Share not counted ❌");
     }
 }
 
-
+// ══════════════════════════════════════════════════════════════════════════════
+//  THUMBNAIL PRELOAD CACHE
+// ══════════════════════════════════════════════════════════════════════════════
 const thumbCache = new Map();
 
 async function preloadThumbnail(post) {
-    if (!post.thumbnail || thumbCache.has(post.id)) return;
-
+    if (!post?.thumbnail || thumbCache.has(post.id)) return;
     try {
-        const res = await fetch(post.thumbnail, { cache: "force-cache" });
+        const res  = await fetch(post.thumbnail, { cache: "force-cache" });
         const blob = await res.blob();
-
-        const file = new File([blob], "thumb.jpg", {
-            type: blob.type || "image/jpeg"
-        });
-
-        thumbCache.set(post.id, file);
+        thumbCache.set(post.id, new File([blob], "thumb.jpg", { type: blob.type || "image/jpeg" }));
     } catch (err) {
         console.warn("Thumbnail preload failed:", err);
     }
 }
-
-
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AD CARD
@@ -1152,8 +1194,8 @@ function renderAdCard() {
     mountFeedAdExperience(config, $("feed-ad-stage"));
     if (config.type === "smart-link") maybeTriggerPassiveAdPulse(0.5);
     renderQuickLinks("feed-ad-links");
-    $("card-stack").querySelector(".next-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
-    $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); navigate(-1); });
+    $("card-stack").querySelector(".next-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(1); });
+    $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(-1); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1183,6 +1225,7 @@ function renderBonusCard() {
     </div>
   </div>`;
     renderQuickLinks("bonus-quick-links");
+
     $("btn-claim").addEventListener("click", async () => {
         if (bonusClaimPending) return;
         bonusClaimPending = true;
@@ -1195,9 +1238,10 @@ function renderBonusCard() {
         const result = await claimSessionBonusReward(sponsorLink);
         completeBonusFlow();
         showToast(result.message, result.success ? 3500 : 4500);
-        setTimeout(() => navigate(1), 2000);
+        setTimeout(() => { if (!isNavigating) navigate(1); }, 2000);
     });
-    $("skip-bonus").addEventListener("click", () => { completeBonusFlow(); navigate(1); });
+
+    $("skip-bonus").addEventListener("click", () => { completeBonusFlow(); if (!isNavigating) navigate(1); });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1227,42 +1271,31 @@ function ensureBackTrap() {
     if (!window._backLock) {
         window._backLock = true;
         history.pushState({ view: "feed" }, "", location.href);
-        setTimeout(() => window._backLock = false, 300);
+        setTimeout(() => { window._backLock = false; }, 300);
     }
-    window.removeEventListener("popstate", handleAppBack); // prevent double
+    window.removeEventListener("popstate", handleAppBack);
     window.addEventListener("popstate", handleAppBack);
 }
-function handleAppBack() {
 
-    // 🔥 CREATE OVERLAY
+function handleAppBack() {
     if (!$("create-overlay").classList.contains("hidden") || appView === "create") {
         appView = "feed";
         closeCreateOverlay(true);
         openFeed();
         return;
     }
-
-    // 🔥 PROFILE OVERLAY (FIXED)
     if (appView === "profile") {
         appView = "feed";
         openFeed();
         resumeFeedVideos();
         return;
     }
-
-    // fullscreen
-    if (isFeedFullscreen) {
-        setFeedFullscreen(false);
-        return;
-    }
-
-    // exit popup
+    if (isFeedFullscreen) { setFeedFullscreen(false); return; }
     showLeaveFeedPopup();
-
     if (!window._backLock) {
         window._backLock = true;
         history.pushState({ view: "feed" }, "", location.href);
-        setTimeout(() => window._backLock = false, 300);
+        setTimeout(() => { window._backLock = false; }, 300);
     }
 }
 
@@ -1285,13 +1318,14 @@ function showLeaveFeedPopup() {
             <button class="leave-text-link" id="leave-exit">Exit anyway</button>
           </div>`;
         document.body.appendChild(popup);
-        popup.querySelector("#leave-stay").addEventListener("click", () => { popup.classList.add("hidden"); popup.classList.remove("show"); });
+        popup.querySelector("#leave-stay").addEventListener("click",   () => { popup.classList.add("hidden"); popup.classList.remove("show"); });
         popup.querySelector("#leave-listen").addEventListener("click", () => { window.location.href = LISTEN_URL; });
-        popup.querySelector("#leave-exit").addEventListener("click", () => { popup.classList.add("hidden"); popup.classList.remove("show"); history.back(); });
+        popup.querySelector("#leave-exit").addEventListener("click",   () => { popup.classList.add("hidden"); popup.classList.remove("show"); history.back(); });
     }
     popup.classList.remove("hidden");
     requestAnimationFrame(() => popup.classList.add("show"));
 }
+
 function ensureLeavePopupStyles() {
     if (document.getElementById("leave-popup-styles")) return;
     const style = document.createElement("style");
@@ -1381,12 +1415,14 @@ function showCreateUploadModal(file, percent = 0, label = "Uploading", tip = "")
     const modal = ensureCreateUploadModal();
     const thumb = modal.querySelector("#upload-thumb");
     if (thumb && file) {
+        // FIX: revoke any previous object URL before creating new one
+        if (createUploadThumbURL) { URL.revokeObjectURL(createUploadThumbURL); createUploadThumbURL = null; }
         const url = URL.createObjectURL(file);
         createUploadThumbURL = url;
         if (file.type.startsWith("video/")) {
             thumb.innerHTML = `<video src="${url}" muted playsinline></video>`;
             const vid = thumb.querySelector("video");
-            vid.addEventListener("loadeddata", () => { vid.currentTime = 0.2; vid.pause(); });
+            vid.addEventListener("loadeddata", () => { vid.currentTime = 0.2; vid.pause(); }, { once: true });
         } else {
             thumb.innerHTML = `<img src="${url}" />`;
         }
@@ -1397,13 +1433,12 @@ function showCreateUploadModal(file, percent = 0, label = "Uploading", tip = "")
     pauseFeedVideos();
 }
 
-// FIX: accept 3 params — percent, label, tip
 function updateCreateUploadModal(percent, label = "Uploading", tip = "") {
-    const p = Math.min(99, Math.round(percent));
+    const p    = Math.min(99, Math.round(percent));
     const fill = $("upload-bar-fill");
     const pctEl = $("upload-percent-text");
-    const stEl = $("upload-status-text");
-    if (fill) fill.style.width = p + "%";
+    const stEl  = $("upload-status-text");
+    if (fill)  fill.style.width = p + "%";
     if (pctEl) pctEl.textContent = p + "%";
     if (stEl && (label || tip)) stEl.textContent = tip || label;
 }
@@ -1414,15 +1449,20 @@ function hideCreateUploadModal() {
     modal.classList.remove("show");
     setTimeout(() => {
         modal.classList.add("hidden");
+        // FIX: revoke object URL on hide
         if (createUploadThumbURL) { URL.revokeObjectURL(createUploadThumbURL); createUploadThumbURL = null; }
         const thumb = modal.querySelector("#upload-thumb");
-        if (thumb) thumb.innerHTML = "";
+        if (thumb) {
+            // Explicitly pause any videos to prevent memory/audio leaks
+            thumb.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; });
+            thumb.innerHTML = "";
+        }
     }, 220);
     resumeFeedVideos();
 }
 
 function btnDisableCreate() { const b = $("btn-post-submit"); if (!b) return; b.disabled = true; b.textContent = "Uploading…"; }
-function btnEnableCreate() { const b = $("btn-post-submit"); if (!b) return; b.disabled = false; b.textContent = "🚀 Post LoL"; }
+function btnEnableCreate()  { const b = $("btn-post-submit"); if (!b) return; b.disabled = false; b.textContent = "🚀 Post LoL"; }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CREATE BUTTONS
@@ -1436,7 +1476,6 @@ $("btn-create").addEventListener("click", () => {
     pauseFeedVideos();
 });
 
-// FIX: use .onclick to guarantee single handler
 $("close-create").onclick = () => {
     if (history.length > 1) history.back();
     else closeCreateOverlay(true);
@@ -1454,15 +1493,13 @@ function closeCreateOverlay(silent = false) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  SUBMIT POST
 // ══════════════════════════════════════════════════════════════════════════════
-// FIX: use .onclick to prevent double binding
 $("btn-post-submit").onclick = submitPost;
 
 async function submitPost() {
-    if (postLock) return;          // FIX: global lock prevents double submit
+    if (postLock) return;
     const title = $("post-title").value.trim();
-    if (!title) return showToast("Add a title! 😅");
+    if (!title)        return showToast("Add a title! 😅");
     if (!selectedFile) return showToast("Pick a media! 📸");
-    // FIX: guard against upload popup already open
     if (document.getElementById("create-upload-modal")?.classList.contains("show")) return;
 
     postLock = true;
@@ -1471,7 +1508,7 @@ async function submitPost() {
     showCreateUploadModal(selectedFile, 0, "Preparing", "Reading file…");
 
     try {
-        const ext = selectedFile.name.split(".").pop();
+        const ext  = selectedFile.name.split(".").pop();
         const path = `SapanaCyberHub/LoL/posts/${currentUser.uid}/${Date.now()}.${ext}`;
         const sRef = storRef(stor, path);
         const task = uploadBytesResumable(sRef, selectedFile);
@@ -1497,9 +1534,9 @@ async function submitPost() {
         await cfCreateLolPost({
             title,
             description: $("post-desc").value.trim(),
-            hashtags: tags,
+            hashtags:    tags,
             mediaURL,
-            mediaType: selectedFile.type.startsWith("video") ? "video" : "image"
+            mediaType:   selectedFile.type.startsWith("video") ? "video" : "image",
         });
 
         updateCreateUploadModal(100, "Done", "Your LoL is live! 🎉");
@@ -1525,41 +1562,46 @@ async function submitPost() {
 }
 
 function refreshCreateReqs() {
-    const streak = lolUserData?.lolStreak || 0;
-    const credits = lolUserData?.lolCreatorCredits || 0;
-    $("req-streak-val").textContent = `${streak}/5`;
-    $("req-credit-val").textContent = credits;
+    const streak  = lolUserData?.lolStreak         || 0;
+    const credits = lolUserData?.lolCreatorCredits  || 0;
+    $("req-streak-val").textContent  = `${streak}/5`;
+    $("req-credit-val").textContent  = credits;
     const can = streak >= 5 && credits >= 1;
-    $("create-form").style.opacity = can ? "1" : "0.4";
+    $("create-form").style.opacity       = can ? "1" : "0.4";
     $("create-form").style.pointerEvents = can ? "auto" : "none";
     if (!can) {
         const m = [];
-        if (streak < 5) m.push(`🔥 Need ${5 - streak} more streak day(s)`);
+        if (streak  < 5) m.push(`🔥 Need ${5 - streak} more streak day(s)`);
         if (credits < 1) m.push("🪙 Need at least 1 LoL CC — keep engaging!");
         showToast(m.join(" · "), 4000);
     }
 }
 
 $("media-dropzone").addEventListener("click", () => $("media-input").click());
+
 $("media-input").addEventListener("change", e => {
-    selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+    const file = e.target.files[0]; if (!file) return;
+    // FIX: revoke previous object URL before creating new one
+    if (selectedFileURL) { URL.revokeObjectURL(selectedFileURL); selectedFileURL = null; }
+    selectedFile    = file;
+    selectedFileURL = URL.createObjectURL(file);
     const inner = $("dropzone-inner");
-    inner.innerHTML = selectedFile.type.startsWith("video")
-        ? `<video src="${URL.createObjectURL(selectedFile)}" class="preview-media" loop autoplay></video>`
-        : `<img src="${URL.createObjectURL(selectedFile)}" class="preview-media" />`;
+    inner.innerHTML = file.type.startsWith("video")
+        ? `<video src="${selectedFileURL}" class="preview-media" loop autoplay muted playsinline></video>`
+        : `<img src="${selectedFileURL}" class="preview-media" />`;
 });
 
 function clearCreateMedia() {
-    selectedFile = null;
-    const input = $("media-input");
-    if (input) input.value = "";
-    const preview = $("dropzone-inner")?.querySelector("video, img");
-    if (preview) {
-        if (preview.tagName === "VIDEO") { preview.pause(); preview.src = ""; preview.load(); }
-        preview.remove();
+    // FIX: revoke object URL and stop video before clearing
+    const inner = $("dropzone-inner");
+    if (inner) {
+        inner.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; });
     }
-    $("dropzone-inner").innerHTML = `<span class="dropzone-icon">🎬</span><p>Tap to select Photo / Video / GIF</p>`;
+    if (selectedFileURL) { URL.revokeObjectURL(selectedFileURL); selectedFileURL = null; }
+    selectedFile = null;
+    const input  = $("media-input");
+    if (input) input.value = "";
+    if (inner) inner.innerHTML = `<span class="dropzone-icon">🎬</span><p>Tap to select Photo / Video / GIF</p>`;
 }
 
 function resetCreateForm() {
@@ -1568,50 +1610,48 @@ function resetCreateForm() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  OPEN PROFILE  (FIX: renderProfileSponsor added back)
+//  OPEN PROFILE
 // ══════════════════════════════════════════════════════════════════════════════
 async function openProfile() {
-
     ensureBackTrap();
-
     appView = "profile";
-
-    history.pushState({ view: "profile" }, "", location.href); // 🔥 important
+    history.pushState({ view: "profile" }, "", location.href);
     setFeedFullscreen(false);
     setNavState("profile");
     showScreen("profile-screen");
     pauseFeedVideos();
-    renderProfileSponsor();   // FIX: was missing
+    renderProfileSponsor();
 
-    $("p-avatar").src = listenUserData?.userDp || lolUserData.userDp || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
-    $("p-name").textContent = listenUserData?.name || lolUserData.name || "LoLer";
-    $("p-email").textContent = listenUserData?.email || lolUserData.email || "";
+    $("p-avatar").src           = listenUserData?.userDp || lolUserData.userDp || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
+    $("p-name").textContent     = listenUserData?.name  || lolUserData.name  || "LoLer";
+    $("p-email").textContent    = listenUserData?.email || lolUserData.email || "";
     $("p-listen-balance").textContent = `₹${listenUserData?.cash ?? 0}`;
-    $("p-streak").textContent = lolUserData.lolStreak || 0;
-    $("p-score").textContent = lolUserData.engagementScore || 0;
-    $("p-credits").textContent = lolUserData.lolCreatorCredits || 0;
-    $("p-earning").textContent = `₹${(lolUserData.estimatedEarning || 0).toFixed(2)}`;
+    $("p-streak").textContent   = lolUserData.lolStreak         || 0;
+    $("p-score").textContent    = lolUserData.engagementScore   || 0;
+    $("p-credits").textContent  = lolUserData.lolCreatorCredits || 0;
+    $("p-earning").textContent  = `₹${(lolUserData.estimatedEarning || 0).toFixed(2)}`;
     $("transfer-amount").textContent = `₹${((lolUserData.estimatedEarning || 0) * 0.7).toFixed(2)}`;
+
     const pct = Math.min(100, ((lolUserData.engagementScore || 0) / 1000) * 100);
-    $("progress-fill").style.width = pct + "%";
-    $("progress-text").textContent = `${lolUserData.engagementScore || 0} / 1000`;
-    await loadProfileHistory(currentUser.uid);
+    $("progress-fill").style.width  = pct + "%";
+    $("progress-text").textContent  = `${lolUserData.engagementScore || 0} / 1000`;
+
+    await loadProfileHistory();
 }
 
-// FIX: only ONE back-from-profile listener (the history.back one)
 $("back-from-profile").onclick = () => {
-    if (history.length > 1) history.back();
-    else openFeed();
+    if (history.length > 1) history.back(); else openFeed();
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NAV
 // ══════════════════════════════════════════════════════════════════════════════
 $("btn-feed-fullscreen").addEventListener("click", () => setFeedFullscreen(!isFeedFullscreen));
-$("btn-feed-exit").addEventListener("click", () => setFeedFullscreen(false));
-$("nav-profile").addEventListener("click", openProfile);
-$("nav-feed").addEventListener("click", openFeed);
+$("btn-feed-exit").addEventListener("click",       () => setFeedFullscreen(false));
+$("nav-profile").addEventListener("click",   openProfile);
+$("nav-feed").addEventListener("click",      openFeed);
 $("user-avatar-wrap").addEventListener("click", openProfile);
+
 $("nav-leaderboard").addEventListener("click", async () => {
     $("lolLeaderBoard-overlay").classList.remove("hidden");
     pauseFeedVideos();
@@ -1634,7 +1674,7 @@ async function loadLeaderboard() {
         <p>Loading LoLs…</p>
       </div>`;
     try {
-        const res = await cfGetLeaderboard();
+        const res  = await cfGetLeaderboard();
         const list = res.data.data || [];
         if (!list.length) { container.innerHTML = `<p style="text-align:center">No leaderboard today 😴</p>`; return; }
         let html = `<div class="row"><span>Rank</span><span>Creator</span><span>Score</span></div>`;
@@ -1671,16 +1711,22 @@ function renderPostHistory(items) {
     _postHistoryCache = items || [];
     const list = document.getElementById("post-history-list");
     if (!list) return;
-    if (!items.length) { list.innerHTML = `<div class="post-thumb-grid"><div class="post-grid-empty">No LoLs yet 🚀<br/>Post your first funny!</div></div>`; return; }
+    if (!items.length) {
+        list.innerHTML = `<div class="post-thumb-grid"><div class="post-grid-empty">No LoLs yet 🚀<br/>Post your first funny!</div></div>`;
+        return;
+    }
     list.innerHTML = `<div class="post-thumb-grid">${items.map((d, i) => buildThumb(d, i)).join("")}</div>`;
     list.querySelectorAll(".post-thumb").forEach(el => {
-        el.addEventListener("click", () => { const idx = parseInt(el.dataset.idx, 10); openAnalyticsModal(_postHistoryCache[idx]); });
+        el.addEventListener("click", () => {
+            const idx = parseInt(el.dataset.idx, 10);
+            openAnalyticsModal(_postHistoryCache[idx]);
+        });
     });
 }
 
 function buildThumb(d, idx) {
     const isVideo = d.postType === "video";
-    const isLive = d.status === "active";
+    const isLive  = d.status  === "active";
     const earning = (d.earning || 0).toFixed(2);
     const mediaEl = d.postURL
         ? (isVideo
@@ -1714,25 +1760,28 @@ function ensureAnalyticsOverlay() {
 
 function openAnalyticsModal(post) {
     ensureAnalyticsOverlay();
-    const overlay = document.getElementById("post-analytics-overlay");
+    const overlay   = document.getElementById("post-analytics-overlay");
     const mediaWrap = document.getElementById("am-media");
-    const panel = document.getElementById("am-panel");
-    const muteBtn = document.getElementById("am-mute");
+    const panel     = document.getElementById("am-panel");
+    const muteBtn   = document.getElementById("am-mute");
     mediaWrap.querySelectorAll("video, img, .analytics-status-badge").forEach(n => n.remove());
+
     const isVideo = post.postType === "video";
-    const isLive = post.status === "active";
-    const badge = document.createElement("span");
+    const isLive  = post.status   === "active";
+    const badge   = document.createElement("span");
     badge.className = `analytics-status-badge ${isLive ? "live" : "done"}`;
     badge.textContent = isLive ? "🟢 LIVE" : "✅ DONE";
     mediaWrap.insertBefore(badge, mediaWrap.querySelector(".analytics-close"));
+
     if (post.postURL) {
         if (isVideo) {
             const vid = document.createElement("video");
-            vid.src = post.postURL; vid.autoplay = true; vid.loop = true; vid.playsInline = true; vid.muted = false; vid.controls = false;
+            Object.assign(vid, { src: post.postURL, autoplay: true, loop: true, playsInline: true, muted: false, controls: false });
             mediaWrap.insertBefore(vid, muteBtn);
-            muteBtn.style.display = ""; muteBtn.textContent = "🔇 Mute";
+            muteBtn.style.display = "";
+            muteBtn.textContent   = "🔇 Mute";
             muteBtn.onclick = () => { vid.muted = !vid.muted; muteBtn.textContent = vid.muted ? "🔊 Unmute" : "🔇 Mute"; };
-            vid.play().catch(() => { vid.muted = true; vid.play().catch(() => { }); });
+            vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); });
         } else {
             const img = document.createElement("img"); img.src = post.postURL; img.alt = post.title || "";
             mediaWrap.insertBefore(img, muteBtn); muteBtn.style.display = "none";
@@ -1743,16 +1792,22 @@ function openAnalyticsModal(post) {
         ph.textContent = "😂";
         mediaWrap.insertBefore(ph, muteBtn); muteBtn.style.display = "none";
     }
-    const createdDate = post.createdAtMs ? new Date(post.createdAtMs).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "";
-    const expiresDate = post.expiresAtMs ? new Date(post.expiresAtMs).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : null;
-    const earning = (post.earning || 0).toFixed(2);
+
+    const createdDate = post.createdAtMs
+        ? new Date(post.createdAtMs).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+        : "";
+    const expiresDate = post.expiresAtMs
+        ? new Date(post.expiresAtMs).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+        : null;
+    const earning  = (post.earning || 0).toFixed(2);
     const shareUrl = `${location.origin}${location.pathname}?lol=${post.id}`;
+
     panel.innerHTML = `
       <h2 class="analytics-title">${esc(post.title || "Untitled")}</h2>
       <p class="analytics-date">${createdDate ? "Posted " + createdDate : ""}</p>
       <div class="analytics-stats">
-        <div class="a-stat"><div class="a-stat-val">${fmt(post.views || 0)}</div><div class="a-stat-lbl">👁 Views</div></div>
-        <div class="a-stat"><div class="a-stat-val">${fmt(post.likes || 0)}</div><div class="a-stat-lbl">💖 Likes</div></div>
+        <div class="a-stat"><div class="a-stat-val">${fmt(post.views  || 0)}</div><div class="a-stat-lbl">👁 Views</div></div>
+        <div class="a-stat"><div class="a-stat-val">${fmt(post.likes  || 0)}</div><div class="a-stat-lbl">💖 Likes</div></div>
         <div class="a-stat"><div class="a-stat-val">${fmt(post.shares || 0)}</div><div class="a-stat-lbl">🔗 Shares</div></div>
         <div class="a-stat"><div class="a-stat-val">${post.engagementScore || 0}</div><div class="a-stat-lbl">⚡ Score</div></div>
       </div>
@@ -1766,10 +1821,11 @@ function openAnalyticsModal(post) {
       </div>
       ${expiresDate ? `<div class="analytics-expiry">⏱ ${isLive ? "Expires" : "Expired"}: <strong style="color:#e8eaf0">${expiresDate}</strong></div>` : ""}
       <div class="analytics-actions">
-        <button class="aa-btn aa-share" id="am-share-btn">🔗 Share Post</button>
+        <button class="aa-btn aa-share"  id="am-share-btn">🔗 Share Post</button>
         <button class="aa-btn aa-delete" id="am-delete-btn">🗑 Delete</button>
       </div>
       <p id="am-action-msg" style="text-align:center;font-size:.8rem;color:#7a8099;margin-top:.8rem"></p>`;
+
     panel.querySelector("#am-share-btn").addEventListener("click", async () => {
         try { await navigator.share({ title: post.title, url: shareUrl }); }
         catch { await navigator.clipboard.writeText(shareUrl); showToast("Link copied! 🔗"); }
@@ -1789,23 +1845,23 @@ function closeAnalyticsModal() {
 
 async function handleDeletePost(post, deleteBtn, msgEl) {
     if (deleteBtn.dataset.confirm !== "1") {
-        deleteBtn.dataset.confirm = "1";
-        deleteBtn.textContent = "⚠️ Confirm Delete";
+        deleteBtn.dataset.confirm  = "1";
+        deleteBtn.textContent      = "⚠️ Confirm Delete";
         deleteBtn.style.background = "rgba(255,69,96,.25)";
-        msgEl.textContent = "Tap again to permanently delete this post.";
+        msgEl.textContent          = "Tap again to permanently delete this post.";
         setTimeout(() => {
             if (deleteBtn.dataset.confirm === "1") {
-                deleteBtn.dataset.confirm = "";
-                deleteBtn.textContent = "🗑 Delete";
+                deleteBtn.dataset.confirm  = "";
+                deleteBtn.textContent      = "🗑 Delete";
                 deleteBtn.style.background = "";
-                msgEl.textContent = "";
+                msgEl.textContent          = "";
             }
         }, 4000);
         return;
     }
-    deleteBtn.disabled = true;
+    deleteBtn.disabled   = true;
     deleteBtn.textContent = "Deleting…";
-    msgEl.textContent = "";
+    msgEl.textContent    = "";
     try {
         const res = await cfDeleteLolPost({ postId: post.id });
         if (res?.data?.success === false) throw new Error(res.data.message || "Delete failed");
@@ -1815,7 +1871,7 @@ async function handleDeletePost(post, deleteBtn, msgEl) {
         renderPostHistory(_postHistoryCache);
     } catch (err) {
         console.error("[LoL] delete:", err);
-        deleteBtn.disabled = false;
+        deleteBtn.disabled   = false;
         deleteBtn.textContent = "🗑 Delete";
         deleteBtn.dataset.confirm = "";
         msgEl.textContent = "Delete failed: " + (err.message || "try again");
@@ -1828,10 +1884,10 @@ function renderTransferHistory(items) {
     if (!list) return;
     if (!items.length) { list.innerHTML = `<p class="empty-history">No transfers yet.</p>`; return; }
     list.innerHTML = items.map(item => {
-        const amount = Number(item.amount || 0);
-        const fullAmount = Number(item.fullAmount || 0);
+        const amount     = Number(item.amount     || 0);
+        const fullAmount = Number(item.fullAmount  || 0);
         const transferTime = item.timestampMs ? new Date(item.timestampMs) : null;
-        const retained = Math.max(0, fullAmount - amount);
+        const retained   = Math.max(0, fullAmount - amount);
         return `
     <div class="history-item">
       <div class="hi-top"><span class="hi-title">Listen Wallet Transfer</span><span class="hi-badge badge-done">Wallet</span></div>
@@ -1848,11 +1904,11 @@ async function loadProfileHistory() {
     setHistoryLoading("transfer-history-list");
     try {
         const res = await cfLoadLolProfileHistory({ limitCount: 20 });
-        renderPostHistory(res?.data?.posts || []);
+        renderPostHistory(res?.data?.posts     || []);
         renderTransferHistory(res?.data?.transfers || []);
     } catch (err) {
         console.log("history", err);
-        $("post-history-list").innerHTML = `<p class="empty-history">History unavailable right now.</p>`;
+        $("post-history-list").innerHTML    = `<p class="empty-history">History unavailable right now.</p>`;
         $("transfer-history-list").innerHTML = `<p class="empty-history">Transfer history unavailable right now.</p>`;
         showToast("Failed to load history");
     }
@@ -1864,23 +1920,23 @@ async function loadProfileHistory() {
 $("btn-transfer").addEventListener("click", async () => {
     try {
         const estimated = Number(lolUserData.estimatedEarning || 0);
-        if (estimated <= 0) { showToast("Nothing to transfer yet! 🎯"); return; }
-        if (estimated < 2500) { showToast(`Earn ₹${(2500 - estimated).toFixed(0)} more to unlock transfer 🔓`); return; }
-        const now = new Date();
+        if (estimated <= 0)    { showToast("Nothing to transfer yet! 🎯"); return; }
+        if (estimated < 2500)  { showToast(`Earn ₹${(2500 - estimated).toFixed(0)} more to unlock transfer 🔓`); return; }
+        const now      = new Date();
         const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
         if (lolUserData.lastTransferMonth === monthKey) { showToast("You already claimed this month 💸"); return; }
         const res = await cfLoLtoListen();
         showToast(`₹${res.data.amount} transferred to Listen Wallet 💸`);
-        lolUserData.estimatedEarning = 0;
+        lolUserData.estimatedEarning  = 0;
         lolUserData.lastTransferMonth = monthKey;
         openProfile();
     } catch (e) {
         console.error(e);
         switch (e.code) {
-            case "already-exists": showToast("You already claimed this month 💸"); break;
-            case "failed-precondition": showToast(e.details || "Condition not met ⚠️"); break;
-            case "unauthenticated": showToast("Please login first 🔐"); break;
-            default: showToast(e.details || "Transfer failed ❌");
+            case "already-exists":       showToast("You already claimed this month 💸"); break;
+            case "failed-precondition":  showToast(e.details || "Condition not met ⚠️"); break;
+            case "unauthenticated":      showToast("Please login first 🔐"); break;
+            default:                     showToast(e.details || "Transfer failed ❌");
         }
     }
 });
@@ -1892,7 +1948,7 @@ const sapanacyberhubRetun = document.querySelector(".h-logo");
 if (sapanacyberhubRetun) {
     let lastTap = 0;
     sapanacyberhubRetun.addEventListener("click", e => {
-        const now = new Date().getTime();
+        const now = Date.now();
         if (now - lastTap < 300 && now - lastTap > 0) { e.preventDefault(); window.location.href = LISTEN_URL; }
         lastTap = now;
     });
@@ -1913,10 +1969,10 @@ function fmt(n) {
 function postDateToMillis(value) {
     if (!value) return 0;
     if (typeof value === "number") return value;
-    if (typeof value.toMillis === "function") return value.toMillis();
-    if (typeof value.toDate === "function") return value.toDate().getTime();
-    if (typeof value.seconds === "number") return (value.seconds * 1000) + Math.floor((value.nanoseconds || 0) / 1e6);
-    if (typeof value._seconds === "number") return (value._seconds * 1000) + Math.floor((value._nanoseconds || 0) / 1e6);
+    if (typeof value.toMillis   === "function") return value.toMillis();
+    if (typeof value.toDate     === "function") return value.toDate().getTime();
+    if (typeof value.seconds    === "number")   return (value.seconds * 1000)  + Math.floor((value.nanoseconds  || 0) / 1e6);
+    if (typeof value._seconds   === "number")   return (value._seconds * 1000) + Math.floor((value._nanoseconds || 0) / 1e6);
     return Number(value) || 0;
 }
 function postDateToDate(value) {
@@ -1925,8 +1981,8 @@ function postDateToDate(value) {
 }
 function timeAgo(date) {
     const d = (Date.now() - date.getTime()) / 1000;
-    if (d < 60) return "just now";
-    if (d < 3600) return `${Math.floor(d / 60)}m ago`;
+    if (d < 60)    return "just now";
+    if (d < 3600)  return `${Math.floor(d / 60)}m ago`;
     if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
     return `${Math.floor(d / 86400)}d ago`;
 }
