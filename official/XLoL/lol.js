@@ -68,29 +68,29 @@ const ADSTERRA_BANNERS = [
 
 const DIRECT_LINKS = [
   {
-    network: "Boost",
-    label: "🎁 Mystery Boost",
+    network: "Link Offer",
+    label: "🎁 Unlock 20-100 Score",
     rewardMin: 20,
     rewardMax: 100,
     url: "https://omg10.com/4/10749383"
   },
   {
-    network: "Boost",
-    label: "⚡ Quick Boost",
+    network: "Link Offer",
+    label: "⚡ Quick 20-100 Boost",
     rewardMin: 20,
     rewardMax: 100,
     url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=..."
   },
   {
-    network: "Boost",
-    label: "🔥 Engagement Boost",
+    network: "Link Offer",
+    label: "🔥 Extra Engagement Score",
     rewardMin: 20,
     rewardMax: 100,
     url: "https://omg10.com/4/10216281"
   },
   {
-    network: "Boost",
-    label: "💎 Surprise Boost",
+    network: "Link Offer",
+    label: "💎 Mystery Score Boost",
     rewardMin: 20,
     rewardMax: 100,
     url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=..."
@@ -123,6 +123,10 @@ const AD_COOLDOWN_MAX_SWIPES     = 7;
 const BONUS_CARD_MIN_SWIPES      = 7;
 const BONUS_CARD_MAX_SWIPES      = 12;
 const BONUS_SPONSOR_MIN_VISIT_MS = 2500;
+const WATCH_INSIGHT_MIN_MS       = 3000;
+const VIEW_REWARD_MIN_WATCH_MS   = 5000;
+const QUICK_LINK_REWARD_MIN      = 20;
+const QUICK_LINK_REWARD_MAX      = 100;
 const PASSIVE_AD_AUTO_REMOVE_MS  = 5000;
 const VIDEO_HOLD_DELAY_MS        = 180;
 const VIDEO_HOLD_MOVE_TOLERANCE  = 18;
@@ -146,6 +150,7 @@ let isNavigating       = false;   // FIX: prevents concurrent navigate() calls
 let noMorePosts        = false;
 let swipeCount         = 0;
 let viewTimer          = null;
+let activeViewSession  = null;
 let activePostId       = null;
 let selectedFile       = null;
 let selectedFileURL    = null;    // FIX: track object URL for proper revocation
@@ -166,6 +171,7 @@ let sessionEngagementScore = 0;
 let bonusCardPending    = false;
 let bonusFlowCompleted  = false;
 let bonusClaimPending   = false;
+let sponsorVisitPending = false;
 let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
 let _qbSkipTick = null;   // FIX: single canonical variable for quick-break mode-B interval
@@ -231,6 +237,7 @@ function setNavState(view) {
 }
 
 function openFeed() {
+    appView = "feed";
     setNavState("feed");
     showScreen("app-screen");
     resumeFeedVideos();
@@ -268,6 +275,7 @@ function scheduleNextBonusCard(min = BONUS_CARD_MIN_SWIPES, max = BONUS_CARD_MAX
 function resetSessionExperience() {
     swipeCount = sessionEngagementScore = 0;
     bonusCardPending = bonusFlowCompleted = bonusClaimPending = false;
+    sponsorVisitPending = false;
     sessionBonusClaimToken = createBonusClaimToken();
     nextAdSwipeAt = nextBonusSwipeAt = Number.POSITIVE_INFINITY;
     touchStartX = touchStartY = touchCurrentX = touchCurrentY = 0;
@@ -331,23 +339,28 @@ function normalizeFeedPosts(items) {
 // ══════════════════════════════════════════════════════════════════════════════
 let _bonusTabReturnHandler = null;
 
-function attachBonusTabReturnListener(context = "bonus") {
+function attachBonusTabReturnListener(context = "bonus", onReturn = null, startedAt = Date.now()) {
     detachBonusTabReturnListener();
     _bonusTabReturnHandler = () => {
         if (document.visibilityState !== "visible") return;
+        const visitDurationMs = Date.now() - startedAt;
+        if (visitDurationMs < 1000) return;
         showToast(
             context === "bonus"
-                ? "👋 Welcome back! ⚡ Engagement updated based on your interaction. Keep engaging to increase your earning potential!"
-                : "✅ Back from sponsor — the feed never redirected. Keep scrolling! 😄",
+                ? "👋 Welcome back! Checking your engagement boost..."
+                : "✅ Back from sponsor. Checking your boost...",
             context === "bonus" ? 6000 : 3500
         );
         detachBonusTabReturnListener();
+        if (typeof onReturn === "function") onReturn(visitDurationMs);
     };
     document.addEventListener("visibilitychange", _bonusTabReturnHandler);
+    window.addEventListener("focus", _bonusTabReturnHandler);
 }
 function detachBonusTabReturnListener() {
     if (_bonusTabReturnHandler) {
         document.removeEventListener("visibilitychange", _bonusTabReturnHandler);
+        window.removeEventListener("focus", _bonusTabReturnHandler);
         _bonusTabReturnHandler = null;
     }
 }
@@ -427,15 +440,46 @@ function bindFeedGestures() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  SMART VIDEO SYSTEM
 // ══════════════════════════════════════════════════════════════════════════════
+function isElementOpen(id, openClass = null) {
+    const el = $(id);
+    if (!el) return false;
+    if (openClass) return el.classList.contains(openClass);
+    return !el.classList.contains("hidden");
+}
+
+function isFeedBlockedByOverlay() {
+    return isElementOpen("create-overlay") ||
+        isElementOpen("lolLeaderBoard-overlay") ||
+        isElementOpen("create-upload-modal", "show") ||
+        isElementOpen("post-analytics-overlay", "open") ||
+        isElementOpen("leave-feed-popup", "show");
+}
+
+function canFeedVideoPlay() {
+    return appView === "feed" &&
+        !document.hidden &&
+        $("app-screen")?.classList.contains("active") &&
+        !isFeedBlockedByOverlay();
+}
+
+function isVideoReallyPlaying(video) {
+    return Boolean(video && !video.paused && !video.ended && video.readyState >= 2);
+}
+
 function setActiveVideo(video) {
     if (activeVideoElement && activeVideoElement !== video) activeVideoElement.pause();
     activeVideoElement = video;
-    video?.play().catch(() => {});
+    if (canFeedVideoPlay()) video?.play().catch(() => {});
+    else video?.pause();
 }
 function pauseFeedVideos() {
     activeVideoElement?.pause();
 }
 function resumeFeedVideos() {
+    if (!canFeedVideoPlay()) {
+        pauseFeedVideos();
+        return;
+    }
     if (!activeVideoElement) return;
     const currentVideo = document.querySelector(".lol-card .card-video");
     if (currentVideo && currentVideo === activeVideoElement) currentVideo.play().catch(() => {});
@@ -533,69 +577,74 @@ function maybeTriggerPassiveAdPulse(chance = 0.45) {
 //  QUICK LINKS
 // ══════════════════════════════════════════════════════════════════════════════
 function buildQuickLinksMarkup() {
-    return DIRECT_LINKS.map(link => `
-      <a class="quick-link" href="${link.url}" target="_blank" rel="noopener noreferrer sponsored">
+    return DIRECT_LINKS.map((link, index) => `
+      <a class="quick-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer sponsored" data-sponsor-index="${index}">
         <span class="quick-link-name">${esc(link.label)}</span>
-        <span class="quick-link-meta">${esc(link.network)}</span>
+        <span class="quick-link-meta">Link offer: ${link.rewardMin || QUICK_LINK_REWARD_MIN}-${link.rewardMax || QUICK_LINK_REWARD_MAX} score</span>
       </a>`).join("");
 }
 function renderQuickLinks(target) {
     const el = typeof target === "string" ? $(target) : target;
-    if (el) el.innerHTML = buildQuickLinksMarkup();
+    if (!el) return;
+    el.innerHTML = buildQuickLinksMarkup();
+    el.querySelectorAll(".quick-link").forEach(linkEl => {
+        linkEl.addEventListener("click", event => {
+            event.preventDefault();
+            const index = Number(linkEl.dataset.sponsorIndex);
+            const link = DIRECT_LINKS[index];
+            openSponsorLink(link, {
+                context: "quick-break",
+                source: "quick-link-offer",
+                claimToken: createBonusClaimToken()
+            });
+        });
+    });
 }
 function getNextSponsorLink() {
     const link = DIRECT_LINKS[sponsorLinkIndex % DIRECT_LINKS.length];
     sponsorLinkIndex++;
     return link;
 }
-function openSponsorLink(link) {
-    if (!link?.url) return;
+function openSponsorLink(link, options = {}) {
+    if (!link?.url) return Promise.resolve({ success: false, message: "Sponsor link is unavailable." });
+    if (sponsorVisitPending) {
+        showToast("Finish the current offer visit first.");
+        return Promise.resolve({ success: false, message: "Finish the current offer visit first." });
+    }
 
-    const start = Date.now();
-    window.open(link.url, "_blank", "noopener,noreferrer");
+    const startedAt = Date.now();
+    const sponsorTab = window.open(link.url, "_blank");
+    if (!sponsorTab) {
+        showToast("Allow popups to open the link offer.");
+        return Promise.resolve({ success: false, message: "Allow popups to open the link offer." });
+    }
+    try { sponsorTab.opener = null; } catch {}
 
-    attachBonusTabReturnListener("quick-break");
+    sponsorVisitPending = true;
+    showToast(`Open the link offer, then come back to unlock ${link.rewardMin || QUICK_LINK_REWARD_MIN}-${link.rewardMax || QUICK_LINK_REWARD_MAX} engagement score.`, 4200);
 
-    const onReturn = async () => {
-        if (document.visibilityState !== "visible") return;
+    return new Promise(resolve => {
+        attachBonusTabReturnListener(options.context || "quick-break", async visitDurationMs => {
+            sponsorVisitPending = false;
 
-        document.removeEventListener("visibilitychange", onReturn);
-
-        const duration = Date.now() - start;
-
-        // ⛔ Prevent fake clicks
-        if (duration < 2500) {
-            showToast("⚠️ Stay longer to unlock boost");
-            return;
-        }
-
-        // 🎲 Random reward (20–100)
-        const min = link.rewardMin || 20;
-        const max = link.rewardMax || 100;
-        const reward = Math.floor(Math.random() * (max - min + 1)) + min;
-
-        try {
-            // ✅ USE YOUR SESSION FUNCTION
-            await claimSessionBonusReward({
-                type: "quick-link",
-                reward,
-                source: link.label
-            });
-
-            // 🔥 Feedback UI
-            if (reward > 80) {
-                showToast(`💎 JACKPOT! +${reward} Engagement!`, 4500);
-            } else {
-                showToast(`⚡ +${reward} Engagement Boost`, 3000);
+            if (visitDurationMs < BONUS_SPONSOR_MIN_VISIT_MS) {
+                const message = "Stay a little longer on the offer to unlock the boost.";
+                showToast(message, 3800);
+                resolve({ success: false, message });
+                return;
             }
 
-        } catch (e) {
-            console.warn("Bonus claim failed", e);
-            showToast("❌ Reward failed, try again");
-        }
-    };
+            const result = await claimSessionBonusReward(link, {
+                claimToken: options.claimToken || createBonusClaimToken(),
+                source: options.source || "quick-link-offer",
+                sponsorVisited: true,
+                visitDurationMs
+            });
 
-    document.addEventListener("visibilitychange", onReturn);
+            showToast(result.message, result.success ? 4200 : 4800);
+            resolve(result);
+        }, startedAt);
+    });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -636,7 +685,7 @@ function mountSmartLinkPanel(target) { if (target) mountFeaturedLink(target, get
 
 function mountVignetteBreakPanel(target) {
     if (!target) return;
-    mountFeaturedLink(target, getNextSponsorLink(), "Vignette only — close it and keep scrolling.");
+    mountFeaturedLink(target, getNextSponsorLink(), "Short visit unlocks a 20-100 score boost.");
     triggerPassiveAdPulse("vignette");
 }
 
@@ -651,14 +700,21 @@ function mountQuickBreakPanel(target) {
 function _renderQuickBreakModeA(target, sponsorLink) {
     target.innerHTML = `
       <div class="qb-panel" id="qb-panel-a">
-        <div class="qb-support-badge"><span class="qb-support-dot"></span>SPONSOR SUPPORT</div>
-        <p class="qb-msg"><strong>This sponsor supports our creators.</strong><br/>Tap below to visit — it helps us keep LoL free &amp; rewarding.</p>
-        <a class="qb-support-btn" href="${esc(sponsorLink.url)}" target="_blank" rel="noopener noreferrer sponsored" id="qb-support-link">❤️ Support Our Creators</a>
+        <div class="qb-support-badge"><span class="qb-support-dot"></span>LINK OFFER</div>
+        <p class="qb-msg"><strong>Unlock extra engagement score.</strong><br/>Visit the offer, come back, and get a random 20-100 score boost.</p>
+        <a class="qb-support-btn" href="${esc(sponsorLink.url)}" target="_blank" rel="noopener noreferrer sponsored" id="qb-support-link">Open Link Offer</a>
         <div class="qb-ad-slot" id="qb-ad-slot-a"></div>
         <button class="qb-skip-btn" id="qb-skip-a">Skip ➡</button>
       </div>`;
     triggerPassiveAdPulse("vignette");
-    target.querySelector("#qb-support-link")?.addEventListener("click", () => attachBonusTabReturnListener("quick-break"));
+    target.querySelector("#qb-support-link")?.addEventListener("click", event => {
+        event.preventDefault();
+        openSponsorLink(sponsorLink, {
+            context: "quick-break",
+            source: "quick-break-offer",
+            claimToken: createBonusClaimToken()
+        });
+    });
     target.querySelector("#qb-skip-a")?.addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
 }
 
@@ -694,14 +750,22 @@ function _renderQuickBreakModeB(target) {
     });
 }
 
-function mountFeaturedLink(target, link, note = "Opens only when tapped") {
+function mountFeaturedLink(target, link, note = "Short visit unlocks a 20-100 score boost") {
     if (!target || !link) return;
     target.innerHTML = `
-      <a class="featured-link" href="${link.url}" target="_blank" rel="noopener noreferrer sponsored">
+      <a class="featured-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer sponsored">
         <span class="quick-link-meta">${esc(link.network)}</span>
         <strong>${esc(link.label)}</strong>
         <small>${esc(note)}</small>
       </a>`;
+    target.querySelector(".featured-link")?.addEventListener("click", event => {
+        event.preventDefault();
+        openSponsorLink(link, {
+            context: "quick-break",
+            source: "featured-link-offer",
+            claimToken: createBonusClaimToken()
+        });
+    });
 }
 
 function getNextFeedAdConfig() {
@@ -754,17 +818,22 @@ function completeBonusFlow() {
     scheduleNextBonusCard();
 }
 
-async function claimSessionBonusReward(link) {
+async function claimSessionBonusReward(link, options = {}) {
     try {
+        const visitDurationMs = Math.max(0, Math.floor(Number(options.visitDurationMs) || 0));
+        const sponsorVisited = options.sponsorVisited === true || visitDurationMs >= BONUS_SPONSOR_MIN_VISIT_MS;
+        const claimScore = Math.max(BONUS_CARD_MIN_ENGAGEMENT, Math.floor(Number(sessionEngagementScore) || 0));
         const res = await cfClaimLolSessionBonus({
-            sessionEngagementScore,
-            claimToken:       sessionBonusClaimToken,
+            sessionEngagementScore: claimScore,
+            claimToken:       options.claimToken || sessionBonusClaimToken,
             sponsorNetwork:   link?.network || "",
             sponsorLabel:     link?.label   || "",
             sponsorUrl:       link?.url     || "",
-            source:           "lol-feed-bonus",
-            sponsorVisited:   true,
-            visitDurationMs:  BONUS_SPONSOR_MIN_VISIT_MS + 100,
+            source:           options.source || "lol-feed-bonus",
+            sponsorVisited,
+            visitDurationMs,
+            rewardMin:        Math.max(QUICK_LINK_REWARD_MIN, Number(link?.rewardMin) || QUICK_LINK_REWARD_MIN),
+            rewardMax:        Math.min(QUICK_LINK_REWARD_MAX, Number(link?.rewardMax) || QUICK_LINK_REWARD_MAX),
         });
         if (res?.data?.listenUser) listenUserData = res.data.listenUser;
         if (res?.data?.lolUser)   { lolUserData = res.data.lolUser; updateHeaderUI(); }
@@ -772,8 +841,9 @@ async function claimSessionBonusReward(link) {
         const reward = Number(res?.data?.engagementScoreAwarded || 0);
         return {
             success: true,
+            reward,
             message: reward > 0
-                ? `🔥 +${reward} Engagement Score added! This boosts your LoL earning power.`
+                ? `Boost unlocked: +${reward} engagement score.`
                 : "Claim submitted. Engagement boost will reflect shortly.",
         };
     } catch (err) {
@@ -1131,26 +1201,126 @@ async function navigate(dir) {
 // ══════════════════════════════════════════════════════════════════════════════
 //  VIEW TIMER
 // ══════════════════════════════════════════════════════════════════════════════
+function createWatchSessionId(postId) {
+    return `${postId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+async function sendWatchEngagement(post, session, { rewarded = false } = {}) {
+    if (!post || !session || session.postId !== post.id) return null;
+    const watchTimeMs = Math.max(0, Math.floor(session.watchTimeMs || 0));
+    if (watchTimeMs < 1000) return null;
+    session.lastQueuedWatchTimeMs = Math.max(session.lastQueuedWatchTimeMs || 0, watchTimeMs);
+
+    const res = await cfTrackEngagement({
+        postId: post.id,
+        type: "view",
+        watchTimeMs,
+        watchTime: watchTimeMs,
+        watchTimeSeconds: Math.floor(watchTimeMs / 1000),
+        watchSessionId: session.id,
+        insightOnly: !rewarded,
+        rewardedView: rewarded
+    });
+
+    session.lastSentWatchTimeMs = Math.max(session.lastSentWatchTimeMs || 0, watchTimeMs);
+    return res;
+}
+
+function shouldCountWatchTime(post, video) {
+    if (!post || activePostId !== post.id || !canFeedVideoPlay()) return false;
+    return post.mediaType === "video" ? isVideoReallyPlaying(video) : true;
+}
+
+async function maybeSendWatchProgress(post, video, session, key) {
+    if (!session || session.postId !== post.id) return;
+
+    const now = Date.now();
+    const delta = Math.min(Math.max(now - session.lastTickAt, 0), 1000);
+    session.lastTickAt = now;
+
+    if (!shouldCountWatchTime(post, video)) return;
+    session.watchTimeMs += delta;
+
+    if (!session.shortInsightSent && session.watchTimeMs >= WATCH_INSIGHT_MIN_MS) {
+        session.shortInsightSent = true;
+        sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
+            console.warn("[LoL] watch insight failed:", err.message);
+        });
+    }
+
+    if (!session.rewardSent && session.watchTimeMs >= VIEW_REWARD_MIN_WATCH_MS) {
+        if (!session.rewardEligible) {
+            if (!session.longInsightSent) {
+                session.longInsightSent = true;
+                sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
+                    console.warn("[LoL] long watch insight failed:", err.message);
+                });
+            }
+            return;
+        }
+
+        session.rewardSent = true;
+        try {
+            const res = await sendWatchEngagement(post, session, { rewarded: true });
+            if (res?.data?.rewarded !== false) {
+                localStorage.setItem(key, String(Date.now()));
+                registerSessionEngagement("view", post.id);
+                updateHeaderUI();
+            }
+        } catch (err) {
+            session.rewardSent = false;
+            console.warn("[LoL] view tracking failed:", err.message);
+        }
+    }
+}
+
 function startViewTimer(post) {
     stopViewTimer();
     activePostId = post.id;
     const key      = `viewed_${post.id}`;
     const lastView = Number(localStorage.getItem(key) || 0);
     const now      = Date.now();
-    if (now - lastView < 30 * 60 * 1000) return;
-    let visibleTime = 0;
-    viewTimer = setInterval(async () => {
-        if (document.hidden) return;
-        visibleTime += 1000;
-        if (visibleTime >= 5000) {
-            clearInterval(viewTimer); viewTimer = null;
-            localStorage.setItem(key, now);
-            registerSessionEngagement("view", post.id);
-            try { await cfTrackEngagement({ postId: post.id, type: "view", watchTime: visibleTime }); updateHeaderUI(); } catch {}
-        }
-    }, 1000);
+    const video = document.querySelector(".lol-card .card-video");
+
+    activeViewSession = {
+        id: createWatchSessionId(post.id),
+        postId: post.id,
+        watchTimeMs: 0,
+        lastSentWatchTimeMs: 0,
+        lastQueuedWatchTimeMs: 0,
+        lastTickAt: Date.now(),
+        shortInsightSent: false,
+        longInsightSent: false,
+        rewardSent: false,
+        rewardEligible: now - lastView >= 30 * 60 * 1000
+    };
+
+    viewTimer = setInterval(() => {
+        maybeSendWatchProgress(post, video, activeViewSession, key);
+    }, 250);
 }
-function stopViewTimer() { if (viewTimer) { clearInterval(viewTimer); viewTimer = null; } }
+function stopViewTimer() {
+    if (viewTimer) {
+        clearInterval(viewTimer);
+        viewTimer = null;
+    }
+
+    const session = activeViewSession;
+    activeViewSession = null;
+    if (
+        session &&
+        session.watchTimeMs >= WATCH_INSIGHT_MIN_MS &&
+        !session.rewardSent &&
+        session.watchTimeMs - Math.max(session.lastSentWatchTimeMs || 0, session.lastQueuedWatchTimeMs || 0) >= 1000
+    ) {
+        const post = posts.find(p => p.id === session.postId);
+        if (post) {
+            sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
+                console.warn("[LoL] final watch insight failed:", err.message);
+            });
+        }
+    }
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  LIKE
@@ -1278,14 +1448,13 @@ function renderBonusCard() {
       <h2 class="bonus-title">Bonus Available</h2>
       <p class="bonus-sub">
         You've reached <strong>${sessionEngagementScore}</strong> session engagement points.
-        Tapping <em>Claim</em> opens a sponsor offer in a new tab and submits your session
-        for a <strong>possible engagement score boost</strong>.
-        Rewards are calculated server-side based on activity quality.
+        Open a link offer, come back after a short visit, and unlock a
+        <strong>random 20-100 engagement score boost</strong>.
+        The final reward is confirmed server-side.
         Skipping has no penalty.
       </p>
       <div class="bonus-cta-row">
-        <button class="btn-claim" id="btn-claim">Claim &amp; Open Sponsor 🪙</button>
-        <a class="bonus-link-btn" href="${sponsorLink.url}" target="_blank" rel="noopener noreferrer sponsored">Open ${esc(sponsorLink.network)} Only</a>
+        <button class="btn-claim" id="btn-claim">Open Link Offer &amp; Unlock Boost</button>
       </div>
       <div class="inline-ad-slot inline-ad-slot--bonus" id="bonus-ad-slot"><p class="ad-loading">Sponsor banner loads after claim.</p></div>
       <div class="quick-links quick-links--compact" id="bonus-quick-links"></div>
@@ -1298,15 +1467,24 @@ function renderBonusCard() {
         if (bonusClaimPending) return;
         bonusClaimPending = true;
         $("btn-claim").disabled = true;
-        $("btn-claim").textContent = "Claiming…";
+        $("btn-claim").textContent = "Visit offer, then return...";
         triggerPassiveAdPulse("vignette");
-        openSponsorLink(sponsorLink);
-        attachBonusTabReturnListener("bonus");
         mountAdsterraBanner($("bonus-ad-slot"));
-        const result = await claimSessionBonusReward(sponsorLink);
-        completeBonusFlow();
-        showToast(result.message, result.success ? 3500 : 4500);
-        setTimeout(() => { if (!isNavigating) navigate(1); }, 2000);
+        const result = await openSponsorLink(sponsorLink, {
+            context: "bonus",
+            source: "lol-feed-bonus",
+            claimToken: sessionBonusClaimToken
+        });
+
+        if (result.success) {
+            completeBonusFlow();
+            setTimeout(() => { if (!isNavigating) navigate(1); }, 2000);
+            return;
+        }
+
+        bonusClaimPending = false;
+        $("btn-claim").disabled = false;
+        $("btn-claim").textContent = "Open Link Offer & Unlock Boost";
     });
 
     $("skip-bonus").addEventListener("click", () => { completeBonusFlow(); if (!isNavigating) navigate(1); });
@@ -1386,12 +1564,13 @@ function showLeaveFeedPopup() {
             <button class="leave-text-link" id="leave-exit">Exit anyway</button>
           </div>`;
         document.body.appendChild(popup);
-        popup.querySelector("#leave-stay").addEventListener("click",   () => { popup.classList.add("hidden"); popup.classList.remove("show"); });
+        popup.querySelector("#leave-stay").addEventListener("click",   () => { popup.classList.add("hidden"); popup.classList.remove("show"); resumeFeedVideos(); });
         popup.querySelector("#leave-listen").addEventListener("click", () => { window.location.href = LISTEN_URL; });
         popup.querySelector("#leave-exit").addEventListener("click",   () => { popup.classList.add("hidden"); popup.classList.remove("show"); history.back(); });
     }
     popup.classList.remove("hidden");
     requestAnimationFrame(() => popup.classList.add("show"));
+    pauseFeedVideos();
 }
 
 function ensureLeavePopupStyles() {
@@ -1554,8 +1733,8 @@ function closeCreateOverlay(silent = false) {
     resetCreateForm();
     $("create-overlay").classList.add("hidden");
     hideCreateUploadModal();
-    resumeFeedVideos();
     if (!silent) appView = "feed";
+    resumeFeedVideos();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1612,6 +1791,8 @@ async function submitPost() {
         showToast("🚀 LoL posted successfully!");
         hideCreateUploadModal();
         resetCreateForm();
+        appView = "feed";
+        openFeed();
         await loadPosts(true);
         cardIndex = 0;
         renderCard();
@@ -1828,6 +2009,7 @@ function ensureAnalyticsOverlay() {
 
 function openAnalyticsModal(post) {
     ensureAnalyticsOverlay();
+    pauseFeedVideos();
     const overlay   = document.getElementById("post-analytics-overlay");
     const mediaWrap = document.getElementById("am-media");
     const panel     = document.getElementById("am-panel");
@@ -1868,6 +2050,7 @@ function openAnalyticsModal(post) {
         ? new Date(post.expiresAtMs).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
         : null;
     const earning  = (post.earning || 0).toFixed(2);
+    const watchTime = formatWatchTime(post.watchTimeMs || 0);
     const shareUrl = `${location.origin}${location.pathname}?lol=${post.id}`;
 
     panel.innerHTML = `
@@ -1877,6 +2060,7 @@ function openAnalyticsModal(post) {
         <div class="a-stat"><div class="a-stat-val">${fmt(post.views  || 0)}</div><div class="a-stat-lbl">👁 Views</div></div>
         <div class="a-stat"><div class="a-stat-val">${fmt(post.likes  || 0)}</div><div class="a-stat-lbl">💖 Likes</div></div>
         <div class="a-stat"><div class="a-stat-val">${fmt(post.shares || 0)}</div><div class="a-stat-lbl">🔗 Shares</div></div>
+        <div class="a-stat"><div class="a-stat-val">${watchTime}</div><div class="a-stat-lbl">⏱ Watch</div></div>
         <div class="a-stat"><div class="a-stat-val">${post.engagementScore || 0}</div><div class="a-stat-lbl">⚡ Score</div></div>
       </div>
       <div class="analytics-earning-banner">
@@ -1909,6 +2093,7 @@ function closeAnalyticsModal() {
     if (!overlay) return;
     overlay.classList.remove("open");
     setTimeout(() => { overlay.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; }); }, 350);
+    resumeFeedVideos();
 }
 
 async function handleDeletePost(post, deleteBtn, msgEl) {
@@ -2033,6 +2218,15 @@ function fmt(n) {
     if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
     if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
     return String(n);
+}
+function formatWatchTime(ms) {
+    const totalSeconds = Math.max(0, Math.floor(Number(ms || 0) / 1000));
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes < 60) return `${minutes}m ${seconds}s`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ${minutes % 60}m`;
 }
 function postDateToMillis(value) {
     if (!value) return 0;
