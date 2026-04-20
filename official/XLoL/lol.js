@@ -202,6 +202,7 @@ function openFeed() {
     showScreen("app-screen");
     resumeFeedVideos();
 }
+
 function setFeedFullscreen(enabled) {
     isFeedFullscreen = Boolean(enabled);
 
