@@ -67,10 +67,34 @@ const ADSTERRA_BANNERS = [
 ];
 
 const DIRECT_LINKS = [
-    { network: "Monetag",  label: "Monetag Offer 1",  url: "https://omg10.com/4/10749383" },
-    { network: "Adsterra", label: "Adsterra Offer 1", url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861" },
-    { network: "Monetag",  label: "Monetag Offer 2",  url: "https://omg10.com/4/10216281" },
-    { network: "Adsterra", label: "Adsterra Offer 2", url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203" },
+  {
+    network: "Boost",
+    label: "🎁 Mystery Boost",
+    rewardMin: 20,
+    rewardMax: 100,
+    url: "https://omg10.com/4/10749383"
+  },
+  {
+    network: "Boost",
+    label: "⚡ Quick Boost",
+    rewardMin: 20,
+    rewardMax: 100,
+    url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=..."
+  },
+  {
+    network: "Boost",
+    label: "🔥 Engagement Boost",
+    rewardMin: 20,
+    rewardMax: 100,
+    url: "https://omg10.com/4/10216281"
+  },
+  {
+    network: "Boost",
+    label: "💎 Surprise Boost",
+    rewardMin: 20,
+    rewardMax: 100,
+    url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=..."
+  }
 ];
 
 const AD_CARD_ROTATION = [
@@ -526,8 +550,52 @@ function getNextSponsorLink() {
 }
 function openSponsorLink(link) {
     if (!link?.url) return;
-    const popup = window.open(link.url, "_blank", "noopener,noreferrer");
-    if (!popup) showToast("Use the sponsor buttons if your browser blocks new tabs.", 3600);
+
+    const start = Date.now();
+    window.open(link.url, "_blank", "noopener,noreferrer");
+
+    attachBonusTabReturnListener("quick-break");
+
+    const onReturn = async () => {
+        if (document.visibilityState !== "visible") return;
+
+        document.removeEventListener("visibilitychange", onReturn);
+
+        const duration = Date.now() - start;
+
+        // ⛔ Prevent fake clicks
+        if (duration < 2500) {
+            showToast("⚠️ Stay longer to unlock boost");
+            return;
+        }
+
+        // 🎲 Random reward (20–100)
+        const min = link.rewardMin || 20;
+        const max = link.rewardMax || 100;
+        const reward = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        try {
+            // ✅ USE YOUR SESSION FUNCTION
+            await claimSessionBonusReward({
+                type: "quick-link",
+                reward,
+                source: link.label
+            });
+
+            // 🔥 Feedback UI
+            if (reward > 80) {
+                showToast(`💎 JACKPOT! +${reward} Engagement!`, 4500);
+            } else {
+                showToast(`⚡ +${reward} Engagement Boost`, 3000);
+            }
+
+        } catch (e) {
+            console.warn("Bonus claim failed", e);
+            showToast("❌ Reward failed, try again");
+        }
+    };
+
+    document.addEventListener("visibilitychange", onReturn);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
