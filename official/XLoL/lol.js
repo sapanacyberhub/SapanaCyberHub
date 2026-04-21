@@ -41,6 +41,7 @@ const cfLoadFeed = httpsCallable(functions, "loadLolFeed");
 const cfLoLtoListen = httpsCallable(functions, "transferLolToListenWallet");
 const cfClaimLolSessionBonus = httpsCallable(functions, "claimLolSessionBonus");
 const cfGetLeaderboard = httpsCallable(functions, "getTodayLeaderboard");
+        const getPost = httpsCallable(functions, "getLolPostById");
 const cfLoadLolProfileHistory = httpsCallable(functions, "loadLolProfileHistory");
 const cfDeleteLolPost = httpsCallable(functions, "deleteLolPost");
 
@@ -68,28 +69,28 @@ const ADSTERRA_BANNERS = [
 
 const DIRECT_LINKS = [
     {
-        network: "Link Offer",
+        network: "Boost Offer",
         label: "🎁 Unlock 20-100 Score",
         rewardMin: 20,
         rewardMax: 100,
         url: "https://omg10.com/4/10749383"
     },
     {
-        network: "Link Offer",
+        network: "Boost Offer",
         label: "⚡ Quick 20-100 Boost",
         rewardMin: 20,
         rewardMax: 100,
         url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=..."
     },
     {
-        network: "Link Offer",
+        network: "Boost Offer",
         label: "🔥 Extra Engagement Score",
         rewardMin: 20,
         rewardMax: 100,
         url: "https://omg10.com/4/10216281"
     },
     {
-        network: "Link Offer",
+        network: "Boost Offer",
         label: "💎 Mystery Score Boost",
         rewardMin: 20,
         rewardMax: 100,
@@ -1198,7 +1199,7 @@ function attachCardEvents(post) {
     s.querySelector(".next-btn")?.addEventListener("click", () => { if (!isNavigating) navigate(1); });
     s.querySelector(".prev-btn")?.addEventListener("click", () => { if (!isNavigating) navigate(-1); });
 
-   const vs = s.querySelector(".video-stage");
+    const vs = s.querySelector(".video-stage");
     const vid = s.querySelector(".card-video");
     const loadingOverlay = s.querySelector(`#video-loading-${post.id}`);
 
@@ -1216,6 +1217,14 @@ function attachCardEvents(post) {
         vid.addEventListener("canplay", () => {
             loadingOverlay.classList.add("hidden");
             vid.classList.add("ready");
+        }, { once: true });
+        
+        vid.addEventListener("loadeddata", () => {
+            setTimeout(() => {
+                if (loadingOverlay && !loadingOverlay.classList.contains("hidden")) {
+                    loadingOverlay.classList.add("hidden");
+                }
+            }, 1200);
         }, { once: true });
 
         // If video fails or takes too long
@@ -1564,18 +1573,32 @@ function renderBonusCard() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  DEEP LINK
 // ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// DEEP LINK (Now Secure Server-Side)
+// ══════════════════════════════════════════════════════════════════════════════
 async function checkDeepLink() {
     const id = new URLSearchParams(location.search).get("lol");
     if (!id) return;
+
     try {
-        const snap = await getDoc(doc(db, "SapanaCyberHub", "LoL", "posts", id));
-        if (!snap.exists()) return;
-        const deepPost = { id: snap.id, ...snap.data() };
+        const res = await getPost({ postId: id });
+
+        if (!res?.data?.success || !res.data.post) return;
+
+        const deepPost = res.data.post;
         deepPost.createdAtMs = postDateToMillis(deepPost.createdAt);
+
+        // Same behaviour as before — push to top of feed
         posts = [deepPost, ...posts.filter(p => p.id !== id)];
         cardIndex = 0;
+
         renderCard();
-    } catch (err) { console.warn("[LoL] deepLink:", err.message); }
+    } catch (err) {
+        // Optional: graceful fallback
+        if (err.code === "not-found") {
+            showToast("This LoL post is no longer available 😔");
+        }
+    }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1818,67 +1841,123 @@ async function submitPost() {
     const title = $("post-title").value.trim();
     if (!title) return showToast("Add a title! 😅");
     if (!selectedFile) return showToast("Pick a media! 📸");
-    if (document.getElementById("create-upload-modal")?.classList.contains("show")) return;
 
     postLock = true;
     btnDisableCreate();
     $("create-overlay").classList.add("hidden");
-    showCreateUploadModal(selectedFile, 0, "Preparing", "Reading file…");
+
+    let thumbnailFile = null;
 
     try {
+        showCreateUploadModal(selectedFile, 0, "Preparing", "Reading file…");
+
+        // === AUTO THUMBNAIL GENERATION ===
+        if (selectedFile.type.startsWith("video/")) {
+            showCreateUploadModal(selectedFile, 10, "Preparing", "Generating thumbnail...");
+            thumbnailFile = await generateVideoThumbnail(selectedFile, 1.0); // 1 second ka frame
+        }
+
+        // Upload video
         const ext = selectedFile.name.split(".").pop();
         const path = `SapanaCyberHub/LoL/posts/${currentUser.uid}/${Date.now()}.${ext}`;
         const sRef = storRef(stor, path);
+
         const task = uploadBytesResumable(sRef, selectedFile);
 
         const uploadSnap = await new Promise((resolve, reject) => {
             task.on("state_changed",
                 snap => {
                     const pct = Math.min(99, Math.floor((snap.bytesTransferred / snap.totalBytes) * 100));
-                    updateCreateUploadModal(pct,
-                        pct >= 95 ? "Almost done" : "Uploading",
-                        pct >= 95 ? "Finalizing your post…" : "Uploading media…"
-                    );
+                    updateCreateUploadModal(pct, pct >= 95 ? "Almost done" : "Uploading", "Uploading video...");
                 },
                 reject,
                 () => resolve(task.snapshot)
             );
         });
 
-        updateCreateUploadModal(99, "Almost done", "Saving your post…");
         const mediaURL = await getDownloadURL(uploadSnap.ref);
-        const tags = ($("post-tags").value || "").match(/#\w+/g) || [];
 
+        // Upload thumbnail (if video)
+        let thumbnailURL = null;
+        if (thumbnailFile) {
+            updateCreateUploadModal(95, "Almost done", "Uploading thumbnail...");
+            const thumbPath = path.replace(`.${ext}`, `_thumb.jpg`);
+            const thumbRef = storRef(stor, thumbPath);
+            await uploadBytesResumable(thumbRef, thumbnailFile);   // simple upload
+            thumbnailURL = await getDownloadURL(thumbRef);
+        }
+
+        // Create post with thumbnail
         await cfCreateLolPost({
             title,
             description: $("post-desc").value.trim(),
-            hashtags: tags,
+            hashtags: ($("post-tags").value || "").match(/#\w+/g) || [],
             mediaURL,
             mediaType: selectedFile.type.startsWith("video") ? "video" : "image",
+            thumbnail: thumbnailURL || null   // ← yeh important line
         });
 
         updateCreateUploadModal(100, "Done", "Your LoL is live! 🎉");
         await new Promise(r => setTimeout(r, 400));
+
         showToast("🚀 LoL posted successfully!");
         hideCreateUploadModal();
         resetCreateForm();
-        appView = "feed";
         openFeed();
         await loadPosts(true);
         cardIndex = 0;
         renderCard();
-        updateHeaderUI();
 
     } catch (err) {
         console.error(err);
         hideCreateUploadModal();
-        showToast(err.code === "failed-precondition" ? err.message : "Upload failed: " + err.message);
+        showToast("Upload failed: " + (err.message || "Try again"));
         $("create-overlay").classList.remove("hidden");
-        resumeFeedVideos();
     }
 
     btnEnableCreate();
     postLock = false;
+}
+
+// Generate thumbnail from video file (client-side)
+async function generateVideoThumbnail(videoFile, timestamp = 1.0) {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(videoFile);
+        const video = document.createElement("video");
+        
+        video.src = url;
+        video.muted = true;
+        video.playsInline = true;
+        video.crossOrigin = "anonymous";
+
+        video.onloadedmetadata = () => {
+            video.currentTime = Math.min(timestamp, video.duration - 0.1); // safe timestamp
+        };
+
+        video.onseeked = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth || 720;
+            canvas.height = video.videoHeight || 1280;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to Blob (JPEG quality 0.85 = good balance)
+            canvas.toBlob((blob) => {
+                URL.revokeObjectURL(url);   // memory clean
+                if (blob) {
+                    resolve(new File([blob], "thumbnail.jpg", { type: "image/jpeg" }));
+                } else {
+                    reject(new Error("Canvas toBlob failed"));
+                }
+            }, "image/jpeg", 0.85);
+        };
+
+        video.onerror = (err) => {
+            URL.revokeObjectURL(url);
+            reject(err);
+        };
+    });
 }
 
 function refreshCreateReqs() {
@@ -1985,35 +2064,115 @@ $("back").addEventListener("click", () => {
 // ══════════════════════════════════════════════════════════════════════════════
 //  LEADERBOARD
 // ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// LEADERBOARD (UPDATED - Daily Top Posts + Inspiration)
+// ══════════════════════════════════════════════════════════════════════════════
 async function loadLeaderboard() {
     const container = document.querySelector(".leaderboard-data");
+    if (!container) return;
+
     container.innerHTML = `
-      <div class="row"><span>Rank</span><span>Creator</span><span>Score</span></div>
+      <div class="leaderboard-header">
+        <h2>🔥 Today's Top LoLs</h2>
+        <p class="leaderboard-date">${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+      </div>
       <div class="loading-state" style="display:flex;">
         <div class="loader-emoji"><img src="/assets/logo/lol-ic.png" alt=""></div>
-        <p>Loading LoLs…</p>
+        <p>Loading today's best LoLs...</p>
       </div>`;
+
     try {
         const res = await cfGetLeaderboard();
-        const list = res.data.data || [];
-        if (!list.length) { container.innerHTML = `<p style="text-align:center">No leaderboard today 😴</p>`; return; }
-        let html = `<div class="row"><span>Rank</span><span>Creator</span><span>Score</span></div>`;
-        list.forEach(u => {
+        const topPosts = res.data.data || [];   // ← assume yeh ab POSTS return karta hai
+
+        if (!topPosts.length) {
+            container.innerHTML = `
+              <div class="leaderboard-header">
+                <h2>🔥 Today's Top LoLs</h2>
+              </div>
+              <p style="text-align:center; padding:40px 20px; color:#aab2cf;">No LoLs today yet 😴<br>Be the first to post and rank #1!</p>`;
+            return;
+        }
+
+        let html = `<div class="leaderboard-header"><h2>🔥 Today's Top LoLs</h2></div>`;
+
+        topPosts.forEach((post, i) => {
+            const rank = i + 1;
+            const isTop3 = rank <= 3;
+            const thumb = post.thumbnail || post.mediaURL;
+            const isVideo = post.mediaType === "video";
+
             html += `
-        <div class="creator-card ${u.rank <= 3 ? "top-rank" : ""}">
-          <span class="post-rank">#${u.rank}</span>
-          <div class="profile">
-            <img class="creator-dp" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=${u.creatorId}">
-            <span class="creator-name">${esc(u.creatorName || u.creatorId)}</span>
-          </div>
-          <span class="engagement-score">${u.engagementScore.toLocaleString()}</span>
-        </div>`;
+            <div class="top-post-card ${isTop3 ? 'top-3' : ''}" data-post-id="${post.id}">
+              <div class="rank-badge">#${rank}</div>
+              
+              <div class="post-preview">
+                ${isVideo ? 
+                  `<video src="${thumb}" muted playsinline loop></video>` : 
+                  `<img src="${thumb}" alt="${esc(post.title)}" loading="lazy">`}
+                ${isVideo ? `<span class="play-icon">▶</span>` : ''}
+              </div>
+
+              <div class="post-info">
+                <h3 class="post-title">${esc(post.title)}</h3>
+                <div class="post-meta">
+                  <span class="creator">👤 ${esc(post.creatorName || 'LoLer')}</span>
+                  <span class="score">⚡ ${post.engagementScore?.toLocaleString() || 0}</span>
+                </div>
+              </div>
+            </div>`;
         });
+
         container.innerHTML = html;
+
+        // Click to open post (inspiration ke liye full view)
+        container.querySelectorAll('.top-post-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const postId = card.dataset.postId;
+                openLeaderboardPost(postId);
+            });
+        });
+
     } catch (err) {
-        console.error("leaderboard:", err);
-        showToast("Failed to load leaderboard 😵");
-        container.innerHTML = `<div class="row"><span>Rank</span><span>Creator</span><span>Score</span></div><p style="text-align:center">No leaderboard today 😴</p>`;
+        container.innerHTML = `
+          <p style="text-align:center; padding:40px 20px; color:#ff6b6b;">Failed to load today's top LoLs 😵<br>Please try again.</p>`;
+    }
+}
+// Open leaderboard post for inspiration
+// Open leaderboard post for inspiration (Now Secure Server-Side)
+async function openLeaderboardPost(postId) {
+    $("lolLeaderBoard-overlay").classList.add("hidden"); // close leaderboard
+    resumeFeedVideos();
+
+    try {
+        const getPost = httpsCallable(functions, "getLolPostById");
+        const res = await getPost({ postId: postId });
+
+        if (!res?.data?.success || !res.data.post) {
+            showToast("This LoL is no longer available 😔");
+            return;
+        }
+
+        const deepPost = res.data.post;
+        deepPost.createdAtMs = postDateToMillis(deepPost.createdAt);
+
+        // Temporarily push to top of feed (same behaviour as deep link)
+        posts = [deepPost, ...posts.filter(p => p.id !== postId)];
+        cardIndex = 0;
+
+        openFeed();
+        renderCard();
+
+        // Nice little toast
+        showToast("Opened Top LoL for inspiration", 2000);
+
+    } catch (err) {
+        
+        if (err.code === "not-found") {
+            showToast("This LoL post is no longer available");
+        } else {
+            showToast("Couldn't open this LoL 😔");
+        }
     }
 }
 
