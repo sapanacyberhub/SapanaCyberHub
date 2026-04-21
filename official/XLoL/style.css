@@ -938,6 +938,7 @@ textarea {
 .video-loading-content {
     text-align: center;
     color: #fff;
+    align-items: center;
 }
 
 .lol-loading-icon {
