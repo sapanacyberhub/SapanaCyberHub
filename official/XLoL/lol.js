@@ -1255,6 +1255,7 @@ function buildMedia(post) {
           <div class="video-stage">
             <video 
               class="card-video"  
+              src="${post.mediaURL}"
               poster="${posterUrl}"
               autoplay 
               loop 
@@ -1355,10 +1356,12 @@ function attachCardEvents(post) {
         if (pre?.src) {
             vid.src = pre.src;
             vid.load();
-        } else {
-            vid.src = post.mediaURL;
-            vid.load();
         }
+        else {  
+             vid.src = post.mediaURL;
+                vid.load();
+        }
+
 
         loadingOverlay.classList.remove("hidden");
 
@@ -1378,6 +1381,7 @@ function attachCardEvents(post) {
                 hideOverlay();
             }
         }, { once: true });
+        
         vid.addEventListener("timeupdate", function onTimeUpdate() {
             if (vid.currentTime > 0.1) {
                 vid.removeEventListener("timeupdate", onTimeUpdate);
