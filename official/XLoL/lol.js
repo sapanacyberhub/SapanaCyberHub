@@ -336,7 +336,16 @@ function normalizeFeedPosts(items) {
             if (diff < 6 * 60 * 60 * 1000) return Math.random() < 0.5;
             return true;
         })
-        .map(post => ({ ...post, createdAtMs: postDateToMillis(post.createdAt) }));
+        .map(post => {
+            // Ensure mediaURL is absolute
+            if (post.mediaURL && !post.mediaURL.startsWith('http')) {
+                post.mediaURL = 'https://storage.googleapis.com/sapanacyberhub-26310.appspot.com/' + post.mediaURL;
+            }
+            if (post.thumbnail && !post.thumbnail.startsWith('http')) {
+                post.thumbnail = 'https://storage.googleapis.com/sapanacyberhub-26310.appspot.com/' + post.thumbnail;
+            }
+            return { ...post, createdAtMs: postDateToMillis(post.createdAt) };
+        });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -924,20 +933,22 @@ function initXPSystem() {
 
 let xpTimeout;
 
-function showXPProgress(totalXP) {
+function showXPProgress(earnedXP) {
     const popup = document.getElementById("xp-popup");
     if (!popup) return;
 
-    const earned = document.getElementById("xp-earned");
-    const current = document.getElementById("xp-current");
+    const earnedEl = document.getElementById("xp-earned");
+    const currentEl = document.getElementById("xp-current");
     const fill = document.getElementById("xp-fill");
 
     const TARGET = 1000;
-    const progress = sessionEngagementScore % TARGET;
+    // Use lolUserData.engagementScore (persistent) instead of sessionEngagementScore
+    const currentScore = lolUserData?.engagementScore || 0;
+    const progress = currentScore % TARGET;
     const percent = (progress / TARGET) * 100;
 
-    earned.textContent = totalXP;
-    current.textContent = progress;
+    earnedEl.textContent = earnedXP;
+    currentEl.textContent = progress;
     fill.style.width = percent + "%";
 
     popup.classList.remove("hidden");
@@ -1243,8 +1254,7 @@ function buildMedia(post) {
         return `
           <div class="video-stage">
             <video 
-              class="card-video" 
-              src="${post.mediaURL}" 
+              class="card-video"  
               poster="${posterUrl}"
               autoplay 
               loop 
@@ -1345,26 +1355,55 @@ function attachCardEvents(post) {
         if (pre?.src) {
             vid.src = pre.src;
             vid.load();
+        } else {
+            vid.src = post.mediaURL;
+            vid.load();
         }
 
-        // Show loading overlay initially
         loadingOverlay.classList.remove("hidden");
 
-        // ✅ Hide ONLY when video actually starts playing
-        vid.addEventListener("playing", () => {
-            loadingOverlay.classList.add("hidden");
-        }, { once: true });
+        // Helper to hide overlay safely
+        const hideOverlay = () => {
+            if (loadingOverlay) {
+                loadingOverlay.classList.add("hidden");
+                // Also ensure video is visible (in case CSS hides it)
+                vid.style.opacity = '1';
+            }
+        };
 
-        // If video fails to load
-        vid.addEventListener("error", () => {
-            loadingOverlay.classList.add("hidden");
-            console.warn("Video failed to load:", post.mediaURL);
+        // Event listeners (all one-time)
+        vid.addEventListener("playing", hideOverlay, { once: true });
+        vid.addEventListener("canplay", () => {
+            if (vid.readyState >= 2 && vid.videoWidth > 0) {
+                hideOverlay();
+            }
         }, { once: true });
+        vid.addEventListener("timeupdate", function onTimeUpdate() {
+            if (vid.currentTime > 0.1) {
+                vid.removeEventListener("timeupdate", onTimeUpdate);
+                hideOverlay();
+            }
+        });
+        vid.addEventListener("error", hideOverlay, { once: true });
 
-        // Fallback: after 8 seconds force hide
+        // Aggressive fallback: check every 200ms for video dimensions, then hide
+        let checkCount = 0;
+        const maxChecks = 15; // 3 seconds total
+        const interval = setInterval(() => {
+            if (vid.videoWidth > 0 && vid.videoHeight > 0) {
+                clearInterval(interval);
+                hideOverlay();
+            } else if (++checkCount >= maxChecks) {
+                clearInterval(interval);
+                hideOverlay(); // give up and show whatever is there
+            }
+        }, 200);
+
+        // Ultimate safety: hide after 5 seconds no matter what
         setTimeout(() => {
-            if (loadingOverlay) loadingOverlay.classList.add("hidden");
-        }, 8000);
+            clearInterval(interval);
+            hideOverlay();
+        }, 5000);
 
         vid.muted = !soundEnabled;
         vid.volume = 1;
@@ -1372,7 +1411,6 @@ function attachCardEvents(post) {
         setActiveVideo(vid);
     }
 }
-
 // ══════════════════════════════════════════════════════════════════════════════
 //  NAVIGATE
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1472,6 +1510,10 @@ async function maybeSendWatchProgress(post, video, session, key) {
         try {
             const res = await sendWatchEngagement(post, session, { rewarded: true });
             if (res?.data?.rewarded !== false) {
+                // ✅ Update global user data from server response
+                if (res?.data?.lolUser) {
+                    lolUserData = res.data.lolUser;
+                }
                 localStorage.setItem(key, String(Date.now()));
                 registerSessionEngagement("view", post.id);
                 updateHeaderUI();
@@ -1538,34 +1580,53 @@ async function handleLike(post) {
     const key = `liked_${post.id}`;
     if (likeLocks.has(post.id)) return;
     likeLocks.add(post.id);
-    const card = $("card-stack"); if (!card) { likeLocks.delete(post.id); return; }
+
+    const card = $("card-stack");
+    if (!card) { likeLocks.delete(post.id); return; }
+
     const likeBtn = card.querySelector(".like-btn");
     const likeEl = card.querySelector(".stat-l");
+
+    // Prevent double‑like if already marked
     if (localStorage.getItem(key) === "1") {
         showToast("Already liked! 💖");
         likeLocks.delete(post.id);
         return;
     }
-    localStorage.setItem(key, "1");
-    registerSessionEngagement("like", post.id);
+
+    // Optimistic UI feedback (will be corrected if server fails)
+    const oldLikes = post.likes || 0;
     likeBtn?.classList.add("liked");
     if (likeBtn) likeBtn.textContent = "💖 Liked";
-    const oldLikes = post.likes || 0;
     if (likeEl) likeEl.textContent = fmt(oldLikes + 1);
+    post.likes = oldLikes + 1;
+
     try {
-        await cfTrackEngagement({ postId: post.id, type: "like" });
-        post.likes = oldLikes + 1;
-        updateHeaderUI();
+        const res = await cfTrackEngagement({ postId: post.id, type: "like" });
+
+        // ✅ Sync with server response
+        if (res?.data?.lolUser) {
+            lolUserData = res.data.lolUser;
+            updateHeaderUI();
+        }
+
+        // ✅ Only now mark as liked in local storage
+        localStorage.setItem(key, "1");
+        registerSessionEngagement("like", post.id);
         showToast("Liked! 💖");
+
     } catch (err) {
         console.warn("Like failed", err.code || err.message);
+        // Revert optimistic changes
         localStorage.removeItem(key);
         likeBtn?.classList.remove("liked");
         if (likeBtn) likeBtn.textContent = "🤍 Like";
         if (likeEl) likeEl.textContent = fmt(oldLikes);
+        post.likes = oldLikes;
         showToast("Like failed ❌");
+    } finally {
+        likeLocks.delete(post.id);
     }
-    likeLocks.delete(post.id);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1573,8 +1634,10 @@ async function handleLike(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 async function handleShare(post) {
     const url = `${location.origin}${location.pathname}?lol=${post.id}`;
-    let shared = false;
     const startTime = Date.now();
+    let nativeShared = false;
+
+    // Attempt native share
     try {
         const file = thumbCache.get(post.id);
         if (file && navigator.canShare?.({ files: [file] })) {
@@ -1582,23 +1645,64 @@ async function handleShare(post) {
         } else {
             await navigator.share({ title: post.title, text: post.title, url });
         }
-        if (Date.now() - startTime < 1200) { showToast("⚠️ Share too fast — try properly."); return; }
-        shared = true;
-    } catch {
-        showToast("Share failed ❌");
+        const shareDuration = Date.now() - startTime;
+        if (shareDuration < 1200) {
+            showToast("⚠️ Share dismissed too quickly — no reward given.");
+            return;
+        }
+        nativeShared = true;
+    } catch (err) {
+        console.warn("Native share failed, falling back to clipboard", err.message);
+    }
+
+    if (nativeShared) {
+        const key = `shared_${post.id}`;
+        if (localStorage.getItem(key) === "1") {
+            showToast("Already shared 👍");
+            return;
+        }
+
+        // Optimistic UI update (shares count)
+        const shareEl = document.querySelector(".stat-s");
+        const oldShares = post.shares || 0;
+        if (shareEl) shareEl.textContent = fmt(oldShares + 1);
+        post.shares = oldShares + 1;
+
+        try {
+            const res = await cfTrackEngagement({
+                postId: post.id,
+                type: "share",
+                shareConfirmed: true,
+                visitDurationMs: Date.now() - startTime
+            });
+
+            // ✅ Sync with server response
+            if (res?.data?.lolUser) {
+                lolUserData = res.data.lolUser;
+                updateHeaderUI();
+            }
+
+            localStorage.setItem(key, "1");
+            registerSessionEngagement("share", post.id);
+            showToast("🚀 Share counted!");
+
+        } catch (err) {
+            console.warn("Share tracking failed", err.code || err.message);
+            // Revert optimistic share count
+            if (shareEl) shareEl.textContent = fmt(oldShares);
+            post.shares = oldShares;
+            showToast("Share not counted ❌");
+        }
         return;
     }
-    if (!shared) return;
-    const key = `shared_${post.id}`;
-    if (localStorage.getItem(key) === "1") { showToast("Already shared 👍"); return; }
-    localStorage.setItem(key, "1");
-    registerSessionEngagement("share", post.id);
+
+    // Fallback: clipboard copy (no reward)
     try {
-        await cfTrackEngagement({ postId: post.id, type: "share", shareConfirmed: true, visitDurationMs: Date.now() - startTime });
-        showToast("🚀 Share counted!");
-    } catch (err) {
-        console.warn("Share tracking failed", err.code || err.message);
-        showToast("Share not counted ❌");
+        await navigator.clipboard.writeText(url);
+        showToast("🔗 Link copied to clipboard!");
+    } catch (clipErr) {
+        console.warn("Clipboard write failed", clipErr.message);
+        showToast("❌ Unable to share or copy link.");
     }
 }
 
