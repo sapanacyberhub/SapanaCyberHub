@@ -41,7 +41,7 @@ const cfLoadFeed = httpsCallable(functions, "loadLolFeed");
 const cfLoLtoListen = httpsCallable(functions, "transferLolToListenWallet");
 const cfClaimLolSessionBonus = httpsCallable(functions, "claimLolSessionBonus");
 const cfGetLeaderboard = httpsCallable(functions, "getTodayLeaderboard");
-        const getPost = httpsCallable(functions, "getLolPostById");
+const getPost = httpsCallable(functions, "getLolPostById");
 const cfLoadLolProfileHistory = httpsCallable(functions, "loadLolProfileHistory");
 const cfDeleteLolPost = httpsCallable(functions, "deleteLolPost");
 
@@ -121,6 +121,7 @@ const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 30 };
 const BONUS_CARD_MIN_ENGAGEMENT = 50;
 const AD_COOLDOWN_MIN_SWIPES = 5;
 const AD_COOLDOWN_MAX_SWIPES = 7;
+const AD_IMPRESSION_LOCK_MS = 5000;
 const BONUS_CARD_MIN_SWIPES = 7;
 const BONUS_CARD_MAX_SWIPES = 12;
 const BONUS_SPONSOR_MIN_VISIT_MS = 2500;
@@ -134,6 +135,8 @@ const VIDEO_HOLD_MOVE_TOLERANCE = 18;
 const FEED_LOAD_LIMIT = 10;
 const FEED_SEEN_STORAGE_KEY = "lol_seen_post_ids";
 const FEED_SEEN_LIMIT = 100;
+const MAX_PRELOADED_VIDEOS = 10;
+const MAX_THUMB_CACHE = 30;
 
 const likeLocks = new Set();
 
@@ -147,17 +150,17 @@ let posts = [];
 let cardIndex = 0;
 let lastCreatedAt = null;
 let isLoading = false;
-let isNavigating = false;   // FIX: prevents concurrent navigate() calls
+let isNavigating = false;
 let noMorePosts = false;
 let swipeCount = 0;
 let viewTimer = null;
 let activeViewSession = null;
 let activePostId = null;
 let selectedFile = null;
-let selectedFileURL = null;    // FIX: track object URL for proper revocation
+let selectedFileURL = null;
 let touchStartX = 0, touchStartY = 0;
 let touchCurrentX = 0, touchCurrentY = 0;
-let swipeFired = false;   // FIX: per-touch-sequence flag prevents double-fire
+let swipeFired = false;
 let swipeNavigationLocked = false;
 let lastWheelNavigateAt = 0;
 let isFeedFullscreen = false;
@@ -175,7 +178,7 @@ let bonusClaimPending = false;
 let sponsorVisitPending = false;
 let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
-let _qbSkipTick = null;   // FIX: single canonical variable for quick-break mode-B interval
+let _qbSkipTick = null;
 
 // ── Smart video system ────────────────────────────────────────────────────────
 let activeVideoElement = null;
@@ -184,6 +187,7 @@ let lastSwipeTime = 0;
 let lastSwipeDelta = 999;
 let swipeTrend = 1;
 let connectionSpeed = "fast";
+let soundEnabled = localStorage.getItem("soundEnabled") === "true";
 
 function detectConnection() {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -194,7 +198,7 @@ function detectConnection() {
 detectConnection();
 
 // ── Back / route state ────────────────────────────────────────────────────────
-let appView = "feed"; // feed | profile | create
+let appView = "feed";
 let backTrapReady = false;
 
 // ── Upload modal ──────────────────────────────────────────────────────────────
@@ -368,7 +372,6 @@ function detachBonusTabReturnListener() {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  GESTURE HELPERS
-//  FIX: swipeFired flag ensures only ONE navigate fires per touch sequence
 // ══════════════════════════════════════════════════════════════════════════════
 function resolveGestureDirection(diffX, diffY) {
     const absX = Math.abs(diffX), absY = Math.abs(diffY);
@@ -377,13 +380,12 @@ function resolveGestureDirection(diffX, diffY) {
 }
 
 function tryGestureNavigate(diffX, diffY) {
-    // FIX: double-guard with both swipeFired and isNavigating
     if (swipeFired || swipeNavigationLocked || isNavigating) return false;
     const dir = resolveGestureDirection(diffX, diffY);
     if (!dir) return false;
     swipeFired = true;
     swipeNavigationLocked = true;
-    navigate(dir);   // async — locks reset inside navigate() finally block
+    navigate(dir);
     return true;
 }
 
@@ -396,7 +398,7 @@ function bindFeedGestures() {
         const t = e.touches[0]; if (!t) return;
         touchStartX = t.clientX; touchStartY = t.clientY;
         touchCurrentX = touchStartX; touchCurrentY = touchStartY;
-        swipeFired = false;          // FIX: reset per touch sequence
+        swipeFired = false;
         swipeNavigationLocked = false;
     }, { passive: true });
 
@@ -410,12 +412,10 @@ function bindFeedGestures() {
     }, { passive: false });
 
     stack.addEventListener("touchend", e => {
-        // FIX: only attempt navigate from touchend if touchmove didn't already fire it
         if (!swipeFired) {
             const ch = e.changedTouches[0];
             if (ch) tryGestureNavigate(touchStartX - ch.clientX, touchStartY - ch.clientY);
         }
-        // Reset flags only if navigate is not in-flight; navigate's finally handles its own
         if (!isNavigating) {
             swipeFired = false;
             swipeNavigationLocked = false;
@@ -470,11 +470,16 @@ function isVideoReallyPlaying(video) {
 function setActiveVideo(video) {
     if (activeVideoElement && activeVideoElement !== video) activeVideoElement.pause();
     activeVideoElement = video;
+    if (video) {
+        video.muted = !soundEnabled;
+        video.volume = 1;
+    }
     if (canFeedVideoPlay()) video?.play().catch(() => { });
     else video?.pause();
 }
 function pauseFeedVideos() {
     activeVideoElement?.pause();
+    stopViewTimer(); // FIX: stop view timer when feed is backgrounded
 }
 function resumeFeedVideos() {
     if (!canFeedVideoPlay()) {
@@ -489,19 +494,7 @@ document.addEventListener("visibilitychange", () => {
     if (document.hidden) pauseFeedVideos(); else resumeFeedVideos();
 });
 
-function preloadVideo(post) {
-    if (!post || post.mediaType !== "video") return;
-    if (preloadedVideos.has(post.id)) return;
-    const v = document.createElement("video");
-    v.preload = connectionSpeed === "slow" ? "metadata" : "auto";
-    v.src = post.mediaURL;
-    v.muted = true;
-    v.playsInline = true;
-    v.load();
-    preloadedVideos.set(post.id, v);
-}
-
-// Better predictive preload
+// Aggressive predictive preload – runs on every swipe, no throttle
 async function predictivePreload() {
     const toPreload = [];
 
@@ -519,31 +512,33 @@ async function predictivePreload() {
         toPreload.push(prevPost);
     }
 
-    // Parallel preload
     await Promise.all(toPreload.map(post => preloadVideoPromise(post)));
 }
 
-// New helper function
 function preloadVideoPromise(post) {
     return new Promise((resolve) => {
         if (!post || post.mediaType !== "video") return resolve();
+        if (preloadedVideos.has(post.id)) return resolve();
 
         const v = document.createElement("video");
-        v.preload = connectionSpeed === "slow" ? "metadata" : "auto";
+        v.preload = "auto";
         v.src = post.mediaURL;
         v.muted = true;
         v.playsInline = true;
 
-        v.onloadedmetadata = () => {
+        v.oncanplay = () => {
             preloadedVideos.set(post.id, v);
+            // Limit cache size
+            if (preloadedVideos.size > MAX_PRELOADED_VIDEOS) {
+                const firstKey = preloadedVideos.keys().next().value;
+                const oldVid = preloadedVideos.get(firstKey);
+                oldVid.src = "";
+                oldVid.load();
+                preloadedVideos.delete(firstKey);
+            }
             resolve();
         };
-
-        v.onerror = () => {
-            console.warn("Video preload failed:", post.mediaURL);
-            resolve(); // don't break the chain
-        };
-
+        v.onerror = () => resolve();
         v.load();
     });
 }
@@ -571,7 +566,6 @@ function loadPassiveAdScript(config, { force = false } = {}) {
 function cleanupPassiveAdScript(configOrId) {
     const id = typeof configOrId === "string" ? configOrId : configOrId?.id;
     if (!id) return;
-    // FIX: also cancel any pending auto-remove timer for this script
     if (passiveAdCleanupTimers[id]) {
         clearTimeout(passiveAdCleanupTimers[id]);
         passiveAdCleanupTimers[id] = null;
@@ -746,6 +740,7 @@ function _renderQuickBreakModeA(target, sponsorLink) {
         });
     });
     target.querySelector("#qb-skip-a")?.addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
+    lockNavigationButtons(5000);
 }
 
 function _renderQuickBreakModeB(target) {
@@ -763,7 +758,6 @@ function _renderQuickBreakModeB(target) {
     const cntEl = target.querySelector("#qb-countdown");
     let remaining = 3;
 
-    // FIX: assign to _qbSkipTick (module-level) so _clearQbTick() can cancel it
     _qbSkipTick = setInterval(() => {
         remaining--;
         if (cntEl) cntEl.textContent = remaining;
@@ -778,6 +772,7 @@ function _renderQuickBreakModeB(target) {
         clearPendingAdRedirect();
         navigate(1);
     });
+    lockNavigationButtons(5000);
 }
 
 function mountFeaturedLink(target, link, note = "Short visit unlocks a 20-100 score boost") {
@@ -836,8 +831,140 @@ function initializeAds() { passiveAdsInitialized = true; }
 function registerSessionEngagement(type, postId) {
     const bucket = sessionEngagementLedger[type];
     if (!bucket || !postId || bucket.has(postId)) return;
+
     bucket.add(postId);
-    sessionEngagementScore += SESSION_ENGAGEMENT_POINTS[type] || 0;
+    const points = SESSION_ENGAGEMENT_POINTS[type] || 0;
+    sessionEngagementScore += points;
+    xpCollectedBuffer += points;
+
+    if (xpCollectedBuffer >= 100) {
+        showXPProgress(xpCollectedBuffer);
+        xpCollectedBuffer = 0;
+    }
+
+    const TARGET = 1000;
+    if (sessionEngagementScore >= TARGET) {
+        const earnedCredits = Math.floor(sessionEngagementScore / TARGET);
+        sessionEngagementScore = sessionEngagementScore % TARGET;
+        lolUserData.lolCreatorCredits = (lolUserData.lolCreatorCredits || 0) + earnedCredits;
+        showToast(`🎉 +${earnedCredits} Creator Credit earned!`);
+    }
+    updateHeaderUI();
+}
+
+function initXPSystem() {
+    if (!document.getElementById("xp-style")) {
+        const style = document.createElement("style");
+        style.id = "xp-style";
+        style.innerHTML = `
+        .xp-popup {
+            position: fixed;
+            top: 80px;
+            right: 16px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .xp-card {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 16px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: xpIn 0.4s ease forwards;
+        }
+        @keyframes xpIn {
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .xp-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+        .xp-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .xp-bar {
+            margin-top: 6px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .xp-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22c55e, #06b6d4);
+            transition: width 0.4s ease;
+        }`;
+        document.head.appendChild(style);
+    }
+
+    if (!document.getElementById("xp-popup")) {
+        const div = document.createElement("div");
+        div.id = "xp-popup";
+        div.className = "xp-popup hidden";
+        div.innerHTML = `
+        <div class="xp-card">
+            <div class="xp-title">+<span id="xp-earned">0</span> XP</div>
+            <div class="xp-sub">
+                <span id="xp-current">0</span> / 1000 to next Creator Credit
+            </div>
+            <div class="xp-bar">
+                <div class="xp-fill" id="xp-fill"></div>
+            </div>
+        </div>`;
+        document.body.appendChild(div);
+    }
+}
+
+let xpTimeout;
+
+function showXPProgress(totalXP) {
+    const popup = document.getElementById("xp-popup");
+    if (!popup) return;
+
+    const earned = document.getElementById("xp-earned");
+    const current = document.getElementById("xp-current");
+    const fill = document.getElementById("xp-fill");
+
+    const TARGET = 1000;
+    const progress = sessionEngagementScore % TARGET;
+    const percent = (progress / TARGET) * 100;
+
+    earned.textContent = totalXP;
+    current.textContent = progress;
+    fill.style.width = percent + "%";
+
+    popup.classList.remove("hidden");
+
+    const card = popup.querySelector(".xp-card");
+    card.style.animation = "none";
+    card.offsetHeight;
+    card.style.animation = "";
+
+    clearTimeout(xpTimeout);
+    xpTimeout = setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 2000);
+}
+
+let xpCollectedBuffer = 0;
+let xpIntervalStarted = false;
+
+function startXPInterval() {
+    if (xpIntervalStarted) return;
+    xpIntervalStarted = true;
+
+    setInterval(() => {
+        if (xpCollectedBuffer <= 0) return;
+        showXPProgress(xpCollectedBuffer);
+        xpCollectedBuffer = 0;
+    }, 60000);
 }
 
 function completeBonusFlow() {
@@ -846,6 +973,14 @@ function completeBonusFlow() {
     initializeAds();
     scheduleNextFeedAd();
     scheduleNextBonusCard();
+}
+
+function resetBonusState() {
+    if (!bonusFlowCompleted) {
+        bonusClaimPending = false;
+        sponsorVisitPending = false;
+        detachBonusTabReturnListener();
+    }
 }
 
 async function claimSessionBonusReward(link, options = {}) {
@@ -877,7 +1012,7 @@ async function claimSessionBonusReward(link, options = {}) {
                 : "Claim submitted. Engagement boost will reflect shortly.",
         };
     } catch (err) {
-        console.warn("[LoL] claimLolSessionBonus:", err.message);
+        console.warn("[LoL] claimLolSessionBonus failed", err.code || err.message);
         return { success: false, message: "Bonus server unavailable. Try again later." };
     }
 }
@@ -945,11 +1080,13 @@ async function bootApp(user) {
         listenUserData = res.data.listenUser;
         lolUserData = res.data.lolUser;
     } catch (err) {
-        console.error("init failed:", err);
+        console.error("init failed", err.code || err.message);
         showGateError("Something went wrong. Retry.");
         return;
     }
     updateHeaderUI();
+    initXPSystem();
+    startXPInterval();
     ensureBackTrap();
     openFeed();
     bindFeedGestures();
@@ -992,13 +1129,17 @@ async function loadPosts(initial = false) {
             const incoming = res.data.posts || [];
             const fresh = normalizeFeedPosts(incoming);
             if (res.data.lastCreatedAt) lastCreatedAt = res.data.lastCreatedAt;
-            if (fresh.length) { posts.push(...fresh); addedCount = fresh.length; }
+            if (fresh.length) {
+                posts.push(...fresh);
+                addedCount = fresh.length;
+                cardIndex = Math.min(cardIndex, posts.length - 1);
+            }
             if (!incoming.length) { noMorePosts = true; break; }
         }
         if (!addedCount) noMorePosts = true;
         if (!addedCount && !initial) showToast("No fresh LoLs right now. Try again soon.");
     } catch (err) {
-        console.error("load feed error:", err);
+        console.error("load feed error", err.code || err.message);
         showToast("Failed to load posts");
     }
     $("feed-loader").style.display = "none";
@@ -1007,13 +1148,11 @@ async function loadPosts(initial = false) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  CARD RENDER
-//  FIX: cleanupPassiveAdScript now also cancels pending timers
 // ══════════════════════════════════════════════════════════════════════════════
 function renderCard() {
     stopViewTimer();
     clearPendingAdRedirect();
     detachBonusTabReturnListener();
-    // FIX: cleanupPassiveAdScript already cancels timers now
     PASSIVE_AD_SCRIPTS.forEach(c => cleanupPassiveAdScript(c.id));
 
     if (!posts.length) { renderEmptyFeed(); return; }
@@ -1036,7 +1175,6 @@ function renderCard() {
     const post = posts[cardIndex];
     if (!post) return;
 
-    // Preload thumbnails for neighbours
     preloadThumbnail(post);
     if (posts[cardIndex + 1]) preloadThumbnail(posts[cardIndex + 1]);
     if (posts[cardIndex - 1]) preloadThumbnail(posts[cardIndex - 1]);
@@ -1110,15 +1248,14 @@ function buildMedia(post) {
               poster="${posterUrl}"
               autoplay 
               loop 
+              muted
               playsinline>
             </video>
 
-            <!-- Loading Overlay -->
             <div class="video-loading-overlay" id="video-loading-${post.id}">
               <div class="video-loading-content">
-                <div class="lol-loading-icon"><img src="/assets/logo/lol-ic.png" alt=""></div>   <!-- Yahan tumhara LoL icon daal sakte ho -->
+                <div class="lol-loading-icon"><img src="/assets/logo/lol-ic.png" alt=""></div>
                 <div class="loading-text">Loading LoL...</div>
-                
               </div>
             </div>
           </div>`;
@@ -1128,11 +1265,11 @@ function buildMedia(post) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  VIDEO CONTROLS  (single-tap = mute, double-tap = fullscreen)
+//  VIDEO CONTROLS
 // ══════════════════════════════════════════════════════════════════════════════
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    video.muted = false;
+    video.muted = !soundEnabled;
     video.play().catch(() => { });
 
     let holdTimer = null;
@@ -1140,7 +1277,7 @@ function attachVideoControls(surface, video) {
     let resumeAfterHold = false;
     let pressX = 0, pressY = 0;
     let suppressClick = false;
-    let clickTimeout = null;   // closure-scoped — safe per card instance
+    let clickTimeout = null;
 
     const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
 
@@ -1175,22 +1312,22 @@ function attachVideoControls(surface, video) {
         if (suppressClick) { suppressClick = false; return; }
 
         if (clickTimeout) {
-            // Double-tap → toggle fullscreen
             clearTimeout(clickTimeout);
             clickTimeout = null;
             setFeedFullscreen(!isFeedFullscreen);
             return;
         }
-        // Single-tap — confirm after 200 ms that it wasn't a double-tap
         clickTimeout = setTimeout(() => {
             video.muted = !video.muted;
+            soundEnabled = !video.muted;
+            localStorage.setItem("soundEnabled", soundEnabled);
             clickTimeout = null;
         }, 200);
     });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  ATTACH CARD EVENTS
+//  ATTACH CARD EVENTS (UPDATED – overlay hides on 'playing' only)
 // ══════════════════════════════════════════════════════════════════════════════
 function attachCardEvents(post) {
     const s = $("card-stack");
@@ -1210,41 +1347,34 @@ function attachCardEvents(post) {
             vid.load();
         }
 
-        // Show loading initially
+        // Show loading overlay initially
         loadingOverlay.classList.remove("hidden");
 
-        // Hide loading when video is ready to play
-        vid.addEventListener("canplay", () => {
+        // ✅ Hide ONLY when video actually starts playing
+        vid.addEventListener("playing", () => {
             loadingOverlay.classList.add("hidden");
-            vid.classList.add("ready");
-        }, { once: true });
-        
-        vid.addEventListener("loadeddata", () => {
-            setTimeout(() => {
-                if (loadingOverlay && !loadingOverlay.classList.contains("hidden")) {
-                    loadingOverlay.classList.add("hidden");
-                }
-            }, 1200);
         }, { once: true });
 
-        // If video fails or takes too long
+        // If video fails to load
         vid.addEventListener("error", () => {
             loadingOverlay.classList.add("hidden");
             console.warn("Video failed to load:", post.mediaURL);
-        });
+        }, { once: true });
 
         // Fallback: after 8 seconds force hide
         setTimeout(() => {
             if (loadingOverlay) loadingOverlay.classList.add("hidden");
         }, 8000);
 
+        vid.muted = !soundEnabled;
+        vid.volume = 1;
         attachVideoControls(vs, vid);
         setActiveVideo(vid);
     }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  NAVIGATE  — FIX: isNavigating lock prevents concurrent calls
+//  NAVIGATE
 // ══════════════════════════════════════════════════════════════════════════════
 async function navigate(dir) {
     if (!posts.length || isNavigating) return;
@@ -1271,7 +1401,6 @@ async function navigate(dir) {
         predictivePreload();
         renderCard();
     } finally {
-        // FIX: always reset locks after navigate (sync or async)
         isNavigating = false;
         swipeNavigationLocked = false;
         swipeFired = false;
@@ -1324,7 +1453,7 @@ async function maybeSendWatchProgress(post, video, session, key) {
     if (!session.shortInsightSent && session.watchTimeMs >= WATCH_INSIGHT_MIN_MS) {
         session.shortInsightSent = true;
         sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
-            console.warn("[LoL] watch insight failed:", err.message);
+            console.warn("[LoL] watch insight failed", err.code || err.message);
         });
     }
 
@@ -1333,7 +1462,7 @@ async function maybeSendWatchProgress(post, video, session, key) {
             if (!session.longInsightSent) {
                 session.longInsightSent = true;
                 sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
-                    console.warn("[LoL] long watch insight failed:", err.message);
+                    console.warn("[LoL] long watch insight failed", err.code || err.message);
                 });
             }
             return;
@@ -1349,7 +1478,7 @@ async function maybeSendWatchProgress(post, video, session, key) {
             }
         } catch (err) {
             session.rewardSent = false;
-            console.warn("[LoL] view tracking failed:", err.message);
+            console.warn("[LoL] view tracking failed", err.code || err.message);
         }
     }
 }
@@ -1396,7 +1525,7 @@ function stopViewTimer() {
         const post = posts.find(p => p.id === session.postId);
         if (post) {
             sendWatchEngagement(post, session, { rewarded: false }).catch(err => {
-                console.warn("[LoL] final watch insight failed:", err.message);
+                console.warn("[LoL] final watch insight failed", err.code || err.message);
             });
         }
     }
@@ -1429,7 +1558,7 @@ async function handleLike(post) {
         updateHeaderUI();
         showToast("Liked! 💖");
     } catch (err) {
-        console.warn("Like failed:", err.message);
+        console.warn("Like failed", err.code || err.message);
         localStorage.removeItem(key);
         likeBtn?.classList.remove("liked");
         if (likeBtn) likeBtn.textContent = "🤍 Like";
@@ -1468,25 +1597,72 @@ async function handleShare(post) {
         await cfTrackEngagement({ postId: post.id, type: "share", shareConfirmed: true, visitDurationMs: Date.now() - startTime });
         showToast("🚀 Share counted!");
     } catch (err) {
-        console.warn("Share tracking failed:", err.message);
+        console.warn("Share tracking failed", err.code || err.message);
         showToast("Share not counted ❌");
     }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  THUMBNAIL PRELOAD CACHE
+//  THUMBNAIL PRELOAD CACHE (with size limit)
 // ══════════════════════════════════════════════════════════════════════════════
+
+const failedThumbUrls = new Set();
 const thumbCache = new Map();
 
 async function preloadThumbnail(post) {
-    if (!post?.thumbnail || thumbCache.has(post.id)) return;
+    const url = post?.thumbnail;
+    if (!url || thumbCache.has(post.id) || failedThumbUrls.has(url)) return;
     try {
-        const res = await fetch(post.thumbnail, { cache: "force-cache" });
+        const res = await fetch(url, { cache: "force-cache" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const blob = await res.blob();
-        thumbCache.set(post.id, new File([blob], "thumb.jpg", { type: blob.type || "image/jpeg" }));
+        const file = new File([blob], "thumb.jpg", { type: blob.type || "image/jpeg" });
+        thumbCache.set(post.id, file);
+        if (thumbCache.size > MAX_THUMB_CACHE) {
+            const firstKey = thumbCache.keys().next().value;
+            thumbCache.delete(firstKey);
+        }
     } catch (err) {
-        console.warn("Thumbnail preload failed:", err);
+        failedThumbUrls.add(url);   // never retry this URL
+        console.warn("Thumbnail preload failed:", err.message);
     }
+}
+
+function lockNavigationButtons(duration = AD_IMPRESSION_LOCK_MS) {
+    const nextBtn = document.querySelector(".next-btn, .next-btn-ad");
+    const prevBtn = document.querySelector(".prev-btn, .prev-btn-ad");
+
+    if (!nextBtn && !prevBtn) return;
+
+    let remaining = Math.ceil(duration / 1000);
+
+    const updateText = () => {
+        if (nextBtn) nextBtn.textContent = `➡ ${remaining}s`;
+        if (prevBtn) prevBtn.textContent = `⬅ ${remaining}s`;
+    };
+
+    nextBtn && (nextBtn.disabled = true);
+    prevBtn && (prevBtn.disabled = true);
+
+    updateText();
+
+    const interval = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+            updateText();
+        } else {
+            clearInterval(interval);
+
+            if (nextBtn) {
+                nextBtn.disabled = false;
+                nextBtn.textContent = "➡";
+            }
+            if (prevBtn) {
+                prevBtn.disabled = false;
+                prevBtn.textContent = "⬅";
+            }
+        }
+    }, 1000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1514,12 +1690,14 @@ function renderAdCard() {
     renderQuickLinks("feed-ad-links");
     $("card-stack").querySelector(".next-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(1); });
     $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(-1); });
+    lockNavigationButtons(5000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  BONUS CARD
 // ══════════════════════════════════════════════════════════════════════════════
 function renderBonusCard() {
+    resetBonusState();
     const sponsorLink = getNextSponsorLink();
     $("card-stack").innerHTML = `
   <div class="lol-card bonus-card">
@@ -1567,14 +1745,15 @@ function renderBonusCard() {
         $("btn-claim").textContent = "Open Link Offer & Unlock Boost";
     });
 
-    $("skip-bonus").addEventListener("click", () => { completeBonusFlow(); if (!isNavigating) navigate(1); });
+    $("skip-bonus").addEventListener("click", () => {
+        resetBonusState();
+        completeBonusFlow();
+        if (!isNavigating) navigate(1);
+    });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DEEP LINK
-// ══════════════════════════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════════════════
-// DEEP LINK (Now Secure Server-Side)
 // ══════════════════════════════════════════════════════════════════════════════
 async function checkDeepLink() {
     const id = new URLSearchParams(location.search).get("lol");
@@ -1588,13 +1767,11 @@ async function checkDeepLink() {
         const deepPost = res.data.post;
         deepPost.createdAtMs = postDateToMillis(deepPost.createdAt);
 
-        // Same behaviour as before — push to top of feed
         posts = [deepPost, ...posts.filter(p => p.id !== id)];
         cardIndex = 0;
 
         renderCard();
     } catch (err) {
-        // Optional: graceful fallback
         if (err.code === "not-found") {
             showToast("This LoL post is no longer available 😔");
         }
@@ -1756,12 +1933,11 @@ function showCreateUploadModal(file, percent = 0, label = "Uploading", tip = "")
     const modal = ensureCreateUploadModal();
     const thumb = modal.querySelector("#upload-thumb");
     if (thumb && file) {
-        // FIX: revoke any previous object URL before creating new one
         if (createUploadThumbURL) { URL.revokeObjectURL(createUploadThumbURL); createUploadThumbURL = null; }
         const url = URL.createObjectURL(file);
         createUploadThumbURL = url;
         if (file.type.startsWith("video/")) {
-            thumb.innerHTML = `<video src="${url}"  playsinline></video>`;
+            thumb.innerHTML = `<video src="${url}" playsinline></video>`;
             const vid = thumb.querySelector("video");
             vid.addEventListener("loadeddata", () => { vid.currentTime = 0.2; vid.pause(); }, { once: true });
         } else {
@@ -1790,11 +1966,9 @@ function hideCreateUploadModal() {
     modal.classList.remove("show");
     setTimeout(() => {
         modal.classList.add("hidden");
-        // FIX: revoke object URL on hide
         if (createUploadThumbURL) { URL.revokeObjectURL(createUploadThumbURL); createUploadThumbURL = null; }
         const thumb = modal.querySelector("#upload-thumb");
         if (thumb) {
-            // Explicitly pause any videos to prevent memory/audio leaks
             thumb.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; });
             thumb.innerHTML = "";
         }
@@ -1851,13 +2025,11 @@ async function submitPost() {
     try {
         showCreateUploadModal(selectedFile, 0, "Preparing", "Reading file…");
 
-        // === AUTO THUMBNAIL GENERATION ===
         if (selectedFile.type.startsWith("video/")) {
             showCreateUploadModal(selectedFile, 10, "Preparing", "Generating thumbnail...");
-            thumbnailFile = await generateVideoThumbnail(selectedFile, 1.0); // 1 second ka frame
+            thumbnailFile = await generateVideoThumbnail(selectedFile, 1.0);
         }
 
-        // Upload video
         const ext = selectedFile.name.split(".").pop();
         const path = `SapanaCyberHub/LoL/posts/${currentUser.uid}/${Date.now()}.${ext}`;
         const sRef = storRef(stor, path);
@@ -1877,24 +2049,22 @@ async function submitPost() {
 
         const mediaURL = await getDownloadURL(uploadSnap.ref);
 
-        // Upload thumbnail (if video)
         let thumbnailURL = null;
         if (thumbnailFile) {
             updateCreateUploadModal(95, "Almost done", "Uploading thumbnail...");
             const thumbPath = path.replace(`.${ext}`, `_thumb.jpg`);
             const thumbRef = storRef(stor, thumbPath);
-            await uploadBytesResumable(thumbRef, thumbnailFile);   // simple upload
+            await uploadBytesResumable(thumbRef, thumbnailFile);
             thumbnailURL = await getDownloadURL(thumbRef);
         }
 
-        // Create post with thumbnail
         await cfCreateLolPost({
             title,
             description: $("post-desc").value.trim(),
             hashtags: ($("post-tags").value || "").match(/#\w+/g) || [],
             mediaURL,
             mediaType: selectedFile.type.startsWith("video") ? "video" : "image",
-            thumbnail: thumbnailURL || null   // ← yeh important line
+            thumbnail: thumbnailURL || null
         });
 
         updateCreateUploadModal(100, "Done", "Your LoL is live! 🎉");
@@ -1909,7 +2079,7 @@ async function submitPost() {
         renderCard();
 
     } catch (err) {
-        console.error(err);
+        console.error("Upload failed", err.code || err.message);
         hideCreateUploadModal();
         showToast("Upload failed: " + (err.message || "Try again"));
         $("create-overlay").classList.remove("hidden");
@@ -1919,19 +2089,18 @@ async function submitPost() {
     postLock = false;
 }
 
-// Generate thumbnail from video file (client-side)
 async function generateVideoThumbnail(videoFile, timestamp = 1.0) {
     return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(videoFile);
         const video = document.createElement("video");
-        
+
         video.src = url;
         video.muted = true;
         video.playsInline = true;
         video.crossOrigin = "anonymous";
 
         video.onloadedmetadata = () => {
-            video.currentTime = Math.min(timestamp, video.duration - 0.1); // safe timestamp
+            video.currentTime = Math.min(timestamp, video.duration - 0.1);
         };
 
         video.onseeked = () => {
@@ -1942,9 +2111,8 @@ async function generateVideoThumbnail(videoFile, timestamp = 1.0) {
             const ctx = canvas.getContext("2d");
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Convert to Blob (JPEG quality 0.85 = good balance)
             canvas.toBlob((blob) => {
-                URL.revokeObjectURL(url);   // memory clean
+                URL.revokeObjectURL(url);
                 if (blob) {
                     resolve(new File([blob], "thumbnail.jpg", { type: "image/jpeg" }));
                 } else {
@@ -1980,7 +2148,6 @@ $("media-dropzone").addEventListener("click", () => $("media-input").click());
 
 $("media-input").addEventListener("change", e => {
     const file = e.target.files[0]; if (!file) return;
-    // FIX: revoke previous object URL before creating new one
     if (selectedFileURL) { URL.revokeObjectURL(selectedFileURL); selectedFileURL = null; }
     selectedFile = file;
     selectedFileURL = URL.createObjectURL(file);
@@ -1991,7 +2158,6 @@ $("media-input").addEventListener("change", e => {
 });
 
 function clearCreateMedia() {
-    // FIX: revoke object URL and stop video before clearing
     const inner = $("dropzone-inner");
     if (inner) {
         inner.querySelectorAll("video").forEach(v => { v.pause(); v.src = ""; });
@@ -2023,7 +2189,7 @@ async function openProfile() {
 
     $("p-avatar").src = listenUserData?.userDp || lolUserData.userDp || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${lolUserData.uid}`;
     $("p-name").textContent = listenUserData?.name || lolUserData.name || "LoLer";
-    $("p-email").textContent = listenUserData?.email || lolUserData.email || "";
+    $("p-email").textContent = maskEmail(listenUserData?.email || lolUserData.email || "");
     $("p-listen-balance").textContent = `₹${listenUserData?.cash ?? 0}`;
     $("p-streak").textContent = lolUserData.lolStreak || 0;
     $("p-score").textContent = lolUserData.engagementScore || 0;
@@ -2036,6 +2202,13 @@ async function openProfile() {
     $("progress-text").textContent = `${lolUserData.engagementScore || 0} / 1000`;
 
     await loadProfileHistory();
+}
+
+function maskEmail(email) {
+    if (!email) return "";
+    const [name, domain] = email.split('@');
+    if (!domain) return email;
+    return name.slice(0, 2) + '😂💖😘😎@' + domain;
 }
 
 $("back-from-profile").onclick = () => {
@@ -2064,9 +2237,6 @@ $("back").addEventListener("click", () => {
 // ══════════════════════════════════════════════════════════════════════════════
 //  LEADERBOARD
 // ══════════════════════════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════════════════
-// LEADERBOARD (UPDATED - Daily Top Posts + Inspiration)
-// ══════════════════════════════════════════════════════════════════════════════
 async function loadLeaderboard() {
     const container = document.querySelector(".leaderboard-data");
     if (!container) return;
@@ -2083,7 +2253,7 @@ async function loadLeaderboard() {
 
     try {
         const res = await cfGetLeaderboard();
-        const topPosts = res.data.data || [];   // ← assume yeh ab POSTS return karta hai
+        const topPosts = res.data.data || [];
 
         if (!topPosts.length) {
             container.innerHTML = `
@@ -2107,9 +2277,9 @@ async function loadLeaderboard() {
               <div class="rank-badge">#${rank}</div>
               
               <div class="post-preview">
-                ${isVideo ? 
-                  `<video src="${thumb}" muted playsinline loop></video>` : 
-                  `<img src="${thumb}" alt="${esc(post.title)}" loading="lazy">`}
+                ${isVideo ?
+                    `<video src="${thumb}" muted playsinline loop></video>` :
+                    `<img src="${thumb}" alt="${esc(post.title)}" loading="lazy">`}
                 ${isVideo ? `<span class="play-icon">▶</span>` : ''}
               </div>
 
@@ -2125,7 +2295,6 @@ async function loadLeaderboard() {
 
         container.innerHTML = html;
 
-        // Click to open post (inspiration ke liye full view)
         container.querySelectorAll('.top-post-card').forEach(card => {
             card.addEventListener('click', () => {
                 const postId = card.dataset.postId;
@@ -2138,15 +2307,13 @@ async function loadLeaderboard() {
           <p style="text-align:center; padding:40px 20px; color:#ff6b6b;">Failed to load today's top LoLs 😵<br>Please try again.</p>`;
     }
 }
-// Open leaderboard post for inspiration
-// Open leaderboard post for inspiration (Now Secure Server-Side)
+
 async function openLeaderboardPost(postId) {
-    $("lolLeaderBoard-overlay").classList.add("hidden"); // close leaderboard
+    $("lolLeaderBoard-overlay").classList.add("hidden");
     resumeFeedVideos();
 
     try {
-        const getPost = httpsCallable(functions, "getLolPostById");
-        const res = await getPost({ postId: postId });
+        const res = await getPost({ postId });
 
         if (!res?.data?.success || !res.data.post) {
             showToast("This LoL is no longer available 😔");
@@ -2156,18 +2323,14 @@ async function openLeaderboardPost(postId) {
         const deepPost = res.data.post;
         deepPost.createdAtMs = postDateToMillis(deepPost.createdAt);
 
-        // Temporarily push to top of feed (same behaviour as deep link)
         posts = [deepPost, ...posts.filter(p => p.id !== postId)];
         cardIndex = 0;
 
         openFeed();
         renderCard();
-
-        // Nice little toast
         showToast("Opened Top LoL for inspiration", 2000);
 
     } catch (err) {
-        
         if (err.code === "not-found") {
             showToast("This LoL post is no longer available");
         } else {
@@ -2353,7 +2516,7 @@ async function handleDeletePost(post, deleteBtn, msgEl) {
         _postHistoryCache = _postHistoryCache.filter(p => p.id !== post.id);
         renderPostHistory(_postHistoryCache);
     } catch (err) {
-        console.error("[LoL] delete:", err);
+        console.error("[LoL] delete", err.code || err.message);
         deleteBtn.disabled = false;
         deleteBtn.textContent = "🗑 Delete";
         deleteBtn.dataset.confirm = "";
@@ -2390,7 +2553,7 @@ async function loadProfileHistory() {
         renderPostHistory(res?.data?.posts || []);
         renderTransferHistory(res?.data?.transfers || []);
     } catch (err) {
-        console.log("history", err);
+        console.log("history", err.code || err.message);
         $("post-history-list").innerHTML = `<p class="empty-history">History unavailable right now.</p>`;
         $("transfer-history-list").innerHTML = `<p class="empty-history">Transfer history unavailable right now.</p>`;
         showToast("Failed to load history");
@@ -2414,7 +2577,7 @@ $("btn-transfer").addEventListener("click", async () => {
         lolUserData.lastTransferMonth = monthKey;
         openProfile();
     } catch (e) {
-        console.error(e);
+        console.error(e.code || e.message);
         switch (e.code) {
             case "already-exists": showToast("You already claimed this month 💸"); break;
             case "failed-precondition": showToast(e.details || "Condition not met ⚠️"); break;
@@ -2478,3 +2641,9 @@ function timeAgo(date) {
     if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
     return `${Math.floor(d / 86400)}d ago`;
 }
+
+// Revoke object URLs on page unload
+window.addEventListener('beforeunload', () => {
+    if (selectedFileURL) URL.revokeObjectURL(selectedFileURL);
+    if (createUploadThumbURL) URL.revokeObjectURL(createUploadThumbURL);
+});
