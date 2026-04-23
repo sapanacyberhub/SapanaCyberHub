@@ -330,8 +330,12 @@
   <!-- ═══════════════════════════════════════════════════════════
      All logic lives in lol.js (ES module)
 ════════════════════════════════════════════════════════════ -->
-  <script type="module" src="lol.js" data-cfasync="false"></script>
-
+  <script type="module">
+  const script = document.createElement("script");
+  script.type = "module";
+  script.src = "lol.js?v=" + Date.now();
+  document.body.appendChild(script);
+</script>
 </body>
 
 </html>
