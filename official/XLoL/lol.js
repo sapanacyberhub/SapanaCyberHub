@@ -531,7 +531,6 @@ function preloadVideoPromise(post) {
         if (preloadedVideos.has(post.id)) return resolve();
 
         const v = document.createElement("video");
-        v.preload = "auto";
         v.src = post.mediaURL;
         v.muted = true;
         v.playsInline = true;
@@ -1283,8 +1282,7 @@ function buildMedia(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    video.muted = !(isInteracted || soundEnabled);
-    video.play().catch(() => { });
+    
 
     let holdTimer = null;
     let holdTriggered = false;
@@ -1359,49 +1357,51 @@ function attachCardEvents(post) {
     if (!vs || !vid || !loadingOverlay) return;
 
     const pre = preloadedVideos.get(post.id);
-
-    // 🎯 SOURCE FIX (important)
     if (pre && pre.src) {
-        vid.src = pre.currentSrc || pre.src;
-    } else {
-        vid.src = post.mediaURL;
+        vid.src = pre.src;   // ✅ Fixed: use .src, not .currentSrc
+        vid.load();
     }
 
-    // 🎯 CRITICAL FIXES
-    vid.playsInline = true;
-    vid.preload = "auto";
-    vid.load();
-
-    // Force first frame render (fix blank video)
-    vid.currentTime = 0.01;
-
-    // 🎯 SOUND (single source of truth)
-    vid.muted = !(isInteracted || soundEnabled);
-    vid.volume = 1;
-
-    // SHOW loader
+    // Show loading overlay initially
     loadingOverlay.classList.remove("hidden");
 
-    // ✅ ONLY ONE clean event
-    vid.addEventListener("playing", () => {
-        loadingOverlay.classList.add("hidden");
-    }, { once: true });
+    // Helper to safely hide overlay
+    const hideOverlay = () => {
+        if (loadingOverlay) loadingOverlay.classList.add("hidden");
+    };
 
-    // ERROR fallback
-    vid.addEventListener("error", () => {
-        console.warn("Video error:", post.mediaURL);
-        loadingOverlay.classList.add("hidden");
-    }, { once: true });
-
-    // RETRY if stuck
-    setTimeout(() => {
-        if (vid.paused || vid.readyState < 3) {
-            vid.play().catch(() => {});
+    // ✅ PRIMARY: Hide when video has enough data to start playing
+    vid.addEventListener("canplay", () => {
+        if (vid.readyState >= 2 && vid.videoWidth > 0) {
+            hideOverlay();
         }
-    }, 1500);
+    }, { once: true });
 
-    // START playback
-    vid.play().catch(() => {});
+    // Secondary: hide when playback actually starts
+    vid.addEventListener("playing", hideOverlay, { once: true });
+
+    // Fallback: loadeddata + short delay
+    vid.addEventListener("loadeddata", () => {
+        setTimeout(() => {
+            if (loadingOverlay && !loadingOverlay.classList.contains("hidden")) {
+                hideOverlay();
+            }
+        }, 1200);
+    }, { once: true });
+
+    // Error fallback
+    vid.addEventListener("error", () => {
+        console.warn("Video failed to load:", post.mediaURL);
+        hideOverlay();
+    }, { once: true });
+
+    // Ultimate safety: hide after 5 seconds no matter what
+    setTimeout(hideOverlay, 5000);
+
+    vid.muted = !soundEnabled;
+    vid.volume = 1;
+    vid.playsInline = true;
+    vid.play().catch(() => {});  // Attempt autoplay
 
     attachVideoControls(vs, vid);
     setActiveVideo(vid);
