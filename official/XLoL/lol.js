@@ -1372,6 +1372,7 @@ function attachCardEvents(post) {
     // ✅ PRIMARY: Hide when video has enough data to start playing
     vid.addEventListener("canplay", () => {
         if (vid.readyState >= 2 && vid.videoWidth > 0) {
+            console.log("Video can play, hiding loading overlay");
             hideOverlay();
         }
     }, { once: true });
@@ -1384,6 +1385,7 @@ function attachCardEvents(post) {
         setTimeout(() => {
             if (loadingOverlay && !loadingOverlay.classList.contains("hidden")) {
                 hideOverlay();
+                console.log("Fallback: hiding loading overlay after loadeddata");
             }
         }, 1200);
     }, { once: true });
@@ -1392,16 +1394,17 @@ function attachCardEvents(post) {
     vid.addEventListener("error", () => {
         console.warn("Video failed to load:", post.mediaURL);
         hideOverlay();
+        console.log("Hiding loading overlay due to video error");
     }, { once: true });
 
     // Ultimate safety: hide after 5 seconds no matter what
     setTimeout(hideOverlay, 5000);
+    
 
     vid.muted = !soundEnabled;
     vid.volume = 1;
     vid.playsInline = true;
-    vid.play().catch(() => {});  // Attempt autoplay
-
+    vid.play().catch(() => {});  
     attachVideoControls(vs, vid);
     setActiveVideo(vid);
 }
