@@ -188,6 +188,7 @@ let lastSwipeDelta = 999;
 let swipeTrend = 1;
 let connectionSpeed = "fast";
 let soundEnabled = localStorage.getItem("soundEnabled") === "true";
+let isInteracted = false;
 
 function detectConnection() {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -480,7 +481,7 @@ function setActiveVideo(video) {
     if (activeVideoElement && activeVideoElement !== video) activeVideoElement.pause();
     activeVideoElement = video;
     if (video) {
-        video.muted = !soundEnabled;
+        video.muted = !(isInteracted || soundEnabled);
         video.volume = 1;
     }
     if (canFeedVideoPlay()) video?.play().catch(() => { });
@@ -676,6 +677,7 @@ function openSponsorLink(link, options = {}) {
 
             showToast(result.message, result.success ? 4200 : 4800);
             resolve(result);
+            navigate(0); // Refresh current card to show updated score
         }, startedAt);
     });
 }
@@ -1193,6 +1195,7 @@ function renderCard() {
     rememberSeenPost(post.id);
     $("card-stack").innerHTML = buildCard(post);
     attachCardEvents(post);
+    console.log(`[LoL] Viewing post ${post.id} at index ${cardIndex} (swipeCount: ${swipeCount})`);
     setTimeout(predictivePreload, 100);
     startViewTimer(post);
 }
@@ -1280,7 +1283,7 @@ function buildMedia(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    video.muted = !soundEnabled;
+    video.muted = !(isInteracted || soundEnabled);
     video.play().catch(() => { });
 
     let holdTimer = null;
@@ -1331,6 +1334,7 @@ function attachVideoControls(surface, video) {
         clickTimeout = setTimeout(() => {
             video.muted = !video.muted;
             soundEnabled = !video.muted;
+            isInteracted = !video.muted; // treat unmute as interaction for ad purposes
             localStorage.setItem("soundEnabled", soundEnabled);
             clickTimeout = null;
         }, 200);
@@ -1342,6 +1346,7 @@ function attachVideoControls(surface, video) {
 // ══════════════════════════════════════════════════════════════════════════════
 function attachCardEvents(post) {
     const s = $("card-stack");
+
     s.querySelector(".like-btn")?.addEventListener("click", () => handleLike(post));
     s.querySelector(".share-btn")?.addEventListener("click", () => handleShare(post));
     s.querySelector(".next-btn")?.addEventListener("click", () => { if (!isNavigating) navigate(1); });
@@ -1351,69 +1356,55 @@ function attachCardEvents(post) {
     const vid = s.querySelector(".card-video");
     const loadingOverlay = s.querySelector(`#video-loading-${post.id}`);
 
-    if (vs && vid && loadingOverlay) {
-        const pre = preloadedVideos.get(post.id);
-        if (pre?.src) {
-            vid.src = pre.src;
-            vid.load();
-        }
-        else {  
-             vid.src = post.mediaURL;
-                vid.load();
-        }
+    if (!vs || !vid || !loadingOverlay) return;
 
+    const pre = preloadedVideos.get(post.id);
 
-        loadingOverlay.classList.remove("hidden");
-
-        // Helper to hide overlay safely
-        const hideOverlay = () => {
-            if (loadingOverlay) {
-                loadingOverlay.classList.add("hidden");
-                // Also ensure video is visible (in case CSS hides it)
-                vid.style.opacity = '1';
-            }
-        };
-
-        // Event listeners (all one-time)
-        vid.addEventListener("playing", hideOverlay, { once: true });
-        vid.addEventListener("canplay", () => {
-            if (vid.readyState >= 2 && vid.videoWidth > 0) {
-                hideOverlay();
-            }
-        }, { once: true });
-        
-        vid.addEventListener("timeupdate", function onTimeUpdate() {
-            if (vid.currentTime > 0.1) {
-                vid.removeEventListener("timeupdate", onTimeUpdate);
-                hideOverlay();
-            }
-        });
-        vid.addEventListener("error", hideOverlay, { once: true });
-
-        // Aggressive fallback: check every 200ms for video dimensions, then hide
-        let checkCount = 0;
-        const maxChecks = 15; // 3 seconds total
-        const interval = setInterval(() => {
-            if (vid.videoWidth > 0 && vid.videoHeight > 0) {
-                clearInterval(interval);
-                hideOverlay();
-            } else if (++checkCount >= maxChecks) {
-                clearInterval(interval);
-                hideOverlay(); // give up and show whatever is there
-            }
-        }, 200);
-
-        // Ultimate safety: hide after 5 seconds no matter what
-        setTimeout(() => {
-            clearInterval(interval);
-            hideOverlay();
-        }, 5000);
-
-        vid.muted = !soundEnabled;
-        vid.volume = 1;
-        attachVideoControls(vs, vid);
-        setActiveVideo(vid);
+    // 🎯 SOURCE FIX (important)
+    if (pre && pre.src) {
+        vid.src = pre.currentSrc || pre.src;
+    } else {
+        vid.src = post.mediaURL;
     }
+
+    // 🎯 CRITICAL FIXES
+    vid.playsInline = true;
+    vid.preload = "auto";
+    vid.load();
+
+    // Force first frame render (fix blank video)
+    vid.currentTime = 0.01;
+
+    // 🎯 SOUND (single source of truth)
+    vid.muted = !(isInteracted || soundEnabled);
+    vid.volume = 1;
+
+    // SHOW loader
+    loadingOverlay.classList.remove("hidden");
+
+    // ✅ ONLY ONE clean event
+    vid.addEventListener("playing", () => {
+        loadingOverlay.classList.add("hidden");
+    }, { once: true });
+
+    // ERROR fallback
+    vid.addEventListener("error", () => {
+        console.warn("Video error:", post.mediaURL);
+        loadingOverlay.classList.add("hidden");
+    }, { once: true });
+
+    // RETRY if stuck
+    setTimeout(() => {
+        if (vid.paused || vid.readyState < 3) {
+            vid.play().catch(() => {});
+        }
+    }, 1500);
+
+    // START playback
+    vid.play().catch(() => {});
+
+    attachVideoControls(vs, vid);
+    setActiveVideo(vid);
 }
 // ══════════════════════════════════════════════════════════════════════════════
 //  NAVIGATE
