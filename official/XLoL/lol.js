@@ -1369,6 +1369,13 @@ function attachCardEvents(post) {
         if (loadingOverlay) loadingOverlay.classList.add("hidden");
     };
 
+    // ✅ PRIMARY: Hide when video has enough data to start playing
+    vid.addEventListener("canplay", () => {
+        if (vid.readyState >= 2 && vid.videoWidth > 0) {
+            hideOverlay();
+        }
+    }, { once: true });
+
     // Secondary: hide when playback actually starts
     vid.addEventListener("playing", hideOverlay, { once: true });
 
