@@ -1282,7 +1282,6 @@ function buildMedia(post) {
 // ══════════════════════════════════════════════════════════════════════════════
 function attachVideoControls(surface, video) {
     if (!surface || !video) return;
-    
 
     let holdTimer = null;
     let holdTriggered = false;
@@ -1358,7 +1357,7 @@ function attachCardEvents(post) {
 
     const pre = preloadedVideos.get(post.id);
     if (pre && pre.src) {
-        vid.src = pre.src;   // ✅ Fixed: use .src, not .currentSrc
+        vid.src = pre.src;
         vid.load();
     }
 
@@ -1369,13 +1368,6 @@ function attachCardEvents(post) {
     const hideOverlay = () => {
         if (loadingOverlay) loadingOverlay.classList.add("hidden");
     };
-
-    // ✅ PRIMARY: Hide when video has enough data to start playing
-    vid.addEventListener("canplay", () => {
-        if (vid.readyState >= 2 && vid.videoWidth > 0) {
-            hideOverlay();
-        }
-    }, { once: true });
 
     // Secondary: hide when playback actually starts
     vid.addEventListener("playing", hideOverlay, { once: true });
