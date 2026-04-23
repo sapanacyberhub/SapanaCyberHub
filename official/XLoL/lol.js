@@ -1380,21 +1380,10 @@ function attachCardEvents(post) {
     // Secondary: hide when playback actually starts
     vid.addEventListener("playing", hideOverlay, { once: true });
 
-    // Fallback: loadeddata + short delay
-    vid.addEventListener("loadeddata", () => {
-        setTimeout(() => {
-            if (loadingOverlay && !loadingOverlay.classList.contains("hidden")) {
-                hideOverlay();
-                console.log("Fallback: hiding loading overlay after loadeddata");
-            }
-        }, 1200);
-    }, { once: true });
-
     // Error fallback
     vid.addEventListener("error", () => {
-        console.warn("Video failed to load:", post.mediaURL);
         hideOverlay();
-        console.log("Hiding loading overlay due to video error");
+        navigate(1); // Skip to next card if video fails to load
     }, { once: true });
 
     // Ultimate safety: hide after 5 seconds no matter what
