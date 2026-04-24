@@ -119,10 +119,10 @@ const NATIVE_BANNER_SCRIPT = "https://pl28037543.profitablecpmratenetwork.com/b4
 // ══════════════════════════════════════════════════════════════════════════════
 const SESSION_ENGAGEMENT_POINTS = { view: 10, like: 20, share: 30 };
 const BONUS_CARD_MIN_ENGAGEMENT = 50;
-const AD_COOLDOWN_MIN_SWIPES = 5;
-const AD_COOLDOWN_MAX_SWIPES = 7;
+const AD_COOLDOWN_MIN_SWIPES = 6;   // default, will be overridden dynamically
+const AD_COOLDOWN_MAX_SWIPES = 8;
 const AD_IMPRESSION_LOCK_MS = 5000;
-const BONUS_CARD_MIN_SWIPES = 7;
+const BONUS_CARD_MIN_SWIPES = 8;
 const BONUS_CARD_MAX_SWIPES = 12;
 const BONUS_SPONSOR_MIN_VISIT_MS = 2500;
 const WATCH_INSIGHT_MIN_MS = 3000;
@@ -139,6 +139,26 @@ const MAX_PRELOADED_VIDEOS = 10;
 const MAX_THUMB_CACHE = 30;
 
 const likeLocks = new Set();
+
+// ── Adaptive ad cooldown ────────────────────────────────────────────────────
+function getAdTolerance() {
+    const score = parseInt(localStorage.getItem("adToleranceScore") || "40", 10);
+    return Math.min(100, Math.max(0, score));
+}
+function setAdTolerance(score) {
+    localStorage.setItem("adToleranceScore", Math.min(100, Math.max(0, score)));
+}
+function getDynamicAdCooldown() {
+    const t = getAdTolerance();
+    if (t >= 91) return { min: 4, max: 5 };
+    if (t >= 71) return { min: 5, max: 7 };
+    if (t >= 51) return { min: 6, max: 8 };
+    if (t >= 31) return { min: 8, max: 10 };
+    return { min: 10, max: 12 };
+}
+function adjustAdTolerance(delta) {
+    setAdTolerance(getAdTolerance() + delta);
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  STATE
@@ -179,11 +199,13 @@ let sponsorVisitPending = false;
 let sessionBonusClaimToken = "";
 const sessionEngagementLedger = { view: new Set(), like: new Set(), share: new Set() };
 let _qbSkipTick = null;
+let allowUnload = false;   // for exit confirmation
 
 // ── Smart video system ────────────────────────────────────────────────────────
 let activeVideoElement = null;
 let preloadedVideos = new Map();
 let lastSwipeTime = 0;
+let swipeLockUntil = 0;
 let lastSwipeDelta = 999;
 let swipeTrend = 1;
 let connectionSpeed = "fast";
@@ -271,9 +293,12 @@ function clearPendingAdRedirect() {
     _clearQbTick();
 }
 
-function scheduleNextFeedAd(min = AD_COOLDOWN_MIN_SWIPES, max = AD_COOLDOWN_MAX_SWIPES) {
+// ✅ Dynamic cooldown scheduling
+function scheduleNextFeedAd() {
+    const { min, max } = getDynamicAdCooldown();
     nextAdSwipeAt = swipeCount + randomBetween(min, max);
 }
+
 function scheduleNextBonusCard(min = BONUS_CARD_MIN_SWIPES, max = BONUS_CARD_MAX_SWIPES) {
     nextBonusSwipeAt = swipeCount + randomBetween(min, max);
 }
@@ -293,6 +318,13 @@ function resetSessionExperience() {
     Object.values(sessionEngagementLedger).forEach(b => b.clear());
     scheduleNextFeedAd();
     scheduleNextBonusCard();
+}
+
+// ── Session‑based tolerance adjustment ─────────────────────────────────────
+function onSessionEnd() {
+    if (swipeCount > 100) adjustAdTolerance(+5);
+    else if (swipeCount > 50) adjustAdTolerance(+2);
+    else if (swipeCount < 20) adjustAdTolerance(-3);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -338,7 +370,6 @@ function normalizeFeedPosts(items) {
             return true;
         })
         .map(post => {
-            // Ensure mediaURL is absolute
             if (post.mediaURL && !post.mediaURL.startsWith('http')) {
                 post.mediaURL = 'https://storage.googleapis.com/sapanacyberhub-26310.appspot.com/' + post.mediaURL;
             }
@@ -489,7 +520,8 @@ function setActiveVideo(video) {
 }
 function pauseFeedVideos() {
     activeVideoElement?.pause();
-    stopViewTimer(); // FIX: stop view timer when feed is backgrounded
+    stopViewTimer();
+    onSessionEnd();   // adjust tolerance based on session length
 }
 function resumeFeedVideos() {
     if (!canFeedVideoPlay()) {
@@ -504,24 +536,19 @@ document.addEventListener("visibilitychange", () => {
     if (document.hidden) pauseFeedVideos(); else resumeFeedVideos();
 });
 
-// Aggressive predictive preload – runs on every swipe, no throttle
+// Aggressive predictive preload – no throttle
 async function predictivePreload() {
     const toPreload = [];
-
-    // Next 2 videos
     for (let i = 1; i <= 2; i++) {
         const nextPost = posts[cardIndex + i];
         if (nextPost && nextPost.mediaType === "video" && !preloadedVideos.has(nextPost.id)) {
             toPreload.push(nextPost);
         }
     }
-
-    // Previous 1 (for swipe back)
     const prevPost = posts[cardIndex - 1];
     if (prevPost && prevPost.mediaType === "video" && !preloadedVideos.has(prevPost.id)) {
         toPreload.push(prevPost);
     }
-
     await Promise.all(toPreload.map(post => preloadVideoPromise(post)));
 }
 
@@ -537,15 +564,21 @@ function preloadVideoPromise(post) {
 
         v.oncanplay = () => {
             preloadedVideos.set(post.id, v);
-            // Limit cache size
             if (preloadedVideos.size > MAX_PRELOADED_VIDEOS) {
                 const firstKey = preloadedVideos.keys().next().value;
-                const oldVid = preloadedVideos.get(firstKey);
-                oldVid.src = "";
-                oldVid.load();
+                preloadedVideos.get(firstKey).src = "";
                 preloadedVideos.delete(firstKey);
             }
             resolve();
+
+            // ✅ Cache video for offline use via Cache API
+            if ('caches' in window) {
+                caches.open('lol-videos-v1').then(cache => {
+                    fetch(post.mediaURL).then(response => {
+                        if (response.ok) cache.put(post.mediaURL, response);
+                    }).catch(() => { });
+                }).catch(() => { });
+            }
         };
         v.onerror = () => resolve();
         v.load();
@@ -638,6 +671,8 @@ function getNextSponsorLink() {
     sponsorLinkIndex++;
     return link;
 }
+
+// ✅ UPDATED openSponsorLink with popup‑blocker fallback
 function openSponsorLink(link, options = {}) {
     if (!link?.url) return Promise.resolve({ success: false, message: "Sponsor link is unavailable." });
     if (sponsorVisitPending) {
@@ -647,10 +682,15 @@ function openSponsorLink(link, options = {}) {
 
     const startedAt = Date.now();
     const sponsorTab = window.open(link.url, "_blank");
+
     if (!sponsorTab) {
-        showToast("Allow popups to open the link offer.");
-        return Promise.resolve({ success: false, message: "Allow popups to open the link offer." });
+        // Pop‑up blocked – show manual fallback modal
+        showToast("⚠️ Pop‑up blocked. Tap the card to open.", 5000);
+        showPopupBlockedModal(link.url);
+        // Return immediately without reward (user must visit manually)
+        return Promise.resolve({ success: false, message: "Pop‑up blocked – open manually." });
     }
+
     try { sponsorTab.opener = null; } catch { }
 
     sponsorVisitPending = true;
@@ -676,7 +716,7 @@ function openSponsorLink(link, options = {}) {
 
             showToast(result.message, result.success ? 4200 : 4800);
             resolve(result);
-            navigate(0); // Refresh current card to show updated score
+            navigate(0);
         }, startedAt);
     });
 }
@@ -751,6 +791,7 @@ function _renderQuickBreakModeA(target, sponsorLink) {
     });
     target.querySelector("#qb-skip-a")?.addEventListener("click", () => { clearPendingAdRedirect(); navigate(1); });
     lockNavigationButtons(5000);
+    lockSwipe(5000);
 }
 
 function _renderQuickBreakModeB(target) {
@@ -783,6 +824,7 @@ function _renderQuickBreakModeB(target) {
         navigate(1);
     });
     lockNavigationButtons(5000);
+    lockSwipe(5000);
 }
 
 function mountFeaturedLink(target, link, note = "Short visit unlocks a 20-100 score boost") {
@@ -920,7 +962,6 @@ function initXPSystem() {
         div.className = "xp-popup hidden";
         div.innerHTML = `
         <div class="xp-card">
-            <div class="xp-title">+<span id="xp-earned">0</span> XP</div>
             <div class="xp-sub">
                 <span id="xp-current">0</span> / 1000 to next Creator Credit
             </div>
@@ -938,17 +979,14 @@ function showXPProgress(earnedXP) {
     const popup = document.getElementById("xp-popup");
     if (!popup) return;
 
-    const earnedEl = document.getElementById("xp-earned");
     const currentEl = document.getElementById("xp-current");
     const fill = document.getElementById("xp-fill");
 
     const TARGET = 1000;
-    // Use lolUserData.engagementScore (persistent) instead of sessionEngagementScore
     const currentScore = lolUserData?.engagementScore || 0;
     const progress = currentScore % TARGET;
     const percent = (progress / TARGET) * 100;
 
-    earnedEl.textContent = earnedXP;
     currentEl.textContent = progress;
     fill.style.width = percent + "%";
 
@@ -1086,6 +1124,7 @@ async function bootApp(user) {
     resetSessionExperience();
     setFeedFullscreen(false);
     showGateLoading("Loading your profile…");
+
     try {
         const res = await cfInitLolUser();
         if (!res?.data?.success) { showGateNoAccount(); return; }
@@ -1194,7 +1233,6 @@ function renderCard() {
     rememberSeenPost(post.id);
     $("card-stack").innerHTML = buildCard(post);
     attachCardEvents(post);
-    console.log(`[LoL] Viewing post ${post.id} at index ${cardIndex} (swipeCount: ${swipeCount})`);
     setTimeout(predictivePreload, 100);
     startViewTimer(post);
 }
@@ -1317,6 +1355,11 @@ function attachVideoControls(surface, video) {
     surface.addEventListener("pointercancel", endPress);
     surface.addEventListener("pointerleave", endPress);
 
+    // Prevent browser's own long‑press context menu / download popup
+    surface.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
     surface.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
@@ -1331,16 +1374,14 @@ function attachVideoControls(surface, video) {
         clickTimeout = setTimeout(() => {
             video.muted = !video.muted;
             soundEnabled = !video.muted;
-            isInteracted = !video.muted; // treat unmute as interaction for ad purposes
+            isInteracted = !video.muted;
             localStorage.setItem("soundEnabled", soundEnabled);
             clickTimeout = null;
         }, 200);
     });
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  ATTACH CARD EVENTS (UPDATED – overlay hides on 'playing' only)
-// ══════════════════════════════════════════════════════════════════════════════
+// ✅ UPDATED: robust overlay hiding + offline cache fallback
 function attachCardEvents(post) {
     const s = $("card-stack");
 
@@ -1358,50 +1399,89 @@ function attachCardEvents(post) {
     const pre = preloadedVideos.get(post.id);
     if (pre && pre.src) {
         vid.src = pre.src;
-        vid.load();
     }
-
-    // Show loading overlay initially
-    loadingOverlay.classList.remove("hidden");
-
-    // Helper to safely hide overlay
-    const hideOverlay = () => {
-        if (loadingOverlay) loadingOverlay.classList.add("hidden");
-    };
-
-    // ✅ PRIMARY: Hide when video has enough data to start playing
-    vid.addEventListener("canplay", () => {
-        if (vid.readyState >= 2 && vid.videoWidth > 0) {
-            console.log("Video can play, hiding loading overlay");
-            hideOverlay();
-        }
-    }, { once: true });
-
-    // Secondary: hide when playback actually starts
-    vid.addEventListener("playing", hideOverlay, { once: true });
-
-    // Error fallback
-    vid.addEventListener("error", () => {
-        hideOverlay();
-        navigate(1); // Skip to next card if video fails to load
-    }, { once: true });
-
-    // Ultimate safety: hide after 5 seconds no matter what
-    setTimeout(hideOverlay, 5000);
-    
 
     vid.muted = !soundEnabled;
     vid.volume = 1;
     vid.playsInline = true;
-    vid.play().catch(() => {});  
+    vid.setAttribute("playsinline", "");
+    vid.setAttribute("muted", vid.muted ? "" : null);
+
+    loadingOverlay.classList.remove("hidden");
+
+    const hideOverlay = () => {
+        if (loadingOverlay) loadingOverlay.classList.add("hidden");
+        vid.style.opacity = "1";
+        vid.style.visibility = "visible";
+        // Render first frame instantly
+        if (vid.readyState >= 2 && vid.currentTime < 0.01) {
+            vid.currentTime = 0.01;
+            vid.play().catch(() => { });
+        }
+    };
+
+    let overlayHidden = false;
+    const safeHide = () => {
+        if (!overlayHidden) {
+            overlayHidden = true;
+            hideOverlay();
+        }
+    };
+
+
+
+    vid.addEventListener("canplay", () => {
+        if (vid.readyState >= 2 && vid.videoWidth > 0) safeHide();
+    }, { once: true });
+
+    vid.addEventListener("playing", safeHide, { once: true });
+
+    vid.addEventListener("timeupdate", function onTimeUpdate() {
+        if (vid.currentTime > 0.1) {
+            vid.removeEventListener("timeupdate", onTimeUpdate);
+            safeHide();
+        }
+    });
+
+    // ✅ Error: try offline cache before skipping
+    vid.addEventListener("error", async () => {
+        safeHide();
+        if ('caches' in window) {
+            try {
+                const cache = await caches.open('lol-videos-v1');
+                const cachedResponse = await cache.match(post.mediaURL);
+                if (cachedResponse) {
+                    const blob = await cachedResponse.blob();
+                    vid.src = URL.createObjectURL(blob);
+                    vid.play().catch(() => { });
+                    return;
+                }
+            } catch (e) { }
+        }
+        if (!isNavigating) navigate(1);
+    }, { once: true });
+
+    setTimeout(safeHide, 4000);
+
+    vid.play().catch(() => {
+        setTimeout(safeHide, 800);
+    });
+
     attachVideoControls(vs, vid);
     setActiveVideo(vid);
 }
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  NAVIGATE
 // ══════════════════════════════════════════════════════════════════════════════
 async function navigate(dir) {
+    if (isSwipeLocked()) {
+        showToast("⏳ Wait a moment...");
+        return;
+    }
+
     if (!posts.length || isNavigating) return;
+
     isNavigating = true;
     swipeNavigationLocked = true;
 
@@ -1416,7 +1496,6 @@ async function navigate(dir) {
             } else {
                 await loadPosts(false);
                 if (cardIndex < posts.length - 1) cardIndex++;
-                else showToast("");
             }
         } else {
             cardIndex = Math.max(0, cardIndex - 1);
@@ -1429,6 +1508,14 @@ async function navigate(dir) {
         swipeNavigationLocked = false;
         swipeFired = false;
     }
+}
+
+function isSwipeLocked() {
+    return Date.now() < swipeLockUntil;
+}
+
+function lockSwipe(ms = 5000) {
+    swipeLockUntil = Date.now() + ms;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1496,7 +1583,6 @@ async function maybeSendWatchProgress(post, video, session, key) {
         try {
             const res = await sendWatchEngagement(post, session, { rewarded: true });
             if (res?.data?.rewarded !== false) {
-                // ✅ Update global user data from server response
                 if (res?.data?.lolUser) {
                     lolUserData = res.data.lolUser;
                 }
@@ -1573,14 +1659,12 @@ async function handleLike(post) {
     const likeBtn = card.querySelector(".like-btn");
     const likeEl = card.querySelector(".stat-l");
 
-    // Prevent double‑like if already marked
     if (localStorage.getItem(key) === "1") {
         showToast("Already liked! 💖");
         likeLocks.delete(post.id);
         return;
     }
 
-    // Optimistic UI feedback (will be corrected if server fails)
     const oldLikes = post.likes || 0;
     likeBtn?.classList.add("liked");
     if (likeBtn) likeBtn.textContent = "💖 Liked";
@@ -1590,20 +1674,17 @@ async function handleLike(post) {
     try {
         const res = await cfTrackEngagement({ postId: post.id, type: "like" });
 
-        // ✅ Sync with server response
         if (res?.data?.lolUser) {
             lolUserData = res.data.lolUser;
             updateHeaderUI();
         }
 
-        // ✅ Only now mark as liked in local storage
         localStorage.setItem(key, "1");
         registerSessionEngagement("like", post.id);
         showToast("Liked! 💖");
 
     } catch (err) {
         console.warn("Like failed", err.code || err.message);
-        // Revert optimistic changes
         localStorage.removeItem(key);
         likeBtn?.classList.remove("liked");
         if (likeBtn) likeBtn.textContent = "🤍 Like";
@@ -1623,7 +1704,6 @@ async function handleShare(post) {
     const startTime = Date.now();
     let nativeShared = false;
 
-    // Attempt native share
     try {
         const file = thumbCache.get(post.id);
         if (file && navigator.canShare?.({ files: [file] })) {
@@ -1648,7 +1728,6 @@ async function handleShare(post) {
             return;
         }
 
-        // Optimistic UI update (shares count)
         const shareEl = document.querySelector(".stat-s");
         const oldShares = post.shares || 0;
         if (shareEl) shareEl.textContent = fmt(oldShares + 1);
@@ -1662,7 +1741,6 @@ async function handleShare(post) {
                 visitDurationMs: Date.now() - startTime
             });
 
-            // ✅ Sync with server response
             if (res?.data?.lolUser) {
                 lolUserData = res.data.lolUser;
                 updateHeaderUI();
@@ -1674,7 +1752,6 @@ async function handleShare(post) {
 
         } catch (err) {
             console.warn("Share tracking failed", err.code || err.message);
-            // Revert optimistic share count
             if (shareEl) shareEl.textContent = fmt(oldShares);
             post.shares = oldShares;
             showToast("Share not counted ❌");
@@ -1682,7 +1759,6 @@ async function handleShare(post) {
         return;
     }
 
-    // Fallback: clipboard copy (no reward)
     try {
         await navigator.clipboard.writeText(url);
         showToast("🔗 Link copied to clipboard!");
@@ -1693,9 +1769,8 @@ async function handleShare(post) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  THUMBNAIL PRELOAD CACHE (with size limit)
+//  THUMBNAIL PRELOAD CACHE
 // ══════════════════════════════════════════════════════════════════════════════
-
 const failedThumbUrls = new Set();
 const thumbCache = new Map();
 
@@ -1713,7 +1788,7 @@ async function preloadThumbnail(post) {
             thumbCache.delete(firstKey);
         }
     } catch (err) {
-        failedThumbUrls.add(url);   // never retry this URL
+        failedThumbUrls.add(url);
         console.warn("Thumbnail preload failed:", err.message);
     }
 }
@@ -1755,11 +1830,11 @@ function lockNavigationButtons(duration = AD_IMPRESSION_LOCK_MS) {
     }, 1000);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  AD CARD
-// ══════════════════════════════════════════════════════════════════════════════
+// ✅ Adaptive ad tolerance tracking in renderAdCard
 function renderAdCard() {
     const config = getNextFeedAdConfig();
+    const adStartTime = Date.now();
+
     $("card-stack").innerHTML = `
   <div class="lol-card ad-card">
     <div class="ad-head">
@@ -1778,9 +1853,30 @@ function renderAdCard() {
     mountFeedAdExperience(config, $("feed-ad-stage"));
     if (config.type === "smart-link") maybeTriggerPassiveAdPulse(0.5);
     renderQuickLinks("feed-ad-links");
-    $("card-stack").querySelector(".next-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(1); });
-    $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => { clearPendingAdRedirect(); if (!isNavigating) navigate(-1); });
+
+    const skipBtn = $("card-stack").querySelector(".next-btn-ad");
+    if (skipBtn) {
+        skipBtn.addEventListener("click", () => {
+            const elapsed = Date.now() - adStartTime;
+            if (elapsed < AD_IMPRESSION_LOCK_MS) {
+                // Skipped quickly – decrease tolerance
+                adjustAdTolerance(-5);
+            } else {
+                // Waited until lock expired – increase tolerance
+                adjustAdTolerance(+3);
+            }
+            clearPendingAdRedirect();
+            if (!isNavigating) navigate(1);
+        });
+    }
+
+    $("card-stack").querySelector(".prev-btn-ad").addEventListener("click", () => {
+        clearPendingAdRedirect();
+        if (!isNavigating) navigate(-1);
+    });
+
     lockNavigationButtons(5000);
+    lockSwipe(5000);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1874,36 +1970,41 @@ async function checkDeepLink() {
 function ensureBackTrap() {
     if (backTrapReady) return;
     backTrapReady = true;
+
     history.replaceState({ view: "root" }, "", location.href);
     if (!window._backLock) {
         window._backLock = true;
         history.pushState({ view: "feed" }, "", location.href);
         setTimeout(() => { window._backLock = false; }, 300);
     }
+
     window.removeEventListener("popstate", handleAppBack);
     window.addEventListener("popstate", handleAppBack);
 }
 
-function handleAppBack() {
+function handleAppBack(event) {
+    if (event) event.preventDefault();
+
     if (!$("create-overlay").classList.contains("hidden") || appView === "create") {
         appView = "feed";
         closeCreateOverlay(true);
         openFeed();
         return;
     }
+
     if (appView === "profile") {
         appView = "feed";
         openFeed();
         resumeFeedVideos();
         return;
     }
-    if (isFeedFullscreen) { setFeedFullscreen(false); return; }
-    showLeaveFeedPopup();
-    if (!window._backLock) {
-        window._backLock = true;
-        history.pushState({ view: "feed" }, "", location.href);
-        setTimeout(() => { window._backLock = false; }, 300);
+
+    if (isFeedFullscreen) {
+        setFeedFullscreen(false);
+        return;
     }
+
+    showLeaveFeedPopup();
 }
 
 function showLeaveFeedPopup() {
@@ -1927,7 +2028,13 @@ function showLeaveFeedPopup() {
         document.body.appendChild(popup);
         popup.querySelector("#leave-stay").addEventListener("click", () => { popup.classList.add("hidden"); popup.classList.remove("show"); resumeFeedVideos(); });
         popup.querySelector("#leave-listen").addEventListener("click", () => { window.location.href = LISTEN_URL; });
-        popup.querySelector("#leave-exit").addEventListener("click", () => { popup.classList.add("hidden"); popup.classList.remove("show"); history.back(); });
+        popup.querySelector("#leave-exit").addEventListener("click", () => {
+            allowUnload = true;
+            popup.classList.add("hidden");
+            popup.classList.remove("show");
+            window.removeEventListener("popstate", handleAppBack);
+            history.back();
+        });
     }
     popup.classList.remove("hidden");
     requestAnimationFrame(() => popup.classList.add("show"));
@@ -2013,7 +2120,7 @@ function ensureCreateUploadStyles() {
       .upload-bar{width:100%;height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
       .upload-bar-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#7c5cff,#00d4ff);transition:width .25s ease;}
       .upload-status{font-size:.9rem;color:#aab2cf;}
-      .card-media video{opacity:0;transition:opacity .12s ease;}
+      .card-media video{opacity:1;transition:opacity .12s ease;}
       .card-media video.ready{opacity:1;}`;
     document.head.appendChild(style);
 }
@@ -2298,7 +2405,7 @@ function maskEmail(email) {
     if (!email) return "";
     const [name, domain] = email.split('@');
     if (!domain) return email;
-    return name.slice(0, 2) + '😂💖😘😎@' + domain;
+    return name.slice(0, 2) + '😎😘💖😂@' + domain;
 }
 
 $("back-from-profile").onclick = () => {
@@ -2730,10 +2837,48 @@ function timeAgo(date) {
     if (d < 3600) return `${Math.floor(d / 60)}m ago`;
     if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
     return `${Math.floor(d / 86400)}d ago`;
-}
+}   
 
-// Revoke object URLs on page unload
-window.addEventListener('beforeunload', () => {
-    if (selectedFileURL) URL.revokeObjectURL(selectedFileURL);
-    if (createUploadThumbURL) URL.revokeObjectURL(createUploadThumbURL);
+// Cross‑tab sync for likes/shares
+window.addEventListener('storage', (e) => {
+    if (e.key && (e.key.startsWith('liked_') || e.key.startsWith('shared_'))) {
+        if (appView === 'feed' && document.getElementById("app-screen")?.classList.contains("active")) {
+            renderCard();
+        }
+    }
 });
+
+// Pop‑up blocker fallback modal
+function showPopupBlockedModal(url) {
+    let overlay = document.getElementById('popup-blocked-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'popup-blocked-overlay';
+        overlay.className = 'popup-blocked-overlay';
+        overlay.innerHTML = `
+          <div class="popup-blocked-card">
+            <h3>🚫 Pop‑up blocked</h3>
+            <p>Your browser blocked the sponsor page.</p>
+            <a class="popup-blocked-open-btn" id="popup-blocked-link" href="#" target="_blank" rel="noopener noreferrer sponsored">
+              🔗 Tap here to open
+            </a>
+            <button class="popup-blocked-close" id="popup-blocked-close">✕ Close</button>
+          </div>`;
+        document.body.appendChild(overlay);
+
+        overlay.querySelector('#popup-blocked-close').addEventListener('click', () => {
+            overlay.classList.remove('show');
+        });
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.remove('show');
+        });
+    }
+
+    const linkEl = overlay.querySelector('#popup-blocked-link');
+    linkEl.href = url;
+    linkEl.addEventListener('click', () => {
+        overlay.classList.remove('show');
+    }, { once: true });
+
+    overlay.classList.add('show');
+}
