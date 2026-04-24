@@ -1256,7 +1256,6 @@ function buildCard(post) {
         <span class="c-name">${esc(post.creatorName || "Anonymous")}</span>
         <span class="c-time">${timeAgo(postDateToDate(post.createdAtMs || post.createdAt))}</span>
       </div>
-      <div class="card-counter">${cardIndex + 1} / ${posts.length}</div>
     </div>
 
     <div class="card-title-wrap">
@@ -1397,16 +1396,9 @@ function attachCardEvents(post) {
     if (!vs || !vid || !loadingOverlay) return;
 
     const pre = preloadedVideos.get(post.id);
-
-    // ⚡ INSTANT PLAY: use preloaded video data
     if (pre && pre.src) {
-        vid.src = pre.src;                          // reuse already‑loaded video
-        if (pre.readyState >= 2 && pre.videoWidth > 0) {
-            // Preloaded video is already ready – show it instantly
-            loadingOverlay.classList.add("hidden");
-            vid.style.opacity = "1";
-            vid.style.visibility = "visible";
-        }
+        // Reuse the already‑loaded video source (no overlay hiding here)
+        vid.src = pre.src;
     }
 
     vid.preload = "auto";
@@ -1450,6 +1442,7 @@ function attachCardEvents(post) {
         }
     });
 
+    // Error fallback with offline cache
     vid.addEventListener("error", async () => {
         safeHide();
         if ('caches' in window) {
