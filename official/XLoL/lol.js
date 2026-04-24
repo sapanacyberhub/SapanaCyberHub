@@ -1397,10 +1397,19 @@ function attachCardEvents(post) {
     if (!vs || !vid || !loadingOverlay) return;
 
     const pre = preloadedVideos.get(post.id);
+
+    // ⚡ INSTANT PLAY: use preloaded video data
     if (pre && pre.src) {
-        vid.src = pre.src;
+        vid.src = pre.src;                          // reuse already‑loaded video
+        if (pre.readyState >= 2 && pre.videoWidth > 0) {
+            // Preloaded video is already ready – show it instantly
+            loadingOverlay.classList.add("hidden");
+            vid.style.opacity = "1";
+            vid.style.visibility = "visible";
+        }
     }
 
+    vid.preload = "auto";
     vid.muted = !soundEnabled;
     vid.volume = 1;
     vid.playsInline = true;
@@ -1428,8 +1437,6 @@ function attachCardEvents(post) {
         }
     };
 
-
-
     vid.addEventListener("canplay", () => {
         if (vid.readyState >= 2 && vid.videoWidth > 0) safeHide();
     }, { once: true });
@@ -1443,7 +1450,6 @@ function attachCardEvents(post) {
         }
     });
 
-    // ✅ Error: try offline cache before skipping
     vid.addEventListener("error", async () => {
         safeHide();
         if ('caches' in window) {
