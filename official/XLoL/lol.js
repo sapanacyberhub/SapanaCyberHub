@@ -168,7 +168,7 @@ let listenUserData = null;
 let lolUserData = null;
 let posts = [];
 let cardIndex = 0;
-let lastCreatedAt = null;
+let feedOffset = 0;
 let isLoading = false;
 let isNavigating = false;
 let noMorePosts = false;
@@ -346,9 +346,22 @@ function rememberSeenPost(postId) {
     saveSeenPostIds(ids);
 }
 function getFeedExcludeIds() {
-    const ids = new Set(getStoredSeenPostIds());
-    posts.forEach(p => { if (p?.id) ids.add(p.id); });
-    return [...ids].slice(-FEED_SEEN_LIMIT);
+    const now = Date.now();
+    const storedIds = getStoredSeenPostIds();
+    const exclude = new Set();
+    
+    // Add posts that are currently loaded (avoid duplicates)
+    posts.forEach(p => { if (p?.id) exclude.add(p.id); });
+    
+    // Add stored IDs that have been viewed within the last 30 minutes
+    storedIds.forEach(id => {
+        const lastView = Number(localStorage.getItem(`viewed_${id}`) || 0);
+        if (now - lastView < 30 * 60 * 1000) {
+            exclude.add(id);
+        }
+    });
+    
+    return [...exclude].slice(-FEED_SEEN_LIMIT);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -778,9 +791,9 @@ function _renderQuickBreakModeA(target, sponsorLink) {
         <p class="qb-msg"><strong>Unlock extra engagement score.</strong><br/>Visit the offer, come back, and get a random 20-100 score boost.</p>
         <a class="qb-support-btn" href="${esc(sponsorLink.url)}" target="_blank" rel="noopener noreferrer sponsored" id="qb-support-link">Open Link Offer</a>
         <div class="qb-ad-slot" id="qb-ad-slot-a"></div>
-        <button class="qb-skip-btn" id="qb-skip-a">Skip ➡</button>
       </div>`;
     triggerPassiveAdPulse("vignette");
+    mountAdsterraBanner(target.querySelector("#qb-ad-slot-a"));
     target.querySelector("#qb-support-link")?.addEventListener("click", event => {
         event.preventDefault();
         openSponsorLink(sponsorLink, {
@@ -801,28 +814,10 @@ function _renderQuickBreakModeB(target) {
         <p class="qb-msg"><strong>A quick message from our sponsors.</strong><br/>Helps us keep the creator economy running 🙏</p>
         <div class="qb-ad-slot" id="qb-ad-slot-b"></div>
         <p class="qb-passive-note">Vignette ad may appear — close it to continue.</p>
-        <button class="qb-skip-btn" id="qb-skip-b" disabled>Skip in <span class="qb-skip-countdown" id="qb-countdown">3</span>s</button>
       </div>`;
     triggerPassiveAdPulse("vignette");
     mountAdsterraBanner(target.querySelector("#qb-ad-slot-b"));
-    const skipBtn = target.querySelector("#qb-skip-b");
-    const cntEl = target.querySelector("#qb-countdown");
-    let remaining = 3;
-
-    _qbSkipTick = setInterval(() => {
-        remaining--;
-        if (cntEl) cntEl.textContent = remaining;
-        if (remaining <= 0) {
-            _clearQbTick();
-            if (skipBtn) { skipBtn.disabled = false; skipBtn.innerHTML = "Skip ➡"; }
-        }
-    }, 1000);
-
-    skipBtn?.addEventListener("click", () => {
-        if (skipBtn.disabled) return;
-        clearPendingAdRedirect();
-        navigate(1);
-    });
+    
     lockNavigationButtons(5000);
     lockSwipe(5000);
 }
@@ -1162,7 +1157,7 @@ function updateHeaderUI() {
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadPosts(initial = false) {
     if (initial) {
-        posts = []; cardIndex = 0; lastCreatedAt = null; noMorePosts = false;
+        posts = []; cardIndex = 0; feedOffset = 0; noMorePosts = false;
         preloadedVideos.forEach(v => { v.src = ""; v.load(); });
         preloadedVideos.clear();
     }
@@ -1170,25 +1165,25 @@ async function loadPosts(initial = false) {
     isLoading = true;
     $("feed-loader").style.display = "flex";
     try {
-        let addedCount = 0;
-        for (let attempt = 0; attempt < 2 && addedCount === 0; attempt++) {
-            const res = await cfLoadFeed({
-                lastCreatedAt,
-                limitCount: FEED_LOAD_LIMIT,
-                seenPostIds: getFeedExcludeIds(),
-            });
-            const incoming = res.data.posts || [];
-            const fresh = normalizeFeedPosts(incoming);
-            if (res.data.lastCreatedAt) lastCreatedAt = res.data.lastCreatedAt;
-            if (fresh.length) {
-                posts.push(...fresh);
-                addedCount = fresh.length;
-                cardIndex = Math.min(cardIndex, posts.length - 1);
-            }
-            if (!incoming.length) { noMorePosts = true; break; }
+        const res = await cfLoadFeed({
+            offset: feedOffset,                       // ✅ send offset
+            limitCount: FEED_LOAD_LIMIT,
+            seenPostIds: getFeedExcludeIds(),
+        }); 
+        const incoming = res.data.posts || [];
+        const fresh = normalizeFeedPosts(incoming);
+        console.log("Incoming posts:", incoming.length, "Fresh after filter:", fresh.length);
+        if (fresh.length) {
+            posts.push(...fresh);
+            cardIndex = Math.min(cardIndex, posts.length - 1);
+        } else {
+            noMorePosts = true;
         }
-        if (!addedCount) noMorePosts = true;
-        if (!addedCount && !initial) showToast("No fresh LoLs right now. Try again soon.");
+
+
+        // Update the offset from the server (default to increment by limitCount)
+        feedOffset = res.data.nextOffset ?? (feedOffset + FEED_LOAD_LIMIT);
+        if (!fresh.length && !initial) showToast("No fresh LoLs right now. Try again soon.");
     } catch (err) {
         console.error("load feed error", err.code || err.message);
         showToast("Failed to load posts");
@@ -1253,15 +1248,16 @@ function buildCard(post) {
         src="${post.creatorPhoto || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${post.uid}`}"
         onerror="this.src='https://api.dicebear.com/7.x/fun-emoji/svg?seed=x'" />
       <div class="c-info">
-        <span class="c-name">${esc(post.creatorName || "Anonymous")}</span>
-        <span class="c-time">${timeAgo(postDateToDate(post.createdAtMs || post.createdAt))}</span>
+          <span class="c-name">${esc(post.creatorName || "Anonymous")}</span>
+           <div class="card-title-wrap">
+              <span class="c-time">${timeAgo(postDateToDate(post.createdAtMs || post.createdAt))}</span>
+              <h2 class="card-title">${esc(post.title)}</h2>
+              <div class="tag-scroll-area">${tags}</div>
+            </div>
       </div>
     </div>
 
-    <div class="card-title-wrap">
-      <h2 class="card-title">${esc(post.title)}</h2>
-      <div class="tag-scroll-area">${tags}</div>
-    </div>
+    
 
     <div class="card-media">${buildMedia(post)}</div>
 
@@ -1451,6 +1447,7 @@ function attachCardEvents(post) {
                 const cachedResponse = await cache.match(post.mediaURL);
                 if (cachedResponse) {
                     const blob = await cachedResponse.blob();
+                    if (vid.src.startsWith('blob:')) URL.revokeObjectURL(vid.src);
                     vid.src = URL.createObjectURL(blob);
                     vid.play().catch(() => { });
                     return;
@@ -2836,7 +2833,7 @@ function timeAgo(date) {
     if (d < 3600) return `${Math.floor(d / 60)}m ago`;
     if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
     return `${Math.floor(d / 86400)}d ago`;
-}   
+}
 
 // Cross‑tab sync for likes/shares
 window.addEventListener('storage', (e) => {

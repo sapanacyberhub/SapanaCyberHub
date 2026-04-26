@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AdFlow Community | Traffic Partner Hub</title>
+    <!-- Tailwind + Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* custom overlay smooth transitions */
+        .modal-overlay {
+            transition: opacity 0.2s ease;
+        }
+        .copy-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .countdown-timer {
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .event-card {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <!-- Header / Branding + User Bar -->
+        <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-700 pb-4 mb-6">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-charging-station text-3xl text-green-400"></i>
+                <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-300 to-blue-400 bg-clip-text text-transparent">AdFlow <span class="text-gray-300">Community</span></h1>
+                <span class="bg-gray-800 text-xs px-2 py-1 rounded-full ml-2">Publisher Renter</span>
+            </div>
+            <div class="flex gap-3 mt-3 md:mt-0">
+                <button id="profileBtn" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-xl flex items-center gap-2 transition"><i class="fas fa-user-circle"></i> Profile</button>
+                <button id="leaderboardGlobalBtn" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-xl flex items-center gap-2 transition"><i class="fas fa-trophy"></i> Leaderboard</button>
+                <button id="termsBtn" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-xl flex items-center gap-2 transition"><i class="fas fa-file-alt"></i> Guidelines</button>
+            </div>
+        </div>
+
+        <!-- Social follow reminder + stats strip -->
+        <div id="socialAlert" class="bg-yellow-900/40 border border-yellow-600 rounded-xl p-3 mb-6 hidden flex justify-between items-center">
+            <div><i class="fab fa-instagram mr-2"></i><i class="fab fa-facebook mr-2"></i><i class="fab fa-telegram"></i> <span class="font-semibold">Follow us on Instagram, FB or Telegram to unlock links & earn!</span></div>
+            <button id="openProfileForFollow" class="bg-yellow-700 text-sm px-3 py-1 rounded-lg">Update follow status</button>
+        </div>
+
+        <!-- Community Pool Summary Card -->
+        <div class="bg-gradient-to-r from-indigo-900/60 to-purple-900/60 rounded-2xl p-5 mb-8 border border-gray-700">
+            <div class="flex flex-wrap justify-between items-center">
+                <div>
+                    <p class="text-gray-300 text-sm">🔥 TODAY'S COMMUNITY POOL (Revenue)</p>
+                    <p class="text-3xl font-bold text-green-300" id="communityPoolDisplay">$0.00</p>
+                    <p class="text-xs text-gray-400">Based on total traffic from all events</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-300 text-sm">🌐 Global Traffic Today</p>
+                    <p class="text-2xl font-mono font-bold" id="globalTrafficToday">0</p>
+                    <p class="text-xs text-gray-400">visits from members</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Events Grid -->
+        <h2 class="text-xl font-bold mb-3 flex items-center gap-2"><i class="fas fa-calendar-alt text-blue-400"></i> LIVE EVENTS (3hrs each)</h2>
+        <div id="eventsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"></div>
+
+        <!-- info note -->
+        <div class="text-center text-gray-500 text-xs mt-4 border-t border-gray-800 pt-5">
+            <i class="fas fa-link"></i> Each event = unique ad network. Get link → share/simulate traffic → earn from pool. Links auto-renew every 24h or after expiry.
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Profile Modal (includes stats, withdrawal, follow) -->
+    <div id="profileModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-overlay">
+        <div class="bg-gray-800 rounded-2xl w-full max-w-lg mx-4 p-6 shadow-2xl border border-gray-600">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-4">
+                <h3 class="text-xl font-bold"><i class="fas fa-id-card text-green-400 mr-2"></i>My Dashboard</h3>
+                <button class="closeModalBtn text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="profileContent">Loading...</div>
+            <div class="mt-5 flex gap-3">
+                <button id="requestWithdrawBtn" class="bg-green-700 hover:bg-green-600 px-4 py-2 rounded-xl w-full transition">Request Withdrawal</button>
+                <button id="updateFollowBtnProfile" class="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded-xl w-full transition"><i class="fab fa-instagram"></i> Confirm Social Follow</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard (global + member stats) -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-overlay">
+        <div class="bg-gray-800 rounded-2xl w-full max-w-2xl mx-4 p-6 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-4">
+                <h3 class="text-xl font-bold"><i class="fas fa-chart-line"></i> Community Leaderboard</h3>
+                <button class="closeLeaderboardBtn text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="leaderboardTableContainer">Loading stats...</div>
+            <p class="text-xs text-gray-500 mt-3">🏆 Earnings based on today's traffic share from total pool.</p>
+        </div>
+    </div>
+
+    <!-- Registration / Account Creation Overlay (first time or not logged) -->
+    <div id="registerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 modal-overlay">
+        <div class="bg-gray-800 rounded-2xl w-full max-w-md mx-4 p-6 shadow-2xl border border-gray-600">
+            <h3 class="text-2xl font-bold mb-2"><i class="fas fa-user-plus text-green-400"></i> Create Publisher Account</h3>
+            <p class="text-gray-400 text-sm mb-4">Mandatory details to start earning traffic revenue</p>
+            <form id="registerForm">
+                <input type="text" id="regUsername" placeholder="Username" class="w-full bg-gray-700 rounded-lg p-2 mb-3" required>
+                <input type="email" id="regEmail" placeholder="Email Address *" class="w-full bg-gray-700 rounded-lg p-2 mb-3" required>
+                <input type="tel" id="regMobile" placeholder="Mobile Number *" class="w-full bg-gray-700 rounded-lg p-2 mb-3" required>
+                <input type="text" id="regSocial" placeholder="Instagram / FB / Telegram handle *" class="w-full bg-gray-700 rounded-lg p-2 mb-3" required>
+                <div class="flex items-start gap-2 mb-4">
+                    <input type="checkbox" id="followCheckReg" class="mt-1">
+                    <label class="text-sm">✅ I confirm I have followed AdFlow on Instagram, Facebook or Telegram (required for event access)</label>
+                </div>
+                <div class="flex items-start gap-2 mb-4">
+                    <input type="checkbox" id="termsCheckReg" required>
+                    <label class="text-sm">I agree to the <span id="showTermsPopup" class="text-blue-400 underline cursor-pointer">Community Guidelines & Terms</span></label>
+                </div>
+                <button type="submit" class="bg-green-600 w-full py-2 rounded-xl font-bold hover:bg-green-500 transition">Join Community & Start Earning</button>
+            </form>
+            <p class="text-xs text-gray-400 text-center mt-4">Already registered? <span id="switchLogin" class="text-blue-400 cursor-pointer">Login</span></p>
+        </div>
+    </div>
+
+    <!-- Login Modal (if exists) -->
+    <div id="loginModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden modal-overlay">
+        <div class="bg-gray-800 rounded-2xl w-full max-w-md mx-4 p-6">
+            <h3 class="text-xl font-bold mb-3">Login to AdFlow</h3>
+            <input type="email" id="loginEmail" placeholder="Your Email" class="w-full bg-gray-700 p-2 rounded-lg mb-3">
+            <button id="doLoginBtn" class="bg-blue-600 w-full py-2 rounded-xl">Login</button>
+            <p class="text-center text-sm mt-3">No account? <span id="switchToRegister" class="text-blue-400 cursor-pointer">Create account</span></p>
+        </div>
+    </div>
+    
+    <!-- Terms modal (simple) -->
+    <div id="termsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden modal-overlay">
+        <div class="bg-gray-800 rounded-2xl max-w-lg w-full mx-4 p-6 max-h-[70vh] overflow-y-auto">
+            <div class="flex justify-between"><h2 class="text-xl font-bold">Community Guidelines & Terms</h2><button id="closeTermsBtn" class="text-white text-2xl">&times;</button></div>
+            <div class="mt-3 text-sm space-y-2 text-gray-300">
+                <p>✔️ Valid traffic only — no bots, fraudulent clicks. <br>✔️ Each event runs 3hrs, links renew daily or after event expiry. <br>✔️ Payouts based on your traffic contribution to community pool. <br>✔️ Minimum withdrawal: $10 (simulated). <br>✔️ Must follow official social channels to participate. <br>✔️ Multiple events = multiple income streams. <br>✔️ All earnings are simulated for demo environment but represent real ad network logic.</p>
+                <p class="font-semibold mt-2">⛔️ Abuse leads to permanent ban and forfeiture of pending earnings.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="copyToast" class="copy-toast">Link copied to clipboard!</div>
+
+    <script>
+        // ---------- DATA MODEL ----------
+        let currentUser = null;   // holds userId
+        let eventsData = [];       // { id, name, network, startTime, endTime, status, tokens? storage per user dynamic }
+        // Helper storage keys
+        const STORAGE_USERS = "adflow_users";
+        const STORAGE_TRAFFIC_LOGS = "adflow_trafficlogs"; // entries: { userId, eventId, amount, timestamp }
+        const STORAGE_WITHDRAWALS = "adflow_withdrawals";
+        const STORAGE_USER_LINKS = "adflow_userlinks"; // { userId, eventId, token, generatedAt }
+        const STORAGE_SESSION = "adflow_current_user";
+
+        // Helper: initialize default events
+        function initEvents() {
+            const now = Date.now();
+            const threeHours = 3 * 60 * 60 * 1000;
+            eventsData = [
+                { id: "ev_hilltop", name: "Hilltop Network", network: "HillTop Ads", startTime: now, endTime: now + threeHours, active: true },
+                { id: "ev_monetag", name: "Monetag Studio", network: "Monetag", startTime: now, endTime: now + threeHours, active: true },
+                { id: "ev_adstera", name: "Adstera Pulse", network: "Adstera", startTime: now, endTime: now + threeHours, active: true }
+            ];
+        }
+
+        // load/save users
+        function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_USERS) || "[]"); }
+        function saveUsers(users) { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
+        function getTrafficLogs() { return JSON.parse(localStorage.getItem(STORAGE_TRAFFIC_LOGS) || "[]"); }
+        function saveTrafficLogs(logs) { localStorage.setItem(STORAGE_TRAFFIC_LOGS, JSON.stringify(logs)); }
+        function getWithdrawals() { return JSON.parse(localStorage.getItem(STORAGE_WITHDRAWALS) || "[]"); }
+        function saveWithdrawals(w) { localStorage.setItem(STORAGE_WITHDRAWALS, JSON.stringify(w)); }
+        function getUserLinks() { return JSON.parse(localStorage.getItem(STORAGE_USER_LINKS) || "[]"); }
+        function saveUserLinks(links) { localStorage.setItem(STORAGE_USER_LINKS, JSON.stringify(links)); }
+
+        // traffic calculation helpers (today only)
+        function getTodayTimestampFloor() {
+            let d = new Date(); d.setHours(0,0,0,0);
+            return d.getTime();
+        }
+        function getUserTodayTraffic(userId) {
+            const logs = getTrafficLogs();
+            const todayStart = getTodayTimestampFloor();
+            return logs.filter(l => l.userId === userId && l.timestamp >= todayStart).reduce((sum, l) => sum + l.amount, 0);
+        }
+        function getTotalCommunityTrafficToday() {
+            const logs = getTrafficLogs();
+            const todayStart = getTodayTimestampFloor();
+            return logs.filter(l => l.timestamp >= todayStart).reduce((sum, l) => sum + l.amount, 0);
+        }
+        // revenue factor: $0.0015 per visit = pool multiplier
+        function getCommunityPoolToday() {
+            const totalVisits = getTotalCommunityTrafficToday();
+            return totalVisits * 0.0015;
+        }
+        // user earnings share
+        function getUserEarningsToday(userId) {
+            const userTraffic = getUserTodayTraffic(userId);
+            const totalTraffic = getTotalCommunityTrafficToday();
+            const pool = getCommunityPoolToday();
+            if(totalTraffic === 0) return 0;
+            return (userTraffic / totalTraffic) * pool;
+        }
+        // add traffic (simulate real clicks via link)
+        function addTraffic(userId, eventId, amount) {
+            if(amount <= 0) return;
+            const logs = getTrafficLogs();
+            logs.push({ userId, eventId, amount, timestamp: Date.now() });
+            saveTrafficLogs(logs);
+            updateUI();
+        }
+
+        // Link management: generate unique token for user per event (daily renewal, event expiration)
+        function getOrCreateLink(userId, eventId) {
+            let links = getUserLinks();
+            const existing = links.find(l => l.userId === userId && l.eventId === eventId);
+            const now = Date.now();
+            const dayInMs = 24 * 60 * 60 * 1000;
+            if (existing) {
+                if (now - existing.generatedAt > dayInMs) {
+                    // renew daily
+                    existing.token = Math.random().toString(36).substring(2, 12) + Date.now();
+                    existing.generatedAt = now;
+                    saveUserLinks(links);
+                }
+                return existing.token;
+            } else {
+                const newToken = Math.random().toString(36).substring(2, 12) + Date.now();
+                links.push({ userId, eventId, token: newToken, generatedAt: now });
+                saveUserLinks(links);
+                return newToken;
+            }
+        }
+        function getUserLinkForEvent(userId, eventId) {
+            const links = getUserLinks();
+            const item = links.find(l => l.userId === userId && l.eventId === eventId);
+            return item ? item.token : null;
+        }
+
+        // Withdrawal request
+        function requestWithdrawal(userId, amountRequested) {
+            let withdrawals = getWithdrawals();
+            withdrawals.push({ userId, amount: amountRequested, status: "pending", date: Date.now() });
+            saveWithdrawals(withdrawals);
+        }
+
+        // Registration logic
+        function registerUser(username, email, mobile, social, followed) {
+            const users = getUsers();
+            if(users.find(u => u.email === email)) return { success: false, msg: "Email already exists." };
+            const newId = "user_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+            const newUser = { id: newId, username, email, mobile, social, followedSocial: followed, createdAt: Date.now() };
+            users.push(newUser);
+            saveUsers(users);
+            localStorage.setItem(STORAGE_SESSION, newId);
+            currentUser = newUser;
+            return { success: true, user: newUser };
+        }
+        function loginUser(email) {
+            const users = getUsers();
+            const user = users.find(u => u.email === email);
+            if(user) {
+                localStorage.setItem(STORAGE_SESSION, user.id);
+                currentUser = user;
+                return true;
+            }
+            return false;
+        }
+        function logout() { localStorage.removeItem(STORAGE_SESSION); currentUser = null; location.reload(); }
+        function loadSession() {
+            const id = localStorage.getItem(STORAGE_SESSION);
+            if(id) {
+                const users = getUsers();
+                currentUser = users.find(u => u.id === id) || null;
+            }
+            if(!currentUser) showRegisterModal(true);
+            else showRegisterModal(false);
+        }
+
+        // UI Updates: events, profile, leaderboard, pool
+        function updateUI() {
+            if(!currentUser) return;
+            renderEvents();
+            updatePoolStats();
+            updateSocialAlert();
+        }
+        function updatePoolStats() {
+            const pool = getCommunityPoolToday();
+            document.getElementById("communityPoolDisplay").innerText = `$${pool.toFixed(2)}`;
+            document.getElementById("globalTrafficToday").innerText = getTotalCommunityTrafficToday();
+        }
+        function updateSocialAlert() {
+            const alertDiv = document.getElementById("socialAlert");
+            if(currentUser && !currentUser.followedSocial) alertDiv.classList.remove("hidden");
+            else alertDiv.classList.add("hidden");
+        }
+        function canUserJoinEvent() { return currentUser && currentUser.followedSocial === true; }
+
+        // rendering events with timers, link buttons & simulation
+        function renderEvents() {
+            const container = document.getElementById("eventsContainer");
+            if(!container) return;
+            const now = Date.now();
+            let html = "";
+            eventsData.forEach(ev => {
+                const isExpired = now > ev.endTime;
+                const remaining = isExpired ? 0 : ev.endTime - now;
+                const mins = Math.floor((remaining % (3600000)) / 60000);
+                const hours = Math.floor(remaining / 3600000);
+                const timerText = isExpired ? "Expired" : `${hours}h ${mins}m left`;
+                const activeFlag = !isExpired;
+                // user specific link
+                let userLinkToken = null;
+                let linkFull = "#";
+                if(currentUser && activeFlag && currentUser.followedSocial) {
+                    userLinkToken = getUserLinkForEvent(currentUser.id, ev.id);
+                    if(!userLinkToken) userLinkToken = "(not generated)";
+                    else linkFull = `${window.location.origin}?ref=${userLinkToken}`;
+                }
+                html += `<div class="event-card bg-gray-800/70 rounded-2xl p-5 border ${activeFlag ? 'border-green-500/50' : 'border-red-500/30'}">
+                    <div class="flex justify-between"><h3 class="text-xl font-bold"><i class="fas fa-broadcast-tower"></i> ${ev.name}</h3><span class="text-xs bg-gray-700 px-2 py-1 rounded-full">${ev.network}</span></div>
+                    <div class="flex justify-between items-center mt-2"><span class="text-sm"><i class="far fa-clock"></i> <span class="countdown-timer ${activeFlag ? 'text-green-300' : 'text-red-400'}">${timerText}</span></span><span class="text-xs">3hr event</span></div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="getLinkBtn bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-sm" data-eventid="${ev.id}" ${(!activeFlag || !currentUser || !currentUser.followedSocial) ? 'disabled' : ''}>🔗 Get Traffic Link</button>
+                        <button class="renewLinkBtn bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg text-sm" data-eventid="${ev.id}" ${(!activeFlag || !currentUser || !currentUser.followedSocial) ? 'disabled' : ''}>🔄 Renew Link</button>
+                        <button class="leaderboardEventBtn bg-purple-700 hover:bg-purple-600 px-3 py-1.5 rounded-lg text-sm" data-eventide="${ev.id}">🏆 Leaderboard</button>
+                    </div>
+                    <div class="mt-3 bg-gray-900 rounded-lg p-2 text-xs break-all"><span class="text-gray-400">Your link: </span><span class="userLinkSpan text-blue-300" data-eventid="${ev.id}">${userLinkToken ? linkFull : '— generate link —'}</span> <i class="far fa-copy copyLinkIcon text-gray-400 cursor-pointer" data-link="${userLinkToken ? linkFull : ''}" data-eventid="${ev.id}"></i></div>
+                    <div class="mt-2 flex gap-2 items-center">
+                        <input type="number" id="trafficAmount_${ev.id}" placeholder="Visits" class="bg-gray-700 text-sm rounded-lg w-24 px-2 py-1" value="5">
+                        <button class="simulateTrafficBtn bg-green-800 hover:bg-green-700 px-3 py-1 rounded-lg text-xs" data-eventid="${ev.id}" ${(!activeFlag || !currentUser || !currentUser.followedSocial) ? 'disabled' : ''}>📊 Simulate Traffic</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            attachEventButtons();
+        }
+        function attachEventButtons() {
+            // get link
+            document.querySelectorAll(".getLinkBtn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const eventId = btn.getAttribute("data-eventid");
+                    if(!canUserJoinEvent()) { alert("❌ You must follow our social media (Instagram/FB/Telegram) → go to Profile & confirm."); return; }
+                    const token = getOrCreateLink(currentUser.id, eventId);
+                    const fullLink = `${window.location.origin}?ref=${token}`;
+                    const span = document.querySelector(`.userLinkSpan[data-eventid="${eventId}"]`);
+                    if(span) span.innerText = fullLink;
+                    document.querySelectorAll(`.copyLinkIcon[data-eventid="${eventId}"]`).forEach(icon => icon.setAttribute("data-link", fullLink));
+                    showToast("Link generated! Copy & share / simulate traffic.");
+                    renderEvents(); // refresh to show link in span
+                });
+            });
+            document.querySelectorAll(".renewLinkBtn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if(!canUserJoinEvent()) return alert("Follow social media first");
+                    const eventId = btn.getAttribute("data-eventid");
+                    let links = getUserLinks();
+                    const idx = links.findIndex(l => l.userId === currentUser.id && l.eventId === eventId);
+                    if(idx !== -1) { links[idx].generatedAt = 0; saveUserLinks(links); }
+                    getOrCreateLink(currentUser.id, eventId);
+                    renderEvents();
+                    showToast("Link renewed (old link invalid). New link active!");
+                });
+            });
+            document.querySelectorAll(".simulateTrafficBtn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if(!currentUser || !currentUser.followedSocial) { alert("Follow social media & login to bring traffic"); return; }
+                    const eventId = btn.getAttribute("data-eventid");
+                    const eventObj = eventsData.find(e => e.id === eventId);
+                    if(Date.now() > eventObj.endTime) { alert("Event expired! No more traffic accepted."); return; }
+                    const linkToken = getUserLinkForEvent(currentUser.id, eventId);
+                    if(!linkToken) { alert("Please generate your traffic link first (Get Traffic Link)."); return; }
+                    const amountInput = document.getElementById(`trafficAmount_${eventId}`);
+                    let amount = parseInt(amountInput.value);
+                    if(isNaN(amount) || amount <= 0) amount = 1;
+                    addTraffic(currentUser.id, eventId, amount);
+                    showToast(`+${amount} traffic recorded! Your earnings updated.`);
+                    updateUI();
+                });
+            });
+            document.querySelectorAll(".leaderboardEventBtn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const eventId = btn.getAttribute("data-eventide");
+                    showEventLeaderboard(eventId);
+                });
+            });
+            document.querySelectorAll(".copyLinkIcon").forEach(icon => {
+                icon.addEventListener("click", (e) => {
+                    const link = icon.getAttribute("data-link");
+                    if(link && link !== "#") { navigator.clipboard.writeText(link); showToast("Link copied!"); }
+                    else showToast("Generate a link first!");
+                });
+            });
+        }
+        function showEventLeaderboard(eventId) {
+            const logs = getTrafficLogs();
+            const todayStart = getTodayTimestampFloor();
+            const filtered = logs.filter(l => l.eventId === eventId && l.timestamp >= todayStart);
+            const userMap = new Map();
+            filtered.forEach(l => { userMap.set(l.userId, (userMap.get(l.userId) || 0) + l.amount); });
+            const users = getUsers();
+            let leaderRows = [];
+            for(let [uid, traffic] of userMap.entries()) {
+                const user = users.find(u => u.id === uid);
+                if(user) leaderRows.push({ username: user.username, traffic, email: user.email });
+            }
+            leaderRows.sort((a,b)=>b.traffic - a.traffic);
+            const eventName = eventsData.find(e=>e.id===eventId)?.name || eventId;
+            let html = `<h4 class="font-bold mb-2">📊 ${eventName} - Top Traffic Providers</h4><table class="w-full text-sm"><thead><tr class="border-b border-gray-600"><th>Member</th><th>Traffic (visits)</th></tr></thead><tbody>`;
+            if(leaderRows.length===0) html += `<tr><td colspan="2" class="text-center">No traffic yet</td></tr>`;
+            leaderRows.forEach(r=>{ html+=`<tr><td>${r.username}</td><td>${r.traffic}</td></tr>`; });
+            html+=`</tbody></table><p class="text-xs mt-2">Event prize pool share: based on community overall.</p>`;
+            document.getElementById("leaderboardTableContainer").innerHTML = html;
+            document.getElementById("leaderboardModal").classList.remove("hidden");
+        }
+        function showGlobalLeaderboard() {
+            const todayStart = getTodayTimestampFloor();
+            const logs = getTrafficLogs();
+            const userTotals = new Map();
+            logs.filter(l=>l.timestamp>=todayStart).forEach(l => { userTotals.set(l.userId, (userTotals.get(l.userId)||0)+l.amount); });
+            const users = getUsers();
+            let ranking = [];
+            for(let [uid,traffic] of userTotals.entries()) {
+                const u = users.find(u=>u.id===uid);
+                if(u) ranking.push({ username: u.username, traffic, earnings: (traffic / (getTotalCommunityTrafficToday()||1)) * getCommunityPoolToday() });
+            }
+            ranking.sort((a,b)=>b.traffic - a.traffic);
+            let html = `<div class="mb-2 font-semibold">💰 Total Expected Prize Pool Today: $${getCommunityPoolToday().toFixed(2)}</div><table class="w-full text-sm"><thead><tr class="border-b"><th>Rank</th><th>Member</th><th>Traffic</th><th>Est. Earnings</th></tr></thead><tbody>`;
+            if(ranking.length===0) html+="<tr><td colspan='4'>No traffic yet, be the first!</td></tr>";
+            ranking.forEach((r,idx)=> {
+                html+=`<tr><td>${idx+1}</td><td>${r.username}</td><td>${r.traffic}</td><td>$${r.earnings.toFixed(2)}</td></tr>`;
+            });
+            html+=`</tbody></table>`;
+            document.getElementById("leaderboardTableContainer").innerHTML = html;
+            document.getElementById("leaderboardModal").classList.remove("hidden");
+        }
+
+        function showProfileModal() {
+            if(!currentUser) return;
+            const todayTraffic = getUserTodayTraffic(currentUser.id);
+            const earnings = getUserEarningsToday(currentUser.id);
+            const withdrawals = getWithdrawals().filter(w=>w.userId===currentUser.id);
+            const followStatus = currentUser.followedSocial ? "✅ Following" : "❌ Not confirmed — you must follow to earn";
+            document.getElementById("profileContent").innerHTML = `
+                <div class="space-y-3"><p><i class="fas fa-user"></i> <strong>${currentUser.username}</strong></p>
+                <p><i class="fas fa-envelope"></i> ${currentUser.email}</p><p><i class="fas fa-mobile-alt"></i> ${currentUser.mobile}</p>
+                <p><i class="fab fa-instagram"></i> Social: ${currentUser.social}</p>
+                <p><i class="fas fa-check-circle"></i> Follow Status: ${followStatus}</p>
+                <hr class="border-gray-600"><p><i class="fas fa-chart-simple"></i> Today Traffic: ${todayTraffic} visits</p>
+                <p><i class="fas fa-dollar-sign"></i> Today Earnings: $${earnings.toFixed(4)}</p>
+                <p><i class="fas fa-history"></i> Withdrawal Requests: ${withdrawals.length} pending/processed</p></div>`;
+            document.getElementById("profileModal").classList.remove("hidden");
+        }
+        function showRegisterModal(show) {
+            if(show) document.getElementById("registerModal").classList.remove("hidden");
+            else document.getElementById("registerModal").classList.add("hidden");
+        }
+        function showToast(msg) { const toast = document.getElementById("copyToast"); toast.innerText = msg; toast.style.opacity="1"; setTimeout(()=>toast.style.opacity="0", 2000); }
+
+        // event listeners and timer updates
+        function initApp() {
+            initEvents();
+            loadSession();
+            setInterval(() => { if(currentUser) { updateUI(); updatePoolStats(); } }, 5000);
+            document.getElementById("profileBtn").onclick = () => showProfileModal();
+            document.getElementById("leaderboardGlobalBtn").onclick = () => showGlobalLeaderboard();
+            document.getElementById("termsBtn").onclick = () => document.getElementById("termsModal").classList.remove("hidden");
+            document.getElementById("closeTermsBtn").onclick = () => document.getElementById("termsModal").classList.add("hidden");
+            document.querySelectorAll(".closeModalBtn, .closeLeaderboardBtn").forEach(btn => btn.onclick = () => { document.getElementById("profileModal").classList.add("hidden"); document.getElementById("leaderboardModal").classList.add("hidden"); });
+            document.getElementById("requestWithdrawBtn")?.addEventListener("click", () => { if(currentUser) { let earnings = getUserEarningsToday(currentUser.id); if(earnings<10) alert("Minimum $10 to request withdrawal (simulated)."); else { requestWithdrawal(currentUser.id, earnings); alert("Withdrawal request sent (demo)."); } } });
+            document.getElementById("updateFollowBtnProfile")?.addEventListener("click", () => { if(currentUser) { currentUser.followedSocial = true; let users = getUsers(); let idx = users.findIndex(u=>u.id===currentUser.id); if(idx!==-1) users[idx].followedSocial=true; saveUsers(users); localStorage.setItem(STORAGE_SESSION, currentUser.id); loadSession(); showProfileModal(); updateUI(); } });
+            document.getElementById("registerForm")?.addEventListener("submit", (e) => { e.preventDefault(); const username = document.getElementById("regUsername").value; const email = document.getElementById("regEmail").value; const mobile = document.getElementById("regMobile").value; const social = document.getElementById("regSocial").value; const followed = document.getElementById("followCheckReg").checked; if(!followed) { alert("You must confirm social follow to join!"); return; } const res = registerUser(username, email, mobile, social, followed); if(res.success) { showRegisterModal(false); location.reload(); } else alert(res.msg); });
+            document.getElementById("switchLogin")?.addEventListener("click",()=>{showRegisterModal(false);document.getElementById("loginModal").classList.remove("hidden");});
+            document.getElementById("doLoginBtn")?.addEventListener("click",()=>{ let email=document.getElementById("loginEmail").value; if(loginUser(email)) location.reload(); else alert("Not registered"); });
+            document.getElementById("switchToRegister")?.addEventListener("click",()=>{document.getElementById("loginModal").classList.add("hidden");showRegisterModal(true);});
+            document.getElementById("openProfileForFollow")?.addEventListener("click",()=>showProfileModal());
+            if(currentUser) updateUI();
+        }
+        window.onload = initApp;
+    </script>
+</body>
+</html>

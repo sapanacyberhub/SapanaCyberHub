@@ -690,7 +690,6 @@ textarea {
   border: 1px dashed rgba(196, 205, 216, .95);
   background: linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(246, 248, 251, .92));
   display: flex;
-  align-items: center;
   justify-content: center;
   overflow-y: scroll;
   padding: 10px;
@@ -797,7 +796,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 4px;
   border-bottom: 1px solid rgba(219, 226, 234, .82);
   background: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(247, 249, 252, .96));
   flex-shrink: 0;
@@ -831,27 +830,21 @@ textarea {
   color: var(--text-mid);
 }
 
-.card-counter {
-  font-size: 10px;
-  color: var(--text-mid);
-  background: rgba(122, 120, 242, .08);
-  border-radius: 99px;
-  padding: 2px 8px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
+
 
 /* Title block */
 .card-title-wrap {
-  padding: 4px 12px;
   display: flex;
-  align-items: center; /* Keeps title and tags vertically aligned */
+  align-items: center;
+  /* Keeps title and tags vertically aligned */
   gap: 8px;
-  
+
   /* This is the magic part */
-  overflow-x: auto;    /* Allows horizontal scrolling if content is too wide */
-  white-space: nowrap; /* Prevents the title from breaking into two lines */
-  
+  overflow-x: auto;
+  /* Allows horizontal scrolling if content is too wide */
+  white-space: nowrap;
+  /* Prevents the title from breaking into two lines */
+
   background: linear-gradient(180deg, rgba(255, 255, 255, .97), rgba(248, 250, 253, .97));
 }
 
@@ -859,33 +852,38 @@ textarea {
   font-size: clamp(.95rem, 2.1vw, 1.08rem);
   font-weight: 900;
   color: var(--text);
-  padding: 8px 0;
-  
+
   /* Ensures the title doesn't shrink to make room for tags */
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .tag {
   font-size: 10px;
   font-weight: 800;
   color: #6764d8;
-  white-space: nowrap; /* Keeps individual tags from breaking */
+  white-space: nowrap;
+  /* Keeps individual tags from breaking */
   flex-shrink: 0;
 }
 
 /* Hide scrollbar for a cleaner look */
 .card-title-wrap::-webkit-scrollbar {
-  display: none; /* Hides scrollbar for Chrome, Safari and Opera */
+  display: none;
+  /* Hides scrollbar for Chrome, Safari and Opera */
 }
+
 .card-title-wrap {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Media */
 .card-media {
   flex: 1 1 auto;
   min-height: 0;
+  position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -897,13 +895,68 @@ textarea {
   -webkit-user-select: none;
 }
 
+/* ── Soft, moving radials (no rotation) ── */
+.card-media::before {
+  content: "";
+  position: absolute;
+  inset: -20px;                           /* prevent edge clipping */
+  z-index: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 0, 85, 0.1), transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(255, 191, 0, 0.1), transparent 36%),
+    radial-gradient(circle at 50% 90%, rgba(0, 133, 255, 0.1), transparent 50%);
+
+  background-size: 300% 300%;             /* extra space for movement */
+
+  /* only a position‑shifting animation, no rotation */
+  animation: flowRadials 10s ease-in-out infinite alternate;
+}
+
+/* ── Keyframes – each radial travels independently ── */
+@keyframes flowRadials {
+  0% {
+    background-position:
+      0% 0%,       /* pink */
+      100% 100%,   /* gold */
+      50% 0%;      /* blue */
+  }
+  33% {
+    background-position:
+      100% 30%,    /* pink right */
+      0% 70%,      /* gold left */
+      80% 100%;    /* blue down */
+  }
+  66% {
+    background-position:
+      30% 100%,    /* pink bottom */
+      70% 0%,      /* gold top */
+      20% 50%;     /* blue centre/left */
+  }
+  100% {
+    background-position:
+      0% 0%,       /* return to starting positions */
+      100% 100%,
+      50% 0%;
+  }
+}
+
+/* ── Video / image stays on top, untouched ── */
 .card-img,
 .card-video {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   max-height: none;
   object-fit: contain;
   user-select: none;
+  opacity: 1 !important;
+  aspect-ratio: 9 / 16;
+  backface-visibility: hidden;
+  filter: drop-shadow(0 4px 12px rgba(21, 27, 38, 0.1));
+  background: transparent;
   -webkit-user-select: none;
 }
 
@@ -911,9 +964,7 @@ textarea {
   position: relative;
   width: 100%;
   height: 100%;
-  aspect-ratio: 9/16;
-  
-    touch-action: manipulation;
+  touch-action: manipulation;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -921,81 +972,83 @@ textarea {
 }
 
 .video-loading-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    opacity: 1;
-    transition: opacity 0.4s ease;
-    background: #0f172a; /* Deep base */
-    overflow: hidden;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+  background: #0f172a;
+  /* Deep base */
+  overflow: hidden;
 }
 
 /* 1. Multi-Color Radial Base (Atmosphere) */
 .video-loading-overlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
-        radial-gradient(circle at center, rgba(139, 92, 246, 0.15) 0%, #0f172a 70%);
-    z-index: -2;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at center, rgba(139, 92, 246, 0.15) 0%, #0f172a 70%);
+  z-index: -2;
 }
 
 /* 2. The Moving Multi-Color "Dot" (Linear/Radial Hybrid) */
 .video-loading-overlay::after {
-    content: "";
-    position: absolute;
-    inset: -100%;
-    /* A sharp, vibrant multi-color linear sweep */
-    background: linear-gradient(
-        135deg,
-        rgba(59, 130, 246, 0) 40%,
-        rgba(59, 130, 246, 0.4) 45%,
-        rgba(236, 72, 153, 0.4) 50%,
-        rgba(168, 85, 247, 0.4) 55%,
-        rgba(59, 130, 246, 0) 60%
-    );
-    /* Animating the movement of the color band */
-    animation: neonSweep 5s linear infinite;
-    z-index: -1;
-    filter: blur(40px); /* Blurs the edges into a glowing "dot" movement */
+  content: "";
+  position: absolute;
+  inset: -100%;
+  /* A sharp, vibrant multi-color linear sweep */
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0) 40%,
+      rgba(59, 130, 246, 0.4) 45%,
+      rgba(236, 72, 153, 0.4) 50%,
+      rgba(168, 85, 247, 0.4) 55%,
+      rgba(59, 130, 246, 0) 60%);
+  /* Animating the movement of the color band */
+  animation: neonSweep 5s linear infinite;
+  z-index: -1;
+  filter: blur(40px);
+  /* Blurs the edges into a glowing "dot" movement */
 }
 
 /* Moving the colorful light band across the screen */
 @keyframes neonSweep {
-    0% {
-        transform: translate(-20%, -20%) rotate(0deg);
-    }
-    50% {
-        transform: translate(20%, 20%) rotate(5deg);
-    }
-    100% {
-        transform: translate(-20%, -20%) rotate(0deg);
-    }
+  0% {
+    transform: translate(-20%, -20%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(20%, 20%) rotate(5deg);
+  }
+
+  100% {
+    transform: translate(-20%, -20%) rotate(0deg);
+  }
 }
 
 .video-loading-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .video-loading-content {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    color: #fff;
-    align-items: center;
-    justify-content: center;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
 }
 
 .lol-loading-icon {
-    font-size: 3.2rem;
-    margin-bottom: 12px;
-    max-width: 50px;
+  font-size: 3.2rem;
+  margin-bottom: 12px;
+  max-width: 50px;
 }
 
 
@@ -1167,6 +1220,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: center;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255, 203, 47, .3);
@@ -1268,6 +1322,7 @@ textarea {
   padding: 20px;
   box-shadow: 0 28px 70px rgba(21, 27, 38, .12);
   text-align: left;
+  overflow-y: scroll;
 }
 
 .bonus-inner {
@@ -1510,71 +1565,87 @@ textarea {
 }
 
 .leaderboard-header {
-    text-align: center;
-    padding: 20px 0 10px;
+  text-align: center;
+  padding: 20px 0 10px;
 }
-.leaderboard-header h2 { font-size: 1.5rem; margin: 0; }
-.leaderboard-date { font-size: 0.9rem; color: #aab2cf; margin-top: 4px; }
+
+.leaderboard-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.leaderboard-date {
+  font-size: 0.9rem;
+  color: #aab2cf;
+  margin-top: 4px;
+}
 
 .top-post-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 12px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.top-post-card:hover { background: rgba(124,92,255,0.15); transform: scale(1.02); }
+
+.top-post-card:hover {
+  background: rgba(124, 92, 255, 0.15);
+  transform: scale(1.02);
+}
 
 .top-3 {
-    background: linear-gradient(90deg, #ffd70022, #ffedaa22);
-    border: 2px solid #ffd700;
+  background: linear-gradient(90deg, #ffd70022, #ffedaa22);
+  border: 2px solid #ffd700;
 }
 
 .rank-badge {
-    font-size: 1.4rem;
-    font-weight: 700;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #7c5cff;
-    color: white;
-    border-radius: 50%;
-    flex-shrink: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #7c5cff;
+  color: white;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .post-preview {
-    width: 80px;
-    height: 110px;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    background: #000;
-    flex-shrink: 0;
+  width: 80px;
+  height: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+  flex-shrink: 0;
 }
-.post-preview video, .post-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+
+.post-preview video,
+.post-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+
 .play-icon {
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    font-size: 14px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header {
@@ -1901,8 +1972,8 @@ textarea {
   text-align: center;
 }
 
-.card-media video{
-  transition:opacity .12s ease;
+.card-media video {
+  transition: opacity .12s ease;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1962,7 +2033,8 @@ textarea {
   color: var(--text);
   letter-spacing: .5px;
 }
-.profile-title img{
+
+.profile-title img {
   width: 50px;
   margin-left: 6px;
   object-fit: contain;
@@ -2324,16 +2396,12 @@ textarea {
   content: "";
   position: absolute;
   inset: -50%;
-  background: radial-gradient(
-    circle at 30% 40%,
-    rgba(99, 241, 220, 0.3),
-    transparent 60%
-  ),
-  radial-gradient(
-    circle at 70% 60%,
-    rgba(236, 72, 154, 0.2),
-    transparent 60%
-  );
+  background: radial-gradient(circle at 30% 40%,
+      rgba(99, 241, 220, 0.3),
+      transparent 60%),
+    radial-gradient(circle at 70% 60%,
+      rgba(236, 72, 154, 0.2),
+      transparent 60%);
   z-index: 0;
   filter: blur(4px);
 }
@@ -2605,6 +2673,7 @@ body.feed-fullscreen .card-stack>.lol-card {
   letter-spacing: .04em;
 }
 
+
 .qb-support-dot {
   width: 7px;
   height: 7px;
@@ -2631,7 +2700,7 @@ body.feed-fullscreen .card-stack>.lol-card {
 .qb-msg {
   text-align: center;
   font-size: .88rem;
-  color: #9aa0b8;
+  color: #ff0000;
   line-height: 1.5;
   max-width: 300px;
 }
@@ -3041,28 +3110,59 @@ body.feed-fullscreen .card-stack>.lol-card {
 
 
 .popup-blocked-overlay {
-    position: fixed; inset: 0; z-index: 100000;
-    display: grid; place-items: center;
-    background: rgba(5,8,18,.7); backdrop-filter: blur(8px);
-    opacity: 0; pointer-events: none; transition: .22s ease;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 8, 18, .7);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: .22s ease;
 }
+
 .popup-blocked-overlay.show {
-    opacity: 1; pointer-events: auto;
+  opacity: 1;
+  pointer-events: auto;
 }
+
 .popup-blocked-card {
-    background: linear-gradient(180deg, rgba(18,24,42,.98), rgba(10,14,26,.98));
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 24px; padding: 24px;
-    color: #fff; text-align: center; max-width: 360px;
+  background: linear-gradient(180deg, rgba(18, 24, 42, .98), rgba(10, 14, 26, .98));
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 24px;
+  padding: 24px;
+  color: #fff;
+  text-align: center;
+  max-width: 360px;
 }
-.popup-blocked-card h3 { margin: 0 0 8px; font-size: 1.3rem; }
-.popup-blocked-card p { margin: 0 0 18px; color: #aab2cf; }
+
+.popup-blocked-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+}
+
+.popup-blocked-card p {
+  margin: 0 0 18px;
+  color: #aab2cf;
+}
+
 .popup-blocked-open-btn {
-    display: inline-block; background: linear-gradient(135deg,#7c5cff,#00d4ff);
-    color: #09111f; border: none; border-radius: 14px;
-    padding: 14px 24px; font-weight: 700; text-decoration: none;
+  display: inline-block;
+  background: linear-gradient(135deg, #7c5cff, #00d4ff);
+  color: #09111f;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-weight: 700;
+  text-decoration: none;
 }
+
 .popup-blocked-close {
-    margin-top: 12px; background: none; border: none;
-    color: #9fb1ff; cursor: pointer; font-size: .95rem;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #9fb1ff;
+  cursor: pointer;
+  font-size: .95rem;
 }

@@ -35,8 +35,7 @@ const getSponsorTaskLeaderBoard = httpsCallable(functions, "getLeaderBoard");
 const getVibeLeaderBoard = httpsCallable(functions, "getVibeLeaderBoard");
 const claimSponsorReward = httpsCallable(functions, "claimMyReward");
 const claimVibeReward = httpsCallable(functions, "claimMyVibe");
-
-
+const trackAnonymousVisit = httpsCallable(functions, "trackAnonymousVisit");
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  DOM REFERENCES
@@ -294,10 +293,7 @@ function buildAuthGuardDOM() {
   `;
   document.body.appendChild(sheet);
 
-  // Scrim closes sheet
   scrim.addEventListener("click", closeAuthGuard);
-
-  // Buttons
   sheet.querySelector("#ag-close-btn").addEventListener("click", closeAuthGuard);
   sheet.querySelector("#ag-signin-btn").addEventListener("click", () => {
     closeAuthGuard();
@@ -306,7 +302,6 @@ function buildAuthGuardDOM() {
     }, 300);
   });
 
-  // Drag-to-dismiss
   let dragY = 0;
   sheet.addEventListener("touchstart", (e) => { dragY = e.touches[0].clientY; }, { passive: true });
   sheet.addEventListener("touchmove", (e) => {
@@ -318,8 +313,6 @@ function buildAuthGuardDOM() {
     sheet.style.transform = "";
     if (dy > 80) closeAuthGuard();
   });
-
-  // Keyboard escape
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAuthGuard(); });
 }
 
@@ -336,11 +329,6 @@ function closeAuthGuard() {
   document.getElementById("auth-guard-sheet")?.classList.remove("ag-open");
 }
 
-/**
- * Call at the top of every join/check-in handler.
- * Returns true  → user is NOT authenticated → sheet opened → caller must bail.
- * Returns false → user IS authenticated     → proceed normally.
- */
 function requireAuth() {
   if (currentUser && !currentUser.isAnonymous) return false;
   openAuthGuard();
@@ -356,6 +344,7 @@ showSkeletons(premiumLegue);
 showSkeletons(appTaskList);
 setupNetworkBanner();
 setupPullToRefresh();
+initPWAInstallPrompt();  // 🆕 Once‑per‑session install banner
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NETWORK BANNER
@@ -374,56 +363,35 @@ function setupNetworkBanner() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  AUTH
+//  VISITOR TRACKING
 // ══════════════════════════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════════════════
-//  VISITOR TRACKING (AUTH & NON-AUTH)
-// ══════════════════════════════════════════════════════════════════════════════
-
 async function trackVisitor() {
   if (currentUser) {
-    // 👤 CASE 1: Authenticated User
     await trackAuthDailyActive();
   } else {
-    // 👻 CASE 2: Anonymous Visitor
-    await trackAnonymousVisit();
+    await trackAnonymousVisitFn();
   }
 }
 
-// Your original function (renamed for clarity)
 async function trackAuthDailyActive() {
   if (dailyActiveMarked || !currentUser) return;
   dailyActiveMarked = true;
   try {
-    const result = await markDailyActive();
-    // Logic for successful auth tracking...
+    await markDailyActive();
   } catch (err) {
     dailyActiveMarked = false;
   }
 }
 
-// New function for guests
-async function trackAnonymousVisit() {
-
-  // 2. Logic for Non-Auth (Anonymous) Users
+async function trackAnonymousVisitFn() {
   let guestId = localStorage.getItem("guest_id");
-
-  // Create a unique ID if they don't have one
   if (!guestId) {
     guestId = 'guest_' + Math.random().toString(36).substr(2, 9) + Date.now();
     localStorage.setItem("guest_id", guestId);
   }
-
-  // Check if we've already pinged the server this session
   if (!sessionStorage.getItem("visit_tracked")) {
     try {
-      const trackVisit = httpsCallable(functions, 'trackAnonymousVisit');
-      await trackVisit({
-        guestId: guestId,
-        userAgent: navigator.userAgent
-      });
-
-      // Mark as tracked for this browser tab session
+      await trackAnonymousVisit({ guestId, userAgent: navigator.userAgent });
       sessionStorage.setItem("visit_tracked", "true");
     } catch (err) {
       console.error("Anonymous tracking failed:", err);
@@ -494,21 +462,17 @@ function checkusercheckin() {
 // ══════════════════════════════════════════════════════════════════════════════
 async function getEventList() {
   try {
-    // Clear old data
     listenEvents.length = listenEventsJoin.length = 0;
     hitEvents.length = hitEventsJoin.length = 0;
     lakhpatiLoops.length = lakhpatiLoopsJoin.length = 0;
     cashHaandis.length = cashHaandisJoin.length = 0;
 
-    // Prepare only public calls first
     const calls = [
       getEvents({ i: 1, needJoined: false }),
       getEvents({ i: 2, needJoined: false }),
       getEvents({ i: 3, needJoined: false }),
       getEvents({ i: 4, needJoined: false }),
     ];
-
-    // ONLY add joined calls if user is logged in
     if (currentUser) {
       calls.push(
         getEvents({ i: 1, needJoined: true }),
@@ -520,13 +484,11 @@ async function getEventList() {
 
     const results = await Promise.all(calls);
 
-    // Assign Public Data (always indices 0-3)
     if (results[0].data?.events) listenEvents.push(...results[0].data.events);
     if (results[1].data?.events) hitEvents.push(...results[1].data.events);
     if (results[2].data?.events) lakhpatiLoops.push(...results[2].data.events);
     if (results[3].data?.events) cashHaandis.push(...results[3].data.events);
 
-    // Assign Joined Data (indices 4-7) only if user was logged in
     if (currentUser && results.length > 4) {
       if (results[4].data?.events) listenEventsJoin.push(...results[4].data.events);
       if (results[5].data?.events) hitEventsJoin.push(...results[5].data.events);
@@ -535,7 +497,6 @@ async function getEventList() {
     }
 
     updatePlayerVisibility();
-    // Render the lists
     renderVibingListenEvents(isJoinedList && joinedType === "L");
     renderVibingHitEvents(isJoinedList && joinedType === "H");
     renderLakhpatiLoops(isJoinedList && joinedType === "PL");
@@ -549,21 +510,11 @@ async function getEventList() {
 async function getSponsorTasksList() {
   try {
     sponsorAppTasks.length = sponsorAppTasksJoin.length = 0;
-
     const calls = [getSponsorTasks({ needJoined: false })];
-    if (currentUser) {
-      calls.push(getSponsorTasks({ needJoined: true }));
-    }
-
+    if (currentUser) calls.push(getSponsorTasks({ needJoined: true }));
     const [res, resJoin] = await Promise.all(calls);
-
     if (res.data?.success && res.data.sponsors) sponsorAppTasks.push(...res.data.sponsors);
-
-    // resJoin will only exist if user is logged in
-    if (resJoin && resJoin.data?.success && resJoin.data.sponsors) {
-      sponsorAppTasksJoin.push(...resJoin.data.sponsors);
-    }
-
+    if (resJoin && resJoin.data?.success && resJoin.data.sponsors) sponsorAppTasksJoin.push(...resJoin.data.sponsors);
     renderSponsorAppTasks(isJoinedList && joinedType === "SAT");
   } catch (err) {
     console.error("Sponsor fetch failed:", err);
@@ -948,12 +899,11 @@ vibingBtns.forEach((btn) => {
 listen_grid?.addEventListener("click", (e) => {
   if (e.target.closest(".start-joining-btn")) { renderVibingListenEvents(false); return; }
 
-  // ── Joined tab (.joinNow) ─────────────────────────────────────────────────
   const vibeNowBtn = e.target.closest(".joinNow");
   if (vibeNowBtn) {
     e.stopPropagation();
     if (!isJoinedList || joinedType !== "L") return;
-    if (requireAuth()) return;                              // 🔒 AUTH GUARD
+    if (requireAuth()) return;
 
     const eventId = vibeNowBtn.dataset.eventid;
     if (!eventId) { showToast("Event ID missing — try refreshing", "error"); return; }
@@ -972,12 +922,11 @@ listen_grid?.addEventListener("click", (e) => {
     return;
   }
 
-  // ── Non-joined tab (.join) ────────────────────────────────────────────────
   const joinBtn = e.target.closest(".join");
   if (!joinBtn) return;
   e.stopPropagation();
   if (isJoinedList && joinedType === "L") return;
-  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+  if (requireAuth()) return;
 
   const eventId = joinBtn.dataset.eventid;
   const eventData = listenEvents.find((ev) => ev.eventId === eventId);
@@ -987,7 +936,6 @@ listen_grid?.addEventListener("click", (e) => {
     showToast("⏰ This event has ended. Check for new events!", "error"); return;
   }
 
-  // Balance check
   if (eventData.eventEntryFee) {
     const fee = eventData.eventEntryFee;
     if (typeof fee === "string" && fee.toUpperCase().includes("LC")) {
@@ -1018,9 +966,8 @@ hit_grid?.addEventListener("click", (e) => {
 
   const evId = hitBtn.dataset.eventid;
 
-  // ── Joined tab ────────────────────────────────────────────────────────────
   if (isJoinedList && joinedType === "H") {
-    if (requireAuth()) return;                              // 🔒 AUTH GUARD
+    if (requireAuth()) return;
     const eventData = hitEventsJoin.find((ev) => ev.eventId === evId);
     if (!eventData) return;
     if (isEnded(eventData.endTime)) showEventDetails(eventData, false, EVENT_TYPE_INDEX.hit);
@@ -1028,7 +975,7 @@ hit_grid?.addEventListener("click", (e) => {
     return;
   }
 
-  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+  if (requireAuth()) return;
 
   const eventData = hitEvents.find((ev) => ev.eventId === evId);
   if (!eventData) return;
@@ -1079,9 +1026,8 @@ premiumLegue?.addEventListener("click", (e) => {
   e.stopPropagation();
 
   const evId = String(joinBtn?.dataset.eventid || feeCont?.dataset.eventid || "");
-  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+  if (requireAuth()) return;
 
-  // ── Joined tab ────────────────────────────────────────────────────────────
   if (isJoinedList && joinedType === "PL") {
     const eventData = lakhpatiLoopsJoin.find((ev) => String(ev.eventId) === evId);
     if (!eventData) return;
@@ -1119,7 +1065,6 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
   const vibe = document.querySelector(".join-now");
   if (vibe) vibe.textContent = "Loading Your Vibe...";
 
-  // ── Leaderboard path ──────────────────────────────────────────────────────
   if (isJoinedList && isEnded(ED?.endTime)) {
     try {
       const res = await getVibeLeaderBoard({ eventId: ED.eventId, eventType: eventTypeIndex });
@@ -1147,7 +1092,6 @@ async function showEventDetails(ED, isLakhpati = false, eventTypeIndex) {
     return;
   }
 
-  // ── Join UI path ──────────────────────────────────────────────────────────
   const poolIndex = ED.lakhpatiLoopAmountIndex ?? 0;
   const rawPrize = ED.eventPrizePool ?? (poolIndex * 100_000);
   const title = !ED.eventTitle ? "Best of Luck, Viber!"
@@ -1308,7 +1252,7 @@ appTaskList?.addEventListener("click", async (e) => {
 
   const btn = e.target.closest(".a-t-get");
   if (!btn) return;
-  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+  if (requireAuth()) return;
 
   const taskId = btn.dataset.taskId;
   a_t_d_overlay.classList.add("active");
@@ -1330,7 +1274,7 @@ appTaskList?.addEventListener("click", async (e) => {
       const res = await getSponsorTaskLeaderBoard({ sponsorId: resolvedTask.sponsorId });
       const leaderboard = res?.data?.leaderboard || [];
       if (leaderboard.length) { renderLeaderboardCard(resolvedTask, leaderboard); return; }
-    } catch { /* fall through */ }
+    } catch { /* fallthrough */ }
   }
 
   renderTaskDetailCard(resolvedTask);
@@ -1400,7 +1344,6 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
   if (closeButton) { a_t_d_overlay.classList.remove("active"); return; }
 
-  // ── CLAIM ─────────────────────────────────────────────────────────────────
   if (claimBtn) {
     a_t_d_overlay.innerHTML = `<div class="a-t-d-card"><div class="eq-progress loadingEventStatus">${"<span></span>".repeat(10)}</div></div>`;
     try {
@@ -1449,13 +1392,13 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
 
     pendingJoinEventId = null;
     adOpenTime = 0;
+    const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
 
     showAdCountdownToast(10, "Watch the ad for 10 s to activate your reward 🎁");
     pendingSponsorApkPath = taskData.sponsorLink;
     pendingSponsorId = sponsorId;
     sponsorAdOpenTime = Date.now();
 
-    const isApkLink = taskData.sponsorLink.toLowerCase().endsWith(".apk");
     trigger(sponsorId, "dc");
 
     if (visibilityHandler) {
@@ -1476,9 +1419,9 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
           const res = await vibeInSponsor({ sponsorId: pendingSponsorId });
           await getUser();
           if (res?.data?.success) {
-            showToast("Reward Activated 🎉 Opening now...", "success");
-            if (isApkLink) await downloadSponsorApk(pendingSponsorApkPath);
-            else window.open(pendingSponsorApkPath, "_blank");
+            showToast("Reward Activated 🎉 – tap below to open", "success");
+            // 🔥 Manual open toast instead of auto window.open
+            showManualOpenToast(pendingSponsorApkPath, isApkLink);
           } else {
             showToast(res?.data?.message || "Reward pending ⏳", "info");
           }
@@ -1502,80 +1445,70 @@ a_t_d_overlay?.addEventListener("click", async (e) => {
     document.addEventListener("visibilitychange", visibilityHandler);
     a_t_d_overlay.classList.remove("active");
 
-    // ── JOINED — redirect ─────────────────────────────────────────────────────
+  // ── JOINED — redirect ─────────────────────────────────────────────────────
   } else {
     const link = taskData.sponsorLink;
     if (!link) { showToast("No link found for this task 😕", "error"); return; }
     a_t_d_overlay.classList.remove("active");
 
-    if (!document.getElementById("dtc-redirect-style")) {
-      const s = document.createElement("style");
-      s.id = "dtc-redirect-style";
-      s.textContent = `
-        #dtc-redirect-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(30px);
-          z-index:99999;opacity:0;background:#0d1117;border:1px solid rgba(34,197,94,.28);border-radius:16px;
-          padding:14px 18px;min-width:280px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.55);
-          transition:all .35s cubic-bezier(.22,1,.36,1);}
-        #dtc-redirect-toast.dtc-show{opacity:1;transform:translateX(-50%) translateY(0)}
-        .dtc-rt-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-        .dtc-rt-icon{width:36px;height:36px;border-radius:9px;object-fit:cover;border:1px solid rgba(255,255,255,.08);flex-shrink:0}
-        .dtc-rt-info h4{font-size:.84rem;font-weight:700;color:#e2e8f0;margin-bottom:2px}
-        .dtc-rt-info p{font-size:.72rem;color:rgba(226,232,240,.45);line-height:1.4}
-        .dtc-rt-bar-wrap{height:3px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-bottom:10px}
-        .dtc-rt-bar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:100px;transition:width linear}
-        .dtc-rt-btn{width:100%;padding:10px;border:none;border-radius:10px;
-          background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;
-          font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;
-          display:flex;align-items:center;justify-content:center;gap:6px}
-        .dtc-rt-btn:active{transform:scale(.97)}`;
-      document.head.appendChild(s);
-    }
-
-    document.getElementById("dtc-redirect-toast")?.remove();
-    const COUNTDOWN_MS = 4000;
-    const isApk = link.toLowerCase().endsWith(".apk");
-    const isApp = isApk || link.includes("play.google") || link.includes("apps.apple");
-    const btnTxt = isApp ? "📲 Open App Store →" : "🔗 Visit Website →";
-    const descTxt = isApp
-      ? "Open the app, complete the task, then come back here."
-      : "Visit the page, complete the task, then return here.";
-
-    const toast = document.createElement("div");
-    toast.id = "dtc-redirect-toast";
-    toast.innerHTML = `
-      <div class="dtc-rt-top">
-        <img class="dtc-rt-icon" src="${taskData.sponsorAppLogoUrl || ""}" onerror="this.style.display='none'" alt="">
-        <div class="dtc-rt-info"><h4>${taskData.sponsorAppName || "Task"}</h4><p>${descTxt}</p></div>
-      </div>
-      <div class="dtc-rt-bar-wrap"><div class="dtc-rt-bar" id="dtc-rt-bar"></div></div>
-      <button class="dtc-rt-btn" id="dtc-rt-btn">${btnTxt}</button>`;
-    document.body.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      toast.classList.add("dtc-show");
-      const bar = document.getElementById("dtc-rt-bar");
-      bar.style.transitionDuration = COUNTDOWN_MS + "ms";
-      requestAnimationFrame(() => { bar.style.width = "0%"; });
-    });
-
-    const openLink = () => {
-      if (isApk) { pendingSponsorApkPath = link; downloadSponsorApk(link); }
-      else window.open(link, "_blank");
-    };
-
-    const autoTimer = setTimeout(openLink, COUNTDOWN_MS);
-    document.getElementById("dtc-rt-btn")?.addEventListener("click", () => { clearTimeout(autoTimer); openLink(); });
-
-    const onReturn = () => {
-      if (document.hidden) return;
-      toast.classList.remove("dtc-show");
-      setTimeout(() => toast.remove(), 380);
-      document.removeEventListener("visibilitychange", onReturn);
-    };
-    document.addEventListener("visibilitychange", onReturn);
-    setTimeout(() => toast.remove(), COUNTDOWN_MS + 10000);
+    // 🔥 Manual redirect toast (no auto-open)
+    showManualOpenToast(link, link.toLowerCase().endsWith(".apk"));
   }
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MANUAL OPEN TOAST (Popup‑blocker proof)
+// ══════════════════════════════════════════════════════════════════════════════
+function showManualOpenToast(url, isApk = false) {
+  document.getElementById("manual-open-toast")?.remove();
+
+  const toast = document.createElement("div");
+  toast.id = "manual-open-toast";
+  toast.className = "dtc-redirect-toast";
+  toast.innerHTML = `
+    <div class="dtc-rt-top">
+      <div class="dtc-rt-info">
+        <h4>${isApk ? "📲 Open App" : "🔗 Visit Sponsor"}</h4>
+        <p>Tap the button below to open the link</p>
+      </div>
+    </div>
+    <button class="dtc-rt-btn" id="manual-open-btn">${isApk ? "Open App" : "Open Link"}</button>
+    <button class="a-t-d-close" id="manual-close-btn" style="margin-top:8px;">✕ Close</button>`;
+
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("dtc-show"));
+
+  document.getElementById("manual-open-btn")?.addEventListener("click", () => {
+    if (isApk) {
+      downloadSponsorApk(url);
+    } else {
+      window.open(url, "_blank");
+    }
+    toast.remove();
+  });
+
+  document.getElementById("manual-close-btn")?.addEventListener("click", () => toast.remove());
+  setTimeout(() => toast.remove(), 30000);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DOWNLOAD SPONSOR APK (handles both URLs and storage paths)
+// ══════════════════════════════════════════════════════════════════════════════
+async function downloadSponsorApk(apkPath) {
+  try {
+    if (apkPath.startsWith("http://") || apkPath.startsWith("https://")) {
+      window.open(apkPath, "_blank");
+      showToast("Downloading app… 📥", "success");
+      return;
+    }
+    const url = await getDownloadURL(ref(storage, apkPath));
+    window.open(url, "_blank");
+    showToast("Downloading app… 📥", "success");
+  } catch (err) {
+    console.error("APK download failed:", err);
+    showToast("Download failed 😕", "error");
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  PROGRESS TOAST
@@ -1776,7 +1709,7 @@ function playLottie(path, loop = true) {
 //  CHECK-IN BUTTON  🔒 AUTH GUARDED
 // ══════════════════════════════════════════════════════════════════════════════
 checkInBtn?.addEventListener("click", () => {
-  if (requireAuth()) return;                                // 🔒 AUTH GUARD
+  if (requireAuth()) return;
 
   fireContainer.classList.add("active");
   checkInBtn.classList.add("active-check");
@@ -1864,20 +1797,6 @@ function showRewardBox(isLC = true, amount = 0) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  APK DOWNLOAD
-// ══════════════════════════════════════════════════════════════════════════════
-async function downloadSponsorApk(apkPath) {
-  try {
-    const url = await getDownloadURL(ref(storage, apkPath));
-    window.open(url, "_blank");
-    showToast("Downloading app… 📥", "success");
-  } catch (err) {
-    console.error("APK download failed:", err);
-    showToast("Download failed 😕", "error");
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 //  CONFETTI
 // ══════════════════════════════════════════════════════════════════════════════
 function spawnConfetti(count = 80) {
@@ -1940,6 +1859,92 @@ function setupPullToRefresh() {
     renderLakhpatiLoops(jo && joinedType === "PL");
     renderSponsorAppTasks(jo && joinedType === "SAT");
     showToast("Refreshed! ✅", "success");
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PWA INSTALL PROMPT (once per session, for non‑standalone)
+// ══════════════════════════════════════════════════════════════════════════════
+function initPWAInstallPrompt() {
+  // Only show if not already installed as PWA
+  if (window.matchMedia("(display-mode: standalone)").matches) return;
+  // Only once per session
+  if (sessionStorage.getItem("installPromptShown")) return;
+  sessionStorage.setItem("installPromptShown", "1");
+
+  // Wait a bit for page to settle
+  setTimeout(showInstallBanner, 3000);
+}
+
+function showInstallBanner() {
+  // Don't show if user already dismissed in previous sessions? We'll use session only.
+  const banner = document.createElement("div");
+  banner.id = "pwa-install-banner";
+  banner.innerHTML = `
+    <div class="pwa-install-card">
+      <div class="pwa-install-close">&times;</div>
+      <div class="pwa-install-icon">📲</div>
+      <h3>Get the Official App</h3>
+      <p>Install SapanaCyberHub for a better experience and earn <strong>₹20 bonus!</strong></p>
+      <button class="pwa-install-btn" id="pwa-install-btn">Install Now &amp; Earn ₹20</button>
+    </div>`;
+  // Minimal styles inline to avoid collisions
+  const style = document.createElement("style");
+  style.textContent = `
+    #pwa-install-banner {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 100000; width: 90%; max-width: 400px;
+      animation: pwaSlideUp 0.4s ease;
+    }
+    @keyframes pwaSlideUp {
+      from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+      to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+    .pwa-install-card {
+      background: linear-gradient(135deg, #1e1e2f, #151522);
+      border: 1px solid rgba(167,139,250,.25);
+      border-radius: 20px;
+      padding: 24px 20px 20px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+      position: relative;
+    }
+    .pwa-install-close {
+      position: absolute; top: 10px; right: 14px;
+      font-size: 22px; color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .pwa-install-icon { font-size: 48px; margin-bottom: 8px; }
+    .pwa-install-card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+    .pwa-install-card p { margin: 0 0 16px; font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.5; }
+    .pwa-install-btn {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      border: none; border-radius: 14px;
+      padding: 14px 20px; color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer; width: 100%; font-family: inherit;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 18px rgba(124,58,237,.4);
+    }
+    .pwa-install-btn:active { transform: scale(.97); }
+  `;
+  document.head.appendChild(style);
+  document.body.appendChild(banner);
+
+  document.getElementById("pwa-install-close")?.addEventListener("click", () => banner.remove());
+  document.getElementById("pwa-install-btn")?.addEventListener("click", () => {
+    banner.remove();
+    // Navigate to the sponsor app tasks tab
+    const tabBtn = document.querySelector(`.vibing-btn[data-event-type="SAT"]`);
+    if (tabBtn) {
+      tabBtn.click();  // switch to "Sponsor App Tasks" tab
+      setTimeout(() => {
+        appTaskList?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    } else {
+      // fallback: just scroll to task list
+      appTaskList?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
 }
 

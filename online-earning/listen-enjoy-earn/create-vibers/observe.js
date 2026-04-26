@@ -59,6 +59,30 @@ signIn.addEventListener("click", () => {
     : "New Viber?";
 });
 
+// ================= HELPER: GET FRIENDLY ERROR MESSAGE =================
+function getFriendlyErrorMessage(errorCode) {
+  switch (errorCode) {
+    case 'auth/email-already-in-use':
+      return "This email is already registered! Try signing in.";
+    case 'auth/weak-password':
+      return "Password is too weak. Use at least 6 characters.";
+    case 'auth/invalid-email':
+      return "Invalid email address format.";
+    case 'auth/user-not-found':
+      return "No account found with this email.";
+    case 'auth/wrong-password':
+      return "Incorrect password. Please try again.";
+    case 'auth/too-many-requests':
+      return "Too many failed attempts. Please wait a few minutes.";
+    case 'auth/network-request-failed':
+      return "Network error. Check your connection and try again.";
+    case 'auth/internal-error':
+      return "Something went wrong. Please try again later.";
+    default:
+      return "An error occurred. Please try again.";
+  }
+}
+
 // ================= SUBMIT =================
 submit.addEventListener("click", async () => {
   const emailData = userEmail.value.trim();
@@ -94,7 +118,6 @@ submit.addEventListener("click", async () => {
   try {
     if (isSignUp) {
       showProgress(true);
-
 
       // 1️⃣ CREATE AUTH USER
       const res = await createUserWithEmailAndPassword(
@@ -135,23 +158,40 @@ submit.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    let friendlyMsg = "An error occurred. Please try again.";
-    if (err.code === 'auth/email-already-in-use') friendlyMsg = "This email is already registered!";
-    // update dialog title or desc for failed
+    // ---- IMPROVED ERROR HANDLING STARTS ----
+    let friendlyMsg;
+    
+    // Check if it's a Firebase auth error with a code
+    if (err.code) {
+      friendlyMsg = getFriendlyErrorMessage(err.code);
+    } 
+    // Handle custom throw from profile creation
+    else if (err.message === "Profile creation failed") {
+      friendlyMsg = "Account could not be set up. Please try again.";
+    }
+    // Any other error (network, timeout, etc.)
+    else {
+      friendlyMsg = "An error occurred. Please try again.";
+    }
+    
     progressFailed(friendlyMsg);
+    // ---- IMPROVED ERROR HANDLING ENDS ----
   }
 });
 
 // ================= UI HELPERS =================
 function showProgress(isSignUp) {
+  // Reset any previous error styling
+  if (dialogCard) dialogCard.classList.remove("failed");
   dialog.classList.remove("hidden");
   title.textContent = isSignUp
     ? "Creating account…"
     : "Signing in…";
   text.textContent = "Please wait";
 }
+
 function progressFailed(friendlyMsg) {
-  dialogCard.classList.add("failed");
+  if (dialogCard) dialogCard.classList.add("failed");
   title.textContent = "Failed !";
   text.textContent = friendlyMsg;
   setTimeout(() => {
