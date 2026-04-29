@@ -1931,7 +1931,7 @@ function showInstallBanner() {
   document.head.appendChild(style);
   document.body.appendChild(banner);
 
-  document.getElementById("pwa-install-close")?.addEventListener("click", () => banner.remove());
+  document.querySelector(".pwa-install-close")?.addEventListener("click", () => banner.remove());
   document.getElementById("pwa-install-btn")?.addEventListener("click", () => {
     banner.remove();
     // Navigate to the sponsor app tasks tab
