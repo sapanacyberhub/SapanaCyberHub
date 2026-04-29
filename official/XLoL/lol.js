@@ -80,7 +80,7 @@ const DIRECT_LINKS = [
         label: "⚡ Quick 20-100 Boost",
         rewardMin: 20,
         rewardMax: 100,
-        url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=..."
+        url: "https://www.profitablecpmratenetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861"
     },
     {
         network: "Boost Offer",
@@ -94,7 +94,7 @@ const DIRECT_LINKS = [
         label: "💎 Mystery Score Boost",
         rewardMin: 20,
         rewardMax: 100,
-        url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=..."
+        url: "https://www.profitablecpmratenetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203"
     }
 ];
 
