@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/logo/viraloop-ic.png" type="image/x-icon">
     <title>ViraLoop Community || Become a Member</title>
     <!-- join viraloop to convert your audience into money machine -->
     <meta name="description"
         content="Join ViraLoop community to convert your audience into a money-making machine. As a member, you can earn by sharing products and services with your followers. Sign up now to start monetizing your influence!">
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="hook.js"></script>
 </head>
 
 <body>
@@ -24,9 +26,10 @@
                     followers.
                     Sign up now to start monetizing your influence!</p>
                 <div class="form">
-                    <input type="text" name="entry.123456789" placeholder="Your Name" required>
-                    <input type="email" name="entry.987654321" placeholder="Your Email" required>
-                    <input type="tel" name="entry.987654321" placeholder="Your Phone Number" required>
+                    <input class="name" type="text" name="entry.123456789" placeholder="Your Name" required>
+                    <input class="email" type="email" name="entry.987654321" placeholder="Your Email" required>
+                    <input class="phone" type="tel" name="entry.987654321" placeholder="Your Phone Number" required>
+                    <input class="password" type="password" name="entry.987654321" placeholder="Your Password" required>
                     <!-- any one social media link -->
                     <div class="social-media-logos">
                         <!-- all social media logos from internet open source -->
@@ -43,17 +46,39 @@
                             class="social-logo">
 
                     </div>
-                    <input type="url" name="entry.987654321" placeholder="Your Social Media Link" required>
-                    <p class="form-note">By joining, you agree to our <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>.</p>
-                    <div type="submit">Join Now</div>
-                    <div class="form-note">Already a member? <a href="#">Log in here</a>.</div>
+                    <input class="social-media" type="url" name="entry.987654321"
+                        placeholder="Your Social Media Profile Link" required>
+                    <p class="form-note">By joining, you agree to our <strong>Terms of Service</strong> and
+                        <strong>Privacy Policy</strong>.
+                    </p>
+                    <div class="join-now-button" type="submit">Join Now</div>
+                    <div class="form-note-lgn">Already a member🧑🏻‍❤️‍👩? <a href="#">Log in here</a>.</div>
                 </div>
-                
+
 
             </div>
 
         </div>
-        
+
+        <div id="progress-overlay" class="progress-overlay" style="display: none;">
+            <div class="loader-container">
+                <!-- The shimmer is applied directly to this container -->
+                <div class="logo-shimmer-container">
+                    <img src="/assets/logo/viraloop-ic.png" alt="ViraLoop" class="loader-logo">
+                </div>
+
+                <div class="progress-track" id="progress-track">
+                    <div class="progress-fill"></div>
+                </div>
+
+                <p id="status-text" class="status-text">Synchronizing with ViraLoop...</p>
+
+                <button id="close-overlay" class="close-overlay-btn">
+                    Try Again
+                </button>
+            </div>
+        </div>
+
     </div>
 </body>
 
