@@ -85,9 +85,16 @@ body {
     margin-top: 10px;
     background: #ffffff55;
     border: 2px solid #fff;
+    
     outline: 0;
     transition: all .35s ease
 }
+.card input::placeholder {
+    color: #464343; /* Change to your preferred color */
+    font-weight: bolder;
+    opacity: 1;    /* Firefox lowers the opacity by default, so set to 1 */
+}
+
 
 .smooth-hide {
     overflow: hidden;

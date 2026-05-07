@@ -74,7 +74,7 @@ joinNowButton.addEventListener('click', async () => {
             // LOGIN FLOW
             await signInWithEmailAndPassword(auth, email, password);
             await updateLastActive();
-            window.location.href = '/online-earning/viraloop/community-member/dashboard.html';
+            window.location.href = '/online-earning/viraloop/community-member/';
         } else {
             // REGISTRATION FLOW
             const name = nameInput.value.trim();
@@ -93,7 +93,7 @@ joinNowButton.addEventListener('click', async () => {
                         const profile = await getViraLoopMemberDetails();
                         
                         if (profile && profile.data) {
-                            window.location.href = '/online-earning/viraloop/community-member/dashboard.html';
+                            window.location.href = '/online-earning/viraloop/community-member/';
                         } else {
                             // Auth exists but profile is missing, fix it
                             await createViraLoopMember({ name, email, phone, socialMedia });

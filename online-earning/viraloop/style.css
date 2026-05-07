@@ -80,7 +80,17 @@
 .r-c {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
+}
+
+.user-dp{
+    width: 50px;
+    height: auto;
+    object-fit: cover;
+    border: 2px dashed;
+    background: #000000;
+    border-radius: 999px
+
 }
 
 .content {

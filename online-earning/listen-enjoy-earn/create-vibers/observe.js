@@ -14,8 +14,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile
+  signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -28,7 +27,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const functions = getFunctions(app, "us-central1");
-const updateUserName = httpsCallable(functions, "updateUserName");
+const createOrUpdateUser = httpsCallable(functions, "createOrUpdateUser");
 
 // ================= UI ELEMENTS =================
 const pageTitle = document.getElementById("title");
@@ -89,30 +88,24 @@ submit.addEventListener("click", async () => {
   const passwordData = userPassword.value.trim();
   const nameData = userName.value.trim();
 
-  let hasError = false; // Track if any field is invalid
+  let hasError = false;
 
-  // Check Email
   if (!emailData) {
     userEmail.classList.add("shake");
     setTimeout(() => userEmail.classList.remove("shake"), 350);
     hasError = true;
   }
-
-  // Check Password
   if (!passwordData) {
     userPassword.classList.add("shake");
     setTimeout(() => userPassword.classList.remove("shake"), 350);
     hasError = true;
   }
-
-  // Check Name (only if signing up)
   if (isSignUp && !nameData) {
     userName.classList.add("shake");
     setTimeout(() => userName.classList.remove("shake"), 350);
     hasError = true;
   }
 
-  // If any field was empty, STOP here
   if (hasError) return;
 
   try {
@@ -126,21 +119,17 @@ submit.addEventListener("click", async () => {
         passwordData
       );
 
-      // 2️⃣ SET AUTH DISPLAY NAME
-      await updateProfile(res.user, {
-        displayName: nameData
+      // 2️⃣ SINGLE SERVER CALL – creates profile & sets name
+      const result = await createOrUpdateUser({
+        name: nameData,
+        email: emailData   // optional but explicit
       });
-
-      // 3️⃣ FORCE TOKEN
-      await res.user.getIdToken(true);
-
-      // 4️⃣ SERVER WRITE (SECURE)
-      const result = await updateUserName({ name: nameData });
 
       if (!result.data.success) {
         throw new Error("Profile creation failed");
       }
 
+      // ✅ Success → redirect
       window.location.href =
         "https://sapanacyberhub.in/online-earning/listen-enjoy-earn/";
 
@@ -158,24 +147,17 @@ submit.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    // ---- IMPROVED ERROR HANDLING STARTS ----
     let friendlyMsg;
-    
-    // Check if it's a Firebase auth error with a code
+
     if (err.code) {
       friendlyMsg = getFriendlyErrorMessage(err.code);
-    } 
-    // Handle custom throw from profile creation
-    else if (err.message === "Profile creation failed") {
+    } else if (err.message === "Profile creation failed") {
       friendlyMsg = "Account could not be set up. Please try again.";
-    }
-    // Any other error (network, timeout, etc.)
-    else {
+    } else {
       friendlyMsg = "An error occurred. Please try again.";
     }
-    
+
     progressFailed(friendlyMsg);
-    // ---- IMPROVED ERROR HANDLING ENDS ----
   }
 });
 
