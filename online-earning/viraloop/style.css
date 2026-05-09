@@ -64,7 +64,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
+    padding: 0;
     /* Enhanced padding */
     background-color: rgba(255, 255, 255, 0);
     /* Semi-transparent nav background */
@@ -78,6 +78,7 @@
     filter: drop-shadow(0 0 4px rgb(0, 200, 255));
     /* Adjust height based on icon aspect ratio */
     object-fit: contain;
+    margin-left: 15px ;
     /* Prevent stretching */
 }
 
@@ -85,10 +86,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 10px;
+    border: 1px solid;
 }
 
 .user-dp {
-    width: 50px;
+    width: 35px;
+    min-height: 35px;
     height: auto;
     object-fit: cover;
     border: 2px dashed;
@@ -125,12 +129,12 @@
     font-size: clamp(0.8rem, 1.5vw, 1.2rem);
     font-family: "Kablammo", system-ui;
     font-optical-sizing: auto;
-    font-weight: 400;
+    font-weight: bolder;
     font-style: normal;
     font-variation-settings:
         "MORF" 0;
     background: linear-gradient(90deg, rgb(0, 255, 247), rgb(246, 0, 246));
-    -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     /* Semi-transparent tag background */
     border-radius: 999px;
@@ -190,9 +194,6 @@
     opacity: 1;
     filter: drop-shadow(0 0 10px white);
 }
-
-
-
 
 /* Complex, multiple radial gradients for background */
 .counter::before {
