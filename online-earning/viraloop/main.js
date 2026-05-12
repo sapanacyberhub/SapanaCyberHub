@@ -18,8 +18,7 @@ import {
 // (They could be callable functions or direct Firestore helpers)
 import {
     createViraLoopMember,
-    getMemberProfile,
-    updateLastActive
+    getMemberProfile
 } from "./community-member/community-legal/error.js";   // ⚠️ fix this path
 
 // Firebase config – use your own
@@ -199,32 +198,49 @@ function clearForm() {
 let memberTransactions = [];
 
 async function fetchMemberDetails() {
-    if (!isMember) return;
+  if (!isMember) return;
 
-    loader?.classList.add("active");
-    notAvailable?.classList.remove("active");
+  loader?.classList.add("active");
+  notAvailable?.classList.remove("active");
 
-    try {
-        const result = await getMemberProfile();   // the merged callable
-        if (result?.data?.success) {
-            memberData = result.data.memberDetails;
-            memberTransactions = result.data.transactions || [];
-        } else {
-            memberData = null;
-            memberTransactions = [];
-            showError("Failed to load profile");
-        }
-    } catch (error) {
-        console.error("Fetch failed:", error);
-        memberData = null;
-        memberTransactions = [];
-        showError("Network error. Profile not loaded.");
-    } finally {
-        loader?.classList.remove("active");
-        setProfile(memberData);
-        // optionally call a function to render transactions
-        renderTransactions(memberTransactions);
+  try {
+    const result = await getMemberProfile();
+
+    if (result?.data?.success) {
+      memberData = result.data.memberDetails;
+      memberTransactions = result.data.transactions || [];
+    } else {
+      memberData = null;
+      memberTransactions = [];
+      showError("Failed to load profile.");
     }
+  } catch (error) {
+    // 🔍 Log the FULL error object to the console
+    console.error("Fetch failed. Full error:", error);
+
+    // Extract the most useful message for debugging
+    let debugMessage = "Unknown error";
+    if (error instanceof Error) {
+      debugMessage = error.message;
+    }
+    // If it’s a Firebase Functions error, the real reason is often in details
+    if (error?.details) {
+      console.error("Server error details:", error.details);
+      debugMessage = error.details.message || JSON.stringify(error.details);
+    }
+
+    console.error("Resolved debug message:", debugMessage);
+
+    memberData = null;
+    memberTransactions = [];
+
+    // Show a user‑friendly toast, but also include the debug message if it’s safe
+    showError(`Profile load failed. ${debugMessage}`);
+  } finally {
+    loader?.classList.remove("active");
+    setProfile(memberData);
+    renderTransactions(memberTransactions);
+  }
 }
 
 

@@ -27,7 +27,6 @@ const functions = getFunctions(app, "us-central1");
 // Cloud Function callables
 const createViraLoopMember = httpsCallable(functions, "createViraLoopMember");
 const getMemberProfile  = httpsCallable(functions, "getMemberProfile");
-const updateLastActive = httpsCallable(functions, "updateLastActive");
 
 // Return/Export everything in one object
 export {
@@ -44,6 +43,5 @@ export {
     setDoc,
     createViraLoopMember,
     getMemberProfile ,
-    updateLastActive,
     deleteUser
 };
