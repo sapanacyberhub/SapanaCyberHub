@@ -7,8 +7,7 @@ import {
     createUserWithEmailAndPassword,
     deleteUser,
     createViraLoopMember,
-    getViraLoopMemberDetails,
-    updateLastActive
+    getMemberProfile
 } from './community-legal/error.js';
 
 // DOM Selectors
@@ -73,7 +72,6 @@ joinNowButton.addEventListener('click', async () => {
         if (isLoginMode) {
             // LOGIN FLOW
             await signInWithEmailAndPassword(auth, email, password);
-            await updateLastActive();
             window.location.href = '/online-earning/viraloop/community-member/';
         } else {
             // REGISTRATION FLOW
