@@ -1,40 +1,32 @@
-// ==================== FIREBASE IMPORTS (use correct paths in production) ====================
-// 🔧 Replace these with your own CDN / bundled paths
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    deleteUser          // if you later need to delete user from auth
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-    getFirestore,
-    collection,
-    addDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// We use the full URL so the browser can find the code
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getAuth,onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
 
-// ⚠️ Your custom functions – adjust paths as needed
-// (They could be callable functions or direct Firestore helpers)
-import {
-    createViraLoopMember,
-    getMemberProfile
-} from "./community-member/community-legal/error.js";   // ⚠️ fix this path
 
-// Firebase config – use your own
-const firebaseConfig = {
-    apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-    authDomain: "sapanacyberhub-26310.firebaseapp.com",
-    projectId: "sapanacyberhub-26310",
-    storageBucket: "sapanacyberhub-26310.firebasestorage.app",
-    messagingSenderId: "448116453690",
-    appId: "1:448116453690:web:01a91dd284b715bf0a2003",
-    measurementId: "G-HKGQ8D55N1"
+const noteConfig = {
+  apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+  authDomain: "sapanacyberhub-26310.firebaseapp.com",
+  projectId: "sapanacyberhub-26310",
+  storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+  messagingSenderId: "448116453690",
+  appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+  measurementId: "G-HKGQ8D55N1",
 };
 
-const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase
+const app = initializeApp(noteConfig);
+
+// Initialize Services
+const db = getFirestore(app);
 const auth = getAuth(app);
-const db = getFirestore(app);   // but you can keep your own if needed
+const functions = getFunctions(app, "us-central1");
+
+// Cloud Function callables
+const createViraLoopMember = httpsCallable(functions, "createViraLoopMember");
+const getMemberProfile  = httpsCallable(functions, "getMemberProfile");
 
 // ==================== DOM REFERENCES ====================
 const earning = document.querySelector(".earning");
