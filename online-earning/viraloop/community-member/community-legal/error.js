@@ -1,7 +1,7 @@
 // We use the full URL so the browser can find the code
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getAuth,onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
 
 
@@ -26,7 +26,7 @@ const functions = getFunctions(app, "us-central1");
 
 // Cloud Function callables
 const createViraLoopMember = httpsCallable(functions, "createViraLoopMember");
-const getViraLoopMemberDetails = httpsCallable(functions, "getViraLoopMemberDetails");
+const getMemberProfile  = httpsCallable(functions, "getMemberProfile");
 const updateLastActive = httpsCallable(functions, "updateLastActive");
 
 // Return/Export everything in one object
@@ -34,6 +34,7 @@ export {
     app,
     db,
     auth,
+    onAuthStateChanged,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     collection,
@@ -42,7 +43,7 @@ export {
     doc,
     setDoc,
     createViraLoopMember,
-    getViraLoopMemberDetails,
+    getMemberProfile ,
     updateLastActive,
     deleteUser
 };
