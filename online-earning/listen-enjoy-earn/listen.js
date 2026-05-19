@@ -1145,6 +1145,7 @@ function renderLeaderboard(dialogC, ED, leaderboard, myRank = 0, myWinAmount = 0
         </div>
         <div class="midRank">
           ${rest.map((u) => `
+            
             <div class="winnerData">
               <div class="winner-details">
                 <span class="rank">#${u.rank}</span>

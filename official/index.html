@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SapanaCyberHub | Admin Core</title>
   <link rel="icon" href="https://sapanacyberhub.in/assets/SapanaCyberHub-Logo.webp">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="script.js" defer></script>
+  <script type="module" src="script.js"></script>
 </head>
+
 <body>
 
   <div class="glow-bg"></div>
@@ -20,7 +22,7 @@
     </div>
     <div class="cyber-clock">
       <div class="ring"></div>
-      <div class="hand hour"   id="hour"></div>
+      <div class="hand hour" id="hour"></div>
       <div class="hand minute" id="minute"></div>
       <div class="hand second" id="second"></div>
       <div class="center-dot"></div>
@@ -66,6 +68,7 @@
     </section>
 
     <section class="action-panel">
+      <div class="viraLoop">Manage ViraLoop</div>
       <div id="review-withdrawal">💸 Review Withdrawals</div>
       <div id="review-KYC">📃 Review KYC</div>
       <div id="support-requests">🎧 Support Tickets</div>
@@ -73,6 +76,53 @@
       <div id="Manage-users">👤 Manage Vibers</div>
     </section>
   </main>
+
+  <!-- viraLoop panel -->
+  <div class="admin-panel " id="viraloop-panel">
+    <div class="panel-nav">
+      <button class="panel-back back">← Back</button>
+      <h2>Manage ViraLoop</h2>
+      <strong class="create-viraloop-btn">+</strong>
+    </div>
+    <div class="panel-body">
+      <!-- ViraLoop content goes here -->
+      <div id="viraloop-content-list">
+        <div class="viraloop-content-item">
+          <strong class="content_id">
+            <strong class="status"></strong>ViraLoop Id: ViraLoop+timestamp+randhash
+            <strong class="publish_time"></strong></strong>
+
+          <div class="item_data">
+            <strong class="rate"> Rate: 0.0125</strong>
+            <strong class="event_tier">Tier: 1</strong>
+            <strong class="end-time">End Time: 12/12/1212 </strong>
+          </div>
+          <div class="action">
+            <strong class="edit-btn">update earning rate</strong>
+            <strong class="Finish-btn">Finish event</strong>
+          </div>
+        </div>
+
+        <!-- Finish Update Form dialog -->
+        <div class="finish_update hidden">
+          <input class="n_e_r" type="number" placeholder="New earning rate">
+          <div class="submit-btn">Submit</div>
+        </div>
+
+        <!-- create dialog -->
+        <div class="create-dialog hidden">
+          <div class="create-content">
+
+            <input class="tier" type="number" placeholder="Tier enter value 1,2,3,4">
+            <input class="endTime" type="number" placeholder="End Time in hours 3,6,12,24">
+            <input class="earning_rate" type="number" placeholder="Earning Rate">
+            <div class="submit-btn">Create Event</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════
        KYC PANEL
@@ -84,7 +134,11 @@
       <button class="panel-refresh" data-fn="kyc">↻</button>
     </div>
     <div class="panel-body">
-      <div class="p-skels" id="kyc-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div class="p-skels" id="kyc-skels">
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+      </div>
       <div id="kyc-list"></div>
     </div>
   </div>
@@ -99,7 +153,11 @@
       <button class="panel-refresh" data-fn="wd">↻</button>
     </div>
     <div class="panel-body">
-      <div class="p-skels" id="wd-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div class="p-skels" id="wd-skels">
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+      </div>
       <div id="wd-list"></div>
     </div>
   </div>
@@ -124,7 +182,11 @@
       <input class="sp-search" id="sp-search" placeholder="🔍 Search…">
     </div>
     <div class="panel-body" style="position:relative">
-      <div class="p-skels" id="sp-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div class="p-skels" id="sp-skels">
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+      </div>
       <div id="sp-list"></div>
       <!-- reply sub-sheet -->
       <div class="sub-sheet hidden" id="sp-reply-sheet">
@@ -152,7 +214,11 @@
       <button class="ev-tab" data-et="sponsors">🎯 Sponsors</button>
     </div>
     <div class="panel-body">
-      <div class="p-skels" id="ev-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div class="p-skels" id="ev-skels">
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+      </div>
       <div id="ev-list"></div>
     </div>
   </div>
@@ -166,9 +232,14 @@
       <h2>👤 Manage Vibers</h2>
       <button class="panel-refresh" data-fn="users">↻</button>
     </div>
-    <input class="sp-search" id="users-search" placeholder="🔍 Search name or email…" style="margin:0 16px 10px;width:calc(100% - 32px);display:block">
+    <input class="sp-search" id="users-search" placeholder="🔍 Search name or email…"
+      style="margin:0 16px 10px;width:calc(100% - 32px);display:block">
     <div class="panel-body">
-      <div class="p-skels" id="users-skels"><div class="p-skel"></div><div class="p-skel"></div><div class="p-skel"></div></div>
+      <div class="p-skels" id="users-skels">
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+        <div class="p-skel"></div>
+      </div>
       <div id="users-list"></div>
     </div>
   </div>
@@ -200,21 +271,21 @@
         </ul>
       </div>
       <div class="event-container" id="event-container">
-        <input type="text" id="eventTitle"     placeholder="Event Title">
-        <input type="text" id="eventImgUrl"    placeholder="Creature URL">
+        <input type="text" id="eventTitle" placeholder="Event Title">
+        <input type="text" id="eventImgUrl" placeholder="Creature URL">
         <input type="text" id="eventPrizePool" placeholder="Prize Pool">
-        <input type="text" id="eventDuration"  placeholder="Duration (hours)">
-        <input type="text" id="eventEntryFee"  placeholder="Entry Fee">
+        <input type="text" id="eventDuration" placeholder="Duration (hours)">
+        <input type="text" id="eventEntryFee" placeholder="Entry Fee">
         <input type="text" id="eventLoopCount" placeholder="Lakhpati Loop - Loop Count">
       </div>
       <div class="event-container" id="sponsorAppTask" style="display:none">
-        <input type="text" id="sponsorName"       placeholder="Sponsor Name">
-        <input type="text" id="sponsorImgUrl"     placeholder="Sponsor Logo URL">
-        <input type="text" id="sponsorAppUrl"     placeholder="APK Downloading URL">
+        <input type="text" id="sponsorName" placeholder="Sponsor Name">
+        <input type="text" id="sponsorImgUrl" placeholder="Sponsor Logo URL">
+        <input type="text" id="sponsorAppUrl" placeholder="APK Downloading URL">
         <input type="text" id="sponsorTargetType" placeholder="sponsorTargetType">
-        <input type="text" id="taskTarget"        placeholder="taskTarget">
-        <input type="text" id="taskReward"        placeholder="Reward (in ₹)">
-        <input type="text" id="taskStep"          placeholder="Step to complete task">
+        <input type="text" id="taskTarget" placeholder="taskTarget">
+        <input type="text" id="taskReward" placeholder="Reward (in ₹)">
+        <input type="text" id="taskStep" placeholder="Step to complete task">
         <div class="newinputBox">+</div>
       </div>
       <div class="host"><span class="create" id="hostBtn">Host Event</span></div>
@@ -251,4 +322,5 @@
   </div>
 
 </body>
+
 </html>

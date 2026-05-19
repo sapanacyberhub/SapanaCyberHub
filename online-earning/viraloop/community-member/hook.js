@@ -72,7 +72,7 @@ joinNowButton.addEventListener('click', async () => {
         if (isLoginMode) {
             // LOGIN FLOW
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = '/online-earning/viraloop/community-member/';
+            window.location.href = '/online-earning/viraloop/';
         } else {
             // REGISTRATION FLOW
             const name = nameInput.value.trim();
@@ -88,7 +88,7 @@ joinNowButton.addEventListener('click', async () => {
                     updateOverlay("Checking account status...");
                     try {
                         await signInWithEmailAndPassword(auth, email, password);
-                        const profile = await getViraLoopMemberDetails();
+                        const profile = await getViraLoopMemberDetails({});
                         
                         if (profile && profile.data) {
                             window.location.href = '/online-earning/viraloop/community-member/';

@@ -120,6 +120,15 @@ body {
     transform: translateX(0);
 }
 
+.glass::-webkit-scrollbar {
+    width: 4px;
+}
+
+.glass::-webkit-scrollbar-thumb {
+    background: rgba(255, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
 .tag {
     display: inline-flex;
     padding: 4px 12px;

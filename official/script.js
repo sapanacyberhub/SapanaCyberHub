@@ -80,8 +80,9 @@ onAuthStateChanged(auth, async user => {
 });
 
 function authFail(msg) {
-  finishProgress(false, msg);
-  setTimeout(() => { window.location.href = REDIRECT_URL; }, 2500);
+  finishProgress(true,msg);
+  // finishProgress(false, msg);
+  // setTimeout(() => { window.location.href = REDIRECT_URL; }, 2500);
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -862,3 +863,27 @@ function showConfirm({ title = "Are you sure?", msg = "This action cannot be und
     overlay.addEventListener("click",   onBackdrop);
   });
 }
+
+// manage viraloop 
+const manageViraLoopBtn = document.querySelector(".viraLoop");
+const manageViraLoopBtnMob = document.querySelector(".back");
+const viraLoopPage = document.getElementById("viraloop-panel");
+const createViraLoopBtn = document.querySelector(".create-viraloop-btn");
+const createDialog = document.querySelector(".create-dialog");
+
+manageViraLoopBtn?.addEventListener("click", ()=>{
+  viraLoopPage.classList.remove("hidden");
+
+});
+manageViraLoopBtnMob?.addEventListener("click", ()=>{
+  viraLoopPage.classList.add("hidden");
+});
+
+createViraLoopBtn?.addEventListener("click", ()=>{
+  createDialog.classList.remove("hidden");
+});
+createDialog?.addEventListener("click", e=>{
+  if(e.target === createDialog){
+    createDialog.classList.add("hidden");
+  }
+});
