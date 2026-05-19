@@ -151,7 +151,7 @@ function closeModal() {
 // ---------- Step Logic ----------
 const steps = document.querySelectorAll('.card');
 let currentStep = 0;
-const memberId = new URLSearchParams(window.location.search).get('member') || new URLSearchParams(window.location.search).get('memberId');
+const memberId = new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('ref');
 let waitingForReturn = false;
 let stepStart = 0;
 let resolveStep = null;
