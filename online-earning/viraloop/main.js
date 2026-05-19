@@ -298,26 +298,31 @@ submitWithdrawalBtn?.addEventListener("click", async () => {
 
 // ==================== TRAFFIC LINK BUTTON ====================
 getTrafficLinkBtn?.addEventListener("click", async () => {
-    if (!isMember) {
+    if (!isMember || !memberData?.uid) {
         showWarning("Please sign in to get your traffic link");
         return;
     }
 
+    // 1. Update UI to Loading State
     getTrafficLinkBtn.classList.add("disable");
     getTrafficLinkBtn.textContent = "Preparing…";
     showToast("Generating your link…", "info", 3000);
-    const memberId = memberData?.uid; // adjust based on actual field
 
-    // generate traffic link with  https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/ + memberId as query param
+    const memberId = memberData.uid;
     const trafficLink = `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
-    // copy it to clipboard
+
+    // 2. Attempt Clipboard Copy
     try {
-        await navigator.clipboard.writeText(trafficLink); showSuccess("Your Link Generated Share it to Your Audience And Start Earning.");
-        showSuccess("Your Link Generated Share it to Your Audience And Start Earning.");
+        await navigator.clipboard.writeText(trafficLink); 
+        showSuccess("Your Link Generated! Share it with your audience and start earning.");
+    } catch (err) {
+        // Fallback if browser blocks clipboard API
+        showError("Failed to copy automatically. Please copy manually: " + trafficLink);
+        console.error("Clipboard error:", err);
+    } finally {
+        // 3. ALWAYS reset the button state, whether it succeeded or failed
         getTrafficLinkBtn.classList.remove("disable");
         getTrafficLinkBtn.textContent = "Traffic Link";
-    } catch (err) {
-        showError("Failed to copy link. Please try copying manually: " + trafficLink);
     }
 });
 

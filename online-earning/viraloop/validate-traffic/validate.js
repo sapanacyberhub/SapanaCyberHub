@@ -27,7 +27,7 @@ async function callValidateTraffic(memberId) {
         console.log("Mock validation success");
         return { success: true, mock: true };
     }
-    const todayId = `VL-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+    const todayId = `VL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
     try {
         const result = await validateTrafficFn({ eventId: todayId, member: memberId });
         return result.data;
@@ -151,7 +151,15 @@ function closeModal() {
 // ---------- Step Logic ----------
 const steps = document.querySelectorAll('.card');
 let currentStep = 0;
-const memberId = new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('ref');
+
+const urlParams = new URLSearchParams(window.location.search);
+const memberId = urlParams.get('ref');
+
+if (!memberId) {
+    // Handle the error if someone visits the validation page without a referral ID
+    showError("Invalid link. Referral ID missing.");
+} 
+
 let waitingForReturn = false;
 let stepStart = 0;
 let resolveStep = null;
