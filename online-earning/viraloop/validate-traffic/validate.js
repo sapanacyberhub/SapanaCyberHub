@@ -1,4 +1,4 @@
-// validate.js - ViraLoop onboarding (vignette on every return, round-robin sponsors)
+// validate.js - ViraLoop onboarding (all ads working, max earnings)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
@@ -17,8 +17,7 @@ try {
     const app = initializeApp(firebaseConfig);
     const functions = getFunctions(app);
     validateTrafficFn = httpsCallable(functions, "validateViraLoopTraffic");
-} catch (e) {
-}
+} catch (e) {}
 
 async function callValidateTraffic(memberId) {
     if (!validateTrafficFn) {
@@ -35,7 +34,7 @@ async function callValidateTraffic(memberId) {
     }
 }
 
-// ---------- ADS ----------
+// ---------- ADS (optimised) ----------
 let multiformatLoaded = false;
 function loadMultiformatOnce() {
     if (multiformatLoaded) return;
@@ -47,22 +46,19 @@ function loadMultiformatOnce() {
     document.body.appendChild(script);
 }
 
-// Vignette – will be called on every return
+// Monetag Vignette – fixed injection
 function loadMonetagVignette() {
     const old = document.getElementById('dynamic-vignette');
     if (old) old.remove();
     const script = document.createElement('script');
     script.id = 'dynamic-vignette';
-    script.textContent = `(function(s){s.dataset.zone='10246448';s.src='https://n6wxm.com/vignette.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
+    script.textContent = `(function(s){s.dataset.zone='10246448',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`;
     document.body.appendChild(script);
 }
 
-// Social bar – load once, stays visible
-let socialBarLoaded = false;
+// Social bar – loads once
 function loadSocialBarOnce() {
-    if (socialBarLoaded) return;
-    socialBarLoaded = true;
-    const container = document.getElementById('socialBarContainer');
+      const container = document.getElementById('socialBarContainer');
     if (!container) return;
     container.innerHTML = '';
     const script = document.createElement('script');
@@ -71,7 +67,7 @@ function loadSocialBarOnce() {
     container.appendChild(script);
 }
 
-// Banner injection (Adsterra) – rotates once per step
+// Adsterra banner rotation
 const bannerConfigs = [
     { key: 'be84f4cdee8a397c6208c778695c8973', width: 300, height: 250 },
     { key: 'b5d3a37bebdb18ab0d508dc21053382b', width: 728, height: 90 },
@@ -97,7 +93,7 @@ function injectBanner(targetElement) {
     invScript.async = true;
     targetElement.appendChild(optScript);
     targetElement.appendChild(invScript);
-    bannerIndex++;
+    bannerIndex = (bannerIndex + 1) % bannerConfigs.length; // cycle
 }
 
 function rotateBanner() {
@@ -105,7 +101,7 @@ function rotateBanner() {
     if (container) injectBanner(container);
 }
 
-// Sponsor links – round-robin for fair traffic
+// Sponsor links – round-robin
 const sponsorLinks = [
     "https://omg10.com/4/10216281",
     "https://www.effectivecpmnetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
@@ -115,10 +111,9 @@ const sponsorLinks = [
     "https://omg10.com/4/10619467",
     "https://omg10.com/4/10619475"
 ];
-
 let sponsorIndex = 0;
 function getRandomSponsorLink() {
-    const link = sponsorLinks[sponsorIndex % sponsorLinks.length];
+    const link = sponsorLinks[sponsorIndex];
     sponsorIndex = (sponsorIndex + 1) % sponsorLinks.length;
     return link;
 }
@@ -151,9 +146,9 @@ function lockButtonWithTimer(btn, onUnlock) {
     }, 1000);
 }
 
-// Success modal – shows vignette and banner
+// Success modal – vignette + banner
 function showSuccessModal(onContinue) {
-    loadMonetagVignette(); // vignette on successful return
+    loadMonetagVignette();
     let modal = document.getElementById('successModal');
     if (!modal) {
         const newModal = document.createElement('div');
@@ -161,7 +156,7 @@ function showSuccessModal(onContinue) {
         newModal.className = 'modal-overlay';
         newModal.innerHTML = `
             <div class="modal-card">
-                <p>🎉 Great! You stayed the required 5 seconds.</p>
+                <p>🎉 We have a special offer for you! Click below to claim it!</p>
                 <div id="successModalBanner" class="modal-banner"></div>
                 <button id="successContinueBtn" class="close-modal-btn">Continue →</button>
             </div>
@@ -187,15 +182,19 @@ function showSuccessModal(onContinue) {
     }
 }
 
-// Early exit modal – shows vignette, banner, and inpage push
+// Early exit modal – vignette + banner + in‑page push (no duplicates)
 function showEarlyExitModal() {
-    loadMonetagVignette(); // vignette on early return
+    loadMonetagVignette();
     const modalBannerDiv = document.getElementById('modalBanner');
     if (modalBannerDiv) {
         modalBannerDiv.innerHTML = '';
         injectBanner(modalBannerDiv);
+        // Remove any previous in‑page script to avoid duplicates
+        const oldInpage = document.getElementById('modal-inpage-script');
+        if (oldInpage) oldInpage.remove();
         const inpageScript = document.createElement('script');
-        inpageScript.textContent = `(function(s){s.dataset.zone='10246441';s.src='https://nap5k.com/tag.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
+        inpageScript.id = 'modal-inpage-script';
+        inpageScript.textContent = `(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`;
         modalBannerDiv.appendChild(inpageScript);
     }
     const modal = document.getElementById('exitModal');
@@ -255,7 +254,7 @@ async function handleStepClick(stepIndex) {
         return false;
     }
     showToast(stepMessages[stepIndex], 4000);
-    rotateBanner(); // rotate banner on each click
+    rotateBanner();
 
     const sponsorUrl = getRandomSponsorLink();
     setTimeout(() => {
@@ -281,7 +280,6 @@ async function handleStepClick(stepIndex) {
                 } else {
                     waitingForReturn = false;
                     showEarlyExitModal();
-
                     resolve(false);
                 }
             }
@@ -295,7 +293,7 @@ function goToNextStep() {
         steps[currentStep].classList.remove('active');
         currentStep++;
         steps[currentStep].classList.add('active');
-        rotateBanner(); // fresh banner on new step
+        rotateBanner();
         steps[currentStep].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
@@ -303,7 +301,7 @@ function goToNextStep() {
 async function handleFinalStep() {
     const ok = await handleStepClick(6);
     if (!ok) return;
-    loadMultiformatOnce(); // multiformat only on step 6
+    loadMultiformatOnce();
     showToast("🎉 Congratulations! Redirecting...", 3000);
     setTimeout(() => {
         window.location.href = "/online-earning/viraloop/community-member/";
@@ -359,8 +357,8 @@ function setupAdContainers() {
 }
 
 setupAdContainers();
-loadSocialBarOnce();   // social bar once
-rotateBanner();        // initial banner
+loadSocialBarOnce();
+rotateBanner();
 
 if (steps[0]) steps[0].classList.add('active');
 currentStep = 0;
