@@ -1,4 +1,4 @@
-// validate.js - ViraLoop onboarding with robust ad loading
+// validate.js - ViraLoop onboarding with working Adsterra banners
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
@@ -37,20 +37,17 @@ async function callValidateTraffic(memberId) {
     }
 }
 
-// ---------- AD SCRIPTS (Safe injection) ----------
-function loadScript(src, id, attrs = {}) {
-    const old = document.getElementById(id);
+// ---------- AD SCRIPTS (Monetag + Adsterra) ----------
+function loadMultiformat() {
+    const old = document.getElementById('multiformat-tag');
     if (old) old.remove();
     const script = document.createElement('script');
-    script.id = id;
-    if (src) script.src = src;
-    Object.keys(attrs).forEach(k => script.setAttribute(k, attrs[k]));
+    script.id = 'multiformat-tag';
+    script.src = 'https://quge5.com/88/tag.min.js';
+    script.setAttribute('data-zone', '186855');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
     document.body.appendChild(script);
-    return script;
-}
-
-function loadMultiformat() {
-    loadScript('https://quge5.com/88/tag.min.js', 'multiformat-tag', { 'data-zone': '186855', async: 'true', 'data-cfasync': 'false' });
 }
 
 function loadMonetagVignette() {
@@ -81,22 +78,41 @@ function loadSocialBar() {
     container.appendChild(script);
 }
 
-// Banner rotation (simple iframes)
-const bannerCodes = [
-    `<iframe src="https://www.highperformanceformat.com/be84f4cdee8a397c6208c778695c8973/invoke.js" width="300" height="250" frameborder="0" scrolling="no"></iframe>`,
-    `<iframe src="https://www.highperformanceformat.com/b5d3a37bebdb18ab0d508dc21053382b/invoke.js" width="728" height="90" frameborder="0" scrolling="no"></iframe>`,
-    `<iframe src="https://www.highperformanceformat.com/522259f00affdbfdaf791b01f86b1a64/invoke.js" width="320" height="50" frameborder="0" scrolling="no"></iframe>`,
-    `<iframe src="https://www.highperformanceformat.com/1ec158b6632bf6a6bac690778268b1f7/invoke.js" width="468" height="60" frameborder="0" scrolling="no"></iframe>`,
-    `<iframe src="https://www.highperformanceformat.com/71197c8b1966802bbfa05225ac458a7b/invoke.js" width="300" height="250" frameborder="0" scrolling="no"></iframe>`,
-    `<iframe src="https://www.highperformanceformat.com/73d8d5f56e427b77a8f4c36d202a1097/invoke.js" width="160" height="600" frameborder="0" scrolling="no"></iframe>`
+// ---------- CORRECT ADSTERRA BANNER INJECTION ----------
+// Banner configurations (key, width, height)
+const bannerConfigs = [
+    { key: 'be84f4cdee8a397c6208c778695c8973', width: 300, height: 250 }, // 300x250
+    { key: 'b5d3a37bebdb18ab0d508dc21053382b', width: 728, height: 90 },  // 728x90
+    { key: '522259f00affdbfdaf791b01f86b1a64', width: 320, height: 50 },  // 320x50
+    { key: '1ec158b6632bf6a6bac690778268b1f7', width: 468, height: 60 },  // 468x60
+    { key: '71197c8b1966802bbfa05225ac458a7b', width: 300, height: 250 }, // 300x250
+    { key: '73d8d5f56e427b77a8f4c36d202a1097', width: 160, height: 600 }  // 160x600
 ];
 let bannerIndex = 0;
+
+function pickBannerConfig() {
+    return bannerConfigs[bannerIndex % bannerConfigs.length];
+}
+
+function injectBanner(targetElement) {
+    if (!targetElement) return;
+    const banner = pickBannerConfig();
+    targetElement.innerHTML = "";
+    // Set the atOptions object
+    const optScript = document.createElement("script");
+    optScript.text = `window.atOptions = { key: "${banner.key}", format: "iframe", height: ${banner.height}, width: ${banner.width}, params: {} };`;
+    // Load the invoke script
+    const invScript = document.createElement("script");
+    invScript.src = `https://www.highperformanceformat.com/${banner.key}/invoke.js`;
+    invScript.async = true;
+    targetElement.appendChild(optScript);
+    targetElement.appendChild(invScript);
+    bannerIndex++;
+}
+
 function rotateBanner() {
     const container = document.getElementById('dynamicBanner');
-    if (container) {
-        container.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
-        bannerIndex++;
-    }
+    if (container) injectBanner(container);
 }
 
 function refreshAllAds() {
@@ -129,23 +145,30 @@ function showToast(msg, duration = 3000) {
     setTimeout(() => toast.classList.remove('show'), duration);
 }
 
-// Early exit modal (when user returns too soon)
-function showEarlyExitModal() {
-    loadMonetagVignette();
-    const modalBannerDiv = document.getElementById('modalBanner');
-    if (modalBannerDiv) {
-        modalBannerDiv.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
-        bannerIndex++;
-    }
-    const modal = document.getElementById('exitModal');
-    if (modal) modal.style.display = 'flex';
+// Helper: lock a button for 5 seconds with a countdown timer
+function lockButtonWithTimer(btn, onUnlock) {
+    if (!btn) return;
+    let seconds = 5;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = `Wait ${seconds}s...`;
+    const interval = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+            btn.textContent = `Wait ${seconds}s...`;
+        } else {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.textContent = originalText;
+            if (onUnlock) onUnlock();
+        }
+    }, 1000);
 }
 
-// ✅ NEW: Success modal (when user stays 5+ seconds) – shows a banner too
+// Updated success modal with locked button
 function showSuccessModal(onContinue) {
-    const modal = document.getElementById('successModal');
+    let modal = document.getElementById('successModal');
     if (!modal) {
-        // Create success modal dynamically if it doesn't exist
         const newModal = document.createElement('div');
         newModal.id = 'successModal';
         newModal.className = 'modal-overlay';
@@ -157,28 +180,58 @@ function showSuccessModal(onContinue) {
             </div>
         `;
         document.body.appendChild(newModal);
-        document.getElementById('successContinueBtn').addEventListener('click', () => {
-            newModal.style.display = 'none';
-            if (onContinue) onContinue();
-        });
         modal = newModal;
     }
-    // Insert a banner
     const bannerDiv = document.getElementById('successModalBanner');
-    if (bannerDiv) {
-        bannerDiv.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
-        bannerIndex++;
-    }
+    if (bannerDiv) injectBanner(bannerDiv);
     modal.style.display = 'flex';
-    // Store the callback so it fires only once
+
     const continueBtn = document.getElementById('successContinueBtn');
-    const oldClick = continueBtn.onclick;
-    continueBtn.onclick = () => {
-        modal.style.display = 'none';
-        if (onContinue) onContinue();
-    };
+    if (continueBtn) {
+        // Remove old listeners and apply lock
+        const newBtn = continueBtn.cloneNode(true);
+        continueBtn.parentNode.replaceChild(newBtn, continueBtn);
+        let unlocked = false;
+        lockButtonWithTimer(newBtn, () => { unlocked = true; });
+        newBtn.addEventListener('click', () => {
+            if (!unlocked) return;
+            modal.style.display = 'none';
+            if (onContinue) onContinue();
+        });
+    }
 }
 
+// Updated early exit modal with locked button
+function showEarlyExitModal() {
+    loadMonetagVignette();
+    const modalBannerDiv = document.getElementById('modalBanner');
+    if (modalBannerDiv) injectBanner(modalBannerDiv);
+    const modal = document.getElementById('exitModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+
+    const closeBtn = document.getElementById('closeModalBtn');
+    if (closeBtn) {
+        // Replace to avoid multiple listeners
+        const newBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newBtn, closeBtn);
+        let unlocked = false;
+        lockButtonWithTimer(newBtn, () => { unlocked = true; });
+        newBtn.addEventListener('click', () => {
+            if (!unlocked) return;
+            modal.style.display = 'none';
+            waitingForReturn = false;
+            if (resolveStep) {
+                resolveStep(false);
+                resolveStep = null;
+            }
+            if (visibilityHandler) {
+                document.removeEventListener('visibilitychange', visibilityHandler);
+                visibilityHandler = null;
+            }
+        });
+    }
+}
 let resolveStep = null;
 let waitingForReturn = false;
 let visibilityHandler = null;
@@ -246,10 +299,7 @@ async function handleStepClick(stepIndex) {
                 visibilityHandler = null;
                 if (elapsed >= 5000) {
                     waitingForReturn = false;
-                    // ✅ Show success modal with banner before resolving
-                    showSuccessModal(() => {
-                        resolve(true);
-                    });
+                    showSuccessModal(() => resolve(true));
                 } else {
                     waitingForReturn = false;
                     showEarlyExitModal();
