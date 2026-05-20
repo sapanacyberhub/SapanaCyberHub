@@ -501,9 +501,6 @@ function readyLeaderBoard(topMember) {
             </div>
             `).join("")}`;
     }
-
-
-
     showToast("LeaderBoard Found", "info", 5000);
 
 }

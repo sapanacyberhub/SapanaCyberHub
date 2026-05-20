@@ -1,4 +1,4 @@
-// validate.js - ViraLoop onboarding with ads & 5-second rule
+// validate.js - ViraLoop onboarding with robust ad loading
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
@@ -37,17 +37,20 @@ async function callValidateTraffic(memberId) {
     }
 }
 
-// ---------- AD SCRIPTS (Monetag + Adsterra) ----------
-function loadMultiformat() {
-    const old = document.getElementById('multiformat-tag');
+// ---------- AD SCRIPTS (Safe injection) ----------
+function loadScript(src, id, attrs = {}) {
+    const old = document.getElementById(id);
     if (old) old.remove();
     const script = document.createElement('script');
-    script.id = 'multiformat-tag';
-    script.src = 'https://quge5.com/88/tag.min.js';
-    script.setAttribute('data-zone', '186855');
-    script.async = true;
-    script.setAttribute('data-cfasync', 'false');
+    script.id = id;
+    if (src) script.src = src;
+    Object.keys(attrs).forEach(k => script.setAttribute(k, attrs[k]));
     document.body.appendChild(script);
+    return script;
+}
+
+function loadMultiformat() {
+    loadScript('https://quge5.com/88/tag.min.js', 'multiformat-tag', { 'data-zone': '186855', async: 'true', 'data-cfasync': 'false' });
 }
 
 function loadMonetagVignette() {
@@ -55,7 +58,7 @@ function loadMonetagVignette() {
     if (old) old.remove();
     const script = document.createElement('script');
     script.id = 'dynamic-vignette';
-    script.textContent = `(function(s){s.dataset.zone='10246448',s.src='https://n6wxm.com/vignette.min.js'})(document.currentScript.parentElement.appendChild(document.createElement('script')))`;
+    script.textContent = `(function(s){s.dataset.zone='10246448';s.src='https://n6wxm.com/vignette.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
     document.body.appendChild(script);
 }
 
@@ -64,7 +67,7 @@ function loadMonetagInpage() {
     if (old) old.remove();
     const script = document.createElement('script');
     script.id = 'dynamic-inpage';
-    script.textContent = `(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})(document.currentScript.parentElement.appendChild(document.createElement('script')))`;
+    script.textContent = `(function(s){s.dataset.zone='10246441';s.src='https://nap5k.com/tag.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
     document.body.appendChild(script);
 }
 
@@ -78,7 +81,7 @@ function loadSocialBar() {
     container.appendChild(script);
 }
 
-// Banner rotation (Adsterra iframes)
+// Banner rotation (simple iframes)
 const bannerCodes = [
     `<iframe src="https://www.highperformanceformat.com/be84f4cdee8a397c6208c778695c8973/invoke.js" width="300" height="250" frameborder="0" scrolling="no"></iframe>`,
     `<iframe src="https://www.highperformanceformat.com/b5d3a37bebdb18ab0d508dc21053382b/invoke.js" width="728" height="90" frameborder="0" scrolling="no"></iframe>`,
@@ -103,7 +106,7 @@ function refreshAllAds() {
     loadSocialBar();
 }
 
-// Sponsor links array
+// Sponsor links
 const sponsorLinks = [
     "https://www.effectivecpmnetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
     "https://www.effectivecpmnetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203",
@@ -126,77 +129,127 @@ function showToast(msg, duration = 3000) {
     setTimeout(() => toast.classList.remove('show'), duration);
 }
 
+// Early exit modal (when user returns too soon)
 function showEarlyExitModal() {
-    loadMonetagVignette(); // extra vignette
+    loadMonetagVignette();
     const modalBannerDiv = document.getElementById('modalBanner');
     if (modalBannerDiv) {
-        modalBannerDiv.innerHTML = '';
-        const inpageScript = document.createElement('script');
-        inpageScript.textContent = `(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})(document.currentScript.parentElement.appendChild(document.createElement('script')))`;
-        modalBannerDiv.appendChild(inpageScript);
-        const extraBanner = document.createElement('div');
-        extraBanner.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
+        modalBannerDiv.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
         bannerIndex++;
-        modalBannerDiv.appendChild(extraBanner);
     }
     const modal = document.getElementById('exitModal');
     if (modal) modal.style.display = 'flex';
 }
 
+// ✅ NEW: Success modal (when user stays 5+ seconds) – shows a banner too
+function showSuccessModal(onContinue) {
+    const modal = document.getElementById('successModal');
+    if (!modal) {
+        // Create success modal dynamically if it doesn't exist
+        const newModal = document.createElement('div');
+        newModal.id = 'successModal';
+        newModal.className = 'modal-overlay';
+        newModal.innerHTML = `
+            <div class="modal-card">
+                <p>🎉 Great! You stayed the required 5 seconds.</p>
+                <div id="successModalBanner" class="modal-banner"></div>
+                <button id="successContinueBtn" class="close-modal-btn">Continue →</button>
+            </div>
+        `;
+        document.body.appendChild(newModal);
+        document.getElementById('successContinueBtn').addEventListener('click', () => {
+            newModal.style.display = 'none';
+            if (onContinue) onContinue();
+        });
+        modal = newModal;
+    }
+    // Insert a banner
+    const bannerDiv = document.getElementById('successModalBanner');
+    if (bannerDiv) {
+        bannerDiv.innerHTML = bannerCodes[bannerIndex % bannerCodes.length];
+        bannerIndex++;
+    }
+    modal.style.display = 'flex';
+    // Store the callback so it fires only once
+    const continueBtn = document.getElementById('successContinueBtn');
+    const oldClick = continueBtn.onclick;
+    continueBtn.onclick = () => {
+        modal.style.display = 'none';
+        if (onContinue) onContinue();
+    };
+}
+
+let resolveStep = null;
+let waitingForReturn = false;
+let visibilityHandler = null;
+
 function closeModal() {
     const modal = document.getElementById('exitModal');
     if (modal) modal.style.display = 'none';
+    waitingForReturn = false;
+    if (resolveStep) {
+        resolveStep(false);
+        resolveStep = null;
+    }
+    if (visibilityHandler) {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+        visibilityHandler = null;
+    }
 }
 
 // ---------- Step Logic ----------
 const steps = document.querySelectorAll('.card');
 let currentStep = 0;
-
 const urlParams = new URLSearchParams(window.location.search);
 const memberId = urlParams.get('ref');
 
 if (!memberId) {
-    // Handle the error if someone visits the validation page without a referral ID
-    showError("Invalid link. Referral ID missing.");
-} 
+    showToast("⚠️ No referral ID – traffic will NOT be validated", 5000);
+}
 
-let waitingForReturn = false;
 let stepStart = 0;
-let resolveStep = null;
-
 const stepMessages = [
     "🚀 Step 1: Explore the offer (stay 5s)",
-    "⚡ Step 2: Please stay on the sponsor page for at least 5 seconds",
-    "📈 Step 3: Great! Stay 5 seconds to continue",
-    "💸 Step 4: View the offer and return after 5 seconds",
+    "⚡ Step 2: Stay on sponsor page for 5 seconds",
+    "📈 Step 3: Great! 5 seconds to continue",
+    "💸 Step 4: View offer and return after 5s",
     "🤝 Step 5: Almost there – 5 seconds on sponsor",
-    "🎓 Step 6: Final learning step – stay 5 seconds",
-    "🏁 Step 7: Last step – stay 5 seconds to claim your reward"
+    "🎓 Step 6: Final learning – stay 5 seconds",
+    "🏁 Step 7: Stay 5 seconds to claim reward"
 ];
 
 async function handleStepClick(stepIndex) {
     if (waitingForReturn) {
-        showToast("Please finish the current step first", 1500);
+        showToast("Complete the current step first", 1500);
         return false;
     }
     showToast(stepMessages[stepIndex], 4000);
     refreshAllAds();
 
     const sponsorUrl = getRandomSponsorLink();
-    window.open(sponsorUrl, '_blank');
+    setTimeout(() => {
+        window.open(sponsorUrl, '_blank');
+    }, 1500);
     stepStart = Date.now();
     waitingForReturn = true;
 
     return new Promise((resolve) => {
         resolveStep = resolve;
-        const onVisibility = () => {
+        if (visibilityHandler) {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+        }
+        visibilityHandler = () => {
             if (!waitingForReturn) return;
             if (document.visibilityState === 'visible') {
                 const elapsed = Date.now() - stepStart;
-                document.removeEventListener('visibilitychange', onVisibility);
+                document.removeEventListener('visibilitychange', visibilityHandler);
+                visibilityHandler = null;
                 if (elapsed >= 5000) {
                     waitingForReturn = false;
-                    resolve(true);
+                    // ✅ Show success modal with banner before resolving
+                    showSuccessModal(() => {
+                        resolve(true);
+                    });
                 } else {
                     waitingForReturn = false;
                     showEarlyExitModal();
@@ -204,7 +257,7 @@ async function handleStepClick(stepIndex) {
                 }
             }
         };
-        document.addEventListener('visibilitychange', onVisibility);
+        document.addEventListener('visibilitychange', visibilityHandler);
     });
 }
 
@@ -218,16 +271,14 @@ function goToNextStep() {
     }
 }
 
-// Special handler for final step (index 6)
 async function handleFinalStep() {
     const ok = await handleStepClick(6);
     if (!ok) return;
-    // After successful return: fire vignette + multiformat again
     loadMonetagVignette();
-    loadMultiformat();  // second time
-    showToast("🎉 Congratulations! Redirecting to join page...", 3000);
+    loadMultiformat();
+    showToast("🎉 Congratulations! Redirecting...", 3000);
     setTimeout(() => {
-        window.location.href = "/join"; // change to your actual join URL
+        window.location.href = "/join";
     }, 2000);
 }
 
@@ -248,12 +299,11 @@ document.querySelector('.main').addEventListener('click', async (e) => {
     const success = await handleStepClick(idx);
     if (!success) return;
 
-    // Step 2 (idx === 1) and memberId exists -> call validation
     if (idx === 1 && memberId) {
         try {
-            showToast("Validating your traffic...", 2000);
+            showToast("Validating you...", 2000);
             const result = await callValidateTraffic(memberId);
-            if (result.success) showToast("✅ Traffic validated! Reward added.", 3000);
+            if (result.success) showToast("✅ You are validated.", 3000);
             else showToast("⚠️ Validation issue, but you can continue.", 2500);
         } catch (err) {
             console.error(err);
@@ -263,11 +313,10 @@ document.querySelector('.main').addEventListener('click', async (e) => {
     goToNextStep();
 });
 
-// Close modal button
 const closeBtn = document.getElementById('closeModalBtn');
 if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-// ---------- Setup Ad Containers & Initial Load ----------
+// ---------- Setup Ad Containers ----------
 function setupAdContainers() {
     const mainDiv = document.querySelector('.main');
     if (!document.getElementById('adContainer')) {
@@ -285,11 +334,10 @@ function setupAdContainers() {
 }
 
 setupAdContainers();
-loadMultiformat();      // first call (on page load)
+loadMultiformat();
 refreshAllAds();
-// Activate first step
 if (steps[0]) steps[0].classList.add('active');
 currentStep = 0;
 
-if (memberId) showToast(`🔑 Member ${memberId} detected – step 2 will auto-validate`, 4000);
-else showToast("✨ Welcome! No member ID – step 2 will work but no validation call", 3500);
+if (memberId) showToast(` Welcome! Member`, 4000);
+else showToast("✨ Welcome! No validation call will be made", 3500);
