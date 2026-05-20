@@ -20,8 +20,7 @@ try {
 } catch (e) {}
 
 async function callValidateTraffic(memberId) {
-    if (!validateTrafficFn) {
-        console.log("Mock validation success");
+    if (!validateTrafficFn || !memberId) {
         return { success: true, mock: true };
     }
     const todayId = `VL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
@@ -79,7 +78,9 @@ const bannerConfigs = [
 let bannerIndex = 0;
 
 function pickBannerConfig() {
-    return bannerConfigs[bannerIndex % bannerConfigs.length];
+    const banner = bannerConfigs[bannerIndex];
+    bannerIndex = (bannerIndex + 1) % bannerConfigs.length;
+    return banner;
 }
 
 function injectBanner(targetElement) {
@@ -93,7 +94,6 @@ function injectBanner(targetElement) {
     invScript.async = true;
     targetElement.appendChild(optScript);
     targetElement.appendChild(invScript);
-    bannerIndex = (bannerIndex + 1) % bannerConfigs.length; // cycle
 }
 
 function rotateBanner() {
@@ -182,6 +182,20 @@ function showSuccessModal(onContinue) {
     }
 }
 
+
+// Monetag In‑page Push – loads once on page load, can be refreshed
+let inpageLoaded = false;
+function loadMonetagInpage(refresh = false) {
+    const old = document.getElementById('dynamic-inpage');
+    if (old) old.remove();
+    if (!refresh && inpageLoaded) return; // only load once unless forced refresh
+    const script = document.createElement('script');
+    script.id = 'dynamic-inpage';
+    script.textContent = `(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`;
+    document.body.appendChild(script);
+    if (!refresh) inpageLoaded = true;
+}
+
 // Early exit modal – vignette + banner + in‑page push (no duplicates)
 function showEarlyExitModal() {
     loadMonetagVignette();
@@ -189,13 +203,9 @@ function showEarlyExitModal() {
     if (modalBannerDiv) {
         modalBannerDiv.innerHTML = '';
         injectBanner(modalBannerDiv);
-        // Remove any previous in‑page script to avoid duplicates
-        const oldInpage = document.getElementById('modal-inpage-script');
-        if (oldInpage) oldInpage.remove();
-        const inpageScript = document.createElement('script');
-        inpageScript.id = 'modal-inpage-script';
-        inpageScript.textContent = `(function(s){s.dataset.zone='10246441',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`;
-        modalBannerDiv.appendChild(inpageScript);
+        // Force a fresh in‑page push (refresh)
+        loadMonetagInpage(true);
+        // Optionally also put a copy inside the modal? Not needed; it's global.
     }
     const modal = document.getElementById('exitModal');
     if (!modal) return;
@@ -299,7 +309,7 @@ function goToNextStep() {
 }
 
 async function handleFinalStep() {
-    const ok = await handleStepClick(6);
+    const ok = await handleStepClick(5);
     if (!ok) return;
     loadMultiformatOnce();
     showToast("🎉 Congratulations! Redirecting...", 3000);
@@ -358,6 +368,7 @@ function setupAdContainers() {
 
 setupAdContainers();
 loadSocialBarOnce();
+loadMonetagInpage(); 
 rotateBanner();
 
 if (steps[0]) steps[0].classList.add('active');
