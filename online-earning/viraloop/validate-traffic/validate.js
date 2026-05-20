@@ -4,12 +4,13 @@ import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/
 
 // ---------- FIREBASE CONFIG (replace with your own) ----------
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
+  authDomain: "sapanacyberhub-26310.firebaseapp.com",
+  projectId: "sapanacyberhub-26310",
+  storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+  messagingSenderId: "448116453690",
+  appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+  measurementId: "G-HKGQ8D55N1",
 };
 
 let validateTrafficFn = null;
