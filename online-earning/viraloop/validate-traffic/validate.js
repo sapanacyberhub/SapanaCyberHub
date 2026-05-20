@@ -1,16 +1,15 @@
-// validate.js - ViraLoop onboarding with working Adsterra banners
+// validate.js - ViraLoop onboarding (multiformat only on step 6)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
-// ---------- FIREBASE CONFIG (replace with your own) ----------
 const firebaseConfig = {
     apiKey: "AIzaSyDRrgCyuMvT8BZqUeEw2nX2AF8fLKIGD7Y",
-  authDomain: "sapanacyberhub-26310.firebaseapp.com",
-  projectId: "sapanacyberhub-26310",
-  storageBucket: "sapanacyberhub-26310.firebasestorage.app",
-  messagingSenderId: "448116453690",
-  appId: "1:448116453690:web:01a91dd284b715bf0a2003",
-  measurementId: "G-HKGQ8D55N1",
+    authDomain: "sapanacyberhub-26310.firebaseapp.com",
+    projectId: "sapanacyberhub-26310",
+    storageBucket: "sapanacyberhub-26310.firebasestorage.app",
+    messagingSenderId: "448116453690",
+    appId: "1:448116453690:web:01a91dd284b715bf0a2003",
+    measurementId: "G-HKGQ8D55N1",
 };
 
 let validateTrafficFn = null;
@@ -38,38 +37,21 @@ async function callValidateTraffic(memberId) {
     }
 }
 
-// ---------- AD SCRIPTS (Monetag + Adsterra) ----------
-function loadMultiformat() {
-    const old = document.getElementById('multiformat-tag');
-    if (old) old.remove();
+// ---------- ADS (non-intrusive, multiformat only on step 6) ----------
+let multiformatLoaded = false;
+function loadMultiformatOnce() {
+    if (multiformatLoaded) return;
+    multiformatLoaded = true;
     const script = document.createElement('script');
-    script.id = 'multiformat-tag';
     script.src = 'https://quge5.com/88/tag.min.js';
     script.setAttribute('data-zone', '186855');
     script.async = true;
-    script.setAttribute('data-cfasync', 'false');
     document.body.appendChild(script);
+    console.log("Multiformat loaded on step 6");
 }
 
-function loadMonetagVignette() {
-    const old = document.getElementById('dynamic-vignette');
-    if (old) old.remove();
-    const script = document.createElement('script');
-    script.id = 'dynamic-vignette';
-    script.textContent = `(function(s){s.dataset.zone='10246448';s.src='https://n6wxm.com/vignette.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
-    document.body.appendChild(script);
-}
-
-function loadMonetagInpage() {
-    const old = document.getElementById('dynamic-inpage');
-    if (old) old.remove();
-    const script = document.createElement('script');
-    script.id = 'dynamic-inpage';
-    script.textContent = `(function(s){s.dataset.zone='10246441';s.src='https://nap5k.com/tag.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
-    document.body.appendChild(script);
-}
-
-function loadSocialBar() {
+function loadSocialBarOnce() {
+    if (document.getElementById('socialBarContainer')?.innerHTML) return;
     const container = document.getElementById('socialBarContainer');
     if (!container) return;
     container.innerHTML = '';
@@ -79,15 +61,14 @@ function loadSocialBar() {
     container.appendChild(script);
 }
 
-// ---------- CORRECT ADSTERRA BANNER INJECTION ----------
-// Banner configurations (key, width, height)
+// Banner injection (Adsterra) – rotates once per step
 const bannerConfigs = [
-    { key: 'be84f4cdee8a397c6208c778695c8973', width: 300, height: 250 }, // 300x250
-    { key: 'b5d3a37bebdb18ab0d508dc21053382b', width: 728, height: 90 },  // 728x90
-    { key: '522259f00affdbfdaf791b01f86b1a64', width: 320, height: 50 },  // 320x50
-    { key: '1ec158b6632bf6a6bac690778268b1f7', width: 468, height: 60 },  // 468x60
-    { key: '71197c8b1966802bbfa05225ac458a7b', width: 300, height: 250 }, // 300x250
-    { key: '73d8d5f56e427b77a8f4c36d202a1097', width: 160, height: 600 }  // 160x600
+    { key: 'be84f4cdee8a397c6208c778695c8973', width: 300, height: 250 },
+    { key: 'b5d3a37bebdb18ab0d508dc21053382b', width: 728, height: 90 },
+    { key: '522259f00affdbfdaf791b01f86b1a64', width: 320, height: 50 },
+    { key: '1ec158b6632bf6a6bac690778268b1f7', width: 468, height: 60 },
+    { key: '71197c8b1966802bbfa05225ac458a7b', width: 300, height: 250 },
+    { key: '73d8d5f56e427b77a8f4c36d202a1097', width: 160, height: 600 }
 ];
 let bannerIndex = 0;
 
@@ -99,10 +80,8 @@ function injectBanner(targetElement) {
     if (!targetElement) return;
     const banner = pickBannerConfig();
     targetElement.innerHTML = "";
-    // Set the atOptions object
     const optScript = document.createElement("script");
     optScript.text = `window.atOptions = { key: "${banner.key}", format: "iframe", height: ${banner.height}, width: ${banner.width}, params: {} };`;
-    // Load the invoke script
     const invScript = document.createElement("script");
     invScript.src = `https://www.highperformanceformat.com/${banner.key}/invoke.js`;
     invScript.async = true;
@@ -116,27 +95,24 @@ function rotateBanner() {
     if (container) injectBanner(container);
 }
 
-function refreshAllAds() {
-    rotateBanner();
-    loadMonetagVignette();
-    loadMonetagInpage();
-    loadSocialBar();
-}
-
-// Sponsor links
+// Sponsor links - round-robin rotation for fair traffic distribution
 const sponsorLinks = [
     "https://www.effectivecpmnetwork.com/teatfjw7?key=c2a5c5ec6117abcadec09d5de655d861",
-    "https://www.effectivecpmnetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203",
     "https://omg10.com/4/10216281",
     "https://omg10.com/4/10260660",
     "https://omg10.com/4/10749382",
+    "https://www.effectivecpmnetwork.com/w7taatypw?key=9d400c5aa174b33787aecef1ac2c8203",
     "https://omg10.com/4/10619467",
     "https://omg10.com/4/10619475"
 ];
-function getRandomSponsorLink() {
-    return sponsorLinks[Math.floor(Math.random() * sponsorLinks.length)];
-}
 
+let sponsorIndex = 0; // persistent counter for round-robin
+
+function getRandomSponsorLink() {
+    const link = sponsorLinks[sponsorIndex % sponsorLinks.length];
+    sponsorIndex++;
+    return link;
+}
 // ---------- UI Helpers ----------
 function showToast(msg, duration = 3000) {
     const toast = document.getElementById('toastMessage');
@@ -146,7 +122,6 @@ function showToast(msg, duration = 3000) {
     setTimeout(() => toast.classList.remove('show'), duration);
 }
 
-// Helper: lock a button for 5 seconds with a countdown timer
 function lockButtonWithTimer(btn, onUnlock) {
     if (!btn) return;
     let seconds = 5;
@@ -166,7 +141,7 @@ function lockButtonWithTimer(btn, onUnlock) {
     }, 1000);
 }
 
-// Updated success modal with locked button
+// Success modal – banner only
 function showSuccessModal(onContinue) {
     let modal = document.getElementById('successModal');
     if (!modal) {
@@ -184,12 +159,11 @@ function showSuccessModal(onContinue) {
         modal = newModal;
     }
     const bannerDiv = document.getElementById('successModalBanner');
-    if (bannerDiv) injectBanner(bannerDiv);
+    if (bannerDiv && !bannerDiv.hasChildNodes()) injectBanner(bannerDiv);
     modal.style.display = 'flex';
 
     const continueBtn = document.getElementById('successContinueBtn');
     if (continueBtn) {
-        // Remove old listeners and apply lock
         const newBtn = continueBtn.cloneNode(true);
         continueBtn.parentNode.replaceChild(newBtn, continueBtn);
         let unlocked = false;
@@ -202,18 +176,22 @@ function showSuccessModal(onContinue) {
     }
 }
 
-// Updated early exit modal with locked button
+// Early exit modal – banner + inpage push (once)
 function showEarlyExitModal() {
-    loadMonetagVignette();
     const modalBannerDiv = document.getElementById('modalBanner');
-    if (modalBannerDiv) injectBanner(modalBannerDiv);
+    if (modalBannerDiv) {
+        modalBannerDiv.innerHTML = '';
+        injectBanner(modalBannerDiv);
+        const inpageScript = document.createElement('script');
+        inpageScript.textContent = `(function(s){s.dataset.zone='10246441';s.src='https://nap5k.com/tag.min.js';})(document.currentScript.parentElement.appendChild(document.createElement('script')));`;
+        modalBannerDiv.appendChild(inpageScript);
+    }
     const modal = document.getElementById('exitModal');
     if (!modal) return;
     modal.style.display = 'flex';
 
     const closeBtn = document.getElementById('closeModalBtn');
     if (closeBtn) {
-        // Replace to avoid multiple listeners
         const newBtn = closeBtn.cloneNode(true);
         closeBtn.parentNode.replaceChild(newBtn, closeBtn);
         let unlocked = false;
@@ -233,23 +211,10 @@ function showEarlyExitModal() {
         });
     }
 }
+
 let resolveStep = null;
 let waitingForReturn = false;
 let visibilityHandler = null;
-
-function closeModal() {
-    const modal = document.getElementById('exitModal');
-    if (modal) modal.style.display = 'none';
-    waitingForReturn = false;
-    if (resolveStep) {
-        resolveStep(false);
-        resolveStep = null;
-    }
-    if (visibilityHandler) {
-        document.removeEventListener('visibilitychange', visibilityHandler);
-        visibilityHandler = null;
-    }
-}
 
 // ---------- Step Logic ----------
 const steps = document.querySelectorAll('.card');
@@ -278,7 +243,8 @@ async function handleStepClick(stepIndex) {
         return false;
     }
     showToast(stepMessages[stepIndex], 4000);
-    refreshAllAds();
+    // Only rotate banner, do NOT reload intrusive ads
+    rotateBanner();
 
     const sponsorUrl = getRandomSponsorLink();
     setTimeout(() => {
@@ -317,7 +283,7 @@ function goToNextStep() {
         steps[currentStep].classList.remove('active');
         currentStep++;
         steps[currentStep].classList.add('active');
-        refreshAllAds();
+        rotateBanner();  // fresh banner on new step
         steps[currentStep].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
@@ -325,8 +291,8 @@ function goToNextStep() {
 async function handleFinalStep() {
     const ok = await handleStepClick(6);
     if (!ok) return;
-    loadMonetagVignette();
-    loadMultiformat();
+    // ✅ Load multiformat ONLY on step 6 (final step)
+    loadMultiformatOnce();
     showToast("🎉 Congratulations! Redirecting...", 3000);
     setTimeout(() => {
         window.location.href = "/join";
@@ -364,10 +330,7 @@ document.querySelector('.main').addEventListener('click', async (e) => {
     goToNextStep();
 });
 
-const closeBtn = document.getElementById('closeModalBtn');
-if (closeBtn) closeBtn.addEventListener('click', closeModal);
-
-// ---------- Setup Ad Containers ----------
+// ---------- Setup Containers & Initial Load ----------
 function setupAdContainers() {
     const mainDiv = document.querySelector('.main');
     if (!document.getElementById('adContainer')) {
@@ -385,8 +348,9 @@ function setupAdContainers() {
 }
 
 setupAdContainers();
-loadMultiformat();
-refreshAllAds();
+loadSocialBarOnce();        // social bar once on page load
+rotateBanner();             // initial banner
+
 if (steps[0]) steps[0].classList.add('active');
 currentStep = 0;
 
