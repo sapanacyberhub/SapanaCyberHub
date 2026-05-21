@@ -374,5 +374,5 @@ rotateBanner();
 if (steps[0]) steps[0].classList.add('active');
 currentStep = 0;
 
-if (memberId) showToast(` Welcome! Member`, 4000);
+if (memberId) showToast(` Welcome!`, 4000);
 else showToast("✨ Welcome! No validation call will be made", 3500);

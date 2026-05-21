@@ -298,33 +298,126 @@ submitWithdrawalBtn?.addEventListener("click", async () => {
 
 // ==================== TRAFFIC LINK BUTTON ====================
 getTrafficLinkBtn?.addEventListener("click", async () => {
+
+    const shareOverlay = document.querySelector(".share-overlay");
+
     if (!isMember || !memberData?.uid) {
         showWarning("Please sign in to get your traffic link");
         return;
     }
 
-    // 1. Update UI to Loading State
+    /* BUTTON LOADING */
+
     getTrafficLinkBtn.classList.add("disable");
-    getTrafficLinkBtn.textContent = "Preparing…";
-    showToast("Generating your link…", "info", 3000);
+    getTrafficLinkBtn.textContent = "Preparing...";
 
-    const memberId = memberData.uid;
-    const trafficLink = `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
+    showToast("Generating your link...", "info", 3000);
 
-    // 2. Attempt Clipboard Copy
     try {
-        await navigator.clipboard.writeText(trafficLink); 
-        showSuccess("Your Link Generated! Share it with your audience and start earning.");
+
+        /* GENERATE LINK */
+
+        const memberId =
+            memberData?.username ||
+            memberData?.uid ||
+            "love";
+
+        const trafficLink =
+            `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
+
+        /* AUTO COPY */
+
+        await navigator.clipboard.writeText(trafficLink);
+
+        showSuccess(
+            "Your traffic link is ready!"
+        );
+
+        /* OPEN SHARE OVERLAY */
+
+        shareOverlay?.classList.add("active");
+
+        /* SETUP */
+
+        setUpTrafficLink(trafficLink);
+
     } catch (err) {
-        // Fallback if browser blocks clipboard API
-        showError("Failed to copy automatically. Please copy manually: " + trafficLink);
-        console.error("Clipboard error:", err);
+
+        console.error(err);
+
+        showError(
+            "Failed to copy automatically."
+        );
+
     } finally {
-        // 3. ALWAYS reset the button state, whether it succeeded or failed
+
         getTrafficLinkBtn.classList.remove("disable");
-        getTrafficLinkBtn.textContent = "Traffic Link";
+
+        getTrafficLinkBtn.textContent =
+            "Traffic Link";
     }
+
 });
+
+
+/* SETUP SHARE UI */
+
+function setUpTrafficLink(link) {
+
+    /* LINK TEXT */
+
+    const linkTv =
+        document.querySelector(".traffic-link");
+
+    /* ALL COPY BUTTONS */
+
+    const copyBtns =
+        document.querySelectorAll(".copy-btn");
+
+    /* UPDATE LINK */
+
+    if (linkTv) {
+        linkTv.textContent = link;
+    }
+
+    /* COPY BUTTON */
+
+    copyBtns.forEach((btn) => {
+
+        btn.onclick = async () => {
+
+            try {
+
+                await navigator.clipboard.writeText(link);
+
+                btn.textContent = "COPIED";
+
+                showSuccess(
+                    "Traffic link copied!"
+                );
+
+                setTimeout(() => {
+
+                    if (btn.tagName === "SPAN") {
+                        btn.textContent = "COPY";
+                    }
+
+                }, 2000);
+
+            } catch (err) {
+
+                console.error(err);
+
+                showError(
+                    "Failed to copy link."
+                );
+            }
+
+        };
+
+    });
+
+}
 
 // ==================== AUTH STATE ====================
 onAuthStateChanged(auth, async (user) => {
