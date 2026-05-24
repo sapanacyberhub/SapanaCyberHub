@@ -25,6 +25,9 @@ const functions = getFunctions(app, "us-central1");
 // Cloud Functions
 const getMemberProfile = httpsCallable(functions, "getViraLoopDashboard");
 
+const shareOverlay = document.querySelector(".share-overlay");
+const backFromShare = document.querySelector(".back-from-share");
+
 // ==================== DOM ELEMENTS ====================
 const earning = document.querySelector(".earning");
 const userDp = document.querySelector(".user-dp");
@@ -258,7 +261,7 @@ function setProfile(member) {
     if (nameEl) nameEl.textContent = nameValue;
     if (earningEl) earningEl.textContent = `₹${earningValue}`;
     if (profilePNEl) profilePNEl.textContent = nameValue;
-    if (profileEarningEl) profileEarningEl.textContent = `₹${earningValue}`;
+    if (profileEarningEl) profileEarningEl.textContent = `Earning :₹${earningValue}`;
 }
 
 // ==================== WITHDRAWAL SUBMIT (placeholder) ====================
@@ -296,48 +299,65 @@ submitWithdrawalBtn?.addEventListener("click", async () => {
     }
 });
 
-// ==================== TRAFFIC LINK BUTTON ====================
+
+
+
+/* ================================
+   TRAFFIC LINK GENERATOR
+================================ */
+
 getTrafficLinkBtn?.addEventListener("click", async () => {
 
-    const shareOverlay = document.querySelector(".share-overlay");
+
+    /* CHECK LOGIN */
 
     if (!isMember || !memberData?.uid) {
-        showWarning("Please sign in to get your traffic link");
+
+        showWarning(
+            "Please sign in to get your traffic link"
+        );
+
         return;
     }
 
     /* BUTTON LOADING */
 
     getTrafficLinkBtn.classList.add("disable");
-    getTrafficLinkBtn.textContent = "Preparing...";
 
-    showToast("Generating your link...", "info", 3000);
+    getTrafficLinkBtn.textContent =
+        "Preparing...";
+
+    showToast(
+        "Generating your link...",
+        "info",
+        3000
+    );
 
     try {
 
         /* GENERATE LINK */
 
         const memberId =
-            memberData?.username ||
             memberData?.uid ||
             "love";
-
         const trafficLink =
             `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
 
         /* AUTO COPY */
 
-        await navigator.clipboard.writeText(trafficLink);
+        await navigator.clipboard.writeText(
+            trafficLink
+        );
 
         showSuccess(
             "Your traffic link is ready!"
         );
 
-        /* OPEN SHARE OVERLAY */
+        /* OPEN OVERLAY */
 
         shareOverlay?.classList.add("active");
 
-        /* SETUP */
+        /* SETUP SHARE UI */
 
         setUpTrafficLink(trafficLink);
 
@@ -346,12 +366,16 @@ getTrafficLinkBtn?.addEventListener("click", async () => {
         console.error(err);
 
         showError(
-            "Failed to copy automatically."
+            "Failed to generate traffic link."
         );
 
     } finally {
 
-        getTrafficLinkBtn.classList.remove("disable");
+        /* RESET BUTTON */
+
+        getTrafficLinkBtn.classList.remove(
+            "disable"
+        );
 
         getTrafficLinkBtn.textContent =
             "Traffic Link";
@@ -360,7 +384,9 @@ getTrafficLinkBtn?.addEventListener("click", async () => {
 });
 
 
-/* SETUP SHARE UI */
+/* ================================
+   SETUP SHARE UI
+================================ */
 
 function setUpTrafficLink(link) {
 
@@ -369,18 +395,29 @@ function setUpTrafficLink(link) {
     const linkTv =
         document.querySelector(".traffic-link");
 
-    /* ALL COPY BUTTONS */
+    /* COPY BUTTONS */
 
     const copyBtns =
         document.querySelectorAll(".copy-btn");
 
+    /* SOCIAL ICONS */
+
+    const shareIcons =
+        document.querySelectorAll(".share-icon");
+
+    /* MORE BUTTON */
+
+    const moreBtn =
+        document.querySelector(".more");
+
     /* UPDATE LINK */
 
     if (linkTv) {
+
         linkTv.textContent = link;
     }
 
-    /* COPY BUTTON */
+    /* COPY BUTTONS */
 
     copyBtns.forEach((btn) => {
 
@@ -388,21 +425,26 @@ function setUpTrafficLink(link) {
 
             try {
 
-                await navigator.clipboard.writeText(link);
-
-                btn.textContent = "COPIED";
+                await navigator.clipboard.writeText(
+                    link
+                );
 
                 showSuccess(
                     "Traffic link copied!"
                 );
 
-                setTimeout(() => {
+                /* CHANGE COPY TEXT */
 
-                    if (btn.tagName === "SPAN") {
+                if (btn.tagName === "SPAN") {
+
+                    btn.textContent = "COPIED";
+
+                    setTimeout(() => {
+
                         btn.textContent = "COPY";
-                    }
 
-                }, 2000);
+                    }, 2000);
+                }
 
             } catch (err) {
 
@@ -417,7 +459,184 @@ function setUpTrafficLink(link) {
 
     });
 
+
+
+    //    SHARE MESSAGE
+
+    const shareText =
+        `🚀 Join Viraloop and start earning with traffic sharing!
+
+🔥 Top member before 15 June gets a chance to win REDMAGIC 11 AIR.
+
+👇 Join now:
+${link}`;
+
+
+    //    APP SHARE LINKS
+
+    const shareApps = [
+
+        /* FACEBOOK */
+
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
+
+        /* TWITTER / X */
+
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
+
+        /* INSTAGRAM */
+
+        null,
+
+        /* LINKEDIN */
+
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`,
+
+        /* WHATSAPP */
+
+        `https://wa.me/?text=${encodeURIComponent(shareText)}`
+    ];
+
+
+    /* =========================
+       SOCIAL ICONS
+    ========================= */
+
+    shareIcons.forEach((icon, index) => {
+
+        icon.onclick = async () => {
+
+            /* INSTAGRAM */
+
+            if (index === 2) {
+
+                try {
+
+                    /* COPY TEXT */
+
+                    await navigator.clipboard.writeText(
+                        shareText
+                    );
+
+                    showSuccess(
+                        "Caption copied! Paste it on Instagram story or bio."
+                    );
+
+                    /* OPEN APP */
+
+                    window.location.href =
+                        "instagram://app";
+
+                    /* FALLBACK */
+
+                    setTimeout(() => {
+
+                        window.open(
+                            "https://instagram.com",
+                            "_blank"
+                        );
+
+                    }, 1500);
+
+                } catch (err) {
+
+                    console.error(err);
+
+                    showError(
+                        "Failed to open Instagram."
+                    );
+                }
+
+                return;
+            }
+
+
+            /* NORMAL APPS */
+
+            const appUrl =
+                shareApps[index];
+
+            if (appUrl) {
+
+                window.open(
+                    appUrl,
+                    "_blank"
+                );
+            }
+
+        };
+
+    });
+
+
+
+    /* =========================
+       MORE BUTTON
+    ========================= */
+
+    moreBtn?.addEventListener("click", async () => {
+
+        /* SYSTEM SHARE API */
+
+        if (navigator.share) {
+
+            try {
+
+                await navigator.share({
+
+                    title:
+                        "Viraloop Traffic Link",
+
+                    text:
+                        shareText,
+
+                    url:
+                        link
+
+                });
+
+            } catch (err) {
+
+                console.log(
+                    "Share cancelled"
+                );
+            }
+
+        } else {
+
+            /* FALLBACK */
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    link
+                );
+
+                showSuccess(
+                    "Link copied successfully!"
+                );
+
+            } catch (err) {
+
+                showError(
+                    "Unable to share."
+                );
+            }
+
+        }
+
+    });
+
+
+
 }
+
+backFromShare?.addEventListener("click", () => {
+    shareOverlay?.classList.remove("active");
+});
+
+
+
 
 // ==================== AUTH STATE ====================
 onAuthStateChanged(auth, async (user) => {
@@ -465,77 +684,77 @@ function readyLeaderBoard(topMember) {
     const topMembers = [
         {
             name: "Ram",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 15000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 14000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 13000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 12000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 11000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 10000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 9000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 8000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 7000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 6000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 5000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 4000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 3000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 2000
         },
         {
             name: "radha",
-            dp: "/assets/na.png",
+            memberDp: "/assets/na.png",
             traffic: 1000
         }];
 
@@ -568,15 +787,15 @@ function readyLeaderBoard(topMember) {
             if (index == 0) {
                 nameOne.textContent = top[index].name;
                 trafficOne.textContent = "Traffic:" + top[index].traffic;
-                dpOne.src = top[index].dp;
+                dpOne.src = top[index].memberDp || "/assets/na.png";
             } else if (index == 1) {
                 nameTwo.textContent = top[index].name;
                 trafficTwo.textContent = "Traffic:" + top[index].traffic;
-                dpTwo.src = top[index].dp;
+                dpTwo.src = top[index].memberDp || "/assets/na.png";
             } else if (index == 2) {
                 nameThree.textContent = top[index].name;
                 trafficThree.textContent = "Traffic : " + top[index].traffic;
-                dpThree.src = top[index].dp;
+                dpThree.src = top[index].memberDp || "/assets/na.png";
             }
         });
     }
@@ -587,7 +806,7 @@ function readyLeaderBoard(topMember) {
             <div class="perfomer">
             <div class="per-d">
                 <strong class="rank">#${index + 4}</strong>
-                <img class="li-dp" src="${u.dp}" alt="">
+                <img class="li-dp" src="${u.memberDp || "/assets/na.png"}" alt="memberDp">
                 <strong class="li-name">${u.name}</strong>
             </div>
             <strong class="li-traffic"> Traffic: ${u.traffic}</strong>
