@@ -108,8 +108,7 @@
 
 .user-dp {
     width: 35px;
-    min-height: 35px;
-    height: auto;
+    height: 35px;
     object-fit: cover;
     border: 2px dashed;
     background: #000000;
@@ -792,12 +791,13 @@
     border: 1px solid white;
     color: #000000;
     border-radius: 999px;
-    padding: 10px;
+    padding: 4px 10px;
     overflow: hidden;
 
 }
 .prevEarning{
     transform: scale(0.6);
+    border-radius: 2px solid red ;
 
 }
 
@@ -1007,6 +1007,28 @@
 
 }
 
+.trafficboard-t-na {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+.trafficboard-t-na.active {
+    display: flex;
+}
+
+.trafficboard-t-na img {
+    width: 100px;
+    object-fit: contain;
+}
+
+.trafficboard-t-na span {
+    color: #000000;
+    font-weight: 900;
+    margin-top: -12px;
+
+}
+
 .logo-shimmer-container {
     position: relative;
     display: flex;
@@ -1027,6 +1049,26 @@
 }
 
 .loader-container.active {
+    display: flex;
+}
+.trafficboard-loader-container{
+    text-align: center;
+    width: 320px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.725);
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.trafficboard-loader-container.active {
     display: flex;
 }
 
@@ -1391,6 +1433,10 @@
     flex: 1;
     min-height: 0;
 }
+.all-p-list.notAvalaible{
+    background-color: white;
+}
+
 
 
 .perfomer {
@@ -1963,4 +2009,25 @@
 .back-from-share:active{
     transform: rotate(90deg) scale(0.8);
     color: #ff0000;
+}
+
+
+.trafficBoard-loader{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+.trafficBoard-loader img{
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+.trafficBoard-loader-massege{
+
 }

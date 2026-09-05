@@ -1,0 +1,529 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    width: 100%;
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    box-shadow: 0 0 10px #fff, inset 0 0 100px #ffffff;
+    background: radial-gradient(circle at 0% 100%, rgb(255, 128, 0) 0%, transparent 70%),
+        radial-gradient(circle at 0% 0%, rgb(93, 48, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 0%, rgb(40, 219, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 100%, rgb(255, 230, 0) 0%, transparent 90%);
+    overflow-y: auto;
+    scrollbar-width: none;
+    align-items: center;
+    justify-content: center;
+
+
+}
+
+.scroll-indicator {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.scroll-indicator .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-indicator .dot.active {
+    transform: scale(1.3);
+    background-color: gold;
+    border-color: #ffffff;
+    box-shadow:
+        0 0 10px #ffffff,
+        inset 0 0 25px #ffffff,
+        0 0 40px rgba(255, 255, 255, 0.6);
+    animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 8px #000000, 0 0 20px #000000;
+    }
+
+    100% {
+        box-shadow: 0 0 15px #ffffff, 0 0 35px #ffffff, 0 0 50px #ff4b5c;
+    }
+}
+
+@media (max-width: 600px) {
+    .scroll-indicator {
+        right: 4px;
+        gap: 15px;
+    }
+
+    .scroll-indicator .dot {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+
+.snap-section {
+    width: 100%;
+    height: 100vh;
+    scroll-snap-align: start;
+    /* Pin layout edge point */
+    scroll-snap-stop: always;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    box-shadow: 0 -1px 4px rgb(255, 129, 129);
+}
+
+.card {
+    width: 90%;
+    max-width: 600px;
+    padding: 4px;
+    height: 80%;
+    background: radial-gradient(circle at 0% 100%, rgb(255, 128, 0) 0%, transparent 70%),
+        radial-gradient(circle at 0% 0%, rgb(93, 48, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 0%, rgb(40, 219, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 100%, rgb(255, 230, 0) 0%, transparent 90%);
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px #fff, inset 0 0 25px #eaeaea;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px;
+}
+
+
+.hero-start {
+
+    animation: fadein-slide-up 2s forwards;
+}
+
+.hero-start.active {
+    animation: fadein-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadein-slide-up {
+    0% {
+        opacity: 0;
+        /* Starts lower down and smaller */
+        transform: scale(0.5) translateY(50px);
+    }
+
+    100% {
+        opacity: 1;
+        /* Moves to its final, natural position */
+        transform: scale(1) translateY(0);
+    }
+}
+
+
+
+
+.hero-start {
+    width: 50%;
+    min-width: 250px;
+    max-width: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    filter: drop-shadow(0 0 20px #fff205) brightness(1.2);
+}
+
+.brand {
+    background: linear-gradient(120deg,
+            #010101 35%,
+            gold 40%,
+            #040404 50%);
+    background-size: 200%;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(-1px 2px 8px #7d7676);
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+    font-weight: 900;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid rgb(225, 255, 2);
+    text-align: center;
+    box-shadow: inset 0 0 10px #fff205;
+    border-radius: 5px;
+    padding: 0 10px;
+    animation:
+        shimmer 5s ease-in-out infinite,
+        fadein-slide-up 2s forwards;
+    z-index: 2;
+}
+
+.love-note {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    font-weight: BOLDER;
+    COLOR: #2c2929;
+    overflow: hidden;
+    letter-spacing: 2px;
+    text-align: center;
+    animation:
+        typing 2s steps(20, end) forwards
+}
+
+.one {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 0.8rem;
+    white-space: wrap;
+    COLOR: #020202;
+    font-weight: BOLDER;
+    text-align: center;
+    animation:
+        typing 2s steps(20, end) forwards
+}
+
+
+.two {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    COLOR: #090909;
+    text-align: center;
+}
+.rise {
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 0.8rem;
+    text-align: center;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+
+}
+
+/* Move the background position from right to left to pass the shine over the text */
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+
+.logo {
+    width: 90%;
+    height: auto;
+    justify-self: center;
+    margin-top: -20px;
+    z-index: 2;
+}
+
+.logo-stand {
+    width: 90%;
+    margin-top: -40px;
+    z-index: 1;
+}
+
+.brand-f {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.brand-l {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(255, 172, 65, 0.5);
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: -10px;
+}
+
+.brand-l span:nth-child(1) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, black, rgba(255, 217, 0, 0.521), gold);
+}
+
+.brand-l span:nth-child(2) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, gold, rgba(255, 217, 0, 0.521), black);
+}
+
+.bless-n {
+    font-family: normal;
+    font-size: 0.4rem;
+    margin-top: 10px;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0;
+}
+
+.card-n {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: -15px;
+    z-index: 2;
+}
+
+.member-nt {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 4px;
+    font-family: cursive;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    padding: 0;
+    margin-top: -10px;
+}
+
+.member-nt span:nth-child(1) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, black, rgba(255, 217, 0, 0.521), gold);
+}
+
+.member-nt span:nth-child(2) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, gold, rgba(255, 217, 0, 0.521), black);
+}
+
+.member-n {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+.official-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    justify-content: space-evenly;
+}
+
+.devider {
+    height: 90%;
+    width: 1px;
+    background: linear-gradient(to bottom, rgb(3, 3, 3), gold, black);
+}
+
+.eoli {
+    display: flex;
+    width: max-content;
+    flex-direction: column;
+    z-index: 2;
+}
+
+.midtag {
+    color: #ffc105;
+    font-size: 0.6rem;
+    z-index: 2;
+}
+
+.emidc {
+    z-index: 2;
+    letter-spacing: 1px;
+    color: #fff;
+    font-size: 0.4rem;
+}
+
+.eolvbc {
+    width: 40px;
+    height: 40px;
+    padding: 1px;
+    border-radius: 8px;
+    border: 2px solid gold;
+    z-index: 2;
+    overflow: hidden; /* Ensures canvas respects the 10px border-radius */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff; /* White background behind QR code */
+}
+
+
+/* Ensure the generated canvas inside fits perfectly */
+.eolvbc canvas {
+    width: 100% ;
+    height: 100% ;
+    display: block;
+}
+
+
+.con-par {
+    width: 200px;
+    max-height: 280px;
+    position: relative;
+    aspect-ratio: 1.9 / 3;
+    border: gold 4px solid;
+    box-shadow: 0 0 10px gold;
+    background-color: #000000;
+    border-radius: 10px;
+    display: flex;
+    padding: 15px 0;
+    align-items: center;
+    overflow: hidden;
+    flex-direction: column;
+    transform: rotateZ(-45deg);
+    pointer-events: none;
+    z-index: 1;
+    animation: up-down 2s ease-in-out infinite alternate;
+}
+
+
+@keyframes up-down {
+    0% {
+        transform: translateY(0) rotateZ(-20deg);
+    }
+
+    100% {
+        transform: translateY(-10px) rotateZ(-20deg);
+    }
+}
+
+/* Base style for all corner elements */
+.corner {
+    position: absolute;
+    width: 40px;
+    /* Adjust size as needed */
+    height: 40px;
+    object-fit: contain;
+    pointer-events: none;
+    /* Prevents corners from blocking clicks */
+}
+
+/* Specific positioning & rotation for each corner */
+.corner.top-left {
+    top: 0;
+    left: 0;
+}
+
+.corner.top-right {
+    top: 0;
+    right: 0;
+    transform: scaleX(-1);
+    /* Flips horizontally */
+}
+
+.corner.bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: scaleY(-1);
+    /* Flips vertically */
+}
+
+.corner.bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+    /* Rotates 180 degrees */
+}
+
+.btn-join {
+    border-radius: 20px;
+    background: linear-gradient(to right, gold, #ffcc00);
+    color: #6e6e6e;
+    padding: 10px 20px;
+    box-shadow: 0 0 10px gold, inset 0 0 5px #fff205;
+    display: flex;
+    transform: skewX(20px);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-join:hover, .btn-join:focus ,.btn-join:active {
+    background: linear-gradient(to right, #ffcc00, gold);
+    box-shadow: -4px 2px 1px gold, inset 0 0 10px #ffffff42;
+    border-radius: 10px;
+    transform: skewX(-20deg) scale(0.9);
+}
+
+.btn-join a {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    text-decoration: none;
+    background: linear-gradient(120deg,
+            #010101 35%,
+            rgb(255, 255, 255) 40%,
+            #040404 50%);
+    background-size: 200%;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    animation: shimmer 5s ease-in-out infinite;
+}

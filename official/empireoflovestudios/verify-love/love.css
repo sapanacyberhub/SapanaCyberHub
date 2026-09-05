@@ -1,0 +1,116 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom, rgb(255, 192, 203), rgb(255, 253, 253), transparent 50%);
+}
+
+.vlmp {
+    width: 80%;
+    height: 80vh;
+    min-width: 280px;
+    max-width: 600px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 4px solid white;
+    border-radius: 50px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 -8px 4px rgba(255, 255, 255, 0.311), 0 8px 4px rgba(255, 240, 29, 0.311), inset 0 0 10px rgb(243, 243, 243);
+}
+
+.lmvt {
+    width: 50%;
+    object-fit: contain;
+    filter: contrast(1) drop-shadow(0 0 10px gold);
+}
+
+.lmvtlp {
+    width: 50%;
+    object-fit: contain;
+    filter: contrast(0.1) drop-shadow(0 0 1px gold);
+    animation: loadinglmvt 1s infinite alternate;
+}
+
+@keyframes loadinglmvt {
+    0% {
+
+        filter: contrast(0.0) drop-shadow(0 0 0 white);
+        transform: translateY(10px);
+    }
+
+    100% {
+        filter: contrast(0.1) drop-shadow(0 0 1 white);
+        transform: translateY(0);
+    }
+}
+
+
+
+/* 📐 Sizing your specific elements */
+.lmpd {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+}
+
+/* Example: Making .lmmi look like a small avatar or icon box */
+.lmmi {
+    width: 80%;
+    background: linear-gradient(to right, rgba(36, 255, 244, 0.264), rgba(0, 0, 255, 0.289));
+    box-shadow: inset 0 0 10px rgb(255, 255, 255);
+    border: 2px solid rgb(224, 230, 230);
+    height: 16px;
+    flex-shrink: 0;
+    padding: 8px;
+    border-radius: 15px;
+}
+
+/* Example: Making .lmn look like a text loading bar */
+.lmn {
+    width: 80%;
+    background: linear-gradient(to right, rgba(36, 255, 244, 0.264), rgba(0, 0, 255, 0.289));
+    box-shadow: inset 0 0 10px rgb(255, 255, 255);
+    border: 2px solid rgb(224, 230, 230);
+    height: 16px;
+    flex-shrink: 0;
+    padding: 8px;
+    border-radius: 15px;
+}
+
+/* 🌟 THE SHIMMER EFFECT CORE */
+.shimmer-box {
+    display: inline-block;
+    /* Required for width/height to apply to strong tags */
+    background: #e2e8f0;
+    background-image: linear-gradient(90deg,
+            #e2e8f0 0px,
+            #f1f5f9 40px,
+            #e2e8f0 80px);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}

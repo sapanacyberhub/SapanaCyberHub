@@ -24,6 +24,7 @@ const functions = getFunctions(app, "us-central1");
 
 // Cloud Functions
 const getMemberProfile = httpsCallable(functions, "getViraLoopDashboard");
+const getTopMembers = httpsCallable(functions, "getViraLoopTrafficLeaderboard");
 
 const shareOverlay = document.querySelector(".share-overlay");
 const backFromShare = document.querySelector(".back-from-share");
@@ -112,6 +113,7 @@ function toggleProfile() {
     const isOpen = profileOverlay.classList.toggle("active");
     if (isOpen) {
         setProfile(memberData);
+        renderTransactions(memberTransactions);
     } else {
         if (isWithdrawing) closeWithdrawal();
     }
@@ -187,6 +189,7 @@ function clearForm() {
 
 // ==================== PROFILE LOADING ====================
 let memberTransactions = [];
+let todayVL = [];
 
 async function fetchMemberDetails() {
     if (!isMember) return;
@@ -199,6 +202,8 @@ async function fetchMemberDetails() {
         if (result?.data?.success) {
             memberData = result.data.memberDetails;
             memberTransactions = result.data.transactions || [];
+            todayVL = result.data.currentEvent || [];
+            
         } else {
             memberData = null;
             memberTransactions = [];
@@ -211,60 +216,76 @@ async function fetchMemberDetails() {
         showError("Network error. Could not load profile.");
     } finally {
         loader?.classList.remove("active");
-        setProfile(memberData);
-        renderTransactions(memberTransactions);
+        initializeDash();
     }
+}
+
+
+function initializeDash() {
+
+    const nameEl = document.querySelector(".m-n");
+    const Dp = document.querySelector(".profile-dp");
+    const earningEl = document.querySelector(".earning");
+    if (!member) {
+        if (nameEl) nameEl.textContent = isMember ? "Error" : "Login";
+        if (earningEl) earningEl.textContent = "";
+        return;
+    }
+    if (nameEl) nameEl.textContent = nameValue;
+    if (Dp) Dp.textContent = `₹${member.memberDp || "/assets/logo/no-dp.png"}`;
+    if (earningEl) earningEl.textContent = `₹${earningValue.toFixed(2)}`;
+
+
+    
 }
 
 function renderTransactions(transactions) {
     if (!transactions || transactions.length === 0) {
         notAvailable?.classList.add("active");
-        // If there's a specific transaction list UI, clear it here
         return;
     }
     notAvailable?.classList.remove("active");
 
-    // Example: Populate transaction list (adjust selector as needed)
     const listEl = document.querySelector(".transaction-list");
+
     if (listEl) {
         listEl.innerHTML = transactions
             .map(
                 (tx) =>
                     `<div class="tx-item">
             <span>${tx.type || "Reward"}</span>
-            <span>₹${tx.amount || 0}</span>
-            <span>${new Date(tx.timestamp).toLocaleDateString()}</span>
-          </div>`
+            <span style="color:${tx.type == "withdrawal" ? "red" : "black"};">₹${tx.amount || 0}</span>
+            <span>${new Date(tx.transactionDate).toLocaleDateString()}</span>
+          </div>`   // FIXED: use transactionDate instead of timestamp
             )
             .join("");
     }
 }
 
 function setProfile(member) {
-    const nameEl = document.querySelector(".m-n");
-    const earningEl = document.querySelector(".earning");
     const profileEarningEl = document.querySelector(".t-e");
     const profilePNEl = document.querySelector(".p-u-n");
+    const preDay = document.querySelector(".prevEarning");
 
     if (!member) {
-        if (nameEl) nameEl.textContent = isMember ? "Error" : "Login";
-        if (earningEl) earningEl.textContent = "";
+        if (preDay) preDay.textContent = "";
         if (profileEarningEl) profileEarningEl.textContent = "";
         if (profilePNEl) profilePNEl.textContent = "";
         return;
     }
 
-    // Support both field names just in case
-    const earningValue = member.glob_earning || member.global_earning || 0;
+    // FIXED: use globalEarnings (the correct field name)
+    const earningValue = member.globalEarnings || 0;
+    const yesterdayEarning = member.yesterdayEarnings || 0;
     const nameValue = member.name || "Member";
 
-    if (nameEl) nameEl.textContent = nameValue;
-    if (earningEl) earningEl.textContent = `₹${earningValue}`;
+
+    if (preDay) preDay.textContent = `₹${yesterdayEarning.toFixed(2)}`;
     if (profilePNEl) profilePNEl.textContent = nameValue;
-    if (profileEarningEl) profileEarningEl.textContent = `Earning :₹${earningValue}`;
+    if (profileEarningEl) profileEarningEl.textContent = `Earning :₹${earningValue.toFixed(2) || 0}`;
 }
 
-// ==================== WITHDRAWAL SUBMIT (placeholder) ====================
+// ==================== WITHDRAWAL SUBMIT ====================
 submitWithdrawalBtn?.addEventListener("click", async () => {
     if (!isMember || !memberData) {
         showWarning("Please log in first");
@@ -306,337 +327,130 @@ submitWithdrawalBtn?.addEventListener("click", async () => {
    TRAFFIC LINK GENERATOR
 ================================ */
 
+// FIXED: make the callback async (it uses await inside)
 getTrafficLinkBtn?.addEventListener("click", async () => {
-
-
-    /* CHECK LOGIN */
-
     if (!isMember || !memberData?.uid) {
-
-        showWarning(
-            "Please sign in to get your traffic link"
-        );
-
+        showWarning("Please sign in to get your traffic link");
         return;
     }
 
-    /* BUTTON LOADING */
-
     getTrafficLinkBtn.classList.add("disable");
-
-    getTrafficLinkBtn.textContent =
-        "Preparing...";
-
-    showToast(
-        "Generating your link...",
-        "info",
-        3000
-    );
+    getTrafficLinkBtn.textContent = "Preparing...";
+    showToast("Generating your link...", "info", 3000);
 
     try {
+        const memberId = memberData?.uid || "love";
+        const trafficLink = `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
 
-        /* GENERATE LINK */
-
-        const memberId =
-            memberData?.uid ||
-            "love";
-        const trafficLink =
-            `https://sapanacyberhub.in/online-earning/viraloop/validate-traffic/?ref=${memberId}`;
-
-        /* AUTO COPY */
-
-        await navigator.clipboard.writeText(
-            trafficLink
-        );
-
-        showSuccess(
-            "Your traffic link is ready!"
-        );
-
-        /* OPEN OVERLAY */
+        await navigator.clipboard.writeText(trafficLink);
+        showSuccess("Your traffic link is ready!");
 
         shareOverlay?.classList.add("active");
-
-        /* SETUP SHARE UI */
-
         setUpTrafficLink(trafficLink);
-
     } catch (err) {
-
         console.error(err);
-
-        showError(
-            "Failed to generate traffic link."
-        );
-
+        showError("Failed to generate traffic link.");
     } finally {
-
-        /* RESET BUTTON */
-
-        getTrafficLinkBtn.classList.remove(
-            "disable"
-        );
-
-        getTrafficLinkBtn.textContent =
-            "Traffic Link";
+        getTrafficLinkBtn.classList.remove("disable");
+        getTrafficLinkBtn.textContent = "Traffic Link";
     }
-
 });
-
 
 /* ================================
    SETUP SHARE UI
 ================================ */
-
 function setUpTrafficLink(link) {
-
-    /* LINK TEXT */
-
-    const linkTv =
-        document.querySelector(".traffic-link");
-
-    /* COPY BUTTONS */
-
-    const copyBtns =
-        document.querySelectorAll(".copy-btn");
-
-    /* SOCIAL ICONS */
-
-    const shareIcons =
-        document.querySelectorAll(".share-icon");
-
-    /* MORE BUTTON */
-
-    const moreBtn =
-        document.querySelector(".more");
-
-    /* UPDATE LINK */
+    const linkTv = document.querySelector(".traffic-link");
+    const copyBtns = document.querySelectorAll(".copy-btn");
+    const shareIcons = document.querySelectorAll(".share-icon");
+    const moreBtn = document.querySelector(".more");
 
     if (linkTv) {
-
         linkTv.textContent = link;
     }
 
-    /* COPY BUTTONS */
-
     copyBtns.forEach((btn) => {
-
         btn.onclick = async () => {
-
             try {
-
-                await navigator.clipboard.writeText(
-                    link
-                );
-
-                showSuccess(
-                    "Traffic link copied!"
-                );
-
-                /* CHANGE COPY TEXT */
-
+                await navigator.clipboard.writeText(link);
+                showSuccess("Traffic link copied!");
                 if (btn.tagName === "SPAN") {
-
                     btn.textContent = "COPIED";
-
                     setTimeout(() => {
-
                         btn.textContent = "COPY";
-
                     }, 2000);
                 }
-
             } catch (err) {
-
                 console.error(err);
-
-                showError(
-                    "Failed to copy link."
-                );
+                showError("Failed to copy link.");
             }
-
         };
-
     });
 
-
-
-    //    SHARE MESSAGE
-
-    const shareText =
-        `🚀 Join Viraloop and start earning with traffic sharing!
+    const shareText = `🚀 Join Viraloop and start earning with traffic sharing!
 
 🔥 Top member before 15 June gets a chance to win REDMAGIC 11 AIR.
 
 👇 Join now:
 ${link}`;
 
-
-    //    APP SHARE LINKS
-
     const shareApps = [
-
-        /* FACEBOOK */
-
         `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
-
-        /* TWITTER / X */
-
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
-
-        /* INSTAGRAM */
-
-        null,
-
-        /* LINKEDIN */
-
+        null, // Instagram
         `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`,
-
-        /* WHATSAPP */
-
         `https://wa.me/?text=${encodeURIComponent(shareText)}`
     ];
 
-
-    /* =========================
-       SOCIAL ICONS
-    ========================= */
-
     shareIcons.forEach((icon, index) => {
-
         icon.onclick = async () => {
-
-            /* INSTAGRAM */
-
             if (index === 2) {
-
                 try {
-
-                    /* COPY TEXT */
-
-                    await navigator.clipboard.writeText(
-                        shareText
-                    );
-
-                    showSuccess(
-                        "Caption copied! Paste it on Instagram story or bio."
-                    );
-
-                    /* OPEN APP */
-
-                    window.location.href =
-                        "instagram://app";
-
-                    /* FALLBACK */
-
+                    await navigator.clipboard.writeText(shareText);
+                    showSuccess("Caption copied! Paste it on Instagram story or bio.");
+                    window.location.href = "instagram://app";
                     setTimeout(() => {
-
-                        window.open(
-                            "https://instagram.com",
-                            "_blank"
-                        );
-
+                        window.open("https://instagram.com", "_blank");
                     }, 1500);
-
                 } catch (err) {
-
                     console.error(err);
-
-                    showError(
-                        "Failed to open Instagram."
-                    );
+                    showError("Failed to open Instagram.");
                 }
-
                 return;
             }
 
-
-            /* NORMAL APPS */
-
-            const appUrl =
-                shareApps[index];
-
+            const appUrl = shareApps[index];
             if (appUrl) {
-
-                window.open(
-                    appUrl,
-                    "_blank"
-                );
+                window.open(appUrl, "_blank");
             }
-
         };
-
     });
-
-
-
-    /* =========================
-       MORE BUTTON
-    ========================= */
 
     moreBtn?.addEventListener("click", async () => {
-
-        /* SYSTEM SHARE API */
-
         if (navigator.share) {
-
             try {
-
                 await navigator.share({
-
-                    title:
-                        "Viraloop Traffic Link",
-
-                    text:
-                        shareText,
-
-                    url:
-                        link
-
+                    title: "Viraloop Traffic Link",
+                    text: shareText,
+                    url: link
                 });
-
             } catch (err) {
-
-                console.log(
-                    "Share cancelled"
-                );
+                console.log("Share cancelled");
             }
-
         } else {
-
-            /* FALLBACK */
-
             try {
-
-                await navigator.clipboard.writeText(
-                    link
-                );
-
-                showSuccess(
-                    "Link copied successfully!"
-                );
-
+                await navigator.clipboard.writeText(link);
+                showSuccess("Link copied successfully!");
             } catch (err) {
-
-                showError(
-                    "Unable to share."
-                );
+                showError("Unable to share.");
             }
-
         }
-
     });
-
-
-
 }
 
 backFromShare?.addEventListener("click", () => {
     shareOverlay?.classList.remove("active");
 });
-
-
-
 
 // ==================== AUTH STATE ====================
 onAuthStateChanged(auth, async (user) => {
@@ -663,156 +477,123 @@ onAuthStateChanged(auth, async (user) => {
 
 
 
-// leaderboard toggle
-
+// ==================== LEADERBOARD ====================
 const leaderBoardOverlay = document.querySelector(".leaderboard-overlay");
 const openLeaderBoard = document.querySelector(".see-leaderboard");
 const backFromLeaderBoard = document.querySelector(".back-from-leaderboard");
 
-openLeaderBoard?.addEventListener("click", () => {
+// FIXED: not used as a DOM element; just keep as a place for the sorted array
+let trafficBoard = [];
+const trafficboardLoader = document.querySelector(".trafficboard-loader-container");
 
+openLeaderBoard?.addEventListener("click", () => {
+    if (!isMember || !memberData) {
+        // show toast 
+        showError("Network error. Could not load leaderboard.");
+        return;
+    }
+
+    // Show loader before starting the fetch
+    trafficboardLoader?.classList.add("active");
     readyLeaderBoard();
     leaderBoardOverlay?.classList.add("active");
 });
+
 backFromLeaderBoard?.addEventListener("click", () => {
     leaderBoardOverlay?.classList.remove("active");
 });
 
-function readyLeaderBoard(topMember) {
+// FIXED: made async, removed unused parameter, fixed loader logic, variable names, and field names
+async function readyLeaderBoard() {
+    try {
+        const result = await getTopMembers({});
+        if (result?.data?.success) {
+            trafficBoard = result.data.leaderboard;
+        } else {
+            trafficBoard = [];
+            showError("Traffic Board not available. Please try again later.");
+        }
+    } catch (error) {
+        trafficBoard = [];
+        showError("Network error. Could not load leaderboard.");
+    } finally {
+        // Hide loader
+        trafficboardLoader?.classList.remove("active");
 
-    // demo topMember 
-    const topMembers = [
-        {
-            name: "Ram",
-            memberDp: "/assets/na.png",
-            traffic: 15000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 14000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 13000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 12000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 11000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 10000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 9000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 8000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 7000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 6000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 5000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 4000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 3000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 2000
-        },
-        {
-            name: "radha",
-            memberDp: "/assets/na.png",
-            traffic: 1000
-        }];
+        const trafficBoardNotAvailable = document.querySelector(".trafficboard-t-na");
+        const memberHolder = document.querySelector(".all-p-list");
+        // If there’s no data, stop here (the UI will show whatever it had before)
+        if (!trafficBoard || trafficBoard.length === 0) {
+            trafficBoardNotAvailable?.classList.add("active");
+            memberHolder?.classList.add("notAvalaible");
+            return;
+        }
 
-    // once makse sore its short in desending order high to low
-    // render leader board into traffic board 
+        // Sort descending by globalTraffic (already sorted server-side, but just in case)
+        const sortedMembers = [...trafficBoard].sort((a, b) => (b.globalTraffic || 0) - (a.globalTraffic || 0));
 
+        const topThree = sortedMembers.slice(0, 3);
+        const otherMembers = sortedMembers.slice(3);
+
+        setTopMember(topThree);
+        setOtherTop(otherMembers);
+
+        showToast("Leaderboard loaded", "success", 3000);
+    }
+}
+
+function setTopMember(data) {
+    // data is an array of up to 3 members
     const parent = document.querySelector(".first-p");
     const parent2 = document.querySelector(".second-p");
     const parent3 = document.querySelector(".third-p");
-    // top three members 
+
     const nameOne = parent.querySelector(".name");
     const dpOne = parent.querySelector(".dp");
     const trafficOne = parent.querySelector(".traffic");
+
     const nameTwo = parent2.querySelector(".name");
     const dpTwo = parent2.querySelector(".dp");
     const trafficTwo = parent2.querySelector(".traffic");
+
     const nameThree = parent3.querySelector(".name");
     const dpThree = parent3.querySelector(".dp");
     const trafficThree = parent3.querySelector(".traffic");
 
-    const memberHolder = document.querySelector(".all-p-list"); //rest all of member after 3rd
+    // Clear previous if less than 3
+    [nameOne, nameTwo, nameThree].forEach(el => el && (el.textContent = ""));
+    [trafficOne, trafficTwo, trafficThree].forEach(el => el && (el.textContent = ""));
+    [dpOne, dpTwo, dpThree].forEach(el => el && (el.src = "/assets/logo/no-dp.png"));
 
-    const finalMember = topMembers.sort((a, b) => b.traffic - a.traffic);
-    const top = finalMember.slice(0, 3);
-    const otherMember = finalMember.slice(3);
-    setTopMember(top);
-    function setTopMember(data) {
-        console.log("lenght", data);
-        data.forEach((e, index) => {
-            if (index == 0) {
-                nameOne.textContent = top[index].name;
-                trafficOne.textContent = "Traffic:" + top[index].traffic;
-                dpOne.src = top[index].memberDp || "/assets/na.png";
-            } else if (index == 1) {
-                nameTwo.textContent = top[index].name;
-                trafficTwo.textContent = "Traffic:" + top[index].traffic;
-                dpTwo.src = top[index].memberDp || "/assets/na.png";
-            } else if (index == 2) {
-                nameThree.textContent = top[index].name;
-                trafficThree.textContent = "Traffic : " + top[index].traffic;
-                dpThree.src = top[index].memberDp || "/assets/na.png";
-            }
-        });
-    }
-    setOtherTop(otherMember);
-    function setOtherTop(otherData) {
-        memberHolder.innerHTML = `
-        ${otherMember.map((u, index) => `
-            <div class="perfomer">
+    data.forEach((member, index) => {
+        if (index === 0) {
+            nameOne.textContent = member.name || "";
+            trafficOne.textContent = "Traffic: " + (member.globalTraffic || 0);
+            dpOne.src = member.memberDp || "/assets/logo/no-dp.png";
+        } else if (index === 1) {
+            nameTwo.textContent = member.name || "";
+            trafficTwo.textContent = "Traffic: " + (member.globalTraffic || 0);
+            dpTwo.src = member.memberDp || "/assets/logo/no-dp.png";
+        } else if (index === 2) {
+            nameThree.textContent = member.name || "";
+            trafficThree.textContent = "Traffic: " + (member.globalTraffic || 0);
+            dpThree.src = member.memberDp || "/assets/logo/no-dp.png";
+        }
+    });
+}
+
+function setOtherTop(otherData) {
+    const memberHolder = document.querySelector(".all-p-list");
+    if (!memberHolder) return;
+
+    memberHolder.innerHTML = otherData.map((u, index) => `
+        <div class="perfomer">
             <div class="per-d">
                 <strong class="rank">#${index + 4}</strong>
-                <img class="li-dp" src="${u.memberDp || "/assets/na.png"}" alt="memberDp">
+                <img class="li-dp" src="${u.memberDp || "/assets/logo/no-dp.png"}" alt="memberDp">
                 <strong class="li-name">${u.name}</strong>
             </div>
-            <strong class="li-traffic"> Traffic: ${u.traffic}</strong>
-            </div>
-            `).join("")}`;
-    }
-    showToast("LeaderBoard Found", "info", 5000);
-
+            <strong class="li-traffic"> Traffic: ${u.globalTraffic || 0}</strong>
+        </div>
+    `).join("");
 }

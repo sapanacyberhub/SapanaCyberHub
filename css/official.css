@@ -614,20 +614,4 @@ p {
     transform: scale(1);
 }
 
-/* ========== RESPONSIVE SMALL ========== */
-@media (max-width: 600px) {
-    .bot-orb {
-        width: 56px;
-        height: 56px;
-    }
 
-    .bot-orb::before,
-    .bot-orb::after {
-        top: 20px;
-    }
-
-    .bot-mouth {
-        bottom: 14px;
-        width: 22px;
-    }
-}

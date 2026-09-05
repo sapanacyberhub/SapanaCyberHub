@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Fascinate&family=Jim+Nightshade&family=Kablammo&family=Permanent+Marker&family=Yatra+One&display=swap');
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.main {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+}
+
+.center-image {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+}
+
+.kamal-image {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 20%);
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: cover;
+    filter: drop-shadow(0 0 15px rgba(138, 70, 70, 0.592));
+    animation: glow 3s infinite alternate;
+}
+
+.title-image {
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    max-width: 250px;
+    height: auto;
+    object-fit: cover;
+    filter: drop-shadow(0 0px 10px rgb(0, 0, 0));
+}
+
+@keyframes glow {
+    0% {
+        filter: drop-shadow(0 0 15px rgba(138, 70, 70, 0.5), 0 0 25px rgba(138, 70, 70, 0.5), 0 0 35px rgba(138, 70, 70, 0.5));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 45, 45, 0.7));
+    }
+
+    100% {
+        filter: drop-shadow(0 0 15px rgba(138, 70, 70, 0.5), 0 0 25px rgba(138, 70, 70, 0.5), 0 0 35px rgba(255, 45, 45, 0.5));
+    }
+
+}
+
+.bramcharya-container {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    visibility: hidden;
+    transition: .5s;
+    z-index: 9999;
+}
+
+.bramcharya-container.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.bramcharya-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+
+    opacity:0;
+    transform:scale(1);
+    transition:
+        opacity 2s ease-in-out,
+        transform 8s linear;
+
+    will-change:opacity, transform;
+}
+
+.bg.active{
+    opacity:1;
+    transform:scale(1.08);
+}
+
+.challanges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 20px 20px;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav img {
+    width: 100%;
+    max-width: 80px;
+    animation: golden 3s infinite alternate;
+}
+
+.nav h3 {
+    font-family: "Yatra One", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    color: rgb(255, 208, 0);
+}
+
+@keyframes golden {
+    0% {
+        filter: drop-shadow(0 0 0px gold);
+    }
+
+    100% {
+
+        filter: drop-shadow(0 0 4px gold);
+    }
+}

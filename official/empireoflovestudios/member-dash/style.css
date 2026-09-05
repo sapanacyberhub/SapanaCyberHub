@@ -1,0 +1,1084 @@
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Original+Surfer&display=swap');
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.main {
+    width: 100%;
+    height: 100vh;
+    box-shadow: 0 0 10px #fff, inset 0 0 100px #ffffff;
+    background: radial-gradient(circle at 0% 100%, rgb(255, 128, 0) 0%, transparent 70%),
+        radial-gradient(circle at 0% 0%, rgb(93, 48, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 0%, rgb(40, 219, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 100%, rgb(255, 230, 0) 0%, transparent 90%);
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    border-bottom: 2px solid #fff;
+    border-radius: 20px;
+    align-items: center;
+    min-width: 290px;
+    filter: drop-shadow(0 0 10px gold);
+    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+}
+
+.nav-bar img {
+    width: 60px;
+    height: 60px;
+    /* Added explicit height to match circular border-radius */
+    object-fit: cover;
+    margin-left: 10px;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 1px #fff205);
+}
+
+.nav-bar strong {
+    background: linear-gradient(to bottom, darkgoldenrod, gold, darkgoldenrod);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px #fff205;
+    filter: drop-shadow(-1px 2px 1px #000000);
+    font-size: clamp(0.675rem, 2vw, 2rem);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.card {
+    position: relative;
+    width: 90%;
+    flex: 1;
+    /* Changed from height 100% to prevent viewport blowout */
+    margin: 10px;
+    background: radial-gradient(circle at 0% 100%, rgb(255, 128, 0) 0%, transparent 70%),
+        radial-gradient(circle at 0% 0%, rgb(93, 48, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 0%, rgb(40, 219, 255) 0%, transparent 90%),
+        radial-gradient(circle at 100% 100%, rgb(255, 230, 0) 0%, transparent 90%);
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px #e3e1e1, inset 0 0 100px #ffffff;
+    border-radius: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    /* Keeps multi-line layout looking neat */
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Changed to auto for better usability */
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
+.card::-webkit-scrollbar {
+    width: 4px;
+    /* Widened slightly for better click tracking */
+    background-color: transparent;
+    scroll-behavior: smooth;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgb(255, 128, 0), rgb(93, 48, 255), rgb(40, 219, 255), rgb(103, 253, 89));
+    border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+    .card {
+        flex: 1;
+        /* Ensures card takes full width on small screens */
+
+    }
+
+    .c {
+        min-width: 260px;
+    }
+
+    .eol-m-c {
+        min-width: 260px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+
+}
+
+
+.greet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: max-content;
+    background: linear-gradient(to bottom, rgb(255, 192, 203), rgb(118, 216, 255));
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ffffff;
+    /* Changed from 0 to display child items neatly */
+    min-width: 290px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+}
+
+.greet-text {
+    font-family: cursive;
+    font-size: clamp(0.8rem, 2vw, 1.5rem);
+    font-weight: bolder;
+}
+
+.lmc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.lmn {
+    font-size: clamp(0.6rem, 2vw, 1.5rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    color: hsl(75, 50%, 40%);
+    /* Corrected broken HWB color logic */
+    text-align: center;
+    font-family: cursive;
+}
+
+.lmp {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #fff700;
+    box-shadow: 0 0 10px #fffee6, inset 0 0 20px #ffffff;
+    border-radius: 50%;
+}
+
+.greet-cont {
+    display: flex;
+    width: 100%;
+    border-top: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    border-radius: 10px;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.greet-opt {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(15deg, rgb(249, 211, 217), rgb(255, 188, 198));
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ebebeb;
+    text-align: center;
+    padding: 5px 15px;
+    /* Added side padding so text isn't squished */
+    font-size: clamp(0.5rem, 2vw, 0.8rem);
+    font-family: cursive;
+    font-weight: bolder;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active {
+    transform: scale(0.95);
+    /* Reduced scale jump to protect layouts from glitching */
+    box-shadow: 0 0 10px #ff0101, inset 0 0 20px #ffffff;
+}
+
+.eye-dec {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.j-w-eol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: max-content;
+    background: linear-gradient(to bottom, rgb(249, 108, 108), rgba(126, 255, 124, 0.818));
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ffffff;
+    padding: 10px;
+    min-width: 290px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.j-w-eol h3 {
+    font-family: cursive;
+    font-size: clamp(0.8rem, 2vw, 1.5rem);
+    font-weight: bolder;
+    margin: 5px 0;
+    /* Clears hidden native H3 browser margins */
+}
+
+.j-c {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    border-top: 2px solid #fff;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.j-c-c {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(15deg, rgb(249, 211, 217), rgb(255, 188, 198));
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ebebeb;
+    text-align: center;
+    padding: 5px 10px;
+    color: rgb(110, 40, 75);
+    /* Corrected broken lab() value formatting */
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+    font-family: cursive;
+    font-weight: bolder;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.sa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: max-content;
+    background: linear-gradient(to bottom, rgb(255, 255, 255), rgba(154, 31, 255, 0.818));
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ffffff;
+    padding: 4px 20px;
+    min-width: 290px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.sa h3 {
+    font-family: cursive;
+    width: 100%;
+    text-align: start;
+    font-size: clamp(0.8rem, 2vw, 1.5rem);
+    font-weight: bolder;
+    margin: 5px 0;
+    /* Clears hidden native H3 browser margins */
+}
+
+.sa-c {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    border-top: 2px solid #fff;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.sa-c-c {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 5px;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(15deg, rgb(0, 255, 64), rgb(130, 247, 255));
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #ffffff, inset 0 0 20px #ffffff;
+    text-align: center;
+    padding: 5px 10px;
+    color: rgb(110, 40, 75);
+    /* Corrected broken lab() value formatting */
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+    font-family: cursive;
+    font-weight: 900;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* Custom utility class */
+.dynapuff-heading {
+    font-family: "DynaPuff", system-ui;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    /* Choose any weight between 400 and 700 */
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
+.a-l-s {
+    font-size: larger;
+    font-weight: bolder;
+    background: rgb(255, 0, 0);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.3s ease-in-out;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px #000000);
+    }
+
+    50% {
+        transform: scale(1.4);
+        filter: drop-shadow(0 0 20px #ff0000);
+    }
+
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px #040404);
+    }
+}
+
+.not-active {
+    font-size: larger;
+    font-weight: bolder;
+    background: black;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: none;
+}
+
+.note {
+    margin: -5px;
+    padding: 0;
+    font-weight: bolder;
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+}
+
+.not {
+    font-weight: bolder;
+    background: black;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Card Container Perspective */
+.eol-m-c-w {
+    position: relative;
+    perspective: 1000px;
+    width: max-content;
+    margin: 0 auto;
+    filter: blur(10px); 
+    transform: scale(0.9);
+    transition: all 0.3s ease-in-out;
+    
+}
+
+
+/* Card Animation & Flip Logic */
+.eol-m-c-front-card,
+.eol-m-c-back-card {
+    transition: transform 0.8s ease-in-out;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
+
+.eol-m-c-front-card {
+    transform: rotateY(0deg);
+}
+
+.eol-m-c-back-card {
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+/* Active Flipped State */
+.eol-m-c-w.flipped .eol-m-c-front-card {
+    transform: rotateY(-180deg);
+}
+
+.eol-m-c-w.flipped .eol-m-c-back-card {
+    transform: rotateY(0deg);
+}
+
+/* Base Card Styles (Cleaned up blur and transform overrides) */
+.con-par {
+    width: 200px;
+    max-height: 280px;
+    min-width: 200px;
+    position: relative;
+    aspect-ratio: 1.9 / 3;
+    border:  3px solid gold;
+    box-shadow: 0 0 10px rgb(0, 0, 0);
+    background-color: #000000;
+    border-radius: 10px;
+    display: flex;
+    padding: 15px 0;
+    align-items: center;
+    overflow: hidden;
+    flex-direction: column;
+    z-index: 1;
+    filter: none;            /* Removed blur(10px) which ruined layout */
+    transform: none;         /* Removed fixed scale to allow smooth 3D flip */
+    transition: all 0.3s ease-in-out;
+    margin: 0;
+}
+
+.eol-m-c {
+    display: flex;
+    align-items: center;
+    height: max-content;
+    background: linear-gradient(to bottom, rgba(173, 118, 255, 0.434), rgba(255, 109, 31, 0.818));
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ffffff;
+    min-width: 290px;
+    border: 2px solid #fff;
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.logo {
+    width: 90%;
+    height: auto;
+    justify-self: center;
+    margin-top: -20px;
+    z-index: 2;
+}
+
+.logo-stand {
+    width: 90%;
+    margin-top: -40px;
+    z-index: 1;
+}
+
+.brand-f {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.brand-l {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(255, 172, 65, 0.5);
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: -10px;
+}
+
+.brand-l span:nth-child(1) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, black, rgba(255, 217, 0, 0.521), gold);
+}
+
+.brand-l span:nth-child(2) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, gold, rgba(255, 217, 0, 0.521), black);
+}
+
+.bless-n {
+    font-family: normal;
+    font-size: 0.4rem;
+    margin-top: 10px;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0;
+}
+
+.card-n {
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin-top: -15px;
+    z-index: 2;
+}
+
+.member-nt {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 4px;
+    font-family: cursive;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    padding: 0;
+    margin-top: -10px;
+}
+
+.member-nt span:nth-child(1) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, black, rgba(255, 217, 0, 0.521), gold);
+}
+
+.member-nt span:nth-child(2) {
+    width: 100%;
+    flex: 0.5;
+    height: 1px;
+    background: linear-gradient(to right, gold, rgba(255, 217, 0, 0.521), black);
+}
+
+.member-n {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, rgb(255, 233, 111), gold);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: BOLDER;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+.official-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-top: 5px;
+    justify-content: space-evenly;
+}
+
+.devider {
+    height: 90%;
+    width: 1px;
+    background: linear-gradient(to bottom, rgb(3, 3, 3), gold, black);
+}
+
+.eoli {
+    display: flex;
+    width: max-content;
+    flex-direction: column;
+    z-index: 2;
+}
+
+.midtag {
+    color: #ffc105;
+    font-size: 0.6rem;
+    z-index: 2;
+}
+
+.emidc {
+    z-index: 2;
+    letter-spacing: 1px;
+    color: #fff;
+    font-style: normal;
+    font-size: 0.45rem;
+}
+
+.eolvbc {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    border-radius: 8px;
+    border: 2px solid gold;
+    z-index: 2;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.eolvbc svg,
+.eolvbc canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Print Specific Rules */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .eol-m-c-w, .eol-m-c-w * {
+        visibility: visible;
+    }
+    .eol-m-c-w {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: none !important;
+    }
+    .eol-m-c-back-card {
+        display: none !important; /* Prints front side clearly */
+    }
+}
+
+.see-card {
+    filter: blur(0);
+    animation: pop 1s ease-in-out forwards;
+}
+
+@keyframes pop {
+
+    0% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+
+/* Base style for all corner elements */
+.corner {
+    position: absolute;
+    width: 40px;
+    /* Adjust size as needed */
+    height: 40px;
+    object-fit: contain;
+    pointer-events: none;
+    /* Prevents corners from blocking clicks */
+}
+
+/* Specific positioning & rotation for each corner */
+.corner.top-left {
+    top: 0;
+    left: 0;
+}
+
+.corner.top-right {
+    top: 0;
+    right: 0;
+    transform: scaleX(-1);
+    /* Flips horizontally */
+}
+
+.corner.bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: scaleY(-1);
+    /* Flips vertically */
+}
+
+.corner.bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+    /* Rotates 180 degrees */
+}
+
+.eol-m-w-p {
+    border-radius: 20px;
+    border-top: white 2px solid;
+    box-shadow: 0 -1px 1px rgb(236, 21, 21),
+        0 -2px 1px rgb(255, 220, 23);
+    padding: 4px;
+}
+
+
+/* ❤️ Heart Vault Button */
+/* 🌸 Bring Joy Home */
+.eol-m-v-btn,
+.love-s {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 16px;
+    border-radius: 999px;
+
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.35),
+            rgba(255, 105, 180, 0.22));
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+
+    color: #8b174f;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+
+    box-shadow:
+        0 4px 15px rgba(255, 0, 120, 0.18),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+/* Hover */
+.eol-m-v-btn:hover,
+.love-s:hover {
+    transform: translateY(-2px) scale(1.03);
+
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.5),
+            rgba(255, 80, 170, 0.35));
+
+    box-shadow:
+        0 8px 22px rgba(255, 0, 120, 0.25),
+        0 0 12px rgba(255, 120, 190, 0.25),
+        inset 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+/* Click */
+.eol-m-v-btn:active,
+.love-s:active {
+    transform: scale(0.97);
+}
+
+
+/* 💰 Wallet / Vault Amount Section */
+.eol-m-w-p-c {
+    position: relative;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid rgb(255, 255, 255);
+    box-shadow: 0 4px 15px rgb(255, 255, 255), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    width: 85%;
+    border-radius: 20px;
+    margin-top: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    animation: pop-open 0.5s ease-in-out forwards;
+}
+
+@keyframes pop-open {
+    0% {
+        transform: scale(0.5) translateY(-20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+
+.eol-m-w-p-c::before {
+    content: "❤️";
+    position: absolute;
+    top: -10%;
+    left: 15%;
+    rotate: -15deg;
+    width: max-content;
+    height: max-content;
+    font-size: 5rem;
+    background-clip: text;
+    text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ffffff;
+    -webkit-text-fill-color: transparent;
+    pointer-events: none;
+    z-index: -1;
+}
+
+
+/* ₹0 */
+.eol-m-w-p-cs {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 2px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: #0a0a0a;
+    text-shadow: 0 0 5px #000000, 0 0 10px #ff0000, 0 0 15px #ff0000;
+
+}
+
+.eol-m-w-p-c-a {
+    display: flex;
+    border-bottom: 2px solid white;
+    padding: 4px 0;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.hosp-ic {
+    width: 80px;
+    object-fit: cover;
+}
+
+.hospital {
+    position: relative;
+    background: linear-gradient(to bottom, white, rgb(251, 250, 251));
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* ==========================================
+   LOVE AREA STYLES
+   ========================================== */
+.love-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 340px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(255, 182, 193, 0.3), rgba(138, 43, 226, 0.3));
+    border: 2px solid #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    box-sizing: border-box;
+    animation: pop-open 0.5s ease-in-out forwards;
+}
+
+/* Member Since Badge */
+.love-since {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: clamp(0.65rem, 2vw, 0.75rem);
+    color: #4a154b;
+    border: 1px solid #ffd700;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.love-since strong {
+    color: #d81b60;
+}
+
+/* Status Card */
+.love-status-card {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 215, 0, 0.8);
+    border-radius: 15px;
+    padding: 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.love-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-title {
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Active Status Pill with Animation */
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 900;
+}
+
+.status-pill.active {
+    background: linear-gradient(to right, lightgreen, lightpink);
+    color: #003300;
+    box-shadow: 0 0 8px #ffffff;
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ff0000;
+    box-shadow: 0 0 4px red;
+    border-radius: 50%;
+    animation: live-pulse 1.2s infinite;
+}
+
+@keyframes live-pulse {
+    0% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+}
+
+/* Dates Timeline */
+.love-timeline {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 5px;
+}
+
+.time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time-label {
+    font-size: 0.55rem;
+    color: #ffeb3b;
+    text-transform: uppercase;
+}
+
+.time-date {
+    font-size: 0.75rem;
+    color: #ffffff;
+}
+
+.time-divider {
+    color: #ff4081;
+    font-size: 0.8rem;
+}
+
+/* Action & Button */
+.love-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.btn-renew {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 15px;
+    background: linear-gradient(15deg, #ff4081, #ff80ab);
+    border: 2px solid #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #ff4081, inset 0 0 10px #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-renew:hover {
+    transform: scale(0.97);
+    box-shadow: 0 0 15px #ff1744, inset 0 0 15px #ffffff;
+}
+
+.love-subtext {
+    font-size: 0.65rem;
+    color: #ffffff;
+    text-shadow: 0 0 5px #000;
+    font-weight: 600;
+}
+
+
+
+
+.lovely-event {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to bottom, rgb(255, 192, 203), rgb(118, 216, 255));
+    box-shadow: 0 0 10px #fff, inset 0 0 20px #ffffff;
+    /* Changed from 0 to display child items neatly */
+    min-width: 290px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+}

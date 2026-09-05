@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire of Love Studios || Empire Member card Generation</title>
+    <style>
+        html,
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .nav-bar {
+            background-color: #ffffff;
+            color: #000;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .Card-Generation {
+            background-color: #fff;
+            padding: 20px;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        .card-prev {
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            perspective: 900px;
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 20px 20px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .card-active {
+            animation: rotate 0.5s forwards;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotateY(0);
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .card-prev img {
+            max-width: 250px;
+            object-fit:fit;
+            border-radius: 15px;
+            aspect-ratio: 2/3;
+            display: block;
+        }
+
+        .card-prev strong {
+            position: absolute;
+            bottom: 24%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(0, #fff2ac, rgba(255, 221, 0, 0.947), rgba(255, 226, 147, 0.93));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 0.8em;
+            border-radius: 5px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+
+        .card-prev .card-details {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80%;
+        }
+
+        .card-details .mem {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+        }
+
+        .mem p {
+            margin: 0;
+            text-align: start;
+            background: linear-gradient(0, rgba(255, 217, 0, 0.292), gold, rgba(255, 217, 0, 0.527));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 0.8em;
+        }
+
+        .card-details .devider {
+            height: 50%;
+            width: 1px;
+            background: linear-gradient(0, rgba(255, 217, 0, 0), gold, rgba(255, 217, 0, 0));
+        }
+
+        .card-details .qr-holder {
+            margin-top: 5px;
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            border: 1px solid gold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="nav-bar">
+            <strong>Empire Of Love Studios</strong>
+        </div>
+        <section class="Card-Generation">
+            <div class="card-prev">
+                <img class="card-data" src="front-card.png" alt="Empire Member Card">
+                <div class="card-overlay">
+                    <strong class="name">Sanjeet</strong>
+                    <div class="card-details">
+                        <div class="mem">
+                            <p>Member ID</p>
+                            <p class="member-id">EOL-26-07457812-S</p>
+                        </div>
+
+                        <strong class="devider"></strong>
+                        <div class="qr-holder">QR</div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <script>
+            let card = {
+                name: "Sanjeet",
+                memberId: "EOL-26-07457812-S",
+                frontImage: "front-card.png",
+                backImage: "back-card.png",
+                qr: "QR"
+            };
+            let cardStateBack = false;
+
+            const cardPrev = document.querySelector('.card-prev');
+            const cardData = document.querySelector('.card-data');
+            const overlay = document.querySelector('.card-overlay');
+            const nameEl = document.querySelector('.name');
+            const memberIdEl = document.querySelector('.member-id');
+            const qrHolder = document.querySelector('.qr-holder');
+
+            if (cardData) cardData.src = card.frontImage;
+            if (nameEl) nameEl.textContent = card.name;
+            if (memberIdEl) memberIdEl.textContent = card.memberId;
+            if (qrHolder) qrHolder.textContent = card.qr;
+
+            cardPrev?.addEventListener("click", () => {
+                if (!cardPrev || !cardData || !overlay) return;
+
+                cardPrev.classList.add('card-active');
+                const nextStateBack = !cardStateBack;
+
+                setTimeout(() => {
+                    cardData.src = nextStateBack ? card.backImage : card.frontImage;
+                    overlay.style.display = nextStateBack ? 'none' : 'flex';
+                }, 250);
+                setTimeout(() => {
+                    cardPrev.classList.remove('card-active');
+                    cardStateBack = nextStateBack;
+                }, 500);
+
+                
+            });
+        </script>
+
+</body>
+
+</html>

